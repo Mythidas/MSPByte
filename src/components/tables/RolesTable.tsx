@@ -59,6 +59,7 @@ export default function RolesTable({ users, roles }: Props) {
               <TableHead>Name</TableHead>
               <TableHead>Users</TableHead>
               <TableHead>Description</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -73,6 +74,9 @@ export default function RolesTable({ users, roles }: Props) {
                 </TableCell>
                 <TableCell>
                   {role.description}
+                </TableCell>
+                <TableCell>
+                  {role.tenant_id ? "Custom" : "System-Defined"}
                 </TableCell>
                 <TableCell>
                   <DeleteForm id={role.id} action={deleteUserAction}>

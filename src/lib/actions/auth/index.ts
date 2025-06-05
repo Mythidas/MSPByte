@@ -35,7 +35,7 @@ export async function loginAction(_prevState: any, params: FormData) {
 
   await supabase.from('users').update({
     "last_login": new Date().toISOString()
-  })
+  }).eq('id', user.data.user.id);
 
   return redirect("/");
 }
