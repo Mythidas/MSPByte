@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, ChartArea, FolderCog, ShieldUser } from "lucide-react"
+import { Building2, Cable, ChartArea, FolderCog, ShieldUser } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -19,15 +19,25 @@ const applicationItems = [
     title: "Home",
     url: "/",
     icon: ChartArea,
+  },
+  {
+    title: "Clients",
+    url: "/clients",
+    icon: Building2
   }
 ]
 
 const adminItems = [
   {
+    title: "Integrations",
+    url: "/integrations",
+    icon: Cable
+  },
+  {
     title: "Users",
     url: "/users",
     icon: ShieldUser,
-  }
+  },
 ]
 
 export default function AppSidebar() {

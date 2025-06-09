@@ -9,97 +9,25 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      asset_sources: {
+      clients: {
         Row: {
-          asset_id: string | null
-          created_at: string | null
-          external_id: string
           id: string
-          metadata: Json | null
-          source: string
+          name: string
           tenant_id: string
-          updated_at: string | null
         }
         Insert: {
-          asset_id?: string | null
-          created_at?: string | null
-          external_id: string
           id?: string
-          metadata?: Json | null
-          source: string
+          name: string
           tenant_id: string
-          updated_at?: string | null
         }
         Update: {
-          asset_id?: string | null
-          created_at?: string | null
-          external_id?: string
           id?: string
-          metadata?: Json | null
-          source?: string
+          name?: string
           tenant_id?: string
-          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "asset_sources_asset_id_fkey"
-            columns: ["asset_id"]
-            isOneToOne: false
-            referencedRelation: "assets"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "asset_sources_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      assets: {
-        Row: {
-          created_at: string | null
-          domain: string | null
-          hostname: string
-          id: string
-          ip_addr: string | null
-          last_seen: string | null
-          mac_address: string | null
-          os: string | null
-          serial_number: string | null
-          tenant_id: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          domain?: string | null
-          hostname: string
-          id?: string
-          ip_addr?: string | null
-          last_seen?: string | null
-          mac_address?: string | null
-          os?: string | null
-          serial_number?: string | null
-          tenant_id: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          domain?: string | null
-          hostname?: string
-          id?: string
-          ip_addr?: string | null
-          last_seen?: string | null
-          mac_address?: string | null
-          os?: string | null
-          serial_number?: string | null
-          tenant_id?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assets_tenant_id_fkey"
+            foreignKeyName: "clients_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -181,33 +109,185 @@ export type Database = {
           },
         ]
       }
-      source_integrations: {
+      site_source_mappings: {
         Row: {
-          created_at: string | null
-          credentials: Json | null
-          enabled: boolean | null
+          external_id: string
+          external_name: string
           id: string
-          source: string
+          metadata: Json | null
+          site_id: string
+          source_id: string
           tenant_id: string
-          updated_at: string | null
         }
         Insert: {
-          created_at?: string | null
-          credentials?: Json | null
-          enabled?: boolean | null
-          id: string
-          source: string
+          external_id: string
+          external_name: string
+          id?: string
+          metadata?: Json | null
+          site_id: string
+          source_id: string
           tenant_id: string
-          updated_at?: string | null
         }
         Update: {
-          created_at?: string | null
-          credentials?: Json | null
-          enabled?: boolean | null
+          external_id?: string
+          external_name?: string
           id?: string
-          source?: string
+          metadata?: Json | null
+          site_id?: string
+          source_id?: string
           tenant_id?: string
-          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_source_mappings_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_source_mappings_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_source_mappings_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sites: {
+        Row: {
+          client_id: string
+          id: string
+          name: string
+          tenant_id: string
+        }
+        Insert: {
+          client_id: string
+          id?: string
+          name: string
+          tenant_id: string
+        }
+        Update: {
+          client_id?: string
+          id?: string
+          name?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_devices: {
+        Row: {
+          external_id: string
+          hostname: string
+          id: string
+          metadata: Json | null
+          os: string
+          serial: string
+          site_id: string
+          source_id: string
+          tenant_id: string
+        }
+        Insert: {
+          external_id: string
+          hostname: string
+          id?: string
+          metadata?: Json | null
+          os: string
+          serial: string
+          site_id: string
+          source_id: string
+          tenant_id: string
+        }
+        Update: {
+          external_id?: string
+          hostname?: string
+          id?: string
+          metadata?: Json | null
+          os?: string
+          serial?: string
+          site_id?: string
+          source_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_devices_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_devices_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_devices_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_integrations: {
+        Row: {
+          config: Json
+          created_at: string | null
+          id: string
+          last_sync_at: string | null
+          source_id: string
+          status: string | null
+          tenant_id: string
+          token: string | null
+          token_expiration: string | null
+        }
+        Insert: {
+          config: Json
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          source_id: string
+          status?: string | null
+          tenant_id: string
+          token?: string | null
+          token_expiration?: string | null
+        }
+        Update: {
+          config?: Json
+          created_at?: string | null
+          id?: string
+          last_sync_at?: string | null
+          source_id?: string
+          status?: string | null
+          tenant_id?: string
+          token?: string | null
+          token_expiration?: string | null
         }
         Relationships: [
           {
@@ -219,50 +299,114 @@ export type Database = {
           },
         ]
       }
-      source_sync_logs: {
+      source_metrics: {
         Row: {
-          duration_ms: number | null
-          error_message: string | null
+          created_at: string | null
+          filters: Json | null
           id: string
+          metadata: Json | null
+          metric: number
+          name: string
+          site_id: string
           source_id: string
-          status: string
-          synced_at: string | null
           tenant_id: string
+          total: number | null
+          unit: string
         }
         Insert: {
-          duration_ms?: number | null
-          error_message?: string | null
+          created_at?: string | null
+          filters?: Json | null
           id?: string
+          metadata?: Json | null
+          metric: number
+          name: string
+          site_id: string
           source_id: string
-          status: string
-          synced_at?: string | null
           tenant_id: string
+          total?: number | null
+          unit: string
         }
         Update: {
-          duration_ms?: number | null
-          error_message?: string | null
+          created_at?: string | null
+          filters?: Json | null
           id?: string
+          metadata?: Json | null
+          metric?: number
+          name?: string
+          site_id?: string
           source_id?: string
-          status?: string
-          synced_at?: string | null
           tenant_id?: string
+          total?: number | null
+          unit?: string
         }
         Relationships: [
           {
-            foreignKeyName: "source_sync_logs_source_id_fkey"
-            columns: ["source_id"]
+            foreignKeyName: "source_metrics_site_id_fkey"
+            columns: ["site_id"]
             isOneToOne: false
-            referencedRelation: "source_integrations"
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "source_sync_logs_tenant_id_fkey"
+            foreignKeyName: "source_metrics_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
+      }
+      sources: {
+        Row: {
+          category: string | null
+          color: string | null
+          config_schema: Json | null
+          description: string
+          documentation_url: string | null
+          icon_url: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          name: string
+          product_url: string | null
+          slug: string
+        }
+        Insert: {
+          category?: string | null
+          color?: string | null
+          config_schema?: Json | null
+          description: string
+          documentation_url?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name: string
+          product_url?: string | null
+          slug: string
+        }
+        Update: {
+          category?: string | null
+          color?: string | null
+          config_schema?: Json | null
+          description?: string
+          documentation_url?: string | null
+          icon_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          name?: string
+          product_url?: string | null
+          slug?: string
+        }
+        Relationships: []
       }
       tenants: {
         Row: {

@@ -11,7 +11,7 @@ export type FormFooterProps = {
   pending_text: string;
 }
 
-export const accessModules = ["users", "roles", "dashboard", "systems", "controls", "clients", "sites", "evidence", "waivers"] as const;
+export const accessModules = ["users", "roles", "integrations", "clients"] as const;
 export const accessLevels = ["none", "read", "edit", "full"] as const;
 
 export type RoleAccessModule = typeof accessModules[number];

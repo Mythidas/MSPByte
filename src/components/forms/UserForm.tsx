@@ -31,7 +31,7 @@ type Props = {
 };
 
 export default function UserForm({ user, roles, footer, action }: Props) {
-  const [state, formAction] = useActionState(action, {});
+  const [state, formAction] = useActionState(action, { values: user });
   const [role, setRole] = useState('');
   const [sendEmail, setSendEmail] = useState(false);
   const context = useUser();
@@ -72,14 +72,14 @@ export default function UserForm({ user, roles, footer, action }: Props) {
       </Label>
       <input hidden id="role_id" name="role_id" defaultValue={role} />
 
-      <Label>
+      {!user.id && <Label>
         <Checkbox
           defaultChecked={sendEmail}
           onChange={(e) => setSendEmail(!sendEmail)}
         />
         Send invitation email?
         <FormError name="send_email" errors={state.errors} />
-      </Label>
+      </Label>}
       <input hidden id="send_email" name="send_email" type="checkbox" checked={sendEmail} readOnly />
 
       <FormFooter

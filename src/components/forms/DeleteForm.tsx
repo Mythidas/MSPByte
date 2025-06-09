@@ -3,11 +3,12 @@
 import FormAlert from "@/components/ux/FormAlert";
 import { DeleteFormValues } from "@/lib/forms";
 import { FormState } from "@/types";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 
 type Props = {
   id: string;
   url?: string;
+  onSuccess?: () => void;
   children: React.ReactNode;
   action: (
     _prevState: any,
@@ -15,8 +16,12 @@ type Props = {
   ) => Promise<FormState<DeleteFormValues>>;
 };
 
-export default function DeleteForm({ id, url, children, action }: Props) {
+export default function DeleteForm({ id, url, onSuccess, children, action }: Props) {
   const [state, formAction] = useActionState(action, {});
+
+  useEffect(() => {
+    if (state.success && onSuccess) onSuccess();
+  }, [state])
 
   return (
     <form id={id} action={formAction}>

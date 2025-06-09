@@ -10,6 +10,7 @@ export const userWithRoleQuery = (id: string) => supabase
   .from('users')
   .select(`
     id,
+    tenant_id,
     name,
     email,
     roles (
@@ -18,6 +19,7 @@ export const userWithRoleQuery = (id: string) => supabase
   `).eq('id', id).single();
 export type UserContextView = {
   id: string;
+  tenant_id: string;
   name: string;
   email: string;
   roles: {

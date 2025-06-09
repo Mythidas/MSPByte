@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { type ComponentProps } from "react";
+import { useEffect, type ComponentProps } from "react";
 import { useFormStatus } from "react-dom";
 
 type Props = ComponentProps<typeof Button> & {
