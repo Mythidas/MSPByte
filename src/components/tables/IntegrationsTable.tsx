@@ -48,7 +48,7 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center w-full max-w-sm space-x-2">
           <Input
             placeholder="Search sources..."

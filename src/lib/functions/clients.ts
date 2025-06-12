@@ -21,6 +21,12 @@ export async function getSites(): Promise<Tables<'sites'>[]> {
   return sites.data || [];
 }
 
+export async function getSitesByClient(clientId: string): Promise<Tables<'sites'>[]> {
+  const supabase = await createClient();
+  const sites = await supabase.from('sites').select().eq('client_id', clientId);
+  return sites.data || [];
+}
+
 export async function getSite(id: string): Promise<Tables<'sites'> | null> {
   const supabase = await createClient();
   const sites = await supabase.from('sites').select().eq('id', id).single();

@@ -15,7 +15,9 @@ import { Input } from "@/components/ui/input";
 import DeleteForm from "@/components/forms/DeleteForm";
 import DropDownItem from "@/components/ux/DropDownItem";
 import { deleteInviteAction } from "@/lib/actions/users";
-import RouteButton from "@/components/ux/RouteButton";
+import CreateSiteDialog from "@/components/dialogs/CreateSiteDialog";
+import RouteTableRow from "@/components/ux/RouteTableRow";
+import PaginatedTable from "@/components/ux/PaginatedTable";
 
 type Props = {
   client: Tables<'clients'>;
@@ -42,24 +44,21 @@ export default function SitesTable({ client, sites }: Props) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <RouteButton route={`/clients/${client.id}/create-site`} module="clients" level="edit">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Site
-        </RouteButton>
+        <CreateSiteDialog client={client} />
       </div>
 
       <Card className="py-2">
-        <Table>
-          <TableCaption>Total Sites: {sites.length}</TableCaption>
-          <TableHeader>
+        <PaginatedTable
+          data={sites.filter(filterSites)}
+          head={() =>
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {sites.filter(filterSites).map((site) => (
-              <TableRow key={site.id}>
+          }
+          body={(rows) =>
+            rows.map((site) =>
+              <RouteTableRow key={site.id} route={`/clients/site/${site.id}`} module="clients" level="read">
                 <TableCell>{site.name}</TableCell>
                 <TableCell>
                   <DeleteForm id={site.id} action={deleteInviteAction}>
@@ -70,9 +69,6 @@ export default function SitesTable({ client, sites }: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropDownItem type="submit" route={`/clients/site/${site.id}`} module="clients" level="read">
-                          View
-                        </DropDownItem>
                         <DropDownItem form={site.id} type="submit" variant="destructive" module="clients" level="full">
                           Delete
                         </DropDownItem>
@@ -80,10 +76,10 @@ export default function SitesTable({ client, sites }: Props) {
                     </DropdownMenu>
                   </DeleteForm>
                 </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </RouteTableRow>
+            )
+          }
+        />
       </Card>
     </>
   );

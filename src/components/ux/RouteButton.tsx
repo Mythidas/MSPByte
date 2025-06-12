@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { hasAccess, useUser } from "@/lib/providers/UserContext";
 
 type Props = {
-  route: string;
-  module?: RoleAccessModule;
-  level?: RoleAccessLevel;
+  module: RoleAccessModule;
+  level: RoleAccessLevel;
+  route?: string;
   disabled?: boolean;
 } & React.ComponentProps<typeof Button>; // inherit all Button props
 
@@ -19,7 +19,7 @@ export default function RouteButton({ route, children, module, level, disabled, 
   const access = (module && level && !hasAccess(context, module, level));
 
   return (
-    <Button onClick={() => router.push(route)} {...props} disabled={disabled || access}>
+    <Button onClick={() => route && router.push(route)} {...props} disabled={disabled || access}>
       {children}
     </Button>
   );

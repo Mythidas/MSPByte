@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getIntegrationBySource, getSiteSourceMappingsBySource, getSourceBySlug } from "@/lib/functions/sources";
+import { getIntegrationBySource, getSiteSourceMappings, getSourceBySlug } from "@/lib/functions/sources";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import SophosPartner from "@/components/sources/SophosPartner";
@@ -17,7 +17,7 @@ export default async function SourcePage(props: Props) {
   const searchParams = await props.searchParams;
   const source = await getSourceBySlug(params.slug);
   const integration = await getIntegrationBySource(source?.id || "");
-  const mappings = await getSiteSourceMappingsBySource(source?.id || "");
+  const mappings = await getSiteSourceMappings(source?.id || "");
   const sites = await getSites();
 
   if (!source) {
@@ -47,7 +47,7 @@ export default async function SourcePage(props: Props) {
   }
 
   return (
-    <div className="flex flex-col max-w-5xl mx-auto size-full">
+    <div className="flex flex-col size-full">
       {/* Back button */}
       <Link href="/integrations" className="flex items-center text-muted-foreground hover:text-primary transition-colors mb-6">
         <ArrowLeft className="mr-2 h-4 w-4" />

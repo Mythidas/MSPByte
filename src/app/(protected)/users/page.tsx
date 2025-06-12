@@ -3,19 +3,12 @@ import RolesTable from "@/components/tables/RolesTable";
 import UsersTable from "@/components/tables/UsersTable";
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
-import { getRoles } from "@/lib/functions/roles";
-import { getInvites, getUsers } from "@/lib/functions/users";
-import { createClient } from "@/utils/supabase/server";
 
 type Props = {
   searchParams: Promise<{ tab: string }>;
 }
 
 export default async function UsersPage(props: Props) {
-  const supabase = await createClient();
-  const users = await getUsers();
-  const roles = await getRoles();
-  const invites = await getInvites();
   const searchParams = await props.searchParams;
 
   return (
@@ -31,13 +24,13 @@ export default async function UsersPage(props: Props) {
           <RouteTabsTrigger value="invites">Invites</RouteTabsTrigger>
         </TabsList>
         <TabsContent value="users">
-          <UsersTable users={users} roles={roles} />
+          <UsersTable />
         </TabsContent>
         <TabsContent value="roles">
-          <RolesTable users={users} roles={roles} />
+          <RolesTable />
         </TabsContent>
         <TabsContent value="invites">
-          <InvitesTable invites={invites} roles={roles} />
+          <InvitesTable />
         </TabsContent>
       </Tabs>
     </div>

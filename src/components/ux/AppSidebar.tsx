@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, FolderCog, ShieldUser } from "lucide-react"
+import { Building2, Cable, ChartArea, FolderCog, MonitorDot, ShieldUser } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -24,7 +24,12 @@ const applicationItems = [
     title: "Clients",
     url: "/clients",
     icon: Building2
-  }
+  },
+  {
+    title: "Devices",
+    url: "/devices",
+    icon: MonitorDot
+  },
 ]
 
 const adminItems = [
@@ -44,7 +49,7 @@ export default function AppSidebar() {
   const pathname = usePathname(); // always safe
 
   return (
-    <Sidebar>
+    <Sidebar className="w-48">
       <SidebarHeader>
         <span className="p-2">MSPByte</span>
       </SidebarHeader>

@@ -33,7 +33,7 @@ export const createClientAction = async (_prevState: any, params: FormData) => {
     }
   }
 
-  return redirect(`/clients/${data.id}`);
+  return redirect(`/clients`);
 };
 
 export const createSiteAction = async (_prevState: any, params: FormData) => {
@@ -53,7 +53,7 @@ export const createSiteAction = async (_prevState: any, params: FormData) => {
     }
   }
 
-  const { data, error } = await supabase.from('sites').insert({
+  const { error } = await supabase.from('sites').insert({
     tenant_id: validation.data.tenant_id,
     client_id: validation.data.client_id,
     name: validation.data.name
@@ -67,5 +67,5 @@ export const createSiteAction = async (_prevState: any, params: FormData) => {
     }
   }
 
-  return redirect(`/sites/${data.id}`);
+  return redirect(`/clients/${validation.data.client_id}`);
 };

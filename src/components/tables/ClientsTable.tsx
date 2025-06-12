@@ -1,6 +1,5 @@
 'use client'
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   DropdownMenu,
@@ -8,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, UserPlus } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tables } from "@/types/database";
@@ -16,7 +15,8 @@ import { Input } from "@/components/ui/input";
 import DeleteForm from "@/components/forms/DeleteForm";
 import DropDownItem from "@/components/ux/DropDownItem";
 import { deleteInviteAction } from "@/lib/actions/users";
-import RouteButton from "@/components/ux/RouteButton";
+import CreateClientDialog from "@/components/dialogs/CreateClientDialog";
+import RouteTableRow from "@/components/ux/RouteTableRow";
 
 type Props = {
   clients: Tables<'clients'>[];
@@ -42,10 +42,7 @@ export default function ClientsTable({ clients }: Props) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <RouteButton route="/clients/create" module="clients" level="edit">
-          <UserPlus className="h-4 w-4 mr-2" />
-          Add Client
-        </RouteButton>
+        <CreateClientDialog />
       </div>
 
       <Card className="py-2">
@@ -59,7 +56,7 @@ export default function ClientsTable({ clients }: Props) {
           </TableHeader>
           <TableBody>
             {clients.filter(filterClients).map((client) => (
-              <TableRow key={client.id}>
+              <RouteTableRow key={client.id} route={`/clients/${client.id}`} module="clients" level="read">
                 <TableCell>{client.name}</TableCell>
                 <TableCell>
                   <DeleteForm id={client.id} action={deleteInviteAction}>
@@ -70,9 +67,6 @@ export default function ClientsTable({ clients }: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropDownItem type="submit" route={`/clients/${client.id}`} module="clients" level="read">
-                          View
-                        </DropDownItem>
                         <DropDownItem form={client.id} type="submit" variant="destructive" module="clients" level="full">
                           Delete
                         </DropDownItem>
@@ -80,7 +74,7 @@ export default function ClientsTable({ clients }: Props) {
                     </DropdownMenu>
                   </DeleteForm>
                 </TableCell>
-              </TableRow>
+              </RouteTableRow>
             ))}
           </TableBody>
         </Table>

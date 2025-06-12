@@ -3,7 +3,7 @@
 import SophosDevicesTable from "@/components/tables/SophosDevicesTable";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getSourceMetrics } from "@/lib/functions/sources";
+import { getSourceDevices, getSourceMetrics } from "@/lib/functions/sources";
 import { Tables } from "@/types/database";
 import { useEffect, useState } from "react";
 
@@ -12,24 +12,24 @@ type Props = {
   mapping: Tables<'site_source_mappings'>;
 }
 
-export default function SophosPartnerTab(props: Props) {
+export default function SophosPartnerTab({ site, mapping }: Props) {
   const [metrics, setMetrics] = useState<Tables<'source_metrics'>[]>([]);
+  const [devices, setDevices] = useState<Tables<'source_devices_view'>[]>([]);
 
   useEffect(() => {
     const loadMetrics = async () => {
-      const metrics = await getSourceMetrics(props.mapping.source_id, props.mapping.site_id);
-      const uniqueMetrics: Tables<'source_metrics'>[] = [];
+      const metrics = await getSourceMetrics(mapping.source_id, mapping.site_id);
+      setMetrics(metrics);
+    }
 
-      const mdrManaged = metrics.find((m) => m.name === 'MDR Managed Endpoints');
-      const upgradable = metrics.find((m) => m.name === 'Upgradable Endpoints');
-
-      if (mdrManaged) uniqueMetrics.push(mdrManaged);
-      if (upgradable) uniqueMetrics.push(upgradable);
-      setMetrics(uniqueMetrics);
+    const loadDevices = async () => {
+      const devices = await getSourceDevices(mapping.source_id, mapping.site_id);
+      setDevices(devices.sort((a, b) => a.hostname!.localeCompare(b.hostname!)));
     }
 
     loadMetrics();
-  }, [props.site]);
+    loadDevices();
+  }, [site]);
 
   return (
     <TabsContent value="sophos-partner">
@@ -53,7 +53,7 @@ export default function SophosPartnerTab(props: Props) {
           })}
         </TabsContent>
         <TabsContent value="devices">
-          <SophosDevicesTable site={props.site} mapping={props.mapping} />
+          <SophosDevicesTable devices={devices} />
         </TabsContent>
       </Tabs>
     </TabsContent>

@@ -9,11 +9,13 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <SidebarProvider>
       <div className="flex size-full">
-        <AppSidebar />
+        <div className="w-48">
+          <AppSidebar />
+        </div>
         <div className="flex flex-col size-full">
           <AppNavbar />
           <UserProvider>
-            <div className="flex size-full flex-col p-6 overflow-x-hidden overflow-y-auto">
+            <div className="flex size-full flex-col p-6">
               {children}
             </div>
           </UserProvider>

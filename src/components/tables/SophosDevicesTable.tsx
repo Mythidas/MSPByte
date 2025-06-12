@@ -1,75 +1,80 @@
 'use client'
 
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tables } from "@/types/database";
 import { Input } from "@/components/ui/input";
-import { getSourceDevices } from "@/lib/functions/sources";
 import { pascalCase } from "@/lib/utils";
+import PaginatedTable from "@/components/ux/PaginatedTable";
 
 type Props = {
-  site: Tables<'sites'>;
-  mapping: Tables<'site_source_mappings'>;
+  devices: Tables<'source_devices_view'>[];
+  defaultSearch?: string;
 }
 
-export default function SophosDevicesTable(props: Props) {
-  const [search, setSearch] = useState("");
-  const [devices, setDevices] = useState<Tables<'source_devices'>[]>([]);
+export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
+  const [search, setSearch] = useState(defaultSearch || "");
 
-  useEffect(() => {
-    const loadDevices = async () => {
-      const devices = await getSourceDevices(props.mapping.source_id, props.mapping.site_id);
-      setDevices(devices);
-    }
-
-    loadDevices();
-  }, [props.site])
-
-  function filterDevices(device: Tables<'source_devices'>) {
+  function filterDevices(device: Tables<'source_devices_view'>) {
     const lowerSearch = search.toLowerCase();
-    const lowerName = device.hostname.toLowerCase();
-    const lowerOS = device.os.toLowerCase();
-    const lowerSerial = device.serial.toLowerCase();
-    return lowerName.includes(lowerSearch) || lowerOS.includes(lowerSearch) || lowerSerial.includes(lowerSearch);
+    const lowerName = device.hostname!.toLowerCase();
+    const lowerOS = device.os!.toLowerCase();
+    const lowerSerial = device.serial!.toLowerCase();
+    const lowerProt = (device.metadata as any).packages.protection.name.toLowerCase();
+    const lowerStatus = (device.metadata as any).packages.protection.status.toLowerCase();
+    const lowerSite = device.site_name!.toLowerCase();
+    const lowerClient = device.client_name!.toLowerCase();
+    return lowerName.includes(lowerSearch) ||
+      lowerOS.includes(lowerSearch) ||
+      lowerSerial.includes(lowerSearch) ||
+      lowerProt.includes(lowerSearch) ||
+      lowerStatus.includes(lowerSearch) ||
+      lowerSite.includes(lowerSearch) ||
+      lowerClient.includes(lowerSearch);
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center w-full max-w-sm space-x-2">
-          <Input
-            placeholder="Search devices..."
-            className="h-9"
-            type="search"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+    <div className="flex flex-col size-full gap-4">
+      <div className="flex items-center w-full max-w-sm space-x-2">
+        <Input
+          placeholder="Search devices..."
+          className="h-9"
+          type="search"
+          defaultValue={defaultSearch}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <Card className="py-2">
-        <Table>
-          <TableCaption>Total Devices: {devices.length}</TableCaption>
-          <TableHeader>
+        <PaginatedTable
+          data={devices.filter(filterDevices)}
+          head={() =>
             <TableRow>
+              <TableHead>Site</TableHead>
+              <TableHead>Client</TableHead>
               <TableHead>Hostname</TableHead>
               <TableHead>OS</TableHead>
               <TableHead>Protection</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {devices.filter(filterDevices).map((device) => (
-              <TableRow key={device.id}>
-                <TableCell>{device.hostname}</TableCell>
-                <TableCell>{device.os}</TableCell>
-                <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>
-                <TableCell>{pascalCase((device.metadata as any).packages.protection.status)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+          }
+          body={(data) =>
+            <>
+              {data.map((device) =>
+                <TableRow key={device.id}>
+                  <TableCell>{device.site_name}</TableCell>
+                  <TableCell>{device.client_name!.length > 15 ? `${device.client_name?.substring(0, 15)}...` : device.client_name}</TableCell>
+                  <TableCell>{device.hostname}</TableCell>
+                  <TableCell>{device.os}</TableCell>
+                  <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>
+                  <TableCell>{pascalCase((device.metadata as any).packages.protection.status)}</TableCell>
+                </TableRow>
+              )}
+            </>
+          }
+        />
       </Card>
-    </>
+    </div>
   );
 }

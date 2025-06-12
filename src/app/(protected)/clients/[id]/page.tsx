@@ -2,7 +2,7 @@ import {
   Card,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getClient, getSites } from "@/lib/functions/clients";
+import { getClient, getSitesByClient } from "@/lib/functions/clients";
 import SitesTable from "@/components/tables/SitesTable";
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 export default async function Page(props: Props) {
   const params = await props.params;
   const client = await getClient(params.id);
-  const sites = await getSites();
+  const sites = await getSitesByClient(params.id);
 
   if (!client) {
     return (

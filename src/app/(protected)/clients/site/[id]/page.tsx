@@ -1,12 +1,13 @@
 import {
   Card,
+  CardHeader,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { getClient, getSite } from "@/lib/functions/clients";
 import { Tabs, TabsList } from "@/components/ui/tabs";
 import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
 import SophosPartnerTab from "@/components/tabs/SophosPartnerTab";
-import { getIntegrations, getSiteSourceMappingsBySite, getSources } from "@/lib/functions/sources";
+import { getIntegrations, getSiteSourceMappings, getSources } from "@/lib/functions/sources";
 import { Tables } from "@/types/database";
 
 type Props = {
@@ -19,14 +20,37 @@ export default async function Page(props: Props) {
   const searchParams = await props.searchParams;
   const site = await getSite(params.id);
   const client = await getClient(site?.client_id || "");
-  const mappings = await getSiteSourceMappingsBySite(site?.id || "");
+  const mappings = await getSiteSourceMappings(undefined, site?.id || "");
   const sources = await getSources();
 
   if (!site || !client) {
     return (
       <Card>
-        Failed to fetch data. Contact support.
+        <CardHeader>
+          Failed to fetch data. Contact support.
+        </CardHeader>
       </Card>
+    )
+  }
+
+  if (mappings.length === 0) {
+    return (
+      <div className="space-y-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
+            <BreadcrumbSeparator />
+            <BreadcrumbLink href={`/clients/${client.id}`}>{client.name}</BreadcrumbLink>
+            <BreadcrumbSeparator />
+            <BreadcrumbPage>{site.name}</BreadcrumbPage>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Card>
+          <CardHeader>
+            No Site Mappings.
+          </CardHeader>
+        </Card>
+      </div>
     )
   }
 
@@ -61,7 +85,7 @@ export default async function Page(props: Props) {
           <BreadcrumbPage>{site.name}</BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
-      <Tabs defaultValue={getDefaultTab()}>
+      <Tabs defaultValue={searchParams.tab || getDefaultTab()}>
         <TabsList>
           {mappings.map((mapping) => {
             return getTab(mapping);

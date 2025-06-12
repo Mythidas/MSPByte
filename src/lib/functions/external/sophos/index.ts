@@ -1,7 +1,7 @@
 'use server'
 
 import { getEndpoints } from "@/lib/functions/external/sophos/endpoints";
-import { deleteSourceDevice, getSiteSourceMappingsBySource, getSourceDevices, putSourceDevice, putSourceMetric, updateSourceDevice } from "@/lib/functions/sources";
+import { deleteSourceDevice, getSiteSourceMappings, getSourceDevices, putSourceDevice, putSourceMetric, updateSourceDevice } from "@/lib/functions/sources";
 import { Tables } from "@/types/database";
 import { createClient } from "@/utils/supabase/server";
 
@@ -64,22 +64,23 @@ export async function getPartnerID(token: string) {
 }
 
 export async function syncIntegration(integration: Tables<'source_integrations'>) {
+  const start = new Date();
   const supabase = await createClient();
   const token = await getToken(integration);
-  const siteMappings = await getSiteSourceMappingsBySource(integration.source_id);
+  const siteMappings = await getSiteSourceMappings(integration.source_id);
 
   for (const mapping of siteMappings) {
     const devices = await getEndpoints(token, mapping);
-    const sourceDevices = await getSourceDevices(mapping.site_id, mapping.source_id);
+    const sourceDevices = await getSourceDevices(mapping.source_id, mapping.site_id);
 
     const newDevices = devices.filter((device) => {
       return !sourceDevices.find((sd) => sd.external_id === device.id);
     });
     const existingDevices = sourceDevices.filter((sd) => {
-      return !!devices.find((device) => sd.external_id === device.id);
+      return devices.find((device) => sd.external_id === device.id) !== undefined;
     });
     const deleteDevices = sourceDevices.filter((sd) => {
-      return !devices.find((d) => d.id === sd.external_id);
+      return devices.find((d) => d.id === sd.external_id) === undefined;
     });
 
     for (const device of newDevices) {
@@ -99,7 +100,7 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
     for (const device of existingDevices) {
       const source = devices.find((d) => d.id === device.external_id);
       await updateSourceDevice({
-        ...device,
+        ...device as any,
         hostname: source.hostname,
         os: source.os.name,
         metadata: source
@@ -107,7 +108,7 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
     }
 
     for (const device of deleteDevices) {
-      await deleteSourceDevice(device.id);
+      await deleteSourceDevice(device.id!);
     }
 
     let upgradeable = 0;
@@ -122,13 +123,29 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
       tenant_id: mapping.tenant_id,
       site_id: mapping.site_id,
       source_id: mapping.source_id,
+      name: 'Total Endpoints',
+      metric: devices.length,
+      unit: 'devices',
+      total: null,
+      route: '/devices',
+      filters: {},
+      metadata: {},
+      created_at: new Date().toISOString()
+    });
+
+    await putSourceMetric({
+      id: "",
+      tenant_id: mapping.tenant_id,
+      site_id: mapping.site_id,
+      source_id: mapping.source_id,
       name: 'MDR Managed Endpoints',
       metric: mdrManaged,
       unit: 'devices',
-      total: null,
-      filters: {},
+      total: devices.length,
+      route: '/devices',
+      filters: { "search": "mdr" },
       metadata: {},
-      created_at: null
+      created_at: new Date().toISOString()
     });
 
     await putSourceMetric({
@@ -139,10 +156,11 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
       name: 'Upgradable Endpoints',
       metric: upgradeable,
       unit: 'devices',
-      total: null,
-      filters: {},
+      total: devices.length,
+      route: '/devices',
+      filters: { tab: "sophos-partner", search: "upgradable" },
       metadata: {},
-      created_at: null
+      created_at: new Date().toISOString()
     });
   }
 
@@ -153,4 +171,6 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
   if (error) {
     console.log("SophosPartner sync: " + error.message);
   }
+
+  console.log(`Sophos Partner Synced: ${((new Date().getTime() - start.getTime()) / (1000 * 60)).toFixed(2)} minutes`);
 }
