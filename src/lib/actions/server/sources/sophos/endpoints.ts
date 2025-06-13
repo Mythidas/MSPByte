@@ -1,11 +1,14 @@
 'use server'
 
+import { Debug } from "@/lib/utils";
+import { ActionResponse } from "@/types";
 import { Tables } from "@/types/database";
 
-export async function getEndpoints(token: string, mapping: Tables<'site_source_mappings'>) {
-  if (!token) return [];
-
+export async function getEndpoints(token: string, mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<any[]>> {
   try {
+    if (!token) {
+      throw new Error('Invalid token input')
+    }
 
     const path = "/endpoint/v1/endpoints?pageSize=500&pageTotal=true";
     const metadata = mapping.metadata as Record<string, any>;
@@ -21,14 +24,20 @@ export async function getEndpoints(token: string, mapping: Tables<'site_source_m
 
     if (!response.ok) {
       const error = await response.text();
-      console.log(`Sophos Endpoints: ${error}`);
-      return [];
+      throw new Error(error);
     }
 
     const data = await response.json();
-    return [...data.items];
+    return {
+      ok: true,
+      data: [...data.items]
+    };
   } catch (err) {
-    console.error('Failed to fetch endpoints: ', err);
-    return [];
+    return Debug.error({
+      module: 'integrations',
+      context: 'get-endpoints',
+      message: String(err),
+      time: new Date()
+    });
   }
 }

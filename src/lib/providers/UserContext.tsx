@@ -2,7 +2,6 @@
 
 import { RoleAccessLevel, RoleAccessModule } from "@/types";
 import { createClient } from "@/utils/supabase/client";
-import { QueryData } from "@supabase/supabase-js";
 import { createContext, useContext } from 'react';
 
 const supabase = createClient();

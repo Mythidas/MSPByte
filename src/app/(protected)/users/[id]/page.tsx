@@ -6,10 +6,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getRoles } from "@/lib/functions/roles";
-import { editUserAction } from "@/lib/actions/users";
+import { getRoles } from "@/lib/actions/server/roles";
+import { editUserAction } from "@/lib/actions/form/users";
 import UserForm from "@/components/forms/UserForm";
-import { getUser } from "@/lib/functions/users";
+import { getUser } from "@/lib/actions/server/users";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -20,7 +20,7 @@ export default async function CreateUser(props: Props) {
   const roles = await getRoles();
   const user = await getUser(params.id);
 
-  if (!roles || !user) {
+  if (!roles.ok || !user.ok) {
     return (
       <Card>
         <CardHeader>
@@ -49,8 +49,8 @@ export default async function CreateUser(props: Props) {
         </CardHeader>
         <CardContent>
           <UserForm
-            user={user}
-            roles={roles}
+            user={user.data}
+            roles={roles.data}
             footer={{
               submit_text: "Edit User",
               pending_text: "Saving User...",

@@ -25,13 +25,15 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
     const lowerStatus = (device.metadata as any).packages.protection.status.toLowerCase();
     const lowerSite = device.site_name!.toLowerCase();
     const lowerClient = device.client_name!.toLowerCase();
+    const lowerTamperProtection = (device.metadata as any).tamperProtectionEnabled.toString();
     return lowerName.includes(lowerSearch) ||
       lowerOS.includes(lowerSearch) ||
       lowerSerial.includes(lowerSearch) ||
       lowerProt.includes(lowerSearch) ||
       lowerStatus.includes(lowerSearch) ||
       lowerSite.includes(lowerSearch) ||
-      lowerClient.includes(lowerSearch);
+      lowerClient.includes(lowerSearch) ||
+      lowerTamperProtection.includes(lowerSearch);
   }
 
   return (
@@ -51,8 +53,8 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
           data={devices.filter(filterDevices)}
           head={() =>
             <TableRow>
-              <TableHead>Site</TableHead>
               <TableHead>Client</TableHead>
+              <TableHead>Site</TableHead>
               <TableHead>Hostname</TableHead>
               <TableHead>OS</TableHead>
               <TableHead>Protection</TableHead>
@@ -63,8 +65,8 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
             <>
               {data.map((device) =>
                 <TableRow key={device.id}>
+                  <TableCell>{device.client_name!.length > 25 ? `${device.client_name?.substring(0, 25)}...` : device.client_name}</TableCell>
                   <TableCell>{device.site_name}</TableCell>
-                  <TableCell>{device.client_name!.length > 15 ? `${device.client_name?.substring(0, 15)}...` : device.client_name}</TableCell>
                   <TableCell>{device.hostname}</TableCell>
                   <TableCell>{device.os}</TableCell>
                   <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>

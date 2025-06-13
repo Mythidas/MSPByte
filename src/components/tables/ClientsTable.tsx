@@ -14,7 +14,7 @@ import { Tables } from "@/types/database";
 import { Input } from "@/components/ui/input";
 import DeleteForm from "@/components/forms/DeleteForm";
 import DropDownItem from "@/components/ux/DropDownItem";
-import { deleteInviteAction } from "@/lib/actions/users";
+import { deleteInviteAction } from "@/lib/actions/form/users";
 import CreateClientDialog from "@/components/dialogs/CreateClientDialog";
 import RouteTableRow from "@/components/ux/RouteTableRow";
 

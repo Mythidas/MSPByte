@@ -5,7 +5,7 @@ import FormAlert from "@/components/ux/FormAlert";
 import FormError from "@/components/ux/FormError";
 import RouteButton from "@/components/ux/RouteButton";
 import { SubmitButton } from "@/components/ux/SubmitButton";
-import { createClientAction } from "@/lib/actions/clients";
+import { createClientAction } from "@/lib/actions/form/clients";
 import { ClientFormValues } from "@/lib/forms/clients";
 import { useUser } from "@/lib/providers/UserContext";
 import { FormState } from "@/types";

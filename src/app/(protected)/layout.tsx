@@ -15,7 +15,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
         <div className="flex flex-col size-full">
           <AppNavbar />
           <UserProvider>
-            <div className="flex size-full flex-col p-6">
+            <div className="flex flex-col relateive size-full space-y-6 p-6">
               {children}
             </div>
           </UserProvider>

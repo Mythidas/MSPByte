@@ -6,16 +6,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getRoles } from "@/lib/functions/roles";
-import { createInviteAction } from "@/lib/actions/users";
-import { getTenant } from "@/lib/functions/tenants";
+import { getRoles } from "@/lib/actions/server/roles";
+import { createInviteAction } from "@/lib/actions/form/users";
+import { getTenant } from "@/lib/actions/server/tenants";
 import UserForm from "@/components/forms/UserForm";
 
 export default async function CreateUser() {
   const roles = await getRoles();
   const tenant = await getTenant();
 
-  if (!roles || !tenant) {
+  if (!roles.ok || !tenant) {
     return (
       <Card>
         <CardHeader>
@@ -52,7 +52,7 @@ export default async function CreateUser() {
               email: "",
               last_login: ""
             }}
-            roles={roles}
+            roles={roles.data}
             footer={{
               submit_text: "Create User",
               pending_text: "Creating User...",

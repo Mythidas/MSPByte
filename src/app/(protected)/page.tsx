@@ -1,18 +1,26 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
 import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
 import RouteButton from "@/components/ux/RouteButton";
-import { getSourceMetricsAggregated, getSources } from "@/lib/functions/sources";
+import { getSources } from "@/lib/actions/server/sources";
+import { getSourceMetricsAggregated } from "@/lib/actions/server/sources/source-metrics";
 import { Tables } from "@/types/database";
 import { MoveRight } from "lucide-react";
 
 export default async function Home() {
   const sources = await getSources();
-  const sourceMetrics: { metrics: Tables<'source_metrics'>[], source: Tables<'sources'> }[] = [];
+  const sourceMetrics: { metrics: Tables<'source_metrics_aggregated'>[], source: Tables<'sources'> }[] = [];
 
-  for await (const source of sources) {
+  if (!sources.ok) {
+    return (
+      <span>Failed to load data</span>
+    )
+  }
+
+  for await (const source of sources.data) {
     const metrics = await getSourceMetricsAggregated(source.id);
-    sourceMetrics.push({ metrics, source });
+
+    if (!metrics.ok) continue;
+    sourceMetrics.push({ metrics: metrics.data, source });
   }
 
   function formatFilters(filters: Record<string, string>) {

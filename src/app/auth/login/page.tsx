@@ -1,5 +1,5 @@
 
-import { loginAction } from "@/lib/actions/auth";
+import { loginAction } from "@/lib/actions/form/auth";
 import LoginForm from "@/components/forms/LoginForm";
 
 export default async function SignIn() {

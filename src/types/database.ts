@@ -497,11 +497,13 @@ export type Database = {
           client_name: string | null
           external_id: string | null
           external_name: string | null
-          mapping_id: string | null
+          id: string | null
           metadata: Json | null
           site_id: string | null
           site_name: string | null
           source_id: string | null
+          source_name: string | null
+          source_slug: string | null
           tenant_id: string | null
         }
         Relationships: [

@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/compon
 import { Button } from "@/components/ui/button";
 import DropDownItem from "@/components/ux/DropDownItem";
 import { MoreHorizontal } from "lucide-react";
-import { syncIntegration } from "@/lib/functions/external/sophos";
+import { syncIntegration } from "@/lib/actions/server/sources";
 
 type Props = {
   sources: Tables<'sources'>[];
@@ -38,12 +38,12 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
     return `Last Sync: ${date}`;
   }
 
-  function syncNow(source: Tables<'sources'>) {
+  async function syncNow(source: Tables<'sources'>) {
     const integration = integrations.find((i) => i.source_id === source.id);
     if (!integration) return;
 
     syncIntegration(integration);
-    alert('Sync initiated!');
+    alert('Started integration sync');
   }
 
   return (

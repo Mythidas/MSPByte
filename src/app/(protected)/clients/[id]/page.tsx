@@ -2,7 +2,7 @@ import {
   Card,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getClient, getSitesByClient } from "@/lib/functions/clients";
+import { getClient, getSites } from "@/lib/actions/server/clients";
 import SitesTable from "@/components/tables/SitesTable";
 
 type Props = {
@@ -12,9 +12,9 @@ type Props = {
 export default async function Page(props: Props) {
   const params = await props.params;
   const client = await getClient(params.id);
-  const sites = await getSitesByClient(params.id);
+  const sites = await getSites(params.id);
 
-  if (!client) {
+  if (!client.ok || !sites.ok) {
     return (
       <Card>
         Failed to fetch data. Contact support.
@@ -28,11 +28,11 @@ export default async function Page(props: Props) {
         <BreadcrumbList>
           <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbPage>{client.name}</BreadcrumbPage>
+          <BreadcrumbPage>{client.data.name}</BreadcrumbPage>
         </BreadcrumbList>
       </Breadcrumb>
 
-      <SitesTable client={client} sites={sites} />
+      <SitesTable client={client.data} sites={sites.data} />
     </div>
   );
 }

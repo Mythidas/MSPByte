@@ -1,11 +1,13 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getIntegrationBySource, getSiteSourceMappings, getSourceBySlug } from "@/lib/functions/sources";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import SophosPartner from "@/components/sources/SophosPartner";
-import { createSophostIntegrationAction, invalidIntegrationAction } from "@/lib/actions/sources";
+import { createSophostIntegrationAction, invalidIntegrationAction } from "@/lib/actions/form/sources";
 import { Badge } from "@/components/ui/badge";
-import { getSites } from "@/lib/functions/clients";
+import { getSites } from "@/lib/actions/server/clients";
+import { getSource } from "@/lib/actions/server/sources";
+import { getSiteSourceMappings } from "@/lib/actions/server/sources/site-source-mappings";
+import { getIntegration } from "@/lib/actions/server/integrations";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -15,23 +17,40 @@ type Props = {
 export default async function SourcePage(props: Props) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const source = await getSourceBySlug(params.slug);
-  const integration = await getIntegrationBySource(source?.id || "");
-  const mappings = await getSiteSourceMappings(source?.id || "");
+  const source = await getSource(undefined, params.slug);
+
+  if (!source.ok) {
+    return (
+      <Card>
+        <CardHeader>
+          Failed to fetch source
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  const integration = await getIntegration(undefined, source.data.id);
+  const mappings = await getSiteSourceMappings(source.data.id);
   const sites = await getSites();
 
-  if (!source) {
-    return <Card>Failed to load source!</Card>
+  if (!integration.ok || !mappings.ok || !sites.ok) {
+    return (
+      <Card>
+        <CardHeader>
+          Failed to fetch data
+        </CardHeader>
+      </Card>
+    )
   }
 
   const renderBody = () => {
     switch (params.slug) {
       case 'sophos-partner':
         return <SophosPartner
-          source={source}
-          integration={integration}
-          mappings={mappings}
-          sites={sites}
+          source={source.data}
+          integration={integration.data}
+          mappings={mappings.data}
+          sites={sites.data}
           searchParams={searchParams}
         />
       default: return null;
@@ -55,8 +74,8 @@ export default async function SourcePage(props: Props) {
       </Link>
 
       {/* Logo header */}
-      <section className={`flex w-full h-40 items-center justify-center rounded-t-lg overflow-hidden`} style={{ backgroundColor: source?.color || "" }}>
-        <img src={source.logo_url || ""} alt={`${source.name} Logo`} className="w-1/3 h-fit max-h-24 object-contain" />
+      <section className={`flex w-full h-40 items-center justify-center rounded-t-lg overflow-hidden`} style={{ backgroundColor: source.data.color || "" }}>
+        <img src={source.data.logo_url || ""} alt={`${source.data.name} Logo`} className="w-1/3 h-fit max-h-24 object-contain" />
       </section>
 
       {/* Main content */}
@@ -64,8 +83,8 @@ export default async function SourcePage(props: Props) {
         <CardHeader>
           <div className="flex items-start justify-between mb-6">
             <div>
-              <h1 className="text-2xl font-bold">{source.name}</h1>
-              <p className="text-muted-foreground">{source.description}</p>
+              <h1 className="text-2xl font-bold">{source.data.name}</h1>
+              <p className="text-muted-foreground">{source.data.description}</p>
             </div>
 
             {integration ?

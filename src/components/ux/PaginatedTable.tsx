@@ -10,7 +10,7 @@ type Props<T> = {
   data: T[];
   pageSize?: number;
   head: () => React.ReactNode;
-  body: (rows: T[], page: number) => React.ReactNode;
+  body: (rows: T[], page: number, size: number) => React.ReactNode;
 }
 
 export default function PaginatedTable<T>({ pageSize = 25, ...props }: Props<T>) {
@@ -67,7 +67,7 @@ export default function PaginatedTable<T>({ pageSize = 25, ...props }: Props<T>)
           {props.head()}
         </TableHeader>
         <TableBody>
-          {props.body(getRows(), page)}
+          {props.body(getRows(), page, size)}
         </TableBody>
         <TableCaption className="sticky bottom-0 z-10 bg-card space-y-2">
           <Separator />
@@ -92,7 +92,7 @@ export default function PaginatedTable<T>({ pageSize = 25, ...props }: Props<T>)
               Page Size:
               <Select onValueChange={(v) => setSize(Number(v))}>
                 <SelectTrigger>
-                  <SelectValue placeholder={25} />
+                  <SelectValue placeholder={pageSize} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="10">10</SelectItem>
