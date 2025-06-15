@@ -4,7 +4,7 @@ import Link from "next/link";
 import SophosPartner from "@/components/sources/SophosPartner";
 import { createSophostIntegrationAction, invalidIntegrationAction } from "@/lib/actions/form/sources";
 import { Badge } from "@/components/ui/badge";
-import { getSites } from "@/lib/actions/server/clients";
+import { getSites } from "@/lib/actions/server/sites";
 import { getSource } from "@/lib/actions/server/sources";
 import { getSiteSourceMappings } from "@/lib/actions/server/sources/site-source-mappings";
 import { getIntegration } from "@/lib/actions/server/integrations";

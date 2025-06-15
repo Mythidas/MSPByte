@@ -21,10 +21,10 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
     const lowerName = device.hostname!.toLowerCase();
     const lowerOS = device.os!.toLowerCase();
     const lowerSerial = device.serial!.toLowerCase();
-    const lowerProt = (device.metadata as any).packages.protection.name.toLowerCase();
-    const lowerStatus = (device.metadata as any).packages.protection.status.toLowerCase();
+    const lowerProt = (device.metadata as any)?.packages?.protection?.name?.toLowerCase() || '';
+    const lowerStatus = (device.metadata as any)?.packages?.protection?.status?.toLowerCase() || '';
     const lowerSite = device.site_name!.toLowerCase();
-    const lowerClient = device.client_name!.toLowerCase();
+    const lowerClient = device.parent_name?.toLowerCase() || "";
     const lowerTamperProtection = (device.metadata as any).tamperProtectionEnabled.toString();
     return lowerName.includes(lowerSearch) ||
       lowerOS.includes(lowerSearch) ||
@@ -53,8 +53,8 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
           data={devices.filter(filterDevices)}
           head={() =>
             <TableRow>
-              <TableHead>Client</TableHead>
               <TableHead>Site</TableHead>
+              <TableHead>Parent</TableHead>
               <TableHead>Hostname</TableHead>
               <TableHead>OS</TableHead>
               <TableHead>Protection</TableHead>
@@ -65,8 +65,8 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
             <>
               {data.map((device) =>
                 <TableRow key={device.id}>
-                  <TableCell>{device.client_name!.length > 25 ? `${device.client_name?.substring(0, 25)}...` : device.client_name}</TableCell>
                   <TableCell>{device.site_name}</TableCell>
+                  <TableCell>{device.parent_name && device.parent_name.length > 25 ? `${device.parent_name?.substring(0, 25)}...` : device.parent_name}</TableCell>
                   <TableCell>{device.hostname}</TableCell>
                   <TableCell>{device.os}</TableCell>
                   <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>

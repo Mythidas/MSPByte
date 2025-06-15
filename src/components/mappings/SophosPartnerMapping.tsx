@@ -1,47 +1,97 @@
 import SophosDevicesTab from "@/components/tabs/SophosDevicesTab";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getSourceMetrics } from "@/lib/actions/server/sources/source-metrics";
+import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
+import ErrorDisplay from "@/components/ux/ErrorDisplay";
+import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
+import SourceMetricCard from "@/components/ux/SourceMetricCard";
+import { getSites } from "@/lib/actions/server/sites";
+import { getSourceMetrics, getSourceMetricsAggregated, getSourceMetricsAggregatedGrouped } from "@/lib/actions/server/sources/source-metrics";
 import { Tables } from "@/types/database";
 
 type Props = {
-  mapping: Tables<'site_mappings_view'>;
+  source: Tables<'sources'>;
+  site?: Tables<'sites'>;
+  tab?: string;
+  search?: string;
 }
 
-export default async function SophosPartnerMapping({ mapping }: Props) {
-  const metrics = await getSourceMetrics(mapping.source_id!, mapping.site_id!);
-
-  if (!metrics.ok) {
-    return (
-      <Card>
-        <CardHeader>
-          Failed to fetch data
-        </CardHeader>
-      </Card>
-    )
+export default async function SophosPartnerMapping({ source, site, tab, search }: Props) {
+  const renderBody = async () => {
+    if (!site) {
+      return GlobalComponent({ source, search });
+    } else if (site.is_parent) {
+      return SiteParentComponent({ source, site, search });
+    } else {
+      return SiteComponent({ source, site, search });
+    }
   }
 
   return (
-    <Tabs defaultValue="dashboard">
+    <Tabs defaultValue={tab || "dashboard"}>
       <TabsList>
-        <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-        <TabsTrigger value="devices">Devices</TabsTrigger>
+        <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
+        <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
       </TabsList>
+
+      {await renderBody()}
+    </Tabs>
+  )
+}
+
+async function GlobalComponent({ source, search }: Props) {
+  const metrics = await getSourceMetricsAggregated(source.id);
+  const sites = await getSites();
+
+  if (!metrics.ok || !sites.ok) {
+    return <ErrorDisplay />
+  }
+
+  return (
+    <>
       <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
         {metrics.data.map((metric) => {
-          return (
-            <Card key={metric.id}>
-              <CardHeader>
-                {metric.name}
-              </CardHeader>
-              <CardContent>
-                {metric.metric} {metric.unit}
-              </CardContent>
-            </Card>
-          )
+          return <SourceMetricCard key={metric.name} metric={metric as Tables<'source_metrics'>} />
         })}
       </TabsContent>
-      <SophosDevicesTab sourceId={mapping.source_id!} siteId={mapping.site_id!} tabValue="devices" />
-    </Tabs>
+      <SophosDevicesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} tabValue="devices" search={search} />
+    </>
+  )
+}
+
+async function SiteParentComponent({ source, site, search }: Props) {
+  const metrics = await getSourceMetricsAggregatedGrouped(source.id, site!.id);
+  const sites = await getSites(site!.id);
+
+  if (!metrics.ok || !sites.ok) {
+    return <ErrorDisplay />
+  }
+
+  return (
+    <>
+      <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
+        {metrics.data.map((metric) => {
+          return <SourceMetricCard key={metric.name} metric={metric as any as Tables<'source_metrics'>} baseRoute={`/sites/${site!.id}/source/${source.slug}`} />
+        })}
+      </TabsContent>
+      <SophosDevicesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} tabValue="devices" search={search} />
+    </>
+  )
+}
+
+async function SiteComponent({ source, site, search }: Props) {
+  const metrics = await getSourceMetrics(source.id, [site!.id]);
+
+  if (!metrics.ok) {
+    return <ErrorDisplay />
+  }
+
+  return (
+    <>
+      <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
+        {metrics.data.map((metric) => {
+          return <SourceMetricCard key={metric.name} metric={metric as any as Tables<'source_metrics'>} baseRoute={`/sites/${site!.id}/source/${source.slug}`} />
+        })}
+      </TabsContent>
+      <SophosDevicesTab sourceId={source.id} siteIds={[site!.id]} tabValue="devices" search={search} />
+    </>
   );
 }

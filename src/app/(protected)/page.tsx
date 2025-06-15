@@ -1,6 +1,8 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import RouteButton from "@/components/ux/RouteButton";
+import SourceMetricCard from "@/components/ux/SourceMetricCard";
 import { getSources } from "@/lib/actions/server/sources";
 import { getSourceMetricsAggregated } from "@/lib/actions/server/sources/source-metrics";
 import { Tables } from "@/types/database";
@@ -23,16 +25,6 @@ export default async function Home() {
     sourceMetrics.push({ metrics: metrics.data, source });
   }
 
-  function formatFilters(filters: Record<string, string>) {
-    let parsed = "";
-    for (const [key, value] of Object.entries(filters)) {
-      if (parsed.length > 0) parsed += "&";
-      parsed += `${key}=${value}`;
-    }
-
-    return parsed;
-  }
-
   return (
     <Card className="size-full">
       <CardContent>
@@ -43,28 +35,7 @@ export default async function Home() {
                 <AccordionTrigger className="text-2xl">{item.source.name}</AccordionTrigger>
                 <AccordionContent className="grid grid-cols-4 gap-2">
                   {item.metrics.map((metric) => {
-                    return (
-                      <Card key={metric.name}>
-                        <CardHeader>
-                          <span className="text-base">{metric.name}</span>
-                          <CardAction>
-                            {metric.route &&
-                              <RouteButton
-                                variant="ghost"
-                                route={`${metric.route}?${formatFilters(metric.filters as Record<string, string>)}`}
-                                module="devices"
-                                level="read"
-                              >
-                                <MoveRight />
-                              </RouteButton>
-                            }
-                          </CardAction>
-                        </CardHeader>
-                        <CardContent>
-                          <span>{metric.metric}{metric.total && ` / ${metric.total}`} {metric.unit}</span>
-                        </CardContent>
-                      </Card>
-                    )
+                    return <SourceMetricCard key={metric.name} metric={metric as Tables<'source_metrics'>} />
                   })}
                 </AccordionContent>
               </AccordionItem>

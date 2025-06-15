@@ -7,7 +7,7 @@ export async function getTenant(): Promise<ActionResponse<Tables<'tenants'>>> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from('clients')
+      .from('tenants')
       .select('*')
       .single();
 

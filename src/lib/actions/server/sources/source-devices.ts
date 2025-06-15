@@ -5,22 +5,29 @@ import { ActionResponse } from "@/types";
 import { Tables } from "@/types/database";
 import { createClient } from "@/utils/supabase/server";
 
-export async function getSourceDevices(sourceId?: string, siteId?: string): Promise<ActionResponse<Tables<'source_devices_view'>[]>> {
+export async function getSourceDevices(sourceId?: string, siteIds?: string[]): Promise<ActionResponse<Tables<'source_devices_view'>[]>> {
   try {
     const supabase = await createClient();
 
     let query = supabase.from('source_devices_view').select('*').order('site_name').order('hostname');
     if (sourceId) query = query.eq('source_id', sourceId);
-    if (siteId) query = query.eq('site_id', siteId);
+    if (siteIds) query = query.in('site_id', siteIds);
 
-    const { data, error } = await query;
+    let results = [];
 
-    if (error)
-      throw new Error(error.message);
+    while (true) {
+      const { data, error } = await query.range(results.length, results.length + 1000);
+
+      if (error)
+        throw new Error(error.message);
+
+      results.push(...data);
+      if (data.length < 1000) break;
+    }
 
     return {
       ok: true,
-      data
+      data: results
     }
   } catch (err) {
     return Debug.error({

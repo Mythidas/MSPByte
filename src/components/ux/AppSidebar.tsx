@@ -21,8 +21,8 @@ const applicationItems = [
     icon: ChartArea,
   },
   {
-    title: "Clients",
-    url: "/clients",
+    title: "Sites",
+    url: "/sites",
     icon: Building2
   },
   {

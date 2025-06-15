@@ -97,19 +97,14 @@ export async function getPartnerID(token: string): Promise<ActionResponse<string
 
 export async function syncSophosPartner(integration: Tables<'source_integrations'>): Promise<ActionResponse<null>> {
   try {
-
-
     const start = new Date();
-    const [supabase, source, token] = await Promise.all([createClient(), getSource(undefined, 'sophos-parter'), getToken(integration)]);
+    const [supabase, token] = await Promise.all([createClient(), getToken(integration)]);
 
-    if (!source.ok) {
-      throw new Error(source.error.message);
-    }
     if (!token.ok) {
       throw new Error(token.error.message);
     }
 
-    const siteMappings = await getSiteSourceMappings(source.data.id);
+    const siteMappings = await getSiteSourceMappings(integration.source_id);
     if (!siteMappings.ok) {
       throw new Error(siteMappings.error.message);
     }
@@ -144,9 +139,8 @@ export async function syncSophosPartner(integration: Tables<'source_integrations
 
 export async function syncSiteMapping(token: string, mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<null>> {
   try {
-
     const devices = await getEndpoints(token, mapping);
-    const sourceDevices = await getSourceDevices(mapping.source_id, mapping.site_id);
+    const sourceDevices = await getSourceDevices(mapping.source_id, [mapping.site_id]);
 
     if (!devices.ok) {
       throw new Error(devices.error.message);
@@ -223,9 +217,12 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
       metric: devices.data.length,
       unit: 'devices',
       total: null,
-      route: '/devices',
-      filters: {},
+      route: '/sources/sophos-partner',
+      filters: { tab: "devices" },
       metadata: {},
+      is_historic: false,
+      visual: null,
+      thresholds: null,
       created_at: new Date().toISOString()
     });
 
@@ -238,9 +235,12 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
       metric: mdrManaged,
       unit: 'devices',
       total: devices.data.length,
-      route: '/devices',
-      filters: { "search": "mdr" },
+      route: '/sources/sophos-partner',
+      filters: { tab: "devices", search: "mdr" },
       metadata: {},
+      is_historic: false,
+      visual: 'progress',
+      thresholds: { 'info': 100, 'warn': 50, 'highest': true },
       created_at: new Date().toISOString()
     });
 
@@ -253,9 +253,12 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
       metric: upgradeable,
       unit: 'devices',
       total: devices.data.length,
-      route: '/devices',
-      filters: { tab: "sophos-partner", search: "upgradable" },
+      route: '/sources/sophos-partner',
+      filters: { tab: "devices", search: "upgradable" },
       metadata: {},
+      is_historic: false,
+      visual: 'progress',
+      thresholds: { 'info': 0, 'warn': 30, 'crticial': 60, 'highest': false },
       created_at: new Date().toISOString()
     });
 

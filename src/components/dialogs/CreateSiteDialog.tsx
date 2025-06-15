@@ -1,29 +1,45 @@
 import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FormAlert from "@/components/ux/FormAlert";
 import FormError from "@/components/ux/FormError";
 import RouteButton from "@/components/ux/RouteButton";
 import { SubmitButton } from "@/components/ux/SubmitButton";
-import { createSiteAction } from "@/lib/actions/form/clients";
-import { SiteFormValues } from "@/lib/forms/clients";
+import { createSiteAction } from "@/lib/actions/form/sites";
+import { SiteFormValues } from "@/lib/forms/sites";
+import { useUser } from "@/lib/providers/UserContext";
 import { FormState } from "@/types";
 import { Tables } from "@/types/database";
 import { HousePlus } from "lucide-react";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 type Props = {
-  client: Tables<'clients'>;
+  parentId?: string;
+  onSuccess?: (site: Tables<'sites'>) => void;
 }
 
-export default function CreateSiteDialog(props: Props) {
+export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [state, formAction] = useActionState<FormState<SiteFormValues>, FormData>(createSiteAction, {});
+  const context = useUser();
+
+  useEffect(() => {
+    if (state.success && onSuccess) {
+      onSuccess(state.values as Tables<'sites'>);
+      setIsOpen(false);
+    }
+  }, [state])
+
+  const getValue = (name: string) => {
+    if (state.success) return '';
+    return state.values && state.values['name'];
+  }
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <RouteButton module="clients" level="edit">
+        <RouteButton module="sites" level="edit">
           <HousePlus className="h-4 w-4 mr-2" />
           Add Site
         </RouteButton>
@@ -32,20 +48,21 @@ export default function CreateSiteDialog(props: Props) {
         <form className="flex flex-col gap-4" action={formAction}>
           <AlertDialogHeader>
             <AlertDialogTitle>Create Site</AlertDialogTitle>
-            <AlertDialogDescription>
-              Create a child site.
-            </AlertDialogDescription>
           </AlertDialogHeader>
 
           <FormAlert errors={state.errors} message={state.message} />
           <Label className="flex flex-col items-start">
             Name
-            <Input name="name" placeholder="Enter name" defaultValue={state.values?.name} />
+            <Input name="name" placeholder="Enter name" defaultValue={getValue('name')} />
             <FormError name="name" errors={state.errors} />
           </Label>
+          {!parentId && <Label>
+            <Checkbox name="is_parent" defaultChecked={false} />
+            Parent?
+          </Label>}
           <input hidden name="id" defaultValue={""} />
-          <input hidden name="tenant_id" defaultValue={props.client.tenant_id} />
-          <input hidden name="client_id" defaultValue={props.client.id} />
+          <input hidden name="tenant_id" defaultValue={context?.tenant_id} />
+          <input hidden name="parent_id" defaultValue={parentId} />
 
           <AlertDialogFooter>
             <AlertDialogCancel>

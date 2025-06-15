@@ -35,11 +35,11 @@ export default async function Page(props: Props) {
     <>
       <Breadcrumb>
         <BreadcrumbList>
-          <BreadcrumbLink href="/clients">Clients</BreadcrumbLink>
+          <BreadcrumbLink href="/sites">Sites</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbLink href={`/clients/${mapping.data.client_id}`}>{mapping.data.client_name}</BreadcrumbLink>
+          <BreadcrumbLink href={`/sites/${mapping.data.parent_id}`}>{mapping.data.parent_name}</BreadcrumbLink>
           <BreadcrumbSeparator />
-          <BreadcrumbLink href={`/clients/site/${mapping.data.site_id}`}>{mapping.data.site_name}</BreadcrumbLink>
+          <BreadcrumbLink href={`/sites/site/${mapping.data.site_id}`}>{mapping.data.site_name}</BreadcrumbLink>
           <BreadcrumbSeparator />
           <BreadcrumbPage>{mapping.data.source_name}</BreadcrumbPage>
         </BreadcrumbList>

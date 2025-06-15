@@ -5,13 +5,13 @@ import { getSourceDevices } from "@/lib/actions/server/sources/source-devices";
 
 type Props = {
   sourceId: string;
-  siteId?: string;
   tabValue: string;
+  siteIds?: string[];
   search?: string;
 }
 
-export default async function SophosDevicesTab({ sourceId, siteId, tabValue, search }: Props) {
-  const devices = await getSourceDevices(sourceId, siteId);
+export default async function SophosDevicesTab({ sourceId, siteIds, tabValue, search }: Props) {
+  const devices = await getSourceDevices(sourceId, siteIds);
 
   if (!devices.ok) {
     return <ErrorDisplay message="Failed to fetch data" />

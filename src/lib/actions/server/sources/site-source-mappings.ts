@@ -9,7 +9,7 @@ export async function getSiteMappings(sourceId?: string): Promise<ActionResponse
   try {
     const supabase = await createClient();
 
-    let query = supabase.from('site_mappings_view').select();
+    let query = supabase.from('site_mappings_view').select().eq('is_parent', false);
     if (sourceId) {
       query = query.or(`source_id.eq.${sourceId},source_id.is.null`);
     }
@@ -110,6 +110,30 @@ export async function putSiteSourceMapping(mapping: Tables<'site_source_mappings
     return Debug.error({
       module: 'integrations',
       context: 'put-site-source-mapping',
+      message: String(err),
+      time: new Date()
+    })
+  }
+}
+
+export async function deleteSiteSourceMapping(id: string): Promise<ActionResponse<null>> {
+  try {
+    const supabase = await createClient();
+
+    const { error } = await supabase.from('site_source_mappings').delete().eq('id', id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      ok: true,
+      data: null
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'integrations',
+      context: 'delete-site-source-mapping',
       message: String(err),
       time: new Date()
     })
