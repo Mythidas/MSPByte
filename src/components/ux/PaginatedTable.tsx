@@ -63,13 +63,13 @@ export default function PaginatedTable<T>({ pageSize = 25, ...props }: Props<T>)
   return (
     <ScrollArea className="flex items-start overflow-auto max-h-[70vh]">
       <Table>
-        <TableHeader className="sticky top-0 z-10 bg-card">
+        <TableHeader className="sticky top-0 z-50 bg-card">
           {props.head()}
         </TableHeader>
         <TableBody>
           {props.body(getRows(), page, size)}
         </TableBody>
-        <TableCaption className="sticky bottom-0 z-10 bg-card space-y-2">
+        <TableCaption className="sticky bottom-0 z-50 bg-card space-y-2">
           <Separator />
           <Pagination>
             <PaginationContent>

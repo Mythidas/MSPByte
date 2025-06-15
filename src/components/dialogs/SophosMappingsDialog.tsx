@@ -1,15 +1,13 @@
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import PaginatedTable from "@/components/ux/PaginatedTable";
+import SearchBox from "@/components/ux/SearchBox";
 import SkeletonTable from "@/components/ux/SkeletonTable";
 import { SubmitButton } from "@/components/ux/SubmitButton";
 import { deleteSiteSourceMapping, getSiteMappings, putSiteSourceMapping } from "@/lib/actions/server/sources/site-source-mappings";
 import { getTenants } from "@/lib/actions/server/sources/sophos/tenants";
 import { Tables } from "@/types/database";
-import { AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -35,6 +33,7 @@ export default function SophosMappingsDialog(props: Props) {
           throw new Error('Failed to fetch data');
         }
 
+        console.log(siteMappings.data);
         setMappings(siteMappings.data);
         setExternal(tenants.data);
       } catch (error) {
@@ -137,7 +136,7 @@ export default function SophosMappingsDialog(props: Props) {
             <TableRow>
               <TableHead>Site</TableHead>
               <TableHead>Parent</TableHead>
-              <TableHead>Sophos Site</TableHead>
+              <TableHead className="w-2/5">Sophos Site</TableHead>
             </TableRow>
           }
           body={(data, page, size) => {
@@ -145,50 +144,25 @@ export default function SophosMappingsDialog(props: Props) {
               <TableRow key={idx}>
                 <TableCell>{mapping.site_name}</TableCell>
                 <TableCell>{mapping.parent_name}</TableCell>
-                <TableCell className="w-96">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className="w-full justify-between"
-                      >
-                        {mapping.external_name || "Select a site..."}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-full p-0">
-                      <Command defaultValue={mapping.site_name || ""}>
-                        <CommandInput
-                          placeholder="Search sites..."
-                          defaultValue={mapping.site_name || ''}
-                        />
-                        <CommandList>
-                          <CommandEmpty>No sites available</CommandEmpty>
-                          {isLoading ? (
-                            <CommandItem disabled>Loading sites...</CommandItem>
-                          ) : (
-                            external.map((site) => (
-                              <CommandItem
-                                key={site.id}
-                                value={site.name}
-                                onSelect={(value) => {
-                                  const index = idx + (page - 1) * size;
-                                  const newMappings = [...mappings];
-                                  newMappings[index].external_id = site.id;
-                                  newMappings[index].external_name = site.name;
-                                  newMappings[index].changed = true;
-                                  newMappings[index].metadata = site;
-                                  setMappings(newMappings);
-                                }}
-                              >
-                                {site.name}
-                              </CommandItem>
-                            ))
-                          )}
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                <TableCell className="w-2/5">
+                  <SearchBox
+                    placeholder="Search sites"
+                    options={external.map((e) => {
+                      return { label: e.name, value: e.id }
+                    })}
+                    defaultValue={mapping.external_id || ""}
+                    onSelect={(e) => {
+                      const site = external.find((site) => site.id === e);
+                      const index = idx + (page - 1) * size;
+                      const newMappings = [...mappings];
+                      newMappings[index].external_id = site.id;
+                      newMappings[index].external_name = site.name;
+                      newMappings[index].changed = true;
+                      newMappings[index].metadata = site;
+                      setMappings(newMappings);
+                    }}
+                    loading={isLoading}
+                  />
                 </TableCell>
               </TableRow>
             )

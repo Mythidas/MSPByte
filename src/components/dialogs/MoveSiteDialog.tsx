@@ -8,6 +8,7 @@ import { CommandInput, CommandList, CommandEmpty, CommandItem, Command } from "@
 import { useEffect, useState } from "react";
 import { getParentSites, updateSite } from "@/lib/actions/server/sites";
 import { toast } from "sonner";
+import SearchBox from "@/components/ux/SearchBox";
 
 type Props = {
   sites: Tables<'sites'>[];
@@ -79,82 +80,32 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
           <AlertDialogDescription>Move site to a new parent</AlertDialogDescription>
         </AlertDialogHeader>
 
-        <Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                className="w-full justify-between"
-              >
-                {parent ? parent.name : "Select a parent..."}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandInput
-                  placeholder="Search parents..."
-                />
-                <CommandList>
-                  <CommandEmpty>No parents available</CommandEmpty>
-                  {isLoading ? (
-                    <CommandItem disabled>Loading parents...</CommandItem>
-                  ) : (
-                    parents.map((site) => (
-                      <CommandItem
-                        key={site.id}
-                        value={site.name}
-                        onSelect={(value) => {
-                          setParent(site);
-                        }}
-                      >
-                        {site.name}
-                      </CommandItem>
-                    ))
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+        <Label className="flex flex-col gap-2 items-start">
+          Parent
+          <SearchBox
+            placeholder="Select a parent"
+            options={parents.map((p) => {
+              return { label: p.name, value: p.id }
+            })}
+            onSelect={(e) => {
+              const parent = parents.find((p) => p.id === e);
+              setParent(parent);
+            }}
+          />
         </Label>
 
-        <Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                className="w-full justify-between"
-              >
-                {site ? site.name : "Select a site..."}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0">
-              <Command>
-                <CommandInput
-                  placeholder="Search sites..."
-                />
-                <CommandList>
-                  <CommandEmpty>No sites available</CommandEmpty>
-                  {isLoading ? (
-                    <CommandItem disabled>Loading sites...</CommandItem>
-                  ) : (
-                    sites.map((site) => (
-                      <CommandItem
-                        key={site.id}
-                        value={site.name}
-                        onSelect={(value) => {
-                          setSite(site);
-                        }}
-                      >
-                        {site.name}
-                      </CommandItem>
-                    ))
-                  )}
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+        <Label className="flex flex-col gap-2 items-start">
+          Site
+          <SearchBox
+            placeholder="Select a site"
+            options={sites.map((p) => {
+              return { label: p.name, value: p.id }
+            })}
+            onSelect={(e) => {
+              const site = sites.find((p) => p.id === e);
+              setSite(site);
+            }}
+          />
         </Label>
 
         <AlertDialogFooter>

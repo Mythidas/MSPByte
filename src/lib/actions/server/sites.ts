@@ -64,7 +64,7 @@ export async function getSites(parentId?: string): Promise<ActionResponse<Tables
     let query = supabase
       .from('sites')
       .select('*')
-      .or(`is_parent.eq.false,parent_id.is.null`)
+      .eq('is_parent', false)
       .order('name', { ascending: true });
     if (parentId) query = query.eq('parent_id', parentId);
 
