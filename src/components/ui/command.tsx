@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 function Command({
   className,
@@ -21,7 +22,7 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+        "bg-popover text-popover-foreground flex h-full w-full flex-col rounded-md",
         className
       )}
       {...props}
@@ -87,14 +88,16 @@ function CommandList({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
-    <CommandPrimitive.List
-      data-slot="command-list"
-      className={cn(
-        "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
-        className
-      )}
-      {...props}
-    />
+    <ScrollArea>
+      <CommandPrimitive.List
+        data-slot="command-list"
+        className={cn(
+          "max-h-[300px]",
+          className
+        )}
+        {...props}
+      />
+    </ScrollArea>
   )
 }
 

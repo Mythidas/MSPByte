@@ -9,7 +9,7 @@ export async function getSiteMappings(sourceId?: string): Promise<ActionResponse
   try {
     const supabase = await createClient();
 
-    let query = supabase.from('site_mappings_view').select().eq('is_parent', false);
+    let query = supabase.from('site_mappings_view').select().eq('is_parent', false).order('site_name').order('parent_name');
     if (sourceId) {
       query = query.or(`source_id.eq.${sourceId},source_id.is.null`);
     }
@@ -58,13 +58,13 @@ export async function getSiteMapping(id: string): Promise<ActionResponse<Tables<
   }
 }
 
-export async function getSiteSourceMappings(sourceId?: string, siteId?: string): Promise<ActionResponse<Tables<'site_source_mappings'>[]>> {
+export async function getSiteSourceMappings(sourceId?: string, siteIds?: string[]): Promise<ActionResponse<Tables<'site_source_mappings'>[]>> {
   try {
     const supabase = await createClient();
 
     let query = supabase.from('site_source_mappings').select('*');
     if (sourceId) query = query.eq('source_id', sourceId);
-    if (siteId) query = query.eq('site_id', siteId);
+    if (siteIds) query = query.in('site_id', siteIds);
 
     const { data, error } = await query;
 

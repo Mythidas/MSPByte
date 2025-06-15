@@ -1,21 +1,19 @@
+'use client'
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { signOutAction } from "@/lib/actions/form/auth";
+import { useUser } from "@/lib/providers/UserContext";
 
-export default async function AuthButton() {
-  const supabase = await createClient();
+export default function AuthButton() {
+  const context = useUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user ? (
+  return context ? (
     <div className="flex items-center gap-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost">{user.email}</Button>
+          <Button variant="ghost">{context.email}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>

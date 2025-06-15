@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, FolderCog, MonitorDot, ShieldUser } from "lucide-react"
+import { Building2, Cable, ChartArea, Database, FolderCog, MonitorDot, ShieldUser } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { usePathname } from 'next/navigation';
+import Link from "next/link";
 
 const applicationItems = [
   {
@@ -26,9 +27,9 @@ const applicationItems = [
     icon: Building2
   },
   {
-    title: "Devices",
-    url: "/devices",
-    icon: MonitorDot
+    title: "Sources",
+    url: "/sources",
+    icon: Database
   },
 ]
 
@@ -64,10 +65,10 @@ export default function AppSidebar() {
                     asChild
                     isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
                   >
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -84,10 +85,10 @@ export default function AppSidebar() {
                     asChild
                     isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
                   >
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

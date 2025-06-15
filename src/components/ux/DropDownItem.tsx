@@ -31,7 +31,7 @@ export default function DropDownItem({ children, module, level, route, onClick, 
         className={cn(variant === "destructive" && "text-red-600", "w-full", className)}
         inset={inset}
         disabled={disabled || !hasAccess(context, module, level)}
-        onClick={(e) => { onClick && onClick(e); (route && hasAccess(context, module, level)) && router.push(route); }}
+        onClick={(e) => { e.stopPropagation(); onClick && onClick(e); (route && hasAccess(context, module, level)) && router.push(route); }}
         asChild
         {...props}
       >
@@ -47,7 +47,7 @@ export default function DropDownItem({ children, module, level, route, onClick, 
       className={cn(variant === "destructive" && "text-red-600", "w-full", className)}
       inset={inset}
       disabled={disabled || !hasAccess(context, module, level)}
-      onClick={(e) => { onClick && onClick(e); (route && hasAccess(context, module, level)) && router.push(route); }}
+      onClick={(e) => { e.stopPropagation(); onClick && onClick(e); (route && hasAccess(context, module, level)) && router.push(route); }}
       {...props}
     >
       {children}

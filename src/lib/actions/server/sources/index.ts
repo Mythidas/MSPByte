@@ -62,7 +62,7 @@ export async function getSource(id?: string, slug?: string): Promise<ActionRespo
   }
 }
 
-export async function syncIntegration(integration: Tables<'source_integrations'>): Promise<ActionResponse<null>> {
+export async function syncSource(integration: Tables<'source_integrations'>, siteIds?: string[]): Promise<ActionResponse<null>> {
   try {
     const source = await getSource(integration.source_id);
 
@@ -72,7 +72,7 @@ export async function syncIntegration(integration: Tables<'source_integrations'>
 
     switch (source.data.slug) {
       case 'sophos-partner':
-        return await syncSophosPartner(integration);
+        return await syncSophosPartner(integration, siteIds);
       default:
         throw new Error('No sync defined for this source');
     }

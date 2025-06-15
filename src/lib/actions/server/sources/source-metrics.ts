@@ -96,12 +96,10 @@ export async function putSourceMetric(metric: Tables<'source_metrics'>): Promise
       if (metric.is_historic) {
         const createdAt = new Date(data.created_at!);
         if (createdAt && (Date.now() - createdAt.getTime() < 24 * 60 * 60 * 1000)) {
-          if (data.metric === metric.metric && data.total === metric.total) {
-            return await updateSourceMetric({ ...metric, id: data.id });
-          }
+          return await updateSourceMetric({ ...metric, id: data.id });
         }
       } else {
-        await deleteSourceMetric(data.id);
+        return await updateSourceMetric({ ...metric, id: data.id, created_at: new Date().toISOString() });
       }
     }
 

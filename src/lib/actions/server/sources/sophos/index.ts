@@ -5,7 +5,7 @@ import { getSiteSourceMappings } from "@/lib/actions/server/sources/site-source-
 import { getEndpoints } from "@/lib/actions/server/sources/sophos/endpoints";
 import { getSourceDevices, putSourceDevice, updateSourceDevice, deleteSourceDevice } from "@/lib/actions/server/sources/source-devices";
 import { putSourceMetric } from "@/lib/actions/server/sources/source-metrics";
-import { Debug } from "@/lib/utils";
+import { Debug, Timer } from "@/lib/utils";
 import { ActionResponse } from "@/types";
 import { Tables } from "@/types/database";
 import { createClient } from "@/utils/supabase/server";
@@ -95,22 +95,27 @@ export async function getPartnerID(token: string): Promise<ActionResponse<string
   }
 }
 
-export async function syncSophosPartner(integration: Tables<'source_integrations'>): Promise<ActionResponse<null>> {
+export async function syncSophosPartner(integration: Tables<'source_integrations'>, siteIds?: string[]): Promise<ActionResponse<null>> {
   try {
-    const start = new Date();
+    const timer = new Timer('Sophos-Partner-Sync')
     const [supabase, token] = await Promise.all([createClient(), getToken(integration)]);
 
     if (!token.ok) {
       throw new Error(token.error.message);
     }
 
-    const siteMappings = await getSiteSourceMappings(integration.source_id);
+    const siteMappings = await getSiteSourceMappings(integration.source_id, siteIds);
     if (!siteMappings.ok) {
       throw new Error(siteMappings.error.message);
     }
 
+    const devices = await getSourceDevices(integration.source_id, siteIds);
+    if (!devices.ok) {
+      throw new Error(devices.error.message);
+    }
+
     for await (const mapping of siteMappings.data) {
-      await syncSiteMapping(token.data, mapping);
+      await syncSiteMapping(token.data, mapping, devices.data.filter((d) => d.site_id === mapping.site_id));
     }
 
     const { error } = await supabase.from('source_integrations').update({
@@ -121,7 +126,7 @@ export async function syncSophosPartner(integration: Tables<'source_integrations
       throw new Error(error.message);
     }
 
-    console.log(`Sophos Partner Synced: ${((new Date().getTime() - start.getTime()) / (1000 * 60)).toFixed(2)} minutes`);
+    timer.summary();
 
     return {
       ok: true,
@@ -137,28 +142,35 @@ export async function syncSophosPartner(integration: Tables<'source_integrations
   }
 }
 
-export async function syncSiteMapping(token: string, mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<null>> {
+export async function syncSiteMapping(
+  token: string,
+  mapping: Tables<'site_source_mappings'>,
+  sourceDevices: Tables<'source_devices_view'>[]
+): Promise<ActionResponse<null>> {
   try {
+    const timer = new Timer('Sync-Site-Mapping', false);
+    timer.begin('get-devices-external');
     const devices = await getEndpoints(token, mapping);
-    const sourceDevices = await getSourceDevices(mapping.source_id, [mapping.site_id]);
+    timer.end('get-devices-external');
 
     if (!devices.ok) {
       throw new Error(devices.error.message);
     }
-    if (!sourceDevices.ok) {
-      throw new Error(sourceDevices.error.message);
-    }
 
+    timer.begin('sort-devices');
+    const deviceSortingTimer = new Timer('Sync-Site-Mapping-Sort-Devices');
     const newDevices = devices.data.filter((device) => {
-      return !sourceDevices.data.find((sd) => sd.external_id === device.id);
+      return !sourceDevices.find((sd) => sd.external_id === device.id);
     });
-    const existingDevices = sourceDevices.data.filter((sd) => {
+    const existingDevices = sourceDevices.filter((sd) => {
       return devices.data.find((device) => sd.external_id === device.id) !== undefined;
     });
-    const deleteDevices = sourceDevices.data.filter((sd) => {
+    const deleteDevices = sourceDevices.filter((sd) => {
       return devices.data.find((d) => d.id === sd.external_id) === undefined;
     });
+    timer.end('sort-devices');
 
+    timer.begin('put-devices');
     for (const device of newDevices) {
       await putSourceDevice({
         id: "",
@@ -172,7 +184,9 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
         metadata: device
       });
     }
+    timer.end('put-devices');
 
+    timer.begin('update-devices');
     for (const device of existingDevices) {
       const source = devices.data.find((d) => d.id === device.external_id);
       try {
@@ -196,11 +210,15 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
         });
       }
     }
+    timer.end('update-devices');
 
+    timer.begin('delete-devices')
     for (const device of deleteDevices) {
       await deleteSourceDevice(device.id!);
     }
+    timer.end('delete-devices');
 
+    timer.begin('device-metrics');
     let upgradeable = 0;
     let mdrManaged = 0;
     for (const device of devices.data) {
@@ -261,6 +279,8 @@ export async function syncSiteMapping(token: string, mapping: Tables<'site_sourc
       thresholds: { 'info': 0, 'warn': 30, 'crticial': 60, 'highest': false },
       created_at: new Date().toISOString()
     });
+    timer.end('device-metrics');
+    timer.summary();
 
     return {
       ok: true,

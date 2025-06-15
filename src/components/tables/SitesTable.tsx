@@ -12,15 +12,14 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Tables } from "@/types/database";
 import { Input } from "@/components/ui/input";
-import DeleteForm from "@/components/forms/DeleteForm";
 import DropDownItem from "@/components/ux/DropDownItem";
-import { deleteInviteAction } from "@/lib/actions/form/users";
 import RouteTableRow from "@/components/ux/RouteTableRow";
 import PaginatedTable from "@/components/ux/PaginatedTable";
 import CreateSiteDialog from "@/components/dialogs/CreateSiteDialog";
 import { toast } from "sonner";
 import { deleteSite } from "@/lib/actions/server/sites";
 import { useRouter } from "next/navigation";
+import MoveSiteDialog from "@/components/dialogs/MoveSiteDialog";
 
 type Props = {
   sites: Tables<'sites'>[];
@@ -59,6 +58,11 @@ export default function SitesTable({ parentId, ...props }: Props) {
     setSites([...sites, site].sort((a, b) => a.name.localeCompare(b.name)));
   }
 
+  const moveCallback = (site: Tables<'sites'>, parent: string) => {
+    setSites([...sites.filter((s) => s.id !== site.id)]);
+    toast.info(`Moved site ${site.name} to ${parent}`);
+  }
+
   return (
     <>
       <div className="flex items-center justify-between mb-4">
@@ -70,7 +74,10 @@ export default function SitesTable({ parentId, ...props }: Props) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
+        <div className="flex gap-2">
+          {parentId && <MoveSiteDialog sites={sites} parentId={parentId} onSuccess={moveCallback} />}
+          <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
+        </div>
       </div>
 
       <Card className="py-2">

@@ -1,11 +1,17 @@
 import SophosDevicesTab from "@/components/tabs/SophosDevicesTab";
+import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import ErrorDisplay from "@/components/ux/ErrorDisplay";
 import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
 import SourceMetricCard from "@/components/ux/SourceMetricCard";
+import SyncSourceItem from "@/components/ux/SyncSourceItem";
 import { getSites } from "@/lib/actions/server/sites";
 import { getSourceMetrics, getSourceMetricsAggregated, getSourceMetricsAggregatedGrouped } from "@/lib/actions/server/sources/source-metrics";
 import { Tables } from "@/types/database";
+import { Settings } from "lucide-react";
+
+// TODO: Change this to client component and lazy load
 
 type Props = {
   source: Tables<'sources'>;
@@ -15,22 +21,38 @@ type Props = {
 }
 
 export default async function SophosPartnerMapping({ source, site, tab, search }: Props) {
+  const type = !site ? 'global' : site.is_parent ? 'parent' : 'site';
+
   const renderBody = async () => {
-    if (!site) {
-      return GlobalComponent({ source, search });
-    } else if (site.is_parent) {
-      return SiteParentComponent({ source, site, search });
-    } else {
-      return SiteComponent({ source, site, search });
+    switch (type) {
+      case 'global':
+        return GlobalComponent({ source, search });
+      case 'parent':
+        return SiteParentComponent({ source, site, search });
+      case 'site':
+        return SiteComponent({ source, site, search });
     }
   }
 
   return (
     <Tabs defaultValue={tab || "dashboard"}>
-      <TabsList>
-        <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
-        <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
-      </TabsList>
+      <div className="flex w-full justify-between">
+        <TabsList>
+          <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
+          <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
+        </TabsList>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <SyncSourceItem type={type} source={source} site={site} />
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
 
       {await renderBody()}
     </Tabs>

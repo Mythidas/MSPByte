@@ -11,6 +11,32 @@ export async function getParentSites(): Promise<ActionResponse<Tables<'sites'>[]
     const { data, error } = await supabase
       .from('sites')
       .select('*')
+      .eq('is_parent', true)
+      .order('name', { ascending: true });
+
+    if (error)
+      throw new Error(error.message);
+
+    return {
+      ok: true,
+      data
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'sites',
+      context: 'get-parent-sites',
+      message: String(err),
+      time: new Date()
+    });
+  }
+}
+
+export async function getUpperSites(): Promise<ActionResponse<Tables<'sites'>[]>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from('sites')
+      .select('*')
       .or(`is_parent.eq.true,parent_id.is.null`)
       .order('name', { ascending: true });
 
@@ -38,7 +64,7 @@ export async function getSites(parentId?: string): Promise<ActionResponse<Tables
     let query = supabase
       .from('sites')
       .select('*')
-      .eq('is_parent', false)
+      .or(`is_parent.eq.false,parent_id.is.null`)
       .order('name', { ascending: true });
     if (parentId) query = query.eq('parent_id', parentId);
 
@@ -108,6 +134,32 @@ export async function putSite(site: Tables<'sites'>): Promise<ActionResponse<Tab
     return Debug.error({
       module: 'sites',
       context: 'put-site',
+      message: String(err),
+      time: new Date()
+    });
+  }
+}
+
+export async function updateSite(site: Tables<'sites'>): Promise<ActionResponse<null>> {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase
+      .from('sites')
+      .update({
+        ...site,
+      }).eq('id', site.id);
+
+    if (error)
+      throw new Error(error.message);
+
+    return {
+      ok: true,
+      data: null
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'sites',
+      context: 'update-site',
       message: String(err),
       time: new Date()
     });

@@ -16,7 +16,7 @@ import { Tables } from "@/types/database";
 import { useActionState } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Cog } from "lucide-react";
+import { Cog, Settings } from "lucide-react";
 import SophosMappingsDialog from "@/components/dialogs/SophosMappingsDialog";
 
 type Props = {
@@ -59,7 +59,7 @@ export default function SophosPartner(props: Props) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  <Cog className="h-4 w-4" />
+                  <Settings className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

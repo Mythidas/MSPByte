@@ -1,8 +1,8 @@
 import SitesTable from "@/components/tables/SitesTable";
-import { getParentSites } from "@/lib/actions/server/sites";
+import { getUpperSites } from "@/lib/actions/server/sites";
 
 export default async function ClientsPage() {
-  const sites = await getParentSites();
+  const sites = await getUpperSites();
 
   const renderBody = async () => {
     if (!sites.ok) {
