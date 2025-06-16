@@ -3,7 +3,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import SophosPartnerMapping from "@/components/mappings/SophosPartnerMapping";
+import SophosPartnerMappings from "@/components/mappings/SophosPartnerMappings";
 import { getSiteMapping } from "@/lib/actions/server/sources/site-source-mappings";
 
 type Props = {
@@ -27,7 +27,7 @@ export default async function Page(props: Props) {
   const getMappingComponent = () => {
     switch (mapping.data.source_slug) {
       case 'sophos-partner':
-        return <SophosPartnerMapping mapping={mapping.data} />
+        return <SophosPartnerMappings mapping={mapping.data} />
     }
   }
 

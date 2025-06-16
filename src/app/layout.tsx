@@ -31,7 +31,7 @@ export default function RootLayout({
           <main className="h-screen w-screen flex flex-col items-center justify-center">
             {children}
           </main>
-          <Toaster />
+          <Toaster position='top-center' />
           <div id="search-portal" className="fixed top-0 flex flex-col z-[1000] w-screen h-screen pointer-events-none" />
         </ThemeProvider>
       </body>

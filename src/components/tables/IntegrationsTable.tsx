@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tables } from "@/types/database";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
@@ -58,10 +58,10 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
           />
         </div>
       </div>
-      <div className="grid grid-cols-3">
+      <div className="grid grid-cols-3 gap-2">
         {sources.filter(filterSources).map((source) => {
           return (
-            <Card key={source.id}>
+            <Card key={source.id} className="flex flex-col justify-between">
               <CardHeader>
                 <CardTitle>
                   <div className="flex w-full gap-2 items-center">
@@ -80,7 +80,7 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropDownItem route={`/integrations/source/${source.slug}`} module="integrations" level="read">
+                      <DropDownItem route={`/integrations/${source.slug}`} module="integrations" level="read">
                         Edit
                       </DropDownItem>
                       <DropDownItem onClick={() => syncNow(source)} module="integrations" level="edit">
@@ -90,14 +90,14 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
                   </DropdownMenu>
                 </CardAction>
               </CardHeader>
-              <CardContent>
+              <CardFooter>
                 <div className="flex w-full justify-between">
                   {isIntegrated(source) ?
                     <Badge className="text-sm">Active</Badge>
                     : <Badge className="text-sm" variant="destructive">Inactive</Badge>}
                   {isIntegrated(source) && <span>{lastSync(source)}</span>}
                 </div>
-              </CardContent>
+              </CardFooter>
             </Card>
           )
         })}

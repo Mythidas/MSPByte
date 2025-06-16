@@ -33,11 +33,10 @@ export default function SophosMappingsDialog(props: Props) {
           throw new Error('Failed to fetch data');
         }
 
-        console.log(siteMappings.data);
         setMappings(siteMappings.data);
         setExternal(tenants.data);
       } catch (error) {
-        console.error("Failed to load mappings: ", error);
+        toast.error(`Failed to load mappings: ${error}`);
       } finally {
         setIsLoading(false);
       }

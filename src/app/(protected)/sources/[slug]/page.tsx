@@ -1,5 +1,5 @@
 import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import SophosPartnerMapping from "@/components/mappings/SophosPartnerMapping";
+import SophosPartnerMappings from "@/components/mappings/SophosPartnerMappings";
 import ErrorDisplay from "@/components/ux/ErrorDisplay";
 import { getSource } from "@/lib/actions/server/sources";
 
@@ -20,7 +20,7 @@ export default async function Page({ ...props }: Props) {
   const getMappingComponent = () => {
     switch (params.slug) {
       case 'sophos-partner':
-        return <SophosPartnerMapping source={source.data} tab={searchParams.tab} search={searchParams.search} />
+        return <SophosPartnerMappings source={source.data} tab={searchParams.tab} search={searchParams.search} />
     }
   }
 

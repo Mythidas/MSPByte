@@ -8,16 +8,18 @@ import FormAlert from "@/components/ux/FormAlert";
 import FormError from "@/components/ux/FormError";
 import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
 import { SubmitButton } from "@/components/ux/SubmitButton";
-import { SophosPartnerFormValues } from "@/lib/forms/sources";
 import { useUser } from "@/lib/providers/UserContext";
 import { FormState } from "@/types";
 import { Tables } from "@/types/database";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Settings } from "lucide-react";
-import SophosMappingsDialog from "@/components/dialogs/SophosMappingsDialog";
-import { sophosIntegrationAction } from "@/lib/actions/form/integrations";
+import { microsoft365IntegrationAction } from "@/lib/actions/form/integrations";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { Microsoft365FormValues } from "@/lib/forms/sources";
+import Microsoft365MappingsDialog from "@/components/dialogs/Microsoft365MappingsDiablog";
 
 type Props = {
   source: Tables<'sources'>;
@@ -27,12 +29,20 @@ type Props = {
   searchParams: { tab?: string };
 }
 
-export default function SophosPartner({ source, integration, mappings, ...props }: Props) {
-  const [state, formAction] = useActionState<FormState<SophosPartnerFormValues>, FormData>(
-    sophosIntegrationAction,
+export default function Microsoft365({ source, integration, mappings, ...props }: Props) {
+  const [state, formAction] = useActionState<FormState<Microsoft365FormValues>, FormData>(
+    microsoft365IntegrationAction,
     {}
   );
   const context = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state.success) {
+      toast.info('Saved integration settings');
+      router.refresh();
+    }
+  }, [state])
 
   return (
     <Tabs defaultValue={props.searchParams.tab || "overview"} className="flex flex-col size-full">
@@ -63,21 +73,11 @@ export default function SophosPartner({ source, integration, mappings, ...props 
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <SophosMappingsDialog source={source} integration={integration!} />
+                <Microsoft365MappingsDialog source={source} integration={integration!} />
               </DropdownMenuContent>
             </DropdownMenu>}
           </div>
           <div className="flex flex-col gap-2">
-            <Label className="text-nowrap">
-              <span className="w-32">Client ID</span>
-              <Input name="client_id" placeholder="**************" defaultValue={state.values?.client_id} />
-            </Label>
-            <FormError name="client_id" errors={state.errors} />
-            <Label className="text-nowrap">
-              <span className="w-32">Client Secret</span>
-              <Input name="client_secret" placeholder="**************" defaultValue={state.values?.client_secret} />
-            </Label>
-            <FormError name="client_secret" errors={state.errors} />
           </div>
           <div>
             <SubmitButton pendingText="Saving...">

@@ -20,7 +20,7 @@ type Props = {
   search?: string;
 }
 
-export default async function SophosPartnerMapping({ source, site, tab, search }: Props) {
+export default async function SophosPartnerMappings({ source, site, tab, search }: Props) {
   const type = !site ? 'global' : site.is_parent ? 'parent' : 'site';
 
   const renderBody = async () => {

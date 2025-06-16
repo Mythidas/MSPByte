@@ -11,7 +11,7 @@ export async function getSiteMappings(sourceId?: string): Promise<ActionResponse
 
     let query = supabase.from('site_mappings_view').select().eq('is_parent', false).order('site_name').order('parent_name');
     if (sourceId) {
-      query = query.or(`source_id.eq.${sourceId},source_id.is.null`);
+      query = query.eq('source_id', sourceId);
     }
 
     const { data, error } = await query;
@@ -85,18 +85,46 @@ export async function getSiteSourceMappings(sourceId?: string, siteIds?: string[
   }
 }
 
-export async function putSiteSourceMapping(mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<null>> {
+export async function putSiteSourceMapping(mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<Tables<'site_source_mappings'>>> {
   try {
     const supabase = await createClient();
 
-    const { error } = await supabase.from('site_source_mappings').insert({
+    const { data, error } = await supabase.from('site_source_mappings').insert({
       tenant_id: mapping.tenant_id,
       site_id: mapping.site_id,
       external_id: mapping.external_id,
       external_name: mapping.external_name,
       metadata: mapping.metadata || {},
       source_id: mapping.source_id
-    });
+    }).select().single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      ok: true,
+      data
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'integrations',
+      context: 'put-site-source-mapping',
+      message: String(err),
+      time: new Date()
+    })
+  }
+}
+
+export async function updateSiteSourceMapping(mapping: Tables<'site_source_mappings'>): Promise<ActionResponse<null>> {
+  try {
+    const supabase = await createClient();
+
+    const { error } = await supabase.from('site_source_mappings').update({
+      external_id: mapping.external_id,
+      external_name: mapping.external_name,
+      metadata: mapping.metadata || {},
+    }).eq('id', mapping.id);
 
     if (error) {
       throw new Error(error.message);
@@ -109,7 +137,7 @@ export async function putSiteSourceMapping(mapping: Tables<'site_source_mappings
   } catch (err) {
     return Debug.error({
       module: 'integrations',
-      context: 'put-site-source-mapping',
+      context: 'update-site-source-mapping',
       message: String(err),
       time: new Date()
     })

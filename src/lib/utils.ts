@@ -13,7 +13,7 @@ export function pascalCase(str: string) {
 export class Debug {
   static error(error: Error) {
     // write to db later
-    console.error(`[${error.time.toISOString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`);
+    console.error(`[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`);
     return {
       ok: false,
       error

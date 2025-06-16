@@ -87,6 +87,36 @@ export async function getSites(parentId?: string): Promise<ActionResponse<Tables
   }
 }
 
+export async function getSitesView(parentId?: string): Promise<ActionResponse<Tables<'sites_view'>[]>> {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase
+      .from('sites_view')
+      .select('*')
+      .eq('is_parent', false)
+      .order('name', { ascending: true });
+    if (parentId) query = query.eq('parent_id', parentId);
+
+    const { data, error } = await query;
+
+    if (error)
+      throw new Error(error.message);
+
+    return {
+      ok: true,
+      data
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'sites',
+      context: 'get-sites',
+      message: String(err),
+      time: new Date()
+    });
+  }
+}
+
 export async function getSite(id: string): Promise<ActionResponse<Tables<'sites'>>> {
   try {
     const supabase = await createClient();
