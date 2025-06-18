@@ -7,6 +7,7 @@ import { Tables } from "@/types/database";
 import { Input } from "@/components/ui/input";
 import { pascalCase } from "@/lib/utils";
 import PaginatedTable from "@/components/ux/PaginatedTable";
+import Link from "next/link";
 
 type Props = {
   devices: Tables<'source_devices_view'>[];
@@ -65,8 +66,16 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
             <>
               {data.map((device) =>
                 <TableRow key={device.id}>
-                  <TableCell>{device.site_name}</TableCell>
-                  <TableCell>{device.parent_name && device.parent_name.length > 25 ? `${device.parent_name?.substring(0, 25)}...` : device.parent_name}</TableCell>
+                  <TableCell>
+                    <Link href={`/sites/${device.site_id}/sophos-partner?tab=devices`} className="hover:text-primary">
+                      {device.site_name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {device.parent_id && <Link href={`/sites/${device.parent_id}/sophos-partner?tab=devices`} className="hover:text-primary">
+                      {device.parent_name && device.parent_name.length > 25 ? `${device.parent_name?.substring(0, 25)}...` : device.parent_name}
+                    </Link>}
+                  </TableCell>
                   <TableCell>{device.hostname}</TableCell>
                   <TableCell>{device.os}</TableCell>
                   <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>

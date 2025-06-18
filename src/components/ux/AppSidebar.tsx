@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, Database, FolderCog, MonitorDot, ShieldUser } from "lucide-react"
+import { Building2, Cable, ChartArea, ChevronDown, Database, Globe, LucideProps, ShieldUser } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -14,8 +14,18 @@ import {
 } from "@/components/ui/sidebar"
 import { usePathname } from 'next/navigation';
 import Link from "next/link";
+import { ForwardRefExoticComponent, RefAttributes } from "react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Separator } from "@/components/ui/separator";
 
-const applicationItems = [
+type Item = {
+  title: string;
+  url: string;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  children?: Item[];
+}
+
+const applicationItems: Item[] = [
   {
     title: "Home",
     url: "/",
@@ -30,10 +40,10 @@ const applicationItems = [
     title: "Sources",
     url: "/sources",
     icon: Database
-  },
+  }
 ]
 
-const adminItems = [
+const adminItems: Item[] = [
   {
     title: "Integrations",
     url: "/integrations",
@@ -49,6 +59,22 @@ const adminItems = [
 export default function AppSidebar() {
   const pathname = usePathname(); // always safe
 
+  const renderItem = (item: Item) => {
+    return (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton
+          asChild
+          isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
+        >
+          <Link href={item.url}>
+            <item.icon />
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    )
+  }
+
   return (
     <Sidebar className="w-48">
       <SidebarHeader>
@@ -59,19 +85,7 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {applicationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {applicationItems.map((item) => renderItem(item))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -79,19 +93,7 @@ export default function AppSidebar() {
           <SidebarGroupLabel>Backend</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
-                  >
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {adminItems.map((item) => renderItem(item))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

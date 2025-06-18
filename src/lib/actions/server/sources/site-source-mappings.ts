@@ -58,6 +58,33 @@ export async function getSiteMapping(id: string): Promise<ActionResponse<Tables<
   }
 }
 
+export async function getSiteSourceMapping(sourceId: string, siteId: string): Promise<ActionResponse<Tables<'site_source_mappings'>>> {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase.from('site_source_mappings').select('*')
+      .eq('source_id', sourceId)
+      .eq('site_id', siteId);
+
+    const { data, error } = await query.single();
+
+    if (error)
+      throw new Error(error.message);
+
+    return {
+      ok: true,
+      data
+    }
+  } catch (err) {
+    return Debug.error({
+      module: 'integrations',
+      context: 'get-site-source-mappings',
+      message: String(err),
+      time: new Date()
+    });
+  }
+}
+
 export async function getSiteSourceMappings(sourceId?: string, siteIds?: string[]): Promise<ActionResponse<Tables<'site_source_mappings'>[]>> {
   try {
     const supabase = await createClient();

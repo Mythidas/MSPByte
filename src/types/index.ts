@@ -18,7 +18,7 @@ export type RoleAccessModule = typeof accessModules[number];
 export type RoleAccessLevel = typeof accessLevels[number];
 
 export type Error = {
-  module: RoleAccessModule;
+  module: string;
   context: string;
   message: string;
   time: Date;

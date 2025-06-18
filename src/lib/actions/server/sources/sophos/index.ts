@@ -158,7 +158,6 @@ export async function syncSiteMapping(
     }
 
     timer.begin('sort-devices');
-    const deviceSortingTimer = new Timer('Sync-Site-Mapping-Sort-Devices');
     const newDevices = devices.data.filter((device) => {
       return !sourceDevices.find((sd) => sd.external_id === device.id);
     });

@@ -437,6 +437,226 @@ export type Database = {
           },
         ]
       }
+      source_identities: {
+        Row: {
+          created_at: string | null
+          display_name: string
+          email: string
+          enabled: boolean
+          enforcement_type: string
+          external_id: string
+          id: string
+          last_activity: string | null
+          metadata: Json | null
+          mfa_enforced: boolean
+          mfa_methods: Json | null
+          site_id: string
+          source_id: string
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name: string
+          email: string
+          enabled: boolean
+          enforcement_type: string
+          external_id: string
+          id?: string
+          last_activity?: string | null
+          metadata?: Json | null
+          mfa_enforced: boolean
+          mfa_methods?: Json | null
+          site_id: string
+          source_id: string
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string
+          email?: string
+          enabled?: boolean
+          enforcement_type?: string
+          external_id?: string
+          id?: string
+          last_activity?: string | null
+          metadata?: Json | null
+          mfa_enforced?: boolean
+          mfa_methods?: Json | null
+          site_id?: string
+          source_id?: string
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_identities_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_identities_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_identity_licenses: {
+        Row: {
+          assigned_at: string
+          created_at: string | null
+          display_name: string
+          enabled_services: string[]
+          id: string
+          identity_id: string
+          is_active: boolean
+          metadata: Json | null
+          site_id: string
+          sku: string
+          source_id: string
+          tenant_id: string
+        }
+        Insert: {
+          assigned_at: string
+          created_at?: string | null
+          display_name: string
+          enabled_services: string[]
+          id?: string
+          identity_id: string
+          is_active: boolean
+          metadata?: Json | null
+          site_id: string
+          sku: string
+          source_id: string
+          tenant_id: string
+        }
+        Update: {
+          assigned_at?: string
+          created_at?: string | null
+          display_name?: string
+          enabled_services?: string[]
+          id?: string
+          identity_id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          site_id?: string
+          sku?: string
+          source_id?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_identity_licenses_identity_id_fkey"
+            columns: ["identity_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identity_licenses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       source_integrations: {
         Row: {
           config: Json
@@ -483,6 +703,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      source_license_capabilities: {
+        Row: {
+          capability_tags: string[] | null
+          created_at: string | null
+          metadata: Json | null
+          name: string
+          sku: string
+          vendor: string
+        }
+        Insert: {
+          capability_tags?: string[] | null
+          created_at?: string | null
+          metadata?: Json | null
+          name: string
+          sku: string
+          vendor: string
+        }
+        Update: {
+          capability_tags?: string[] | null
+          created_at?: string | null
+          metadata?: Json | null
+          name?: string
+          sku?: string
+          vendor?: string
+        }
+        Relationships: []
       }
       source_metrics: {
         Row: {
@@ -588,6 +835,99 @@ export type Database = {
           },
           {
             foreignKeyName: "source_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_policies: {
+        Row: {
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          site_id: string
+          source_id: string
+          status: string
+          tenant_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          site_id: string
+          source_id: string
+          status: string
+          tenant_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          site_id?: string
+          source_id?: string
+          status?: string
+          tenant_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_policies_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_policies_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_policies_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_policies_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_policies_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "site_mappings_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_policies_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_policies_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_policies_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"

@@ -23,9 +23,9 @@ export default async function Page({ ...props }: Props) {
   const site = await getSite(params.id);
   const sites = await getSites(params.id);
   const sources = await getSources();
-  const integrations = await getIntegrations();
+  const mappings = await getSiteSourceMappings(undefined, [params.id]);
 
-  if (!site.ok || !sites.ok || !integrations.ok || !sources.ok) {
+  if (!site.ok || !sites.ok || !mappings.ok || !sources.ok) {
     return <ErrorDisplay message="Failed to fetch data" />
   }
 
@@ -61,6 +61,26 @@ export default async function Page({ ...props }: Props) {
     }
   }
 
+  const display = () => {
+    return mappings.data.length > 0 ? <div className="grid grid-cols-4 gap-2">
+      {mappings.data.map((mapping) => {
+        const source = sources.data.find((s) => s.id === mapping.source_id);
+
+        return (
+          <RouteCard
+            key={mapping.id}
+            className="justify-center items-center"
+            route={`/sites/${params.id}/${source?.slug}`}
+            module="sites"
+            level="read"
+          >
+            {source?.name}
+          </RouteCard>
+        )
+      })}
+    </div> : <ErrorDisplay message="No site mappings found" />
+  }
+
   if (site.data.is_parent) {
     return (
       <>
@@ -72,23 +92,7 @@ export default async function Page({ ...props }: Props) {
             <RouteTabsTrigger value="sources">Sources</RouteTabsTrigger>
           </TabsList>
           <TabsContent value="sources">
-            {integrations.data.length > 0 ? <div className="grid grid-cols-4 gap-2">
-              {integrations.data.map((integrations) => {
-                const source = sources.data.find((s) => s.id === integrations.source_id);
-
-                return (
-                  <RouteCard
-                    key={integrations.id}
-                    className="justify-center items-center"
-                    route={`/sites/${params.id}/source/${source?.slug}`}
-                    module="sites"
-                    level="read"
-                  >
-                    {source?.name}
-                  </RouteCard>
-                )
-              })}
-            </div> : <ErrorDisplay message="No integrations found" />}
+            {display()}
           </TabsContent>
           <TabsContent value="sites">
             <SitesTable parentId={site.data.id} sites={sites.data} />
@@ -106,23 +110,7 @@ export default async function Page({ ...props }: Props) {
         <h1 className="text-2xl font-bold tracking-tight">Sources</h1>
       </div>
 
-      {integrations.data.length > 0 ? <div className="grid grid-cols-4 gap-2">
-        {integrations.data.map((integrations) => {
-          const source = sources.data.find((s) => s.id === integrations.source_id);
-
-          return (
-            <RouteCard
-              key={integrations.id}
-              className="justify-center items-center"
-              route={`/sites/${params.id}/source/${source?.slug}`}
-              module="sites"
-              level="read"
-            >
-              {source?.name}
-            </RouteCard>
-          )
-        })}
-      </div> : <ErrorDisplay message="No integrations found" />}
+      {display()}
     </>
   );
 }

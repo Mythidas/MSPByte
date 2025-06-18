@@ -34,7 +34,7 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
 
   function lastSync(source: Tables<'sources'>) {
     const integration = integrations.find((i) => i.source_id === source.id);
-    const date = integration?.last_sync_at ? new Date(integration.last_sync_at).toDateString() : "Never";
+    const date = integration?.last_sync_at ? new Date(integration.last_sync_at).toLocaleDateString() : "Never";
     return `Last Sync: ${date}`;
   }
 

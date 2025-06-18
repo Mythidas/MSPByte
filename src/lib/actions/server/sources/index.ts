@@ -1,5 +1,6 @@
 'use server'
 
+import { syncMicrosoft365 } from "@/lib/actions/server/sources/microsoft";
 import { syncSophosPartner } from "@/lib/actions/server/sources/sophos";
 import { Debug } from "@/lib/utils";
 import { ActionResponse } from "@/types";
@@ -73,6 +74,8 @@ export async function syncSource(integration: Tables<'source_integrations'>, sit
     switch (source.data.slug) {
       case 'sophos-partner':
         return await syncSophosPartner(integration, siteIds);
+      case 'microsoft-365':
+        return await syncMicrosoft365(integration, siteIds);
       default:
         throw new Error('No sync defined for this source');
     }

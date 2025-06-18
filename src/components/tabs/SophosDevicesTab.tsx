@@ -5,12 +5,11 @@ import { getSourceDevices } from "@/lib/actions/server/sources/source-devices";
 
 type Props = {
   sourceId: string;
-  tabValue: string;
   siteIds?: string[];
   search?: string;
 }
 
-export default async function SophosDevicesTab({ sourceId, siteIds, tabValue, search }: Props) {
+export default async function SophosDevicesTab({ sourceId, siteIds, search }: Props) {
   const devices = await getSourceDevices(sourceId, siteIds);
 
   if (!devices.ok) {
@@ -18,7 +17,7 @@ export default async function SophosDevicesTab({ sourceId, siteIds, tabValue, se
   }
 
   return (
-    <TabsContent value={tabValue}>
+    <TabsContent value="devices">
       <SophosDevicesTable devices={devices.data} defaultSearch={search} />
     </TabsContent>
   );
