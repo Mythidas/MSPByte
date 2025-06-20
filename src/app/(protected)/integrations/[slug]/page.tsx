@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { getSites } from 'packages/services/sites';
 import { getSource } from 'packages/services/sources';
 import { getSiteSourceMappings } from 'packages/services/siteSourceMappings';
-import { getIntegration } from 'packages/services/integrations';
+import { getSourceIntegration } from 'packages/services/integrations';
 import {
   Breadcrumb,
   BreadcrumbLink,
@@ -32,7 +32,7 @@ export default async function SourcePage(props: Props) {
     );
   }
 
-  const integration = await getIntegration(undefined, source.data.id);
+  const integration = await getSourceIntegration(undefined, source.data.id);
   const mappings = await getSiteSourceMappings(source.data.id);
   const sites = await getSites();
 

@@ -31,7 +31,7 @@ export async function syncMetrics(
     tenant_id: mapping.tenant_id,
     site_id: mapping.site_id,
     source_id: mapping.source_id,
-    name: 'Total Identities',
+    name: 'No MFA Enforced',
     metric: identities.length,
     unit: 'identities',
     total: null,

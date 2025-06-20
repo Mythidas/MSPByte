@@ -1,5 +1,5 @@
 import { Debug } from '@/lib/utils';
-import { getSiteSourceMapping } from 'packages/services/siteSourceMappings';
+import { getSiteSourceMapping } from '@/services/siteSourceMappings';
 import { APIResponse } from '@/types';
 import { ClientSecretCredential } from '@azure/identity';
 import { Client } from '@microsoft/microsoft-graph-client';
@@ -36,7 +36,7 @@ export async function getGraphClient(
   } catch (err) {
     return Debug.error({
       module: 'integrations',
-      context: 'get-graph-client',
+      context: 'getGraphClient',
       message: String(err),
       time: new Date(),
     });

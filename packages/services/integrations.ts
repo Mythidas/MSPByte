@@ -1,90 +1,35 @@
 'use server';
 
+import { tables } from '@/db';
+import { TablesUpdate } from '@/db/schema';
 import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
-import { Schema } from 'packages/db';
-import { createClient } from 'packages/db/server';
-import { Tables } from 'packages/db/schema';
 
-export async function getIntegrations(): Promise<APIResponse<Tables<'source_integrations'>[]>> {
-  try {
-    const supabase = await createClient();
+export async function getSourceIntegrations() {
+  return tables.select('source_integrations');
+}
 
-    let query = supabase.from('source_integrations').select('*');
+export async function getSourceIntegrationsView() {
+  return tables.select('source_integrations_view');
+}
 
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
+export async function getSourceIntegration(id?: string, sourceId?: string) {
+  if (!id && !sourceId) {
     return Debug.error({
       module: 'integrations',
-      context: 'get-integrations',
-      message: String(err),
+      context: 'getIntegration',
+      message: 'At least one parameter required',
       time: new Date(),
     });
   }
-}
-
-export async function getIntegrationsView(): Promise<
-  APIResponse<Tables<'source_integrations_view'>[]>
-> {
-  try {
-    const supabase = await createClient();
-
-    let query = supabase.from('source_integrations_view').select('*');
-
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'integrations',
-      context: 'get-integrations',
-      message: String(err),
-      time: new Date(),
-    });
-  }
-}
-
-export async function getIntegration(
-  id?: string,
-  sourceId?: string
-): Promise<APIResponse<Tables<'source_integrations'>>> {
-  try {
-    const supabase = await createClient();
-
-    if (!id && !sourceId) {
-      throw new Error('getIntegration requires at least one id');
-    }
-
-    let query = supabase.from('source_integrations').select('*');
+  return tables.selectSingle('source_integrations', (query) => {
     if (id) query = query.eq('id', id);
     if (sourceId) query = query.eq('source_id', sourceId);
+  });
+}
 
-    const { data, error } = await query.single();
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'integrations',
-      context: 'get-integration',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+export async function updateSourceIntegration(
+  id: string,
+  integration: TablesUpdate<'source_integrations'>
+) {
+  return tables.update('source_integrations', id, integration);
 }

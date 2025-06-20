@@ -1,8 +1,11 @@
-import { getSiteSourceMappings } from 'packages/services/siteSourceMappings';
+'use server';
+
 import { Debug } from '@/lib/utils';
-import { syncMapping } from 'packages/integrations/microsoft/sync/syncMapping';
-import { Tables } from 'packages/db/schema';
 import { APIResponse } from '@/types';
+import { updateSourceIntegration } from '@/services/integrations';
+import { Tables } from '@/db/schema';
+import { syncMapping } from '@/integrations/microsoft/sync/syncMapping';
+import { getSiteSourceMappings } from '@/services/siteSourceMappings';
 
 export async function syncMicrosoft365(
   integration: Tables<'source_integrations'>,
@@ -18,7 +21,10 @@ export async function syncMicrosoft365(
       await syncMapping(mapping);
     }
 
-    // Update last sync timestamp
+    await updateSourceIntegration(integration.id, {
+      last_sync_at: new Date().toISOString(),
+    });
+
     return {
       ok: true,
       data: null,

@@ -14,7 +14,7 @@ import RouteCard from '@/components/ux/RouteCard';
 import SitesTable from '@/components/tables/SitesTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
-import { getIntegrations } from 'packages/services/integrations';
+import { getSourceIntegrations } from 'packages/services/integrations';
 
 type Props = {
   params: Promise<{ id: string }>;

@@ -1,10 +1,10 @@
 import IntegrationsTable from '@/components/tables/IntegrationsTable';
-import { getIntegrations } from 'packages/services/integrations';
+import { getSourceIntegrations } from 'packages/services/integrations';
 import { getSources } from 'packages/services/sources';
 
 export default async function IntegrationsPage() {
   const sources = await getSources();
-  const integrations = await getIntegrations();
+  const integrations = await getSourceIntegrations();
 
   if (!sources.ok || !integrations.ok) {
     return (

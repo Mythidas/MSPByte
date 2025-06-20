@@ -9,7 +9,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import DataTable, { DataTableColumn, DataTableHeader } from '@/components/ux/DataTable';
+import DataTable, { DataTableColumnDef, DataTableHeader } from '@/components/ux/DataTable';
 import { Tables } from '@/db/schema';
 import { getSitesView } from '@/services/sites';
 import { getSiteMappings } from '@/services/siteSourceMappings';
@@ -132,7 +132,7 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
                   return b - a;
                 },
               },
-            ] as DataTableColumn<Tables<'site_mappings_view'>, undefined>[]
+            ] as DataTableColumnDef<Tables<'site_mappings_view'>, undefined>[]
           }
           data={mappings}
         />

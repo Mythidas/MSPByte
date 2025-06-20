@@ -1,7 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
+import DataTable, { DataTableColumnDef, DataTableHeader } from '@/components/ux/DataTable';
 import { Tables } from '@/db/schema';
 
 type Props = {
@@ -29,12 +29,26 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             header: ({ column }) => <DataTableHeader column={column} label="Name" />,
             enableHiding: false,
             simpleSearch: true,
+            filter: {
+              type: 'text',
+              placeholder: 'Search name',
+            },
+            meta: {
+              label: 'Name',
+            },
           },
           {
             accessorKey: 'email',
             header: ({ column }) => <DataTableHeader column={column} label="Email" />,
             enableHiding: false,
             simpleSearch: true,
+            filter: {
+              type: 'text',
+              placeholder: 'Search email',
+            },
+            meta: {
+              label: 'Email',
+            },
           },
           {
             accessorKey: 'mfa_enforced',
@@ -43,6 +57,12 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             meta: {
               label: 'MFA Enforced',
             },
+            filterFn: (row, colId, value) => {
+              return row.original.mfa_enforced === value;
+            },
+            filter: {
+              type: 'boolean',
+            },
           },
           {
             accessorKey: 'enforcement_type',
@@ -50,6 +70,15 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             cell: ({ row }) => <div>{getEnforcement(row.getValue('enforcement_type'))}</div>,
             meta: {
               label: 'Enforcement',
+            },
+            filter: {
+              type: 'select',
+              placeholder: 'Select Enforcement',
+              options: [
+                { label: 'Conditional Access', value: 'conditional_access' },
+                { label: 'Security Defaults', value: 'security_defaults' },
+                { label: 'None', value: 'none' },
+              ],
             },
           },
           {
@@ -60,6 +89,9 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             },
             meta: {
               label: 'Methods',
+            },
+            filter: {
+              type: 'number',
             },
           },
           {
@@ -74,6 +106,9 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             meta: {
               label: 'Licenses',
             },
+            filter: {
+              type: 'select',
+            },
           },
           {
             accessorKey: 'last_activity',
@@ -84,8 +119,30 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             meta: {
               label: 'Last Activity',
             },
+            filter: {
+              type: 'date',
+            },
           },
-        ] as ColumnDef<Tables<'source_identities'>>[]
+          {
+            accessorKey: 'enable',
+            header: ({ column }) => <DataTableHeader column={column} label="Status" />,
+            cell: ({ row }) => {
+              return <div>{row.original.enabled ? 'Active' : 'Blocked'}</div>;
+            },
+            sortingFn: (rowA, rowB) => {
+              return Number(rowB.original.enabled) - Number(rowA.original.enabled);
+            },
+            meta: {
+              label: 'Status',
+            },
+            filterFn: (row, colId, value) => {
+              return row.original.enabled === value;
+            },
+            filter: {
+              type: 'boolean',
+            },
+          },
+        ] as DataTableColumnDef<Tables<'source_identities'>>[]
       }
       data={identities}
       initialVisibility={{}}

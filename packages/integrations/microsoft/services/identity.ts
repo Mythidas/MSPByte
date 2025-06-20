@@ -32,7 +32,7 @@ export async function getSubscribedSku(
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
-      context: 'get-licenses',
+      context: 'getSubscribedSku',
       message: String(err),
       time: new Date(),
     });
@@ -53,7 +53,7 @@ export async function getAuthenticationMethods(
 
     return {
       ok: true,
-      data: methods,
+      data: methods.value,
     };
   } catch (err) {
     return Debug.error({
@@ -85,7 +85,7 @@ export async function getSecurityDefaultsEnabled(
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
-      context: 'get-security-defaults-enabled',
+      context: 'getSecurityDefaultsEnabled',
       message: String(err),
       time: new Date(),
     });
@@ -110,7 +110,7 @@ export async function getConditionalAccessPolicies(
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
-      context: 'get-security-defaults-enabled',
+      context: 'getConditionalAccessPolicies',
       message: String(err),
       time: new Date(),
     });

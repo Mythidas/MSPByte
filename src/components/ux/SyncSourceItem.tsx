@@ -3,7 +3,7 @@
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { syncSource } from '@/core/sync';
 import { Tables } from '@/db/schema';
-import { getIntegration } from '@/services/integrations';
+import { getSourceIntegration } from '@/services/integrations';
 import { getSites } from '@/services/sites';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 export default function SyncSourceItem({ type, source, site }: Props) {
   const handleSync = async () => {
-    const integration = await getIntegration(undefined, source.id);
+    const integration = await getSourceIntegration(undefined, source.id);
     if (!integration.ok) return;
 
     switch (type) {

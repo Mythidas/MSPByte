@@ -1,6 +1,15 @@
 'use client';
 
-import { Building2, Cable, ChartArea, ChevronDown, Database, Globe, LucideProps, ShieldUser } from "lucide-react"
+import {
+  Building2,
+  Cable,
+  ChartArea,
+  ChevronDown,
+  Database,
+  Globe,
+  LucideProps,
+  ShieldUser,
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,50 +20,48 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
-import Link from "next/link";
-import { ForwardRefExoticComponent, RefAttributes } from "react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Separator } from "@/components/ui/separator";
+import Link from 'next/link';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type Item = {
   title: string;
   url: string;
-  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   children?: Item[];
-}
+};
 
 const applicationItems: Item[] = [
   {
-    title: "Home",
-    url: "/",
+    title: 'Home',
+    url: '/',
     icon: ChartArea,
   },
   {
-    title: "Sites",
-    url: "/sites",
-    icon: Building2
+    title: 'Sites',
+    url: '/sites',
+    icon: Building2,
   },
   {
-    title: "Sources",
-    url: "/sources",
-    icon: Database
-  }
-]
+    title: 'Sources',
+    url: '/sources',
+    icon: Database,
+  },
+];
 
 const adminItems: Item[] = [
   {
-    title: "Integrations",
-    url: "/integrations",
-    icon: Cable
+    title: 'Integrations',
+    url: '/integrations',
+    icon: Cable,
   },
   {
-    title: "Users",
-    url: "/users",
+    title: 'Users',
+    url: '/users',
     icon: ShieldUser,
   },
-]
+];
 
 export default function AppSidebar() {
   const pathname = usePathname(); // always safe
@@ -72,8 +79,8 @@ export default function AppSidebar() {
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
-    )
-  }
+    );
+  };
 
   return (
     <Sidebar className="w-48">
@@ -84,17 +91,13 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {applicationItems.map((item) => renderItem(item))}
-            </SidebarMenu>
+            <SidebarMenu>{applicationItems.map((item) => renderItem(item))}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Backend</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {adminItems.map((item) => renderItem(item))}
-            </SidebarMenu>
+            <SidebarMenu>{adminItems.map((item) => renderItem(item))}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
