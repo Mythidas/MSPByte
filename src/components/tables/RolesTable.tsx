@@ -1,30 +1,38 @@
-'use client'
+'use client';
 
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, UserPlus } from "lucide-react";
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tables } from "@/types/database";
-import { useUser } from "@/lib/providers/UserContext";
-import { Input } from "@/components/ui/input";
-import RouteButton from "@/components/ux/RouteButton";
-import DeleteForm from "@/components/forms/DeleteForm";
-import DropDownItem from "@/components/ux/DropDownItem";
-import { deleteUserAction } from "@/lib/actions/form/users";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal, UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { useUser } from '@/lib/providers/UserContext';
+import { Input } from '@/components/ui/input';
+import RouteButton from '@/components/ux/RouteButton';
+import DeleteForm from '@/components/forms/DeleteForm';
+import DropDownItem from '@/components/ux/DropDownItem';
+import { deleteUserAction } from '@/lib/actions/form/users';
+import { Tables } from '@/db/schema';
 
 type Props = {
   users: Tables<'users'>[];
   roles: Tables<'roles'>[];
-}
+};
 
 export default function RolesTable({ users, roles }: Props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const context = useUser();
 
   function filterRoles(role: Tables<'roles'>) {
@@ -65,18 +73,10 @@ export default function RolesTable({ users, roles }: Props) {
           <TableBody>
             {roles.filter(filterRoles).map((role) => (
               <TableRow key={role.id}>
-                <TableCell>
-                  {role.name}
-                </TableCell>
-                <TableCell>
-                  {users.filter((u) => u.role_id === role.id).length}
-                </TableCell>
-                <TableCell>
-                  {role.description}
-                </TableCell>
-                <TableCell>
-                  {role.tenant_id ? "Custom" : "System-Defined"}
-                </TableCell>
+                <TableCell>{role.name}</TableCell>
+                <TableCell>{users.filter((u) => u.role_id === role.id).length}</TableCell>
+                <TableCell>{role.description}</TableCell>
+                <TableCell>{role.tenant_id ? 'Custom' : 'System-Defined'}</TableCell>
                 <TableCell>
                   <DeleteForm id={role.id} action={deleteUserAction}>
                     <DropdownMenu>
@@ -86,10 +86,22 @@ export default function RolesTable({ users, roles }: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropDownItem route={`/roles/${role.id}`} module="roles" level="edit" disabled={!role.tenant_id}>
+                        <DropDownItem
+                          route={`/roles/${role.id}`}
+                          module="roles"
+                          level="edit"
+                          disabled={!role.tenant_id}
+                        >
                           Edit
                         </DropDownItem>
-                        <DropDownItem form={role.id} type="submit" variant="destructive" module="roles" level="full" disabled={role.id === context?.id || !role.tenant_id}>
+                        <DropDownItem
+                          form={role.id}
+                          type="submit"
+                          variant="destructive"
+                          module="roles"
+                          level="full"
+                          disabled={role.id === context?.id || !role.tenant_id}
+                        >
                           Delete
                         </DropDownItem>
                       </DropdownMenuContent>

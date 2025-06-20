@@ -1,20 +1,20 @@
-import { Card, CardHeader, CardAction, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import RouteButton from "@/components/ux/RouteButton";
-import { cn } from "@/lib/utils";
-import { Tables } from "@/types/database";
-import { MoveRight } from "lucide-react";
+import { Card, CardHeader, CardAction, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import RouteButton from '@/components/ux/RouteButton';
+import { Tables } from '@/db/schema';
+import { cn } from '@/lib/utils';
+import { MoveRight } from 'lucide-react';
 
 type Props = {
   metric: Tables<'source_metrics'>;
   baseRoute?: string;
-}
+};
 
 export default function SourceMetricCard({ metric, baseRoute }: Props) {
   function formatFilters(filters: Record<string, string>) {
-    let parsed = "";
+    let parsed = '';
     for (const [key, value] of Object.entries(filters)) {
-      if (parsed.length > 0) parsed += "&";
+      if (parsed.length > 0) parsed += '&';
       parsed += `${key}=${value}`;
     }
 
@@ -23,11 +23,12 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
 
   function getState(percent: number) {
     const thresholds = metric.thresholds as Record<string, number | boolean | undefined>;
-    const highest = thresholds['highest'] as boolean || false;
+    const highest = (thresholds['highest'] as boolean) || false;
 
-    const info = thresholds['info'] !== undefined ? thresholds['info'] as number : undefined;
-    const warn = thresholds['warn'] !== undefined ? thresholds['warn'] as number : undefined;
-    const critical = thresholds['critical'] !== undefined ? thresholds['critical'] as number : undefined;
+    const info = thresholds['info'] !== undefined ? (thresholds['info'] as number) : undefined;
+    const warn = thresholds['warn'] !== undefined ? (thresholds['warn'] as number) : undefined;
+    const critical =
+      thresholds['critical'] !== undefined ? (thresholds['critical'] as number) : undefined;
 
     if (highest) {
       if (warn !== undefined && percent > warn) return 'info';
@@ -49,15 +50,19 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
       case 'critical':
         return '[&>div]:bg-red-500 bg-red-500/30';
       case 'neutral':
-        return '[&>div]:bg-slate-500 bg-slate-500/30'
+        return '[&>div]:bg-slate-500 bg-slate-500/30';
       default:
         return '';
     }
   }
 
   const defaultVisual = () => {
-    return <span>{metric.metric} {metric.unit}</span>;
-  }
+    return (
+      <span>
+        {metric.metric} {metric.unit}
+      </span>
+    );
+  };
 
   const progressBar = () => {
     if (!metric.total) return defaultVisual();
@@ -72,8 +77,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
         <span>{metric.total}</span>
         <span>{metric.unit}</span>
       </div>
-    )
-  }
+    );
+  };
 
   function getVisual() {
     switch (metric.visual) {
@@ -89,7 +94,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
       <CardHeader>
         <span className="text-base">{metric.name}</span>
         <CardAction>
-          {metric.route &&
+          {metric.route && (
             <RouteButton
               variant="ghost"
               route={`${baseRoute || metric.route}?${formatFilters(metric.filters as Record<string, string>)}`}
@@ -98,12 +103,10 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
             >
               <MoveRight />
             </RouteButton>
-          }
+          )}
         </CardAction>
       </CardHeader>
-      <CardContent>
-        {getVisual()}
-      </CardContent>
+      <CardContent>{getVisual()}</CardContent>
     </Card>
   );
 }

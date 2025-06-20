@@ -1,15 +1,15 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getRoles } from "@/lib/actions/server/roles";
-import { createInviteAction } from "@/lib/actions/form/users";
-import { getTenant } from "@/lib/actions/server/tenants";
-import UserForm from "@/components/forms/UserForm";
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { getRoles } from 'packages/services/roles';
+import { createInviteAction } from '@/lib/actions/form/users';
+import { getTenant } from 'packages/services/tenants';
+import UserForm from '@/components/forms/UserForm';
 
 export default async function CreateUser() {
   const roles = await getRoles();
@@ -18,11 +18,9 @@ export default async function CreateUser() {
   if (!roles.ok || !tenant) {
     return (
       <Card>
-        <CardHeader>
-          Failed to fetch data. Contact Support.
-        </CardHeader>
+        <CardHeader>Failed to fetch data. Contact Support.</CardHeader>
       </Card>
-    )
+    );
   }
 
   return (
@@ -38,25 +36,23 @@ export default async function CreateUser() {
       <Card>
         <CardHeader>
           <CardTitle>User Information</CardTitle>
-          <CardDescription>
-            Enter the details for the new user account.
-          </CardDescription>
+          <CardDescription>Enter the details for the new user account.</CardDescription>
         </CardHeader>
         <CardContent>
           <UserForm
             user={{
-              id: "",
-              role_id: "",
-              name: "",
+              id: '',
+              role_id: '',
+              name: '',
               tenant_id: tenant.id,
-              email: "",
-              last_login: ""
+              email: '',
+              last_login: '',
             }}
             roles={roles.data}
             footer={{
-              submit_text: "Create User",
-              pending_text: "Creating User...",
-              cancel_route: `/users`
+              submit_text: 'Create User',
+              pending_text: 'Creating User...',
+              cancel_route: `/users`,
             }}
             action={createInviteAction}
           />

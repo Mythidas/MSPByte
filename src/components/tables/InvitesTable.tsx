@@ -1,36 +1,48 @@
-'use client'
+'use client';
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tables } from "@/types/database";
-import { Input } from "@/components/ui/input";
-import DeleteForm from "@/components/forms/DeleteForm";
-import DropDownItem from "@/components/ux/DropDownItem";
-import { deleteInviteAction } from "@/lib/actions/form/users";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal } from 'lucide-react';
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import DeleteForm from '@/components/forms/DeleteForm';
+import DropDownItem from '@/components/ux/DropDownItem';
+import { deleteInviteAction } from '@/lib/actions/form/users';
+import { Tables } from '@/db/schema';
 
 type Props = {
   invites: Tables<'invites'>[];
   roles: Tables<'roles'>[];
-}
+};
 
 export default function InvitesTable({ invites, roles }: Props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   function filterInvites(invite: Tables<'invites'>) {
     const lowerSearch = search.toLowerCase();
     const lowerName = invite.name.toLowerCase();
     const lowerEmail = invite.email.toLowerCase();
     const lowerRole = roles.find((e) => e.id === invite.role_id)?.name.toLowerCase();
-    return lowerEmail.includes(lowerSearch) || lowerName.includes(lowerSearch) || lowerRole?.includes(lowerSearch);
+    return (
+      lowerEmail.includes(lowerSearch) ||
+      lowerName.includes(lowerSearch) ||
+      lowerRole?.includes(lowerSearch)
+    );
   }
 
   return (
@@ -63,22 +75,14 @@ export default function InvitesTable({ invites, roles }: Props) {
                 <TableCell>
                   <div className="flex items-center space-x-3">
                     <Avatar>
-                      <AvatarFallback>
-                        {invite.name?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
+                      <AvatarFallback>{invite.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
-                    <div className="font-medium">
-                      {`${invite.name}`}
-                    </div>
+                    <div className="font-medium">{`${invite.name}`}</div>
                   </div>
                 </TableCell>
                 <TableCell>{invite.email}</TableCell>
-                <TableCell>
-                  {roles.find((role) => role.id === invite.role_id)?.name}
-                </TableCell>
-                <TableCell>
-                  {new Date(invite.created_at || "").toDateString() || ""}
-                </TableCell>
+                <TableCell>{roles.find((role) => role.id === invite.role_id)?.name}</TableCell>
+                <TableCell>{new Date(invite.created_at || '').toDateString() || ''}</TableCell>
                 <TableCell>
                   <DeleteForm id={invite.id} action={deleteInviteAction}>
                     <DropdownMenu>
@@ -88,7 +92,13 @@ export default function InvitesTable({ invites, roles }: Props) {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropDownItem form={invite.id} type="submit" variant="destructive" module="users" level="full">
+                        <DropDownItem
+                          form={invite.id}
+                          type="submit"
+                          variant="destructive"
+                          module="users"
+                          level="full"
+                        >
                           Delete
                         </DropDownItem>
                       </DropdownMenuContent>

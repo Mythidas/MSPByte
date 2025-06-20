@@ -1,14 +1,31 @@
-'use client'
+'use client';
 
-import DeleteForm from "@/components/forms/DeleteForm";
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { SubmitButton } from "@/components/ux/SubmitButton";
-import { deleteSiteSourceMapping } from "@/lib/actions/form/sources";
-import { Tables } from "@/types/database";
-import { Trash2 } from "lucide-react";
+import DeleteForm from '@/components/forms/DeleteForm';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/components/ux/SubmitButton';
+import { Tables } from '@/db/schema';
+import { deleteSiteSourceMapping } from '@/lib/actions/form/sources';
+import { Trash2 } from 'lucide-react';
 
-export function DeleteMappingDialog({ source, mapping, siteName }: { source: Tables<'sources'>, mapping: Tables<'site_source_mappings'>, siteName: string }) {
+export function DeleteMappingDialog({
+  source,
+  mapping,
+  siteName,
+}: {
+  source: Tables<'sources'>;
+  mapping: Tables<'site_source_mappings'>;
+  siteName: string;
+}) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -20,8 +37,8 @@ export function DeleteMappingDialog({ source, mapping, siteName }: { source: Tab
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Mapping</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the mapping between <strong>{siteName}</strong> and Sophos site <strong>{mapping.external_name}</strong>?
-            This action cannot be undone.
+            Are you sure you want to delete the mapping between <strong>{siteName}</strong> and
+            Sophos site <strong>{mapping.external_name}</strong>? This action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

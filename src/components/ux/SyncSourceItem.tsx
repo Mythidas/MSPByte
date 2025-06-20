@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { getIntegration } from "@/lib/actions/server/integrations";
-import { getSites } from "@/lib/actions/server/sites";
-import { syncSource } from "@/lib/actions/server/sources";
-import { Tables } from "@/types/database";
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
+import { syncSource } from '@/core/sync';
+import { Tables } from '@/db/schema';
+import { getIntegration } from '@/services/integrations';
+import { getSites } from '@/services/sites';
 
 type Props = {
   type: 'global' | 'parent' | 'site';
   source: Tables<'sources'>;
   site?: Tables<'sites'>;
-}
+};
 
 export default function SyncSourceItem({ type, source, site }: Props) {
   const handleSync = async () => {
@@ -34,11 +34,7 @@ export default function SyncSourceItem({ type, source, site }: Props) {
         break;
       }
     }
-  }
+  };
 
-  return (
-    <DropdownMenuItem onClick={handleSync}>
-      Sync Now
-    </DropdownMenuItem>
-  );
+  return <DropdownMenuItem onClick={handleSync}>Sync Now</DropdownMenuItem>;
 }

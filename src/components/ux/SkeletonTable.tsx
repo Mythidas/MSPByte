@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Table, TableCaption, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableCaption, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function SkeletonTable() {
   return (

@@ -17,17 +17,17 @@ export const accessLevels = ["none", "read", "edit", "full"] as const;
 export type RoleAccessModule = typeof accessModules[number];
 export type RoleAccessLevel = typeof accessLevels[number];
 
-export type Error = {
+export type APIError = {
   module: string;
   context: string;
   message: string;
   time: Date;
 }
 
-export type ActionResponse<T> = {
+export type APIResponse<T> = {
   ok: true;
   data: T;
 } | {
   ok: false;
-  error: Error;
+  error: APIError;
 }

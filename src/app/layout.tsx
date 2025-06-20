@@ -32,7 +32,7 @@ export default function RootLayout({
             {children}
           </main>
           <Toaster position='top-center' />
-          <div id="search-portal" className="fixed top-0 flex flex-col z-[1000] w-screen h-screen pointer-events-none" />
+          <div id="search-portal" className="fixed top-0 flex flex-col z-[999] w-screen h-screen pointer-events-none" />
         </ThemeProvider>
       </body>
     </html>

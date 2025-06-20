@@ -1,19 +1,23 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import { SubmitButton } from "@/components/ux/SubmitButton";
-import { deleteSiteSourceMapping, putSiteSourceMapping, updateSiteSourceMapping } from "@/lib/actions/server/sources/site-source-mappings";
-import { Tables } from "@/types/database";
-import { useRef, useState } from "react";
-import { toast } from "sonner";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { SubmitButton } from '@/components/ux/SubmitButton';
+import { Tables } from '@/db/schema';
+import {
+  deleteSiteSourceMapping,
+  putSiteSourceMapping,
+  updateSiteSourceMapping,
+} from 'packages/services/siteSourceMappings';
+import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
   mapping: Tables<'site_mappings_view'>;
   onSave?: (mapping: Tables<'site_mappings_view'>) => void;
   onClear?: (mapping: Tables<'site_mappings_view'>) => void;
-}
+};
 
 export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Props) {
   const [isSaving, setIsSaving] = useState(false);
@@ -29,8 +33,19 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
 
     try {
       if (cleared) {
-        if (tenantRef.current && domainRef.current && clientRef.current && secretRef.current && mapping.id) {
-          if (!tenantRef.current.value && !domainRef.current.value && !clientRef.current.value && !secretRef.current.value) {
+        if (
+          tenantRef.current &&
+          domainRef.current &&
+          clientRef.current &&
+          secretRef.current &&
+          mapping.id
+        ) {
+          if (
+            !tenantRef.current.value &&
+            !domainRef.current.value &&
+            !clientRef.current.value &&
+            !secretRef.current.value
+          ) {
             const result = await deleteSiteSourceMapping(mapping.id);
             if (!result.ok) throw new Error(result.error.message);
             onClear && onClear(mapping);
@@ -42,7 +57,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
         if (!tenantRef.current || !domainRef.current || !clientRef.current || !secretRef.current)
           return;
 
-        const result = await updateSiteSourceMapping({
+        const result = await updateSiteSourceMapping(mapping.id, {
           id: mapping.id,
           tenant_id: mapping.tenant_id!,
           site_id: mapping.site_id!,
@@ -50,64 +65,62 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
           external_id: tenantRef.current.value,
           external_name: domainRef.current.value,
           metadata: {
-            'client_id': clientRef.current.value,
-            'client_secret': secretRef.current.value
-          }
+            client_id: clientRef.current.value,
+            client_secret: secretRef.current.value,
+          },
         });
 
         if (!result.ok) throw new Error(result.error.message);
 
-        onSave && onSave({
-          ...mapping,
-          external_id: tenantRef.current.value,
-          external_name: domainRef.current.value,
-          metadata: {
-            'client_id': clientRef.current.value,
-            'client_secret': secretRef.current.value
-          }
-        });
+        onSave &&
+          onSave({
+            ...mapping,
+            external_id: tenantRef.current.value,
+            external_name: domainRef.current.value,
+            metadata: {
+              client_id: clientRef.current.value,
+              client_secret: secretRef.current.value,
+            },
+          });
       } else {
         if (!tenantRef.current || !domainRef.current || !clientRef.current || !secretRef.current)
           return;
 
-        const result = await putSiteSourceMapping({
-          id: "",
-          tenant_id: mapping.tenant_id!,
-          site_id: mapping.site_id!,
-          source_id: mapping.source_id!,
-          external_id: tenantRef.current.value,
-          external_name: domainRef.current.value,
-          metadata: {
-            'client_id': clientRef.current.value,
-            'client_secret': secretRef.current.value
-          }
-        });
+        const result = await putSiteSourceMapping([
+          {
+            tenant_id: mapping.tenant_id!,
+            site_id: mapping.site_id!,
+            source_id: mapping.source_id!,
+            external_id: tenantRef.current.value,
+            external_name: domainRef.current.value,
+            metadata: {
+              client_id: clientRef.current.value,
+              client_secret: secretRef.current.value,
+            },
+          },
+        ]);
 
         if (!result.ok) throw new Error(result.error.message);
         onSave && onSave({ ...mapping, ...result.data });
       }
 
-      toast.info('Saved site info')
+      toast.info('Saved site info');
     } catch (err) {
       toast.error(`Failed to save info: ${err}`);
     } finally {
       setIsSaving(false);
     }
-  }
+  };
 
   const handleClear = async (e: any) => {
     e.stopPropagation();
 
-    if (domainRef.current)
-      domainRef.current.value = '';
-    if (tenantRef.current)
-      tenantRef.current.value = '';
-    if (clientRef.current)
-      clientRef.current.value = '';
-    if (secretRef.current)
-      secretRef.current.value = '';
+    if (domainRef.current) domainRef.current.value = '';
+    if (tenantRef.current) tenantRef.current.value = '';
+    if (clientRef.current) clientRef.current.value = '';
+    if (secretRef.current) secretRef.current.value = '';
     setCleared(true);
-  }
+  };
 
   return (
     <Popover>
@@ -131,7 +144,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
                 placeholder="example.com"
                 className="col-span-2 w-8/12"
                 required
-                defaultValue={mapping.external_name || ""}
+                defaultValue={mapping.external_name || ''}
                 ref={domainRef}
               />
             </Label>
@@ -141,7 +154,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
                 placeholder="*****"
                 className="col-span-2 w-8/12"
                 required
-                defaultValue={mapping.external_id || ""}
+                defaultValue={mapping.external_id || ''}
                 ref={tenantRef}
               />
             </Label>
@@ -151,22 +164,23 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
                 placeholder="*****"
                 className="col-span-2 w-8/12"
                 required
-                defaultValue={(mapping.metadata as any).client_id || ""}
+                defaultValue={(mapping.metadata as any).client_id || ''}
                 ref={clientRef}
               />
             </Label>
             <Label className="flex gap-2 whitespace-nowrap justify-between">
               Client Secret
-              <Input
-                placeholder="*****"
-                className="col-span-2 w-8/12"
-                required
-                ref={secretRef}
-              />
+              <Input placeholder="*****" className="col-span-2 w-8/12" required ref={secretRef} />
             </Label>
             <Separator />
             <div className="flex gap-2 w-full justify-end">
-              <SubmitButton variant="destructive" onClick={handleClear} pendingText="Clear" pending={isSaving} disabled={!mapping.external_id || isSaving}>
+              <SubmitButton
+                variant="destructive"
+                onClick={handleClear}
+                pendingText="Clear"
+                pending={isSaving}
+                disabled={!mapping.external_id || isSaving}
+              >
                 Clear
               </SubmitButton>
               <SubmitButton onClick={handleSave} pendingText="Saving..." pending={isSaving}>

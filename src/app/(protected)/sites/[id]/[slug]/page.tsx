@@ -1,14 +1,20 @@
-import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import SophosPartnerMappings from "@/components/mappings/SophosPartnerMappings";
-import { getSite } from "@/lib/actions/server/sites";
-import ErrorDisplay from "@/components/ux/ErrorDisplay";
-import { getSource } from "@/lib/actions/server/sources";
-import Microsoft365Mappings from "@/components/mappings/Microsoft365Mappings";
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import SophosPartnerMappings from '@/components/mappings/SophosPartnerMappings';
+import { getSite } from 'packages/services/sites';
+import ErrorDisplay from '@/components/ux/ErrorDisplay';
+import { getSource } from 'packages/services/sources';
+import Microsoft365Mappings from '@/components/mappings/Microsoft365Mappings';
 
 type Props = {
   params: Promise<{ id: string; slug: string }>;
   searchParams: Promise<{ tab: string }>;
-}
+};
 
 export default async function Page({ ...props }: Props) {
   const params = await props.params;
@@ -17,7 +23,7 @@ export default async function Page({ ...props }: Props) {
   const source = await getSource(undefined, params.slug);
 
   if (!site.ok || !source.ok) {
-    return <ErrorDisplay />
+    return <ErrorDisplay />;
   }
 
   const breadcrumbs = async () => {
@@ -33,14 +39,16 @@ export default async function Page({ ...props }: Props) {
           <BreadcrumbList>
             <BreadcrumbLink href="/sites">Sites</BreadcrumbLink>
             <BreadcrumbSeparator />
-            <BreadcrumbLink href={`/sites/${site.data.parent_id}`}>{parent.data.name}</BreadcrumbLink>
+            <BreadcrumbLink href={`/sites/${site.data.parent_id}`}>
+              {parent.data.name}
+            </BreadcrumbLink>
             <BreadcrumbSeparator />
             <BreadcrumbLink href={`/sites/${site.data.id}`}>{site.data.name}</BreadcrumbLink>
             <BreadcrumbSeparator />
             <BreadcrumbPage>{source.data.name}</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
-      )
+      );
     } else {
       return (
         <Breadcrumb>
@@ -52,18 +60,22 @@ export default async function Page({ ...props }: Props) {
             <BreadcrumbPage>{source.data.name}</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
-      )
+      );
     }
-  }
+  };
 
   const getMappingComponent = () => {
     switch (params.slug) {
       case 'sophos-partner':
-        return <SophosPartnerMappings source={source.data} site={site.data} tab={searchParams.tab} />
+        return (
+          <SophosPartnerMappings source={source.data} site={site.data} tab={searchParams.tab} />
+        );
       case 'microsoft-365':
-        return <Microsoft365Mappings source={source.data} site={site.data} tab={searchParams.tab} />
+        return (
+          <Microsoft365Mappings source={source.data} site={site.data} tab={searchParams.tab} />
+        );
     }
-  }
+  };
 
   return (
     <>

@@ -1,21 +1,25 @@
+import { Card } from '@/components/ui/card';
 import {
-  Card,
-} from "@/components/ui/card";
-import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import { getSite, getSites } from "@/lib/actions/server/sites";
-import { getSiteSourceMappings } from "@/lib/actions/server/sources/site-source-mappings";
-import ErrorDisplay from "@/components/ux/ErrorDisplay";
-import { getSources } from "@/lib/actions/server/sources";
-import RouteCard from "@/components/ux/RouteCard";
-import SitesTable from "@/components/tables/SitesTable";
-import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
-import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
-import { getIntegrations } from "@/lib/actions/server/integrations";
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import { getSite, getSites } from 'packages/services/sites';
+import { getSiteSourceMappings } from 'packages/services/siteSourceMappings';
+import ErrorDisplay from '@/components/ux/ErrorDisplay';
+import { getSources } from 'packages/services/sources';
+import RouteCard from '@/components/ux/RouteCard';
+import SitesTable from '@/components/tables/SitesTable';
+import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
+import { getIntegrations } from 'packages/services/integrations';
 
 type Props = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ tab: string }>;
-}
+};
 
 export default async function Page({ ...props }: Props) {
   const params = await props.params;
@@ -26,7 +30,7 @@ export default async function Page({ ...props }: Props) {
   const mappings = await getSiteSourceMappings(undefined, [params.id]);
 
   if (!site.ok || !sites.ok || !mappings.ok || !sources.ok) {
-    return <ErrorDisplay message="Failed to fetch data" />
+    return <ErrorDisplay message="Failed to fetch data" />;
   }
 
   const breadcrumbs = async () => {
@@ -42,12 +46,14 @@ export default async function Page({ ...props }: Props) {
           <BreadcrumbList>
             <BreadcrumbLink href="/sites">Sites</BreadcrumbLink>
             <BreadcrumbSeparator />
-            <BreadcrumbLink href={`/sites/${site.data.parent_id}`}>{parent.data.name}</BreadcrumbLink>
+            <BreadcrumbLink href={`/sites/${site.data.parent_id}`}>
+              {parent.data.name}
+            </BreadcrumbLink>
             <BreadcrumbSeparator />
             <BreadcrumbPage>{site.data.name}</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
-      )
+      );
     } else {
       return (
         <Breadcrumb>
@@ -57,29 +63,33 @@ export default async function Page({ ...props }: Props) {
             <BreadcrumbPage>{site.data.name}</BreadcrumbPage>
           </BreadcrumbList>
         </Breadcrumb>
-      )
+      );
     }
-  }
+  };
 
   const display = () => {
-    return mappings.data.length > 0 ? <div className="grid grid-cols-4 gap-2">
-      {mappings.data.map((mapping) => {
-        const source = sources.data.find((s) => s.id === mapping.source_id);
+    return mappings.data.length > 0 ? (
+      <div className="grid grid-cols-4 gap-2">
+        {mappings.data.map((mapping) => {
+          const source = sources.data.find((s) => s.id === mapping.source_id);
 
-        return (
-          <RouteCard
-            key={mapping.id}
-            className="justify-center items-center"
-            route={`/sites/${params.id}/${source?.slug}`}
-            module="sites"
-            level="read"
-          >
-            {source?.name}
-          </RouteCard>
-        )
-      })}
-    </div> : <ErrorDisplay message="No site mappings found" />
-  }
+          return (
+            <RouteCard
+              key={mapping.id}
+              className="justify-center items-center"
+              route={`/sites/${params.id}/${source?.slug}`}
+              module="sites"
+              level="read"
+            >
+              {source?.name}
+            </RouteCard>
+          );
+        })}
+      </div>
+    ) : (
+      <ErrorDisplay message="No site mappings found" />
+    );
+  };
 
   if (site.data.is_parent) {
     return (
@@ -91,9 +101,7 @@ export default async function Page({ ...props }: Props) {
             <RouteTabsTrigger value="sites">Sites</RouteTabsTrigger>
             <RouteTabsTrigger value="sources">Sources</RouteTabsTrigger>
           </TabsList>
-          <TabsContent value="sources">
-            {display()}
-          </TabsContent>
+          <TabsContent value="sources">{display()}</TabsContent>
           <TabsContent value="sites">
             <SitesTable parentId={site.data.id} sites={sites.data} />
           </TabsContent>

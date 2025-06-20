@@ -1,10 +1,10 @@
 'use client';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import ReactDOM from "react-dom";
-import { useEffect, useRef, useState } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import ReactDOM from 'react-dom';
+import { useEffect, useRef, useState } from 'react';
 
 type Option = { label: string; value: string };
 
@@ -23,7 +23,7 @@ export default function SearchBox({
   placeholder,
   lead,
   loading,
-  onSelect
+  onSelect,
 }: Props) {
   const [selected, setSelected] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
@@ -48,8 +48,8 @@ export default function SearchBox({
       }
     };
 
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -59,8 +59,8 @@ export default function SearchBox({
         setIsOpen(false);
       }
     };
-    document.addEventListener("wheel", stopScroll, { passive: true });
-    return () => document.removeEventListener("wheel", stopScroll);
+    document.addEventListener('wheel', stopScroll, { passive: true });
+    return () => document.removeEventListener('wheel', stopScroll);
   }, [isOpen]);
 
   const openDropdown = () => {
@@ -79,7 +79,7 @@ export default function SearchBox({
         setDropdownPos({
           top: inputRect.bottom + window.scrollY,
           left: inputRect.left + window.scrollX,
-          width: inputRect.width
+          width: inputRect.width,
         });
       }
     }
@@ -95,32 +95,38 @@ export default function SearchBox({
     onSelect?.(option.value);
   };
 
-  const filteredOptions = options.filter((o) =>
-    o.label.toLowerCase().includes(search)
-  );
+  const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(search));
 
   const dropdownContent = (
     <div
-      className={cn("absolute bg-input rounded-md shadow max-h-[30vh] overflow-x-hidden overflow-y-auto z-[999]", !usePortal && "top-full w-full", isOpen && "rounded-t-none")}
+      className={cn(
+        'absolute bg-input rounded-md shadow max-h-[30vh] overflow-x-hidden overflow-y-auto z-[999]',
+        !usePortal && 'top-full w-full',
+        isOpen && 'rounded-t-none'
+      )}
       ref={dropdownRef}
-      style={usePortal
-        ? {
-          position: 'absolute',
-          top: dropdownPos.top,
-          left: dropdownPos.left,
-          width: dropdownPos.width
-        }
-        : undefined}
+      style={
+        usePortal
+          ? {
+              position: 'absolute',
+              top: dropdownPos.top,
+              left: dropdownPos.left,
+              width: dropdownPos.width,
+            }
+          : undefined
+      }
     >
       {loading ? (
-        <Button disabled variant="ghost">Loading...</Button>
+        <Button disabled variant="ghost">
+          Loading...
+        </Button>
       ) : (
-        <div className="grid w-full">
+        <div className="grid w-full z-[999]">
           {filteredOptions.map((opt) => (
             <Button
               key={opt.value}
               variant="ghost"
-              className="w-full justify-start"
+              className="w-full justify-start z-[999]"
               onClick={() => handleSelect(opt)}
             >
               {opt.label}
@@ -133,13 +139,15 @@ export default function SearchBox({
 
   return (
     <>
-      <div ref={wrapperRef} className="relative flex flex-col w-full">
+      <div ref={wrapperRef} className="relative flex flex-col w-full z-[999]">
         <div className="flex w-full">
           {lead && (
-            <div className={cn(
-              "flex flex-col bg-secondary rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm",
-              isOpen && 'rounded-b-none'
-            )}>
+            <div
+              className={cn(
+                'flex flex-col bg-secondary rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm',
+                isOpen && 'rounded-b-none'
+              )}
+            >
               {lead}
             </div>
           )}
@@ -147,11 +155,11 @@ export default function SearchBox({
             placeholder={
               (selected && options.find((opt) => opt.value === selected)?.label) ||
               placeholder ||
-              "Search..."
+              'Search...'
             }
             onChange={(e) => setSearch(e.target.value.toLowerCase())}
             value={search}
-            className={cn(isOpen && "rounded-b-none", lead && 'rounded-l-none')}
+            className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}
             onClick={openDropdown}
             ref={inputRef}
           />
@@ -160,8 +168,8 @@ export default function SearchBox({
         {!usePortal && isOpen && dropdownContent}
       </div>
 
-      {usePortal && isOpen && typeof window !== "undefined"
-        ? ReactDOM.createPortal(dropdownContent, document.getElementById("search-portal")!)
+      {usePortal && isOpen && typeof window !== 'undefined'
+        ? ReactDOM.createPortal(dropdownContent, document.getElementById('search-portal')!)
         : null}
     </>
   );

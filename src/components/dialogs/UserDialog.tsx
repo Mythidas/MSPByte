@@ -2,36 +2,44 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import FormAlert from "@/components/ux/FormAlert";
-import FormError from "@/components/ux/FormError";
-import { SubmitButton } from "@/components/ux/SubmitButton";
-import { createInviteAction } from "@/lib/actions/form/users";
-import { UserFormValues } from "@/lib/forms/users";
-import { useUser } from "@/lib/providers/UserContext";
-import { FormState } from "@/types";
-import { Tables } from "@/types/database";
-import { UserPlus } from "lucide-react";
-import { useActionState, useState } from "react";
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import FormAlert from '@/components/ux/FormAlert';
+import FormError from '@/components/ux/FormError';
+import { SubmitButton } from '@/components/ux/SubmitButton';
+import { Tables } from '@/db/schema';
+import { createInviteAction } from '@/lib/actions/form/users';
+import { UserFormValues } from '@/lib/forms/users';
+import { useUser } from '@/lib/providers/UserContext';
+import { FormState } from '@/types';
+import { UserPlus } from 'lucide-react';
+import { useActionState, useState } from 'react';
 
 type Props = {
   user: Tables<'users'>;
   roles: Tables<'roles'>[];
-}
+};
 
 export default function UserDialog({ user, roles }: Props) {
-  const [state, formAction] = useActionState<FormState<UserFormValues>, FormData>(createInviteAction, {});
+  const [state, formAction] = useActionState<FormState<UserFormValues>, FormData>(
+    createInviteAction,
+    {}
+  );
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState('');
   const [sendEmail, setSendEmail] = useState(true);
@@ -49,24 +57,39 @@ export default function UserDialog({ user, roles }: Props) {
       <AlertDialogContent>
         <form className="flex flex-col gap-4" action={formAction}>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {`${tag} user`}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{`${tag} user`}</AlertDialogTitle>
           </AlertDialogHeader>
 
           <input hidden name="tenant_id" defaultValue={user.tenant_id} />
           <input hidden id="role_id" name="role_id" defaultValue={role} />
-          <input hidden id="send_email" name="send_email" type="checkbox" checked={sendEmail} readOnly />
+          <input
+            hidden
+            id="send_email"
+            name="send_email"
+            type="checkbox"
+            checked={sendEmail}
+            readOnly
+          />
 
           <FormAlert errors={state.errors} message={state.message} />
           <Label className="flex flex-col items-start">
             Name
-            <Input name="name" placeholder="John Doe" defaultValue={state.values?.name || user.name} disabled={context?.id === user.id} />
+            <Input
+              name="name"
+              placeholder="John Doe"
+              defaultValue={state.values?.name || user.name}
+              disabled={context?.id === user.id}
+            />
             <FormError name="name" errors={state.errors} />
           </Label>
           <Label className="flex flex-col items-start">
             Email
-            <Input name="email" placeholder="John.Doe@email.com" defaultValue={state.values?.email || user.email} disabled={context?.id === user.id} />
+            <Input
+              name="email"
+              placeholder="John.Doe@email.com"
+              defaultValue={state.values?.email || user.email}
+              disabled={context?.id === user.id}
+            />
             <FormError name="email" errors={state.errors} />
           </Label>
 
@@ -74,7 +97,11 @@ export default function UserDialog({ user, roles }: Props) {
 
           <Label className="flex flex-col items-start">
             Role
-            <Select onValueChange={(e) => setRole(e)} defaultValue={state.values?.role_id || user.role_id} disabled={context?.id === user.id}>
+            <Select
+              onValueChange={(e) => setRole(e)}
+              defaultValue={state.values?.role_id || user.role_id}
+              disabled={context?.id === user.id}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
@@ -89,23 +116,18 @@ export default function UserDialog({ user, roles }: Props) {
             <FormError name="role_id" errors={state.errors} />
           </Label>
 
-          {!user.id && <Label>
-            <Checkbox
-              defaultChecked={sendEmail}
-              onChange={(e) => setSendEmail(!sendEmail)}
-            />
-            Send invitation email?
-            <FormError name="send_email" errors={state.errors} />
-          </Label>}
+          {!user.id && (
+            <Label>
+              <Checkbox defaultChecked={sendEmail} onChange={(e) => setSendEmail(!sendEmail)} />
+              Send invitation email?
+              <FormError name="send_email" errors={state.errors} />
+            </Label>
+          )}
 
           <Separator />
           <AlertDialogFooter>
-            <AlertDialogCancel>
-              Cancel
-            </AlertDialogCancel>
-            <SubmitButton pendingText={`${tag} User...`}>
-              {`${tag} User`}
-            </SubmitButton>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <SubmitButton pendingText={`${tag} User...`}>{`${tag} User`}</SubmitButton>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

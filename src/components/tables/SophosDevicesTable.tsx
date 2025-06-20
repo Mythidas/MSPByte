@@ -1,21 +1,20 @@
-'use client'
+'use client';
 
-import { TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tables } from "@/types/database";
-import { Input } from "@/components/ui/input";
-import { pascalCase } from "@/lib/utils";
-import PaginatedTable from "@/components/ux/PaginatedTable";
-import Link from "next/link";
+import { TableCell, TableHead, TableRow } from '@/components/ui/table';
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { pascalCase } from '@/lib/utils';
+import Link from 'next/link';
+import { Tables } from '@/db/schema';
 
 type Props = {
   devices: Tables<'source_devices_view'>[];
   defaultSearch?: string;
-}
+};
 
 export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
-  const [search, setSearch] = useState(defaultSearch || "");
+  const [search, setSearch] = useState(defaultSearch || '');
 
   function filterDevices(device: Tables<'source_devices_view'>) {
     const lowerSearch = search.toLowerCase();
@@ -25,16 +24,18 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
     const lowerProt = (device.metadata as any)?.packages?.protection?.name?.toLowerCase() || '';
     const lowerStatus = (device.metadata as any)?.packages?.protection?.status?.toLowerCase() || '';
     const lowerSite = device.site_name!.toLowerCase();
-    const lowerClient = device.parent_name?.toLowerCase() || "";
+    const lowerClient = device.parent_name?.toLowerCase() || '';
     const lowerTamperProtection = (device.metadata as any).tamperProtectionEnabled.toString();
-    return lowerName.includes(lowerSearch) ||
+    return (
+      lowerName.includes(lowerSearch) ||
       lowerOS.includes(lowerSearch) ||
       lowerSerial.includes(lowerSearch) ||
       lowerProt.includes(lowerSearch) ||
       lowerStatus.includes(lowerSearch) ||
       lowerSite.includes(lowerSearch) ||
       lowerClient.includes(lowerSearch) ||
-      lowerTamperProtection.includes(lowerSearch);
+      lowerTamperProtection.includes(lowerSearch)
+    );
   }
 
   return (
@@ -50,9 +51,9 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
       </div>
 
       <Card className="py-2">
-        <PaginatedTable
+        {/* <PaginatedTable
           data={devices.filter(filterDevices)}
-          head={() =>
+          head={() => (
             <TableRow>
               <TableHead>Site</TableHead>
               <TableHead>Parent</TableHead>
@@ -61,30 +62,42 @@ export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
               <TableHead>Protection</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
-          }
-          body={(data) =>
+          )}
+          body={(data) => (
             <>
-              {data.map((device) =>
+              {data.map((device) => (
                 <TableRow key={device.id}>
                   <TableCell>
-                    <Link href={`/sites/${device.site_id}/sophos-partner?tab=devices`} className="hover:text-primary">
+                    <Link
+                      href={`/sites/${device.site_id}/sophos-partner?tab=devices`}
+                      className="hover:text-primary"
+                    >
                       {device.site_name}
                     </Link>
                   </TableCell>
                   <TableCell>
-                    {device.parent_id && <Link href={`/sites/${device.parent_id}/sophos-partner?tab=devices`} className="hover:text-primary">
-                      {device.parent_name && device.parent_name.length > 25 ? `${device.parent_name?.substring(0, 25)}...` : device.parent_name}
-                    </Link>}
+                    {device.parent_id && (
+                      <Link
+                        href={`/sites/${device.parent_id}/sophos-partner?tab=devices`}
+                        className="hover:text-primary"
+                      >
+                        {device.parent_name && device.parent_name.length > 25
+                          ? `${device.parent_name?.substring(0, 25)}...`
+                          : device.parent_name}
+                      </Link>
+                    )}
                   </TableCell>
                   <TableCell>{device.hostname}</TableCell>
                   <TableCell>{device.os}</TableCell>
                   <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>
-                  <TableCell>{pascalCase((device.metadata as any).packages.protection.status)}</TableCell>
+                  <TableCell>
+                    {pascalCase((device.metadata as any).packages.protection.status)}
+                  </TableCell>
                 </TableRow>
-              )}
+              ))}
             </>
-          }
-        />
+          )}
+        /> */}
       </Card>
     </div>
   );

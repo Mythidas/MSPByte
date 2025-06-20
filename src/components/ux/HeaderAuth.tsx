@@ -1,10 +1,18 @@
-'use client'
+'use client';
 
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { signOutAction } from "@/lib/actions/form/auth";
-import { useUser } from "@/lib/providers/UserContext";
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { signOutAction } from '@/lib/actions/form/auth';
+import { useUser } from '@/lib/providers/UserContext';
 
 export default function AuthButton() {
   const context = useUser();
@@ -20,22 +28,16 @@ export default function AuthButton() {
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <Link href="/">
-              <DropdownMenuItem>
-                Home
-              </DropdownMenuItem>
+              <DropdownMenuItem>Home</DropdownMenuItem>
             </Link>
             <Link href="/users">
-              <DropdownMenuItem>
-                Users
-              </DropdownMenuItem>
+              <DropdownMenuItem>Users</DropdownMenuItem>
             </Link>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <form action={signOutAction}>
             <button type="submit" className="w-full">
-              <DropdownMenuItem>
-                Sign out
-              </DropdownMenuItem>
+              <DropdownMenuItem>Sign out</DropdownMenuItem>
             </button>
           </form>
         </DropdownMenuContent>

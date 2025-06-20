@@ -1,20 +1,27 @@
-import { AlertDialog, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { SubmitButton } from "@/components/ux/SubmitButton";
-import { Tables } from "@/types/database";
-import { CommandInput, CommandList, CommandEmpty, CommandItem, Command } from "@/components/ui/command";
-import { useEffect, useState } from "react";
-import { getParentSites, updateSite } from "@/lib/actions/server/sites";
-import { toast } from "sonner";
-import SearchBox from "@/components/ux/SearchBox";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { SubmitButton } from '@/components/ux/SubmitButton';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import SearchBox from '@/components/ux/SearchBox';
+import { Tables } from '@/db/schema';
+import { getParentSites, updateSite } from '@/services/sites';
 
 type Props = {
   sites: Tables<'sites'>[];
   parentId: string;
   onSuccess?: (site: Tables<'sites'>, parent: string) => void;
-}
+};
 
 export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,11 +42,10 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
 
         setParents(sites.data.filter((p) => p.id !== parentId));
       } catch (err) {
-
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     loadSites();
   }, []);
@@ -57,22 +63,20 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
 
       const result = await updateSite({ ...site, parent_id: parent.id } as Tables<'sites'>);
       if (result.ok) {
-        (onSuccess && site) && onSuccess(site, parent.name);
+        onSuccess && site && onSuccess(site, parent.name);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       toast.error(String(err));
     } finally {
       setIsLoading(false);
     }
-  }
+  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="secondary">
-          Move Site
-        </Button>
+        <Button variant="secondary">Move Site</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -85,7 +89,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
           <SearchBox
             placeholder="Select a parent"
             options={parents.map((p) => {
-              return { label: p.name, value: p.id }
+              return { label: p.name, value: p.id };
             })}
             onSelect={(e) => {
               const parent = parents.find((p) => p.id === e);
@@ -99,7 +103,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
           <SearchBox
             placeholder="Select a site"
             options={sites.map((p) => {
-              return { label: p.name, value: p.id }
+              return { label: p.name, value: p.id };
             })}
             onSelect={(e) => {
               const site = sites.find((p) => p.id === e);
@@ -109,9 +113,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         </Label>
 
         <AlertDialogFooter>
-          <AlertDialogCancel>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
           <SubmitButton onClick={handleMove} pendingText="Move Site" pending={isLoading}>
             Move Site
           </SubmitButton>

@@ -1,36 +1,37 @@
-'use server'
+'use server';
 
-import { deleteFormSchema } from "@/lib/forms";
-import { sophosPartnerFormSchema } from "@/lib/forms/sources";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
+import { createClient } from '@/db/server';
+import { deleteFormSchema } from '@/lib/forms';
+import { redirect } from 'next/navigation';
 
 export const deleteSiteSourceMapping = async (_prevState: any, params: FormData) => {
   const supabase = await createClient();
   const validation = deleteFormSchema.safeParse({
-    id: params.get("id"),
-    url: params.get("url")
+    id: params.get('id'),
+    url: params.get('url'),
   });
 
   if (validation.error) {
     return {
       success: false,
       errors: validation.error.flatten().fieldErrors,
-      values: Object.fromEntries(params.entries())
-    }
+      values: Object.fromEntries(params.entries()),
+    };
   }
 
-  const { error } = await supabase.from('site_source_mappings').delete().eq("id", validation.data.id);
+  const { error } = await supabase
+    .from('site_source_mappings')
+    .delete()
+    .eq('id', validation.data.id);
 
   if (error) {
     return {
       success: false,
-      errors: { "db": [error.message] },
-      values: Object.fromEntries(params.entries())
-    }
+      errors: { db: [error.message] },
+      values: Object.fromEntries(params.entries()),
+    };
   }
 
-  if (validation.data.url)
-    return redirect(validation.data.url);
+  if (validation.data.url) return redirect(validation.data.url);
   else return { success: true };
 };

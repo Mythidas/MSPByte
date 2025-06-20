@@ -1,6 +1,6 @@
-import IntegrationsTable from "@/components/tables/IntegrationsTable";
-import { getIntegrations } from "@/lib/actions/server/integrations";
-import { getSources } from "@/lib/actions/server/sources";
+import IntegrationsTable from '@/components/tables/IntegrationsTable';
+import { getIntegrations } from 'packages/services/integrations';
+import { getSources } from 'packages/services/sources';
 
 export default async function IntegrationsPage() {
   const sources = await getSources();
@@ -15,7 +15,7 @@ export default async function IntegrationsPage() {
 
         <span>Failed to fetch data</span>
       </div>
-    )
+    );
   }
 
   return (

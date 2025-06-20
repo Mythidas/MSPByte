@@ -1,32 +1,39 @@
-'use client'
+'use client';
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, UserPlus } from "lucide-react";
-import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Tables } from "@/types/database";
-import { useUser } from "@/lib/providers/UserContext";
-import { Input } from "@/components/ui/input";
-import RouteButton from "@/components/ux/RouteButton";
-import DeleteForm from "@/components/forms/DeleteForm";
-import DropDownItem from "@/components/ux/DropDownItem";
-import { deleteUserAction } from "@/lib/actions/form/users";
-import CreateUserDialog from "@/components/dialogs/UserDialog";
+} from '@/components/ui/dropdown-menu';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal, UserPlus } from 'lucide-react';
+import { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { useUser } from '@/lib/providers/UserContext';
+import { Input } from '@/components/ui/input';
+import DeleteForm from '@/components/forms/DeleteForm';
+import DropDownItem from '@/components/ux/DropDownItem';
+import { deleteUserAction } from '@/lib/actions/form/users';
+import CreateUserDialog from '@/components/dialogs/UserDialog';
+import { Tables } from '@/db/schema';
 
 type Props = {
   users: Tables<'users'>[];
   roles: Tables<'roles'>[];
-}
+};
 
 export default function UsersTable({ users, roles }: Props) {
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const context = useUser();
 
   function filterUsers(user: Tables<'users'>) {
@@ -51,12 +58,12 @@ export default function UsersTable({ users, roles }: Props) {
           <CreateUserDialog
             roles={roles}
             user={{
-              id: "",
-              tenant_id: context?.tenant_id || "",
-              role_id: "",
-              name: "",
-              email: "",
-              last_login: ""
+              id: '',
+              tenant_id: context?.tenant_id || '',
+              role_id: '',
+              name: '',
+              email: '',
+              last_login: '',
             }}
           />
         </div>
@@ -79,22 +86,14 @@ export default function UsersTable({ users, roles }: Props) {
                 <TableCell>
                   <div className="flex items-center space-x-3">
                     <Avatar>
-                      <AvatarFallback>
-                        {user.name?.charAt(0).toUpperCase() || 'U'}
-                      </AvatarFallback>
+                      <AvatarFallback>{user.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
-                    <div className="font-medium">
-                      {`${user.name}`}
-                    </div>
+                    <div className="font-medium">{`${user.name}`}</div>
                   </div>
                 </TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  {new Date(user.last_login || "").toDateString() || ""}
-                </TableCell>
-                <TableCell>
-                  {roles.find((role) => role.id === user.role_id)?.name}
-                </TableCell>
+                <TableCell>{new Date(user.last_login || '').toDateString() || ''}</TableCell>
+                <TableCell>{roles.find((role) => role.id === user.role_id)?.name}</TableCell>
                 <TableCell>
                   <DeleteForm id={user.id} action={deleteUserAction}>
                     <DropdownMenu>
@@ -105,7 +104,14 @@ export default function UsersTable({ users, roles }: Props) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
                         <CreateUserDialog user={user} roles={roles} />
-                        <DropDownItem form={user.id} type="submit" variant="destructive" module="users" level="full" disabled={user.id === context?.id}>
+                        <DropDownItem
+                          form={user.id}
+                          type="submit"
+                          variant="destructive"
+                          module="users"
+                          level="full"
+                          disabled={user.id === context?.id}
+                        >
                           Delete
                         </DropDownItem>
                       </DropdownMenuContent>

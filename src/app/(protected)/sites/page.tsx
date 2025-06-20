@@ -1,16 +1,16 @@
-import SitesTable from "@/components/tables/SitesTable";
-import { getUpperSites } from "@/lib/actions/server/sites";
+import SitesTable from '@/components/tables/SitesTable';
+import { getUpperSites } from 'packages/services/sites';
 
 export default async function ClientsPage() {
   const sites = await getUpperSites();
 
   const renderBody = async () => {
     if (!sites.ok) {
-      return <span>Failed to fetch data</span>
+      return <span>Failed to fetch data</span>;
     } else {
-      return <SitesTable sites={sites.data} />
+      return <SitesTable sites={sites.data} />;
     }
-  }
+  };
 
   return (
     <>

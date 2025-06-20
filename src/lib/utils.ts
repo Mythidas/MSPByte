@@ -1,4 +1,4 @@
-import { Error } from "@/types";
+import { APIError } from "@/types";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -11,13 +11,22 @@ export function pascalCase(str: string) {
 }
 
 export class Debug {
-  static error(error: Error) {
+  static error(error: APIError) {
     // write to db later
     console.error(`[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`);
     return {
       ok: false,
       error
-    } as { ok: false, error: Error };
+    } as { ok: false, error: APIError };
+  }
+
+  static warn(error: APIError) {
+    // write to db later
+    console.warn(`[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`);
+    return {
+      ok: false,
+      error
+    } as { ok: false, error: APIError };
   }
 }
 

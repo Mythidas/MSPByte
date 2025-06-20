@@ -1,14 +1,14 @@
-import InvitesTable from "@/components/tables/InvitesTable";
-import RolesTable from "@/components/tables/RolesTable";
-import UsersTable from "@/components/tables/UsersTable";
-import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
-import RouteTabsTrigger from "@/components/ux/RouteTabsTrigger";
-import { getRoles } from "@/lib/actions/server/roles";
-import { getInvites, getUsers } from "@/lib/actions/server/users";
+import InvitesTable from '@/components/tables/InvitesTable';
+import RolesTable from '@/components/tables/RolesTable';
+import UsersTable from '@/components/tables/UsersTable';
+import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
+import { getRoles } from 'packages/services/roles';
+import { getInvites, getUsers } from 'packages/services/users';
 
 type Props = {
   searchParams: Promise<{ tab: string }>;
-}
+};
 
 export default async function UsersPage(props: Props) {
   const searchParams = await props.searchParams;
@@ -22,11 +22,9 @@ export default async function UsersPage(props: Props) {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold tracking-tight">Users & Roles</h1>
         </div>
-        <span>
-          Failed to fetch data. Contact support.
-        </span>
+        <span>Failed to fetch data. Contact support.</span>
       </div>
-    )
+    );
   }
 
   return (
@@ -35,7 +33,7 @@ export default async function UsersPage(props: Props) {
         <h1 className="text-3xl font-bold tracking-tight">Users & Roles</h1>
       </div>
 
-      <Tabs defaultValue={searchParams.tab || "users"} className="w-full">
+      <Tabs defaultValue={searchParams.tab || 'users'} className="w-full">
         <TabsList className="grid w-full max-w-md grid-cols-3">
           <RouteTabsTrigger value="users">Users</RouteTabsTrigger>
           <RouteTabsTrigger value="roles">Roles</RouteTabsTrigger>

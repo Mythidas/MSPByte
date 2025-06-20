@@ -1,13 +1,19 @@
-import { Breadcrumb, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import SophosPartnerMappings from "@/components/mappings/SophosPartnerMappings";
-import ErrorDisplay from "@/components/ux/ErrorDisplay";
-import { getSource } from "@/lib/actions/server/sources";
-import Microsoft365Mappings from "@/components/mappings/Microsoft365Mappings";
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
+import SophosPartnerMappings from '@/components/mappings/SophosPartnerMappings';
+import ErrorDisplay from '@/components/ux/ErrorDisplay';
+import { getSource } from 'packages/services/sources';
+import Microsoft365Mappings from '@/components/mappings/Microsoft365Mappings';
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tab: string, search: string }>;
-}
+  searchParams: Promise<{ tab: string; search: string }>;
+};
 
 export default async function Page({ ...props }: Props) {
   const params = await props.params;
@@ -15,17 +21,29 @@ export default async function Page({ ...props }: Props) {
   const source = await getSource(undefined, params.slug);
 
   if (!source.ok) {
-    return <ErrorDisplay />
+    return <ErrorDisplay />;
   }
 
   const getMappingComponent = () => {
     switch (params.slug) {
       case 'sophos-partner':
-        return <SophosPartnerMappings source={source.data} tab={searchParams.tab} search={searchParams.search} />
+        return (
+          <SophosPartnerMappings
+            source={source.data}
+            tab={searchParams.tab}
+            search={searchParams.search}
+          />
+        );
       case 'microsoft-365':
-        return <Microsoft365Mappings source={source.data} tab={searchParams.tab} search={searchParams.search} />
+        return (
+          <Microsoft365Mappings
+            source={source.data}
+            tab={searchParams.tab}
+            search={searchParams.search}
+          />
+        );
     }
-  }
+  };
 
   return (
     <>
