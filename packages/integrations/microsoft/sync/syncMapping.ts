@@ -16,7 +16,7 @@ import { APIResponse } from '@/types';
 export async function syncMapping(
   mapping: Tables<'site_source_mappings'>
 ): Promise<APIResponse<null>> {
-  const timer = new Timer('MicrosoftSyncMapping');
+  const timer = new Timer('MicrosoftSyncMapping', false);
   try {
     timer.begin('fetchExternal');
     const subscribedSkus = await getSubscribedSku(mapping);

@@ -25,25 +25,24 @@ type Props = {
   source: Tables<'sources'>;
   site?: Tables<'sites'>;
   tab?: string;
-  search?: string;
 };
 
-export default async function Microsoft365Mappings({ source, site, tab, search }: Props) {
+export default async function Microsoft365Mappings({ source, site, tab }: Props) {
   const type = !site ? 'global' : site.is_parent ? 'parent' : 'site';
 
   const renderBody = async () => {
     switch (type) {
       case 'global':
-        return GlobalComponent({ source, search });
+        return GlobalComponent({ source });
       case 'parent':
-        return SiteParentComponent({ source, site, search });
+        return SiteParentComponent({ source, site });
       case 'site':
-        return SiteComponent({ source, site, search });
+        return SiteComponent({ source, site });
     }
   };
 
   return (
-    <Tabs defaultValue={tab || 'dashboard'}>
+    <Tabs defaultValue={tab || 'dashboard'} value={tab}>
       <div className="flex w-full justify-between">
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
@@ -66,7 +65,7 @@ export default async function Microsoft365Mappings({ source, site, tab, search }
   );
 }
 
-async function GlobalComponent({ source, search }: Props) {
+async function GlobalComponent({ source }: Props) {
   const metrics = await getSourceMetricsAggregated(source.id);
   const sites = await getSites();
 
@@ -81,16 +80,12 @@ async function GlobalComponent({ source, search }: Props) {
           return <SourceMetricCard key={metric.name} metric={metric as Tables<'source_metrics'>} />;
         })}
       </TabsContent>
-      <MicrosoftIdentitiesTab
-        sourceId={source.id}
-        siteIds={sites.data.map((s) => s.id)}
-        search={search}
-      />
+      <MicrosoftIdentitiesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} />
     </>
   );
 }
 
-async function SiteParentComponent({ source, site, search }: Props) {
+async function SiteParentComponent({ source, site }: Props) {
   const metrics = await getSourceMetricsAggregatedGrouped(source.id, site!.id);
   const sites = await getSites(site!.id);
 
@@ -111,16 +106,12 @@ async function SiteParentComponent({ source, site, search }: Props) {
           );
         })}
       </TabsContent>
-      <MicrosoftIdentitiesTab
-        sourceId={source.id}
-        siteIds={sites.data.map((s) => s.id)}
-        search={search}
-      />
+      <MicrosoftIdentitiesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} />
     </>
   );
 }
 
-async function SiteComponent({ source, site, search }: Props) {
+async function SiteComponent({ source, site }: Props) {
   const metrics = await getSourceMetrics(source.id, [site!.id]);
 
   if (!metrics.ok) {
@@ -140,7 +131,7 @@ async function SiteComponent({ source, site, search }: Props) {
           );
         })}
       </TabsContent>
-      <MicrosoftIdentitiesTab sourceId={source.id} siteIds={[site!.id]} search={search} />
+      <MicrosoftIdentitiesTab sourceId={source.id} siteIds={[site!.id]} />
     </>
   );
 }

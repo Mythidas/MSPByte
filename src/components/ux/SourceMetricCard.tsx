@@ -22,6 +22,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   }
 
   function getState(percent: number) {
+    if (!metric.thresholds) return 'neutral';
+
     const thresholds = metric.thresholds as Record<string, number | boolean | undefined>;
     const highest = (thresholds['highest'] as boolean) || false;
 

@@ -32,6 +32,7 @@ export function doesPolicyApplyToUser(
   if (!hasIncludes) return true;
 
   return (
+    includeUsers.includes('All') ||
     includeUsers.includes(user.id) ||
     user.groups?.some((id) => includeGroups.includes(id)) ||
     user.roles?.some((id) => includeRoles.includes(id))
@@ -66,7 +67,7 @@ export function isUserCapableOfCA(
   const CONDITIONAL_ACCESS_SERVICE_PLANS = ['AAD_PREMIUM', 'AAD_PREMIUM_P2'];
 
   return assignedLicenses.some((skuId) => {
-    const matchingSku = subscribedSkus.find((sku) => sku.skuId === skuId);
+    const matchingSku = subscribedSkus.find((sku) => sku.skuPartNumber === skuId);
     if (!matchingSku) return false;
 
     return matchingSku.servicePlans.some((plan) =>

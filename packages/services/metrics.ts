@@ -4,7 +4,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 import { Schema } from 'packages/db';
 import { createClient } from 'packages/db/server';
-import { Tables } from 'packages/db/schema';
+import { Tables, TablesInsert } from 'packages/db/schema';
 
 export async function getSourceMetrics(
   sourceId: string,
@@ -91,40 +91,13 @@ export async function getSourceMetricsAggregatedGrouped(
   }
 }
 
-export async function putSourceMetric(
-  metric: Tables<'source_metrics'>
+export async function putSourceMetrics(
+  metrics: TablesInsert<'source_metrics'>[]
 ): Promise<APIResponse<null>> {
   try {
     const supabase = await createClient();
-    const { data } = await supabase
-      .from('source_metrics')
-      .select()
-      .eq('name', metric.name)
-      .eq('source_id', metric.source_id)
-      .eq('site_id', metric.site_id)
-      .order('created_at', { ascending: false })
-      .single();
 
-    if (data) {
-      if (metric.is_historic) {
-        const createdAt = new Date(data.created_at!);
-        if (createdAt && Date.now() - createdAt.getTime() < 24 * 60 * 60 * 1000) {
-          return await updateSourceMetric({ ...metric, id: data.id });
-        }
-      } else {
-        return await updateSourceMetric({
-          ...metric,
-          id: data.id,
-          created_at: new Date().toISOString(),
-        });
-      }
-    }
-
-    const { error } = await supabase.from('source_metrics').insert({
-      ...metric,
-      id: undefined,
-      created_at: new Date().toISOString(),
-    });
+    const { error } = await supabase.from('source_metrics').insert(metrics);
 
     if (error) throw new Error(error.message);
 

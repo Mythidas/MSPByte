@@ -31,11 +31,14 @@ export async function transformIdentities(
         throw new Error('Failed to fetch data');
       }
 
-      const licenseSkus = user.assignedLicenses?.map((l) => l.skuId) || [];
+      const licenseSkus =
+        user.assignedLicenses?.map(
+          (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
+        ) || [];
       const mfaEnforced =
         securityDefaultsEnabled ||
-        isUserCapableOfCA(licenseSkus, subscribedSkus) ||
-        isUserRequiredToUseMFA(caPolicies, userContext.data);
+        (isUserCapableOfCA(licenseSkus, subscribedSkus) &&
+          isUserRequiredToUseMFA(caPolicies, userContext.data));
       const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
       identities.push({
@@ -53,10 +56,14 @@ export async function transformIdentities(
             ? 'security_defaults'
             : 'conditional_access'
           : 'none',
-        mfa_methods: transformedMethods, // You should call getAuthenticationMethods separately
+        mfa_methods: transformedMethods,
         last_activity: user.signInActivity?.lastSignInDateTime ?? null,
         license_skus: licenseSkus,
-        metadata: user as any,
+        metadata: {
+          ...(user as any),
+          roles: userContext.data.roles,
+          groups: userContext.data.groups,
+        },
         created_at: new Date().toISOString(),
       });
     }

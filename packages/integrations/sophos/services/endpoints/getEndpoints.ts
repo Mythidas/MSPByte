@@ -1,13 +1,14 @@
 'use server';
 
+import { Tables } from '@/db/schema';
+import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { Schema } from 'packages/db';
 
 export async function getEndpoints(
   token: string,
   mapping: Tables<'site_source_mappings'>
-): Promise<APIResponse<any[]>> {
+): Promise<APIResponse<SPEndpoint[]>> {
   try {
     if (!token) {
       throw new Error('Invalid token input');

@@ -3,23 +3,22 @@
 import MicrosoftIdentitiesTable from '@/components/tables/MicrosoftIdentitiesTable';
 import { TabsContent } from '@/components/ui/tabs';
 import { Tables } from '@/db/schema';
-import { getSourceIdentities } from '@/services/identities';
+import { getSourceIdentitiesView } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
 import { useEffect, useState } from 'react';
 
 type Props = {
   sourceId: string;
   siteIds?: string[];
-  search?: string;
 };
 
-export default function MicrosoftIdentitiesTab({ sourceId, siteIds, search }: Props) {
-  const [identities, setIdentities] = useState<Tables<'source_identities'>[]>([]);
+export default function MicrosoftIdentitiesTab({ sourceId, siteIds }: Props) {
+  const [identities, setIdentities] = useState<Tables<'source_identities_view'>[]>([]);
   const [licenses, setLicenses] = useState<Tables<'source_licenses'>[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
-      const identities = await getSourceIdentities(sourceId, siteIds);
+      const identities = await getSourceIdentitiesView(sourceId, siteIds);
       const licenses = await getSourceLicenses(sourceId);
 
       if (identities.ok && licenses.ok) {
@@ -36,7 +35,7 @@ export default function MicrosoftIdentitiesTab({ sourceId, siteIds, search }: Pr
       <MicrosoftIdentitiesTable
         identities={identities}
         licenses={licenses}
-        defaultSearch={search}
+        siteLevel={siteIds?.length === 1}
       />
     </TabsContent>
   );

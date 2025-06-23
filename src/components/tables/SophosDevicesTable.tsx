@@ -4,101 +4,159 @@ import { TableCell, TableHead, TableRow } from '@/components/ui/table';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { pascalCase } from '@/lib/utils';
+import { camelCase } from '@/lib/utils';
 import Link from 'next/link';
 import { Tables } from '@/db/schema';
+import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
 
 type Props = {
   devices: Tables<'source_devices_view'>[];
-  defaultSearch?: string;
+  siteLevel?: boolean;
 };
 
-export default function SophosDevicesTable({ devices, defaultSearch }: Props) {
-  const [search, setSearch] = useState(defaultSearch || '');
+export default function SophosDevicesTable({ devices, siteLevel }: Props) {
+  const protectionTypes = () => {
+    const types = new Set<string>();
+    for (const device of devices) {
+      if ((device.metadata as any)?.packages?.protection?.name) {
+        types.add((device.metadata as any)?.packages?.protection?.name);
+      }
+    }
 
-  function filterDevices(device: Tables<'source_devices_view'>) {
-    const lowerSearch = search.toLowerCase();
-    const lowerName = device.hostname!.toLowerCase();
-    const lowerOS = device.os!.toLowerCase();
-    const lowerSerial = device.serial!.toLowerCase();
-    const lowerProt = (device.metadata as any)?.packages?.protection?.name?.toLowerCase() || '';
-    const lowerStatus = (device.metadata as any)?.packages?.protection?.status?.toLowerCase() || '';
-    const lowerSite = device.site_name!.toLowerCase();
-    const lowerClient = device.parent_name?.toLowerCase() || '';
-    const lowerTamperProtection = (device.metadata as any).tamperProtectionEnabled.toString();
-    return (
-      lowerName.includes(lowerSearch) ||
-      lowerOS.includes(lowerSearch) ||
-      lowerSerial.includes(lowerSearch) ||
-      lowerProt.includes(lowerSearch) ||
-      lowerStatus.includes(lowerSearch) ||
-      lowerSite.includes(lowerSearch) ||
-      lowerClient.includes(lowerSearch) ||
-      lowerTamperProtection.includes(lowerSearch)
-    );
-  }
+    return Array.from(types).map((type) => {
+      return { label: type, value: type };
+    });
+  };
 
   return (
-    <div className="flex flex-col size-full gap-4">
-      <div className="flex items-center w-full max-w-sm space-x-2">
-        <Input
-          placeholder="Search devices..."
-          className="h-9"
-          type="search"
-          defaultValue={defaultSearch}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
-      <Card className="py-2">
-        {/* <PaginatedTable
-          data={devices.filter(filterDevices)}
-          head={() => (
-            <TableRow>
-              <TableHead>Site</TableHead>
-              <TableHead>Parent</TableHead>
-              <TableHead>Hostname</TableHead>
-              <TableHead>OS</TableHead>
-              <TableHead>Protection</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          )}
-          body={(data) => (
-            <>
-              {data.map((device) => (
-                <TableRow key={device.id}>
-                  <TableCell>
-                    <Link
-                      href={`/sites/${device.site_id}/sophos-partner?tab=devices`}
-                      className="hover:text-primary"
-                    >
-                      {device.site_name}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {device.parent_id && (
-                      <Link
-                        href={`/sites/${device.parent_id}/sophos-partner?tab=devices`}
-                        className="hover:text-primary"
-                      >
-                        {device.parent_name && device.parent_name.length > 25
-                          ? `${device.parent_name?.substring(0, 25)}...`
-                          : device.parent_name}
-                      </Link>
-                    )}
-                  </TableCell>
-                  <TableCell>{device.hostname}</TableCell>
-                  <TableCell>{device.os}</TableCell>
-                  <TableCell>{(device.metadata as any).packages.protection.name}</TableCell>
-                  <TableCell>
-                    {pascalCase((device.metadata as any).packages.protection.status)}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </>
-          )}
-        /> */}
-      </Card>
-    </div>
+    <DataTable
+      data={devices}
+      initialVisibility={siteLevel ? { parent_name: false, site_name: false } : {}}
+      columns={[
+        {
+          accessorKey: 'site_name',
+          header: ({ column }) => <DataTableHeader column={column} label="Site" />,
+          cell: ({ row }) => (
+            <Link
+              href={`/sites/${row.original.site_id}/sophos-partner?tab=devices`}
+              className="hover:text-primary"
+            >
+              {row.original.site_name}
+            </Link>
+          ),
+          enableHiding: true,
+          simpleSearch: true,
+          filter: {
+            type: 'text',
+            placeholder: 'Search site',
+          },
+          meta: {
+            label: 'Site',
+          },
+        },
+        {
+          accessorKey: 'parent_name',
+          header: ({ column }) => <DataTableHeader column={column} label="Parent" />,
+          cell: ({ row }) => (
+            <Link
+              href={`/sites/${row.original.parent_id}/sophos-partner?tab=devices`}
+              className="hover:text-primary"
+            >
+              {row.original.parent_name}
+            </Link>
+          ),
+          enableHiding: true,
+          simpleSearch: true,
+          filter: {
+            type: 'text',
+            placeholder: 'Search parent',
+          },
+          meta: {
+            label: 'Parent',
+          },
+        },
+        {
+          accessorKey: 'hostname',
+          header: ({ column }) => <DataTableHeader column={column} label="Hostname" />,
+          enableHiding: false,
+          simpleSearch: true,
+          filter: {
+            type: 'text',
+            placeholder: 'Search hostname',
+          },
+          meta: {
+            label: 'Hostname',
+          },
+        },
+        {
+          accessorKey: 'os',
+          header: ({ column }) => <DataTableHeader column={column} label="OS" />,
+          filter: {
+            type: 'text',
+            placeholder: 'Search os',
+          },
+          meta: {
+            label: 'OS',
+          },
+        },
+        {
+          accessorKey: 'protection',
+          header: ({ column }) => <DataTableHeader column={column} label="Protection" />,
+          cell: ({ row }) => <div>{(row.original.metadata as any).packages.protection.name}</div>,
+          sortingFn: (rowA, rowB) => {
+            if (
+              !(rowB.original.metadata as any).packages.protection.name ||
+              !(rowA.original.metadata as any).packages.protection.name
+            ) {
+              return 1;
+            }
+            return (rowA.original.metadata as any).packages.protection.name.localeCompare(
+              (rowB.original.metadata as any).packages.protection.name
+            );
+          },
+          filter: {
+            type: 'select',
+            options: protectionTypes(),
+            placeholder: 'Search protection',
+          },
+          meta: {
+            label: 'Protection',
+          },
+        },
+        {
+          accessorKey: 'status',
+          header: ({ column }) => <DataTableHeader column={column} label="Status" />,
+          cell: ({ row }) => (
+            <div>{camelCase((row.original.metadata as any)?.packages?.protection?.status)}</div>
+          ),
+          filterFn: (row, colId, value) => {
+            return (row.original.metadata as any).packages.protection.status === value.value;
+          },
+          sortingFn: (rowA, rowB) => {
+            if (
+              !(rowB.original.metadata as any).packages.protection.status ||
+              !(rowA.original.metadata as any).packages.protection.status
+            ) {
+              return 1;
+            }
+            return (rowA.original.metadata as any).packages.protection.status.localeCompare(
+              (rowB.original.metadata as any).packages.protection.status
+            );
+          },
+          filter: {
+            type: 'select',
+            options: [
+              { label: 'Assigned', value: 'assigned' },
+              { label: 'Upgradable', value: 'upgradable' },
+              { label: 'Unassigned', value: 'unassigned' },
+            ],
+            placeholder: 'Search status',
+          },
+          meta: {
+            label: 'Status',
+          },
+        },
+      ]}
+    />
   );
 }

@@ -1,24 +1,33 @@
+'use client';
+
 import SophosDevicesTable from '@/components/tables/SophosDevicesTable';
 import { TabsContent } from '@/components/ui/tabs';
-import ErrorDisplay from '@/components/ux/ErrorDisplay';
-import { getSourceDevices } from 'packages/services/devices';
+import { Tables } from '@/db/schema';
+import { getSourceDevicesView } from 'packages/services/devices';
+import { useEffect, useState } from 'react';
 
 type Props = {
   sourceId: string;
   siteIds?: string[];
-  search?: string;
 };
 
-export default async function SophosDevicesTab({ sourceId, siteIds, search }: Props) {
-  const devices = await getSourceDevices(sourceId, siteIds);
+export default function SophosDevicesTab({ sourceId, siteIds }: Props) {
+  const [devices, setDevices] = useState<Tables<'source_devices_view'>[]>([]);
 
-  if (!devices.ok) {
-    return <ErrorDisplay message="Failed to fetch data" />;
-  }
+  useEffect(() => {
+    const loadData = async () => {
+      const devices = await getSourceDevicesView(sourceId, siteIds);
+      if (devices.ok) {
+        setDevices(devices.data);
+      }
+    };
+
+    loadData();
+  }, [sourceId]);
 
   return (
     <TabsContent value="devices">
-      <SophosDevicesTable devices={devices.data} defaultSearch={search} />
+      <SophosDevicesTable devices={devices} siteLevel={siteIds?.length === 1} />
     </TabsContent>
   );
 }

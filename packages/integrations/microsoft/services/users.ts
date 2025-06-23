@@ -1,5 +1,5 @@
 import { Tables } from '@/db/schema';
-import { getGraphClient } from '@/integrations/microsoft/auth';
+import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types';
 import { MSGraphUser, MSGraphUserContext } from '@/integrations/microsoft/types/users';
 import { Debug } from '@/lib/utils';
@@ -46,12 +46,9 @@ export async function getUserContext(
     const client = await getGraphClient(mapping.source_id, mapping.site_id);
     if (!client.ok) throw new Error(client.error.message);
 
-    const [groupIds, roleIds] = await Promise.all([
-      getUserGroupIds(client.data, user.id),
-      getUserRoleIds(client.data, user.id),
-    ]);
+    const memberships = await getUserMemberships(client.data, user.id);
 
-    if (!groupIds.ok || !roleIds.ok) {
+    if (!memberships.ok) {
       throw new Error('Failed to fetch data');
     }
 
@@ -59,8 +56,8 @@ export async function getUserContext(
       ok: true,
       data: {
         id: user.id,
-        groups: groupIds.data,
-        roles: roleIds.data,
+        groups: memberships.data.groups,
+        roles: memberships.data.roles,
       },
     };
   } catch (err) {
@@ -73,15 +70,28 @@ export async function getUserContext(
   }
 }
 
-async function getUserGroupIds(client: Client, id: string): Promise<APIResponse<string[]>> {
+type UserMemberships = {
+  groups: string[];
+  roles: string[];
+};
+
+async function getUserMemberships(
+  client: Client,
+  id: string
+): Promise<APIResponse<UserMemberships>> {
   try {
     const groups: string[] = [];
-    let response = await client.api(`/users/${id}/memberOf`).get();
+    const roles: string[] = [];
+
+    let response = await client.api(`/users/${id}/transitiveMemberOf`).get();
 
     while (response) {
       for (const item of response.value || []) {
-        if (item['@odata.type'] === '#microsoft.graph.group') {
+        const type = item['@odata.type'];
+        if (type === '#microsoft.graph.group') {
           groups.push(item.id);
+        } else if (type === '#microsoft.graph.directoryRole') {
+          roles.push(item.id);
         }
       }
 
@@ -92,29 +102,15 @@ async function getUserGroupIds(client: Client, id: string): Promise<APIResponse<
 
     return {
       ok: true,
-      data: groups,
+      data: {
+        groups,
+        roles,
+      },
     };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
-      context: 'getUserGroupIds',
-      message: String(err),
-      time: new Date(),
-    });
-  }
-}
-
-async function getUserRoleIds(client: any, userId: string): Promise<APIResponse<string[]>> {
-  try {
-    const response = await client.api(`/users/${userId}/appRoleAssignments`).get();
-    return {
-      ok: true,
-      data: response.value?.map((assignment: any) => assignment.appRoleId) || [],
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'Microsoft-365',
-      context: 'getUserRoleIds',
+      context: 'getUserMemberships',
       message: String(err),
       time: new Date(),
     });

@@ -1,9 +1,7 @@
-'use server';
-
-import { getPartnerID, getToken } from '@/lib/actions/server/sources/sophos';
+import { Tables } from '@/db/schema';
+import { getPartnerID, getToken } from '@/integrations/sophos/auth';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { Schema } from 'packages/db';
 
 export async function getTenants(
   integration: Tables<'source_integrations'>

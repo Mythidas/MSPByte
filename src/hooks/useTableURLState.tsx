@@ -2,6 +2,55 @@ import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
 
+type ODataFilterValue = { id: string; op: string; value: string | number | boolean };
+
+function parseODataFilter(filterStr: string): ColumnFiltersState {
+  const filters: ColumnFiltersState = [];
+
+  // Split on ' and ', naive parser — improve if needed
+  const parts = filterStr.split(/\s+and\s+/i);
+
+  for (const part of parts) {
+    const match = part.match(/^(\w+)\s+(eq|ne|gt|lt|ge|le)\s+(.+)$/i);
+    if (!match) continue;
+
+    const [, field, op, rawValue] = match;
+    const cleanValue = rawValue.replace(/^'|'$/g, ''); // strip quotes if string
+    const parsedValue = isNaN(Number(cleanValue))
+      ? cleanValue === 'true'
+        ? true
+        : cleanValue === 'false'
+          ? false
+          : cleanValue
+      : Number(cleanValue);
+
+    filters.push({
+      id: field,
+      value: { op, value: parsedValue },
+    });
+  }
+
+  return filters;
+}
+
+function encodeODataFilter(filters: ColumnFiltersState): string {
+  return filters
+    .map(({ id, value }) => {
+      let op = 'eq';
+      let val: any = value;
+      const objValue = value as any;
+
+      if (typeof value === 'object' && 'op' in objValue) {
+        op = objValue.op;
+        val = objValue.value;
+      }
+
+      const encodedVal = typeof val === 'string' ? `${val.replace(/'/g, '')}` : String(val);
+      return `${id} ${op} ${encodedVal}`;
+    })
+    .join(' and ');
+}
+
 export function useTableURLState() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -10,17 +59,16 @@ export function useTableURLState() {
   const [initialSorting, setInitialSorting] = useState<SortingState>([]);
 
   useEffect(() => {
-    const filters: ColumnFiltersState = [];
+    const filtersParam = searchParams.get('filter');
+    const filters = filtersParam ? parseODataFilter(filtersParam) : [];
+
+    const sortingParam = searchParams.get('orderby');
     const sorting: SortingState = [];
 
-    searchParams.forEach((value, key) => {
-      if (key === 'sort') {
-        const [id, dir] = value.split(':');
-        sorting.push({ id, desc: dir === 'desc' });
-      } else if (key !== 'tab') {
-        filters.push({ id: key, value });
-      }
-    });
+    if (sortingParam) {
+      const [id, direction] = sortingParam.split(' ');
+      sorting.push({ id, desc: direction.toLowerCase() === 'desc' });
+    }
 
     setInitialFilters(filters);
     setInitialSorting(sorting);
@@ -33,16 +81,17 @@ export function useTableURLState() {
     filters?: ColumnFiltersState;
     sorting?: SortingState;
   }) => {
-    const params = new URLSearchParams({ tab: searchParams.get('tab') || '' });
-    filters?.forEach(({ id, value }) => {
-      if (value != null && value !== '') {
-        params.set(id, String(value));
-      }
-    });
+    const params = new URLSearchParams();
+    const tab = searchParams.get('tab');
+    if (tab) params.set('tab', tab);
+
+    if (filters && filters.length > 0) {
+      params.set('filter', encodeODataFilter(filters));
+    }
 
     if (sorting && sorting.length > 0) {
       const s = sorting[0];
-      params.set('sort', `${s.id}:${s.desc ? 'desc' : 'asc'}`);
+      params.set('orderby', `${s.id} ${s.desc ? 'desc' : 'asc'}`);
     }
 
     router.replace(`?${params.toString()}`);
@@ -52,6 +101,6 @@ export function useTableURLState() {
     initialFilters,
     initialSorting,
     applyUrlState,
-    isReady: initialFilters.length > 0 || searchParams.toString() === '', // useful guard
+    isReady: initialFilters.length > 0 || searchParams.toString() === '',
   };
 }

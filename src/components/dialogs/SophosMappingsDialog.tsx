@@ -13,7 +13,7 @@ import SearchBox from '@/components/ux/SearchBox';
 import SkeletonTable from '@/components/ux/SkeletonTable';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
-import { getTenants } from '@/lib/actions/server/sources/sophos/tenants';
+import { getTenants } from '@/integrations/sophos/services/tenants';
 import {
   getSiteMappings,
   putSiteSourceMapping,
@@ -145,47 +145,46 @@ export default function SophosMappingsDialog(props: Props) {
             </div>
           </div>
         </AlertDialogHeader>
-        {isLoading ? (
-          <SkeletonTable />
-        ) : null
-        // <PaginatedTable
-        //   data={mappings}
-        //   head={() => (
-        //     <TableRow>
-        //       <TableHead>Site</TableHead>
-        //       <TableHead>Parent</TableHead>
-        //       <TableHead className="w-2/5">Sophos Site</TableHead>
-        //     </TableRow>
-        //   )}
-        //   body={(data, page, size) => {
-        //     return data.map((mapping, idx) => (
-        //       <TableRow key={idx}>
-        //         <TableCell>{mapping.site_name}</TableCell>
-        //         <TableCell>{mapping.parent_name}</TableCell>
-        //         <TableCell className="w-2/5">
-        //           <SearchBox
-        //             placeholder="Search sites"
-        //             options={external.map((e) => {
-        //               return { label: e.name, value: e.id };
-        //             })}
-        //             defaultValue={mapping.external_id || ''}
-        //             onSelect={(e) => {
-        //               const site = external.find((site) => site.id === e);
-        //               const index = idx + (page - 1) * size;
-        //               const newMappings = [...mappings];
-        //               newMappings[index].external_id = site.id;
-        //               newMappings[index].external_name = site.name;
-        //               newMappings[index].changed = true;
-        //               newMappings[index].metadata = site;
-        //               setMappings(newMappings);
-        //             }}
-        //             loading={isLoading}
-        //           />
-        //         </TableCell>
-        //       </TableRow>
-        //     ));
-        //   }}
-        // />
+        {
+          isLoading ? <SkeletonTable /> : null
+          // <PaginatedTable
+          //   data={mappings}
+          //   head={() => (
+          //     <TableRow>
+          //       <TableHead>Site</TableHead>
+          //       <TableHead>Parent</TableHead>
+          //       <TableHead className="w-2/5">Sophos Site</TableHead>
+          //     </TableRow>
+          //   )}
+          //   body={(data, page, size) => {
+          //     return data.map((mapping, idx) => (
+          //       <TableRow key={idx}>
+          //         <TableCell>{mapping.site_name}</TableCell>
+          //         <TableCell>{mapping.parent_name}</TableCell>
+          //         <TableCell className="w-2/5">
+          //           <SearchBox
+          //             placeholder="Search sites"
+          //             options={external.map((e) => {
+          //               return { label: e.name, value: e.id };
+          //             })}
+          //             defaultValue={mapping.external_id || ''}
+          //             onSelect={(e) => {
+          //               const site = external.find((site) => site.id === e);
+          //               const index = idx + (page - 1) * size;
+          //               const newMappings = [...mappings];
+          //               newMappings[index].external_id = site.id;
+          //               newMappings[index].external_name = site.name;
+          //               newMappings[index].changed = true;
+          //               newMappings[index].metadata = site;
+          //               setMappings(newMappings);
+          //             }}
+          //             loading={isLoading}
+          //           />
+          //         </TableCell>
+          //       </TableRow>
+          //     ));
+          //   }}
+          // />
         }
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>

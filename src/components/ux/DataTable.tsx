@@ -77,9 +77,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useTableURLState } from '@/hooks/useTableURLState';
 import { Input } from '@/components/ui/input';
 import { Option } from '@/types';
+import MultiSelect from '@/components/ux/MultiSelect';
 
-export type FilterOperation = 'equals' | 'greater' | 'less' | 'between';
-export type FilterType = 'text' | 'select' | 'boolean' | 'date' | 'number';
+export type FilterOperation = 'eq' | 'ne' | 'gt' | 'lt' | 'bt' | 'in';
+export type FilterType = 'text' | 'select' | 'boolean' | 'date' | 'number' | 'multiselect';
 
 export type ColumnFilterMeta = {
   type: FilterType;
@@ -102,11 +103,7 @@ interface DataTableProps<TData> {
   initialVisibility?: VisibilityState;
 }
 
-type PendingFilterValue =
-  | string
-  | boolean
-  | { op: FilterOperation; value: any }
-  | { op: 'between'; value: [any, any] };
+type PendingFilterValue = { op: FilterOperation; value: any } | { op: 'bt'; value: [any, any] };
 
 export default function DataTable<TData>({
   columns,
@@ -169,20 +166,38 @@ export default function DataTable<TData>({
   }, [initialFilters, initialSorting, data]);
 
   useEffect(() => {
-    if (drawerOpen) {
-      const currentFilters = table.getState().columnFilters;
-      const pending: Record<string, any> = {};
-      const active: Record<string, boolean> = {};
+    if (!drawerOpen) return;
 
-      for (const col of table.getAllColumns()) {
-        const found = currentFilters.find((f) => f.id === col.id);
-        pending[col.id] = found?.value ?? '';
-        active[col.id] = !!found;
+    const currentFilters = table.getState().columnFilters;
+    const pending: Record<string, any> = {};
+    const active: Record<string, boolean> = {};
+
+    for (const col of table.getAllColumns()) {
+      const found = currentFilters.find((f) => f.id === col.id);
+
+      if (found) {
+        // If it's an operator filter, keep it as-is
+        if (
+          typeof found.value === 'object' &&
+          found.value !== null &&
+          'op' in found.value &&
+          'value' in found.value
+        ) {
+          pending[col.id] = { op: found.value.op, value: found.value.value };
+        } else {
+          // Fallback for simple filters (text, boolean, etc.)
+          pending[col.id] = found.value;
+        }
+        active[col.id] = true;
+      } else {
+        // Not currently filtered
+        pending[col.id] = '';
+        active[col.id] = false;
       }
-
-      setPendingFilters(pending);
-      setActiveFilters(active);
     }
+
+    setPendingFilters(pending);
+    setActiveFilters(active);
   }, [drawerOpen]);
 
   const generateLinks = () => {
@@ -226,23 +241,21 @@ export default function DataTable<TData>({
       if (!filterMeta) continue;
 
       let value = rawValue;
-
-      // Normalize undefined values by type
       switch (filterMeta.type) {
         case 'boolean':
-          value = rawValue || false;
+          value = { op: 'eq', value: rawValue.value || false };
           break;
         case 'text':
         case 'select':
-          value = rawValue || '';
+          value = { op: 'eq', value: rawValue.value || '' };
           break;
         case 'number':
         case 'date':
-          if (typeof rawValue === 'object' && rawValue !== null && 'op' in rawValue) {
-            const opValue = rawValue as { op: string; value: any };
+          if (typeof value === 'object' && value !== null && 'op' in value) {
+            const opValue = value as { op: string; value: any };
             if (
               opValue.value === undefined ||
-              (opValue.op === 'between' && (!opValue.value?.[0] || !opValue.value?.[1]))
+              (opValue.op === 'bt' && (!opValue.value?.[0] || !opValue.value?.[1]))
             ) {
               continue;
             }
@@ -253,6 +266,7 @@ export default function DataTable<TData>({
       applied.push({ id, value });
     }
 
+    console.log(applied);
     table.setColumnFilters(applied);
     applyUrlState({ filters: applied, sorting });
     setDrawerOpen(false);
@@ -271,11 +285,11 @@ export default function DataTable<TData>({
     table.setColumnFilters([]);
   };
 
-  const renderOperators = (onSelect: (op: FilterOperation) => void) => {
+  const renderOperators = (defaultValue: string, onSelect: (op: FilterOperation) => void) => {
     return (
-      <Select onValueChange={(e) => onSelect(e as FilterOperation)} defaultValue="equals">
+      <Select onValueChange={(e) => onSelect(e as FilterOperation)} defaultValue={defaultValue}>
         <SelectTrigger noIcon>
-          <SelectValue placeholder="Operators" defaultValue="equals" />
+          <SelectValue placeholder="Operators" defaultValue={defaultValue} />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="equals">
@@ -297,8 +311,66 @@ export default function DataTable<TData>({
 
   const renderFilterDate = (meta: ColumnFilterMeta, id: string, value: string | undefined) => {};
 
-  const renderFilterNumber = (meta: ColumnFilterMeta, id: string, value: number | undefined) => {
-    return renderOperators(() => {});
+  const renderFilterNumber = (meta: ColumnFilterMeta, id: string) => {
+    const newValue = (
+      prev: Record<string, PendingFilterValue>,
+      op?: FilterOperation,
+      value?: number | [number, number]
+    ) => {
+      const prevVal = (prev[id] as any)?.value;
+      return {
+        ...prev,
+        [id]: { op: op || 'eq', value: value || prevVal || '' },
+      };
+    };
+
+    const pendingValue = (pendingFilters[id] as any)?.value;
+    const pendingOp = (pendingFilters[id] as any)?.op || 'equals';
+
+    return (
+      <>
+        {renderOperators(pendingOp, (op) => {
+          setPendingFilters((prev) => newValue(prev, op));
+        })}
+
+        {pendingOp === 'between' ? (
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              value={pendingValue?.[0] || ''}
+              onChange={(e) =>
+                setPendingFilters((prev) =>
+                  newValue(prev, 'bt', [
+                    Number(e.target.value),
+                    (prev[id] as any)?.value?.[1] || '',
+                  ])
+                )
+              }
+            />
+            <Input
+              type="number"
+              value={pendingValue?.[1] || ''}
+              onChange={(e) =>
+                setPendingFilters((prev) =>
+                  newValue(prev, 'bt', [
+                    (prev[id] as any)?.value?.[0] || '',
+                    Number(e.target.value),
+                  ])
+                )
+              }
+            />
+          </div>
+        ) : (
+          <Input
+            type="number"
+            value={pendingValue || ''}
+            onChange={(e) =>
+              setPendingFilters((prev) => newValue(prev, pendingOp, Number(e.target.value)))
+            }
+          />
+        )}
+      </>
+    );
   };
 
   const renderFilterBoolean = (meta: ColumnFilterMeta, id: string, value: boolean | undefined) => {
@@ -309,12 +381,34 @@ export default function DataTable<TData>({
           onCheckedChange={(e) =>
             setPendingFilters((prev) => ({
               ...prev,
-              [id]: e as boolean,
+              [id]: { op: 'eq', value: e as boolean },
             }))
           }
         />
         Enabled
       </Label>
+    );
+  };
+
+  const renderFilterMultiSelect = (
+    meta: ColumnFilterMeta,
+    id: string,
+    value: string[] | undefined
+  ) => {
+    if (!meta.options) return null;
+    return (
+      <MultiSelect
+        options={meta.options}
+        defaultValues={value}
+        placeholder={meta.placeholder}
+        lead="In"
+        onChange={(e) =>
+          setPendingFilters((prev) => ({
+            ...prev,
+            [id]: { op: 'in', value: e },
+          }))
+        }
+      />
     );
   };
 
@@ -326,7 +420,7 @@ export default function DataTable<TData>({
         onValueChange={(e) =>
           setPendingFilters((prev) => ({
             ...prev,
-            [id]: e,
+            [id]: { op: 'eq', value: e },
           }))
         }
       >
@@ -354,7 +448,7 @@ export default function DataTable<TData>({
         onChange={(e) =>
           setPendingFilters((prev) => ({
             ...prev,
-            [id]: e.target.value,
+            [id]: { op: 'eq', value: e.target.value },
           }))
         }
       />
@@ -364,7 +458,7 @@ export default function DataTable<TData>({
   const renderFilter = (col: Column<TData, unknown>) => {
     const colId = col.id;
     const filterMeta = (col.columnDef as DataTableColumnDef<TData>).filter!;
-    const currentValue = pendingFilters[colId] as any;
+    const currentValue = pendingFilters[colId] as PendingFilterValue;
 
     return (
       <div key={colId} className="space-y-2 border-b pb-4">
@@ -381,16 +475,18 @@ export default function DataTable<TData>({
 
           <>
             {filterMeta.type === 'text' &&
-              renderFilterText(filterMeta, colId, currentValue as string)}
+              renderFilterText(filterMeta, colId, currentValue?.value as string)}
             {filterMeta.type === 'select' &&
               filterMeta.options &&
-              renderFilterSelect(filterMeta, colId, currentValue as string)}
+              renderFilterSelect(filterMeta, colId, currentValue?.value as string)}
+            {filterMeta.type === 'multiselect' &&
+              filterMeta.options &&
+              renderFilterMultiSelect(filterMeta, colId, currentValue?.value as string[])}
             {filterMeta.type === 'boolean' &&
-              renderFilterBoolean(filterMeta, colId, currentValue as boolean)}
-            {filterMeta.type === 'number' &&
-              renderFilterNumber(filterMeta, colId, currentValue as number)}
+              renderFilterBoolean(filterMeta, colId, currentValue?.value as boolean)}
+            {filterMeta.type === 'number' && renderFilterNumber(filterMeta, colId)}
             {filterMeta.type === 'date' &&
-              renderFilterDate(filterMeta, colId, currentValue as string)}
+              renderFilterDate(filterMeta, colId, currentValue?.value as string)}
           </>
         </div>
       </div>

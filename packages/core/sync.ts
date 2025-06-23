@@ -1,6 +1,6 @@
 import { Tables } from '@/db/schema';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
-import { syncSophosPartner } from '@/lib/actions/server/sources/sophos';
+import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 import { getSource } from '@/services/sources';
 import { APIResponse } from '@/types';

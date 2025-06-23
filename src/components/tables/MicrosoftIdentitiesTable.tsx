@@ -1,16 +1,16 @@
 'use client';
 
-import { ColumnDef } from '@tanstack/react-table';
 import DataTable, { DataTableColumnDef, DataTableHeader } from '@/components/ux/DataTable';
 import { Tables } from '@/db/schema';
+import Link from 'next/link';
 
 type Props = {
-  identities: Tables<'source_identities'>[];
+  identities: Tables<'source_identities_view'>[];
   licenses: Tables<'source_licenses'>[];
-  defaultSearch?: string;
+  siteLevel?: boolean;
 };
 
-export default function MicrosoftIdentitiesTable({ identities, licenses, defaultSearch }: Props) {
+export default function MicrosoftIdentitiesTable({ identities, licenses, siteLevel }: Props) {
   const getEnforcement = (str: string) => {
     switch (str) {
       case 'security_defaults':
@@ -22,8 +22,52 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
 
   return (
     <DataTable
+      data={identities}
+      initialVisibility={siteLevel ? { parent_name: false, site_name: false } : {}}
       columns={
         [
+          {
+            accessorKey: 'site_name',
+            header: ({ column }) => <DataTableHeader column={column} label="Site" />,
+            cell: ({ row }) => (
+              <Link
+                href={`/sites/${row.original.site_id}/microsoft-365?tab=identities`}
+                className="hover:text-primary"
+              >
+                {row.original.site_name}
+              </Link>
+            ),
+            enableHiding: true,
+            simpleSearch: true,
+            filter: {
+              type: 'text',
+              placeholder: 'Search site',
+            },
+            meta: {
+              label: 'Site',
+            },
+          },
+          {
+            accessorKey: 'parent_name',
+            header: ({ column }) => <DataTableHeader column={column} label="Parent" />,
+            cell: ({ row }) => (
+              <Link
+                href={`/sites/${row.original.parent_id}/microsoft-365?tab=identities`}
+                className="hover:text-primary"
+              >
+                {row.original.parent_name}
+              </Link>
+            ),
+            enableHiding: true,
+            simpleSearch: true,
+            filter: {
+              type: 'text',
+              placeholder: 'Search parent',
+            },
+            meta: {
+              label: 'Parent',
+            },
+          },
           {
             accessorKey: 'name',
             header: ({ column }) => <DataTableHeader column={column} label="Name" />,
@@ -58,7 +102,7 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
               label: 'MFA Enforced',
             },
             filterFn: (row, colId, value) => {
-              return row.original.mfa_enforced === value;
+              return row.original.mfa_enforced === value.value;
             },
             filter: {
               type: 'boolean',
@@ -93,6 +137,22 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             filter: {
               type: 'number',
             },
+            filterFn: (row, columnId, filterValue) => {
+              const val = (row.original.mfa_methods as any).length;
+              if (typeof filterValue === 'object' && filterValue.op) {
+                switch (filterValue.op) {
+                  case 'eq':
+                    return val == filterValue.value;
+                  case 'gt':
+                    return val > filterValue.value;
+                  case 'lt':
+                    return val < filterValue.value;
+                  case 'bt':
+                    return val >= filterValue.value[0] && val <= filterValue.value[1];
+                }
+              }
+              return true;
+            },
           },
           {
             accessorKey: 'license_skus',
@@ -101,13 +161,20 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
               return <div>{(row.getValue('license_skus')! as any).length}</div>;
             },
             sortingFn: (rowA, rowB) => {
-              return rowB.original.license_skus.length - rowA.original.license_skus.length;
+              return rowB.original.license_skus!.length - rowA.original.license_skus!.length;
             },
             meta: {
               label: 'Licenses',
             },
             filter: {
-              type: 'select',
+              type: 'multiselect',
+              options: licenses.map((lic) => {
+                return { label: lic.name, value: lic.sku };
+              }),
+              placeholder: 'Select Licenses',
+            },
+            filterFn: (row, colId, value) => {
+              return row.original.license_skus!.some((sku) => value.includes(sku));
             },
           },
           {
@@ -118,9 +185,6 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
             },
             meta: {
               label: 'Last Activity',
-            },
-            filter: {
-              type: 'date',
             },
           },
           {
@@ -136,16 +200,14 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, default
               label: 'Status',
             },
             filterFn: (row, colId, value) => {
-              return row.original.enabled === value;
+              return row.original.enabled === value.value;
             },
             filter: {
               type: 'boolean',
             },
           },
-        ] as DataTableColumnDef<Tables<'source_identities'>>[]
+        ] as DataTableColumnDef<Tables<'source_identities_view'>>[]
       }
-      data={identities}
-      initialVisibility={{}}
     />
   );
 }

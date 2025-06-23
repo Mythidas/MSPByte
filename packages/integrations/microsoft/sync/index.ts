@@ -1,6 +1,6 @@
 'use server';
 
-import { Debug } from '@/lib/utils';
+import { Debug, Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
 import { updateSourceIntegration } from '@/services/integrations';
 import { Tables } from '@/db/schema';
@@ -12,6 +12,7 @@ export async function syncMicrosoft365(
   siteIds?: string[]
 ): Promise<APIResponse<null>> {
   try {
+    const timer = new Timer('Microsoft365Sync');
     const mappings = await getSiteSourceMappings(integration.source_id, siteIds);
     if (!mappings.ok) {
       throw new Error(mappings.error.message);
@@ -24,6 +25,8 @@ export async function syncMicrosoft365(
     await updateSourceIntegration(integration.id, {
       last_sync_at: new Date().toISOString(),
     });
+
+    timer.summary();
 
     return {
       ok: true,
