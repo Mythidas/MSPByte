@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactDOM from 'react-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import SearchBar from '@/components/ux/SearchBar';
 
 type Option = { label: string; value: string };
@@ -97,6 +97,14 @@ export default function SearchBox({
     onSelect?.(option.value);
   };
 
+  const handleSearch = useCallback(
+    (e: string) => {
+      if (onSearch) onSearch(e);
+      setSearch(e.toLowerCase());
+    },
+    [onSearch] // only recreate if parent onSearch changes
+  );
+
   const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(search));
 
   const dropdownContent = (
@@ -159,9 +167,7 @@ export default function SearchBox({
               placeholder ||
               'Search...'
             }
-            onSearch={onSearch}
-            onChange={(e) => setSearch(e.target.value.toLowerCase())}
-            value={search}
+            onSearch={handleSearch}
             className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}
             onClick={openDropdown}
             ref={inputRef}

@@ -44,7 +44,7 @@ export default function CreateUserDialog({ user, roles, onCreate }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState('');
   const [sendEmail, setSendEmail] = useState(true);
-  const context = useUser();
+  const { user: context } = useUser();
   const tag = user.id ? 'Edit' : 'Create';
 
   useEffect(() => {

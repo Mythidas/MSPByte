@@ -1,26 +1,8 @@
 'use client';
 
-import { createClient } from '@/db/client';
-import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
 import { createContext, useContext } from 'react';
+import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
 
-const supabase = createClient();
-export const userWithRoleQuery = (id: string) =>
-  supabase
-    .from('users')
-    .select(
-      `
-    id,
-    tenant_id,
-    name,
-    email,
-    roles (
-      rights
-    )
-  `
-    )
-    .eq('id', id)
-    .single();
 export type UserContextView = {
   id: string;
   tenant_id: string;
@@ -31,27 +13,27 @@ export type UserContextView = {
   };
 };
 
-const UserContext = createContext<UserContextView | null>(null);
+type UserContextValue = {
+  user: UserContextView | null;
+  isLoading: boolean;
+};
+
+const UserContext = createContext<UserContextValue>({ user: null, isLoading: false });
 
 export const useUser = () => useContext(UserContext);
-
-export default UserContext;
 
 export function hasAccess(
   context: UserContextView | null,
   module: RoleAccessModule,
   access: RoleAccessLevel
-) {
+): boolean {
   if (!context || !context.roles || !context.roles.rights) return false;
-  const rights = context.roles.rights as Record<RoleAccessModule, string>;
-  const value = rights[module] as RoleAccessLevel;
 
-  if (value === 'None') return false;
-  else if (access === 'Read') {
-    return value === 'Read' || value === 'Write' || value === 'Full';
-  } else if (access === 'Write') {
-    return value === 'Write' || value === 'Full';
-  }
+  const current = context.roles.rights[module];
+  if (!current || current === 'None') return false;
 
-  return value === 'Full';
+  const levels = ['None', 'Read', 'Write', 'Full'] as const;
+  return levels.indexOf(current) >= levels.indexOf(access);
 }
+
+export default UserContext;

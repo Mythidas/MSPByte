@@ -35,7 +35,7 @@ export default function SophosPartner({ source, integration, ...props }: Props) 
     sophosIntegrationAction,
     {}
   );
-  const context = useUser();
+  const { user } = useUser();
 
   return (
     <Tabs defaultValue={props.searchParams.tab || 'overview'} className="flex flex-col size-full">
@@ -48,7 +48,7 @@ export default function SophosPartner({ source, integration, ...props }: Props) 
         <form action={formAction} className="flex flex-col pt-2 gap-4 ">
           <input name="id" hidden defaultValue={integration?.id} />
           <input name="source_id" hidden defaultValue={source.id} />
-          <input name="tenant_id" hidden defaultValue={context?.tenant_id} />
+          <input name="tenant_id" hidden defaultValue={user?.tenant_id} />
           <input name="slug" hidden defaultValue={source.slug} />
 
           <FormAlert message={state.message} />

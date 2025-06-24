@@ -25,10 +25,10 @@ export default function RouteCard({
   ...props
 }: Props) {
   const router = useRouter();
-  const context = useUser();
+  const { user } = useUser();
 
   const handleRoute = () => {
-    if (route && !disabled && hasAccess(context, module, level)) {
+    if (route && !disabled && hasAccess(user, module, level)) {
       router.push(route);
     }
   };

@@ -25,14 +25,14 @@ export default function RouteTableRow({
   ...props
 }: Props) {
   const router = useRouter();
-  const context = useUser();
+  const { user } = useUser();
 
   const handleRoute = (e: React.MouseEvent<HTMLTableRowElement, MouseEvent>) => {
     if (e.isPropagationStopped()) {
       return;
     }
 
-    if (route && !disabled && hasAccess(context, module, level)) {
+    if (route && !disabled && hasAccess(user, module, level)) {
       router.push(route);
     }
   };

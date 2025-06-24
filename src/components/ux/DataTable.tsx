@@ -502,11 +502,11 @@ function DataTableFilters<TData>({
       };
     };
 
-    const pendingTuple = pendingFilters[id].value as FilterPrimitiveTuple;
+    const pendingTuple = (pendingFilters[id]?.value || [0, 0]) as FilterPrimitiveTuple;
 
     return (
       <>
-        {pendingFilters[id].op === 'bt' ? (
+        {pendingFilters[id]?.op === 'bt' ? (
           <div className="flex gap-2">
             <SearchBar
               type="number"
@@ -551,11 +551,11 @@ function DataTableFilters<TData>({
           <SearchBar
             type="number"
             placeholder={meta.placeholder}
-            value={(pendingFilters[id].value as number) || 0}
+            value={(pendingFilters[id]?.value as number) || 0}
             delay={0}
             onChange={(e) =>
               setPendingFilters((prev) =>
-                newValue(prev, pendingFilters[id].op, Number(e.target.value))
+                newValue(prev, pendingFilters[id]?.op, Number(e.target.value))
               )
             }
             lead={

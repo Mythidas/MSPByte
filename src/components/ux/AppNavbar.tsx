@@ -14,6 +14,8 @@ export default function AppNavbar() {
   const router = useRouter();
 
   const handleSearch = async (search: string) => {
+    if (!search) return;
+
     try {
       const sites = await getSites(undefined, search);
       if (!sites.ok) return;

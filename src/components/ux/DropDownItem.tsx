@@ -36,20 +36,20 @@ export default function DropDownItem({
   ...props
 }: Props) {
   const router = useRouter();
-  const context = useUser();
+  const { user } = useUser();
 
   if (type === 'submit') {
     return (
       <DropdownMenuItem
         className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
         inset={inset}
-        disabled={disabled || !hasAccess(context, module, level)}
+        disabled={disabled || !hasAccess(user, module, level)}
         onClick={(e) => {
           e.stopPropagation();
           if (onClick) {
             onClick(e);
           }
-          if (route && hasAccess(context, module, level)) {
+          if (route && hasAccess(user, module, level)) {
             router.push(route);
           }
         }}
@@ -72,13 +72,13 @@ export default function DropDownItem({
     <DropdownMenuItem
       className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
       inset={inset}
-      disabled={disabled || !hasAccess(context, module, level)}
+      disabled={disabled || !hasAccess(user, module, level)}
       onClick={(e) => {
         e.stopPropagation();
         if (onClick) {
           onClick(e);
         }
-        if (route && hasAccess(context, module, level)) {
+        if (route && hasAccess(user, module, level)) {
           router.push(route);
         }
       }}

@@ -13,7 +13,7 @@ import { getRoles } from '@/services/roles';
 export default function UsersTable() {
   const [users, setUsers] = useState<Tables<'users'>[]>([]);
   const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
-  const context = useUser();
+  const { user: context } = useUser();
 
   useEffect(() => {
     const loadData = async () => {

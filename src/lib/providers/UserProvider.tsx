@@ -1,25 +1,47 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import UserContext, { UserContextView, userWithRoleQuery } from '@/lib/providers/UserContext';
+import UserContext, { UserContextView } from '@/lib/providers/UserContext';
 import { createClient } from '@/db/client';
+
+const supabase = createClient();
+
+const fetchUserContext = async (): Promise<UserContextView | null> => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user?.id) return null;
+
+  const { data, error } = await supabase
+    .from('users')
+    .select(
+      `
+      id,
+      tenant_id,
+      name,
+      email,
+      roles (
+        rights
+      )
+    `
+    )
+    .eq('id', user.id)
+    .single();
+
+  return error ? null : (data as UserContextView);
+};
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserContextView | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const { data: context } = await userWithRoleQuery(user?.id || '');
-      if (context) {
-        setUser(context as UserContextView);
-      }
-    };
-    getUser();
+    fetchUserContext().then((contextUser) => {
+      setUser(contextUser);
+      setIsLoading(false);
+    });
   }, []);
 
-  return <UserContext.Provider value={user}>{children}</UserContext.Provider>;
+  return <UserContext.Provider value={{ user, isLoading }}>{children}</UserContext.Provider>;
 }

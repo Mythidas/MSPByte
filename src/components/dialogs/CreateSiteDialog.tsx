@@ -33,7 +33,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
     createSiteAction,
     {}
   );
-  const context = useUser();
+  const { user } = useUser();
 
   useEffect(() => {
     if (state.success && onSuccess) {
@@ -74,7 +74,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
             </Label>
           )}
           <input hidden name="id" defaultValue={''} />
-          <input hidden name="tenant_id" defaultValue={context?.tenant_id} />
+          <input hidden name="tenant_id" defaultValue={user?.tenant_id} />
           <input hidden name="parent_id" defaultValue={parentId} />
 
           <AlertDialogFooter>

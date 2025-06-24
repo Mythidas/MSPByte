@@ -13,31 +13,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { signOutAction } from '@/lib/actions/auth';
 import { useUser } from '@/lib/providers/UserContext';
-import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AuthButton() {
-  const [loading, setLoading] = useState(true);
-  const initialLoad = useRef(true);
-  const context = useUser();
+  const { user, isLoading } = useUser();
 
-  useEffect(() => {
-    if (initialLoad.current) {
-      initialLoad.current = false;
-    } else {
-      setLoading(false);
-    }
-  }, [context]);
-
-  if (loading) {
+  if (isLoading) {
     return <Skeleton className="w-32 h-4" />;
   }
 
-  return context ? (
+  return user ? (
     <div className="flex items-center gap-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost">{context.email}</Button>
+          <Button variant="ghost">{user.email}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56">
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
