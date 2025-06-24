@@ -3,7 +3,7 @@
 import { Tables } from '@/db/schema';
 import DataTable from '@/components/ux/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
-import { booleanColumn, numberColumn, textColumn } from '@/lib/helpers/data-table/columns';
+import { numberColumn, textColumn } from '@/lib/helpers/data-table/columns';
 import { getRoles } from '@/services/roles';
 import { getUsers } from '@/services/users';
 import { useState, useEffect } from 'react';

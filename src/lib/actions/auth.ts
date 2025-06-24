@@ -5,7 +5,7 @@ import { loginFormSchema } from '@/lib/forms/auth';
 import { inviteFormSchema } from '@/lib/forms/users';
 import { redirect } from 'next/navigation';
 
-export async function loginAction(_prevState: any, params: FormData) {
+export async function loginAction(_prevState: unknown, params: FormData) {
   const valid = loginFormSchema.safeParse({
     email: params.get('email'),
     password: params.get('password'),
@@ -49,7 +49,7 @@ export async function signOutAction() {
   return redirect('/auth/login');
 }
 
-export const registerAction = async (_prevState: any, params: FormData) => {
+export const registerAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const valid = inviteFormSchema.safeParse({
     code: params.get('code'),

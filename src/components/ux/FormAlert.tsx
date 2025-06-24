@@ -30,7 +30,9 @@ export default function FormAlert({ errors, message, onClose }: Props) {
 
   const handleClose = () => {
     setOpen(false);
-    onClose && onClose();
+    if (onClose) {
+      onClose();
+    }
   };
 
   const pascalCase = (s: string) => {

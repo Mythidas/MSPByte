@@ -5,5 +5,5 @@ export function booleanSort<TData>(rowA: Row<TData>, rowB: Row<TData>, colId: ke
 }
 
 export function listLengthSort<TData>(rowA: Row<TData>, rowB: Row<TData>, colId: keyof TData) {
-  return (rowB.original[colId] as any[]).length - (rowA.original[colId] as any[]).length;
+  return (rowB.original[colId] as unknown[]).length - (rowA.original[colId] as unknown[]).length;
 }

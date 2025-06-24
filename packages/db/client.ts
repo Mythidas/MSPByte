@@ -1,4 +1,4 @@
-import { Schema } from 'packages/db';
+import { Database } from '@/db/schema';
 import { createBrowserClient } from '@supabase/ssr';
 
 export const createClient = () =>

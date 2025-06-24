@@ -6,7 +6,7 @@ import { userFormSchema } from '@/lib/forms/users';
 import { sendEmail } from '@/services/email';
 import { redirect } from 'next/navigation';
 
-export const createUserAction = async (_prevState: any, params: FormData) => {
+export const createUserAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const validation = userFormSchema.safeParse({
     name: params.get('name'),
@@ -85,7 +85,7 @@ export const createUserAction = async (_prevState: any, params: FormData) => {
   };
 };
 
-export const editUserAction = async (_prevState: any, params: FormData) => {
+export const editUserAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const validation = userFormSchema.safeParse({
     id: params.get('id'),
@@ -123,7 +123,7 @@ export const editUserAction = async (_prevState: any, params: FormData) => {
   return redirect(`/users/${validation.data.id}`);
 };
 
-export const deleteUserAction = async (_prevState: any, params: FormData) => {
+export const deleteUserAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const validation = deleteFormSchema.safeParse({
     id: params.get('id'),

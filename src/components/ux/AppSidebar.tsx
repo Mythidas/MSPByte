@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  Building2,
-  Cable,
-  ChartArea,
-  ChevronDown,
-  Database,
-  Globe,
-  LucideProps,
-  ShieldUser,
-} from 'lucide-react';
+import { Building2, Cable, ChartArea, Database, LucideProps, ShieldUser } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,

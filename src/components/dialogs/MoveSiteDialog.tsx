@@ -8,7 +8,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { useEffect, useState } from 'react';
@@ -42,14 +41,14 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         }
 
         setParents(sites.data.filter((p) => p.id !== parentId));
-      } catch (err) {
+      } catch {
       } finally {
         setIsLoading(false);
       }
     };
 
     loadSites();
-  }, []);
+  }, [parentId]);
 
   const handleMove = async () => {
     setIsLoading(true);
@@ -63,8 +62,8 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
       }
 
       const result = await updateSite({ ...site, parent_id: parent.id } as Tables<'sites'>);
-      if (result.ok) {
-        onSuccess && site && onSuccess(site, parent.name);
+      if (result.ok && onSuccess && site) {
+        onSuccess(site, parent.name);
       }
     } catch (err) {
       console.log(err);

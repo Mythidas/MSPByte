@@ -3,7 +3,6 @@ import SophosPartner from '@/components/sources/SophosPartner';
 import { Badge } from '@/components/ui/badge';
 import { getSites } from 'packages/services/sites';
 import { getSource } from 'packages/services/sources';
-import { getSiteSourceMappings } from 'packages/services/siteSourceMappings';
 import { getSourceIntegration } from 'packages/services/integrations';
 import {
   Breadcrumb,
@@ -13,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import Microsoft365 from '@/components/sources/Microsoft365';
+import Image from 'next/image';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -33,10 +33,9 @@ export default async function SourcePage(props: Props) {
   }
 
   const integration = await getSourceIntegration(undefined, source.data.id);
-  const mappings = await getSiteSourceMappings(source.data.id);
   const sites = await getSites();
 
-  if (!mappings.ok || !sites.ok) {
+  if (!sites.ok) {
     return (
       <Card>
         <CardHeader>Failed to fetch data</CardHeader>
@@ -51,7 +50,6 @@ export default async function SourcePage(props: Props) {
           <SophosPartner
             source={source.data}
             integration={integration.ok ? integration.data : null}
-            mappings={mappings.data}
             sites={sites.data}
             searchParams={searchParams}
           />
@@ -61,7 +59,6 @@ export default async function SourcePage(props: Props) {
           <Microsoft365
             source={source.data}
             integration={integration.ok ? integration.data : null}
-            mappings={mappings.data}
             sites={sites.data}
             searchParams={searchParams}
           />
@@ -88,7 +85,7 @@ export default async function SourcePage(props: Props) {
           className={`flex w-full h-40 items-center justify-center rounded-t-lg overflow-hidden shadow-md`}
           style={{ backgroundColor: source.data.color || '' }}
         >
-          <img
+          <Image
             src={source.data.logo_url || ''}
             alt={`${source.data.name} Logo`}
             className="w-1/3 h-fit max-h-14 object-contain"

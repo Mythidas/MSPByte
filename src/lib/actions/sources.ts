@@ -4,7 +4,7 @@ import { createClient } from '@/db/server';
 import { deleteFormSchema } from '@/lib/forms';
 import { redirect } from 'next/navigation';
 
-export const deleteSiteSourceMapping = async (_prevState: any, params: FormData) => {
+export const deleteSiteSourceMapping = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const validation = deleteFormSchema.safeParse({
     id: params.get('id'),

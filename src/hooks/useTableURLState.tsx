@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-
-type ODataFilterValue = { id: string; op: string; value: string | number | boolean };
+import { FilterValue } from '@/types/data-table';
 
 function parseODataFilter(filterStr: string): ColumnFiltersState {
   const filters: ColumnFiltersState = [];
@@ -35,18 +34,12 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
 
 function encodeODataFilter(filters: ColumnFiltersState): string {
   return filters
-    .map(({ id, value }) => {
-      let op = 'eq';
-      let val: any = value;
-      const objValue = value as any;
+    .map(({ id, value: raw }) => {
+      const value = raw as FilterValue;
 
-      if (typeof value === 'object' && 'op' in objValue) {
-        op = objValue.op;
-        val = objValue.value;
-      }
-
-      const encodedVal = typeof val === 'string' ? `${val.replace(/'/g, '')}` : String(val);
-      return `${id} ${op} ${encodedVal}`;
+      const encodedVal =
+        typeof value.value === 'string' ? `${value.value.replace(/'/g, '')}` : String(value.value);
+      return `${id} ${value.op} ${encodedVal}`;
     })
     .join(' and ');
 }

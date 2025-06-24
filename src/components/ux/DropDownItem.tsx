@@ -46,8 +46,12 @@ export default function DropDownItem({
         disabled={disabled || !hasAccess(context, module, level)}
         onClick={(e) => {
           e.stopPropagation();
-          onClick && onClick(e);
-          route && hasAccess(context, module, level) && router.push(route);
+          if (onClick) {
+            onClick(e);
+          }
+          if (route && hasAccess(context, module, level)) {
+            router.push(route);
+          }
         }}
         asChild
         {...props}
@@ -71,8 +75,12 @@ export default function DropDownItem({
       disabled={disabled || !hasAccess(context, module, level)}
       onClick={(e) => {
         e.stopPropagation();
-        onClick && onClick(e);
-        route && hasAccess(context, module, level) && router.push(route);
+        if (onClick) {
+          onClick(e);
+        }
+        if (route && hasAccess(context, module, level)) {
+          router.push(route);
+        }
       }}
       {...props}
     >

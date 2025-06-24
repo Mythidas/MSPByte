@@ -2,9 +2,7 @@ import ErrorDisplay from '@/components/ux/ErrorDisplay';
 import { getSources } from 'packages/services/sources';
 import RouteCard from '@/components/ux/RouteCard';
 
-type Props = {};
-
-export default async function Page({ ...props }: Props) {
+export default async function Page() {
   const sources = await getSources();
 
   if (!sources.ok) {

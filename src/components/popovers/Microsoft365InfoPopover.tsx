@@ -13,6 +13,11 @@ import {
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+type MetaData = {
+  client_id: string;
+  client_secret: string;
+};
+
 type Props = {
   mapping: Tables<'site_mappings_view'>;
   onSave?: (mapping: Tables<'site_mappings_view'>) => void;
@@ -27,7 +32,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
   const clientRef = useRef<HTMLInputElement>(null);
   const secretRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = async (e: any) => {
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     setIsSaving(true);
 
@@ -48,7 +53,9 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
           ) {
             const result = await deleteSiteSourceMapping(mapping.id);
             if (!result.ok) throw new Error(result.error.message);
-            onClear && onClear(mapping);
+            if (onClear) {
+              onClear(mapping);
+            }
           }
         }
       }
@@ -72,7 +79,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
 
         if (!result.ok) throw new Error(result.error.message);
 
-        onSave &&
+        if (onSave)
           onSave({
             ...mapping,
             external_id: tenantRef.current.value,
@@ -101,7 +108,9 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
         ]);
 
         if (!result.ok) throw new Error(result.error.message);
-        onSave && onSave({ ...mapping, ...result.data });
+        if (onSave) {
+          onSave({ ...mapping, ...result.data });
+        }
       }
 
       toast.info('Saved site info');
@@ -112,7 +121,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
     }
   };
 
-  const handleClear = async (e: any) => {
+  const handleClear = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
 
     if (domainRef.current) domainRef.current.value = '';
@@ -164,7 +173,7 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
                 placeholder="*****"
                 className="col-span-2 w-8/12"
                 required
-                defaultValue={(mapping.metadata as any).client_id || ''}
+                defaultValue={(mapping.metadata as MetaData).client_id || ''}
                 ref={clientRef}
               />
             </Label>

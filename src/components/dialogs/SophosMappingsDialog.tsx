@@ -8,8 +8,6 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { TableCell, TableHead, TableRow } from '@/components/ui/table';
-import SearchBox from '@/components/ux/SearchBox';
 import SkeletonTable from '@/components/ux/SkeletonTable';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
@@ -31,7 +29,7 @@ export default function SophosMappingsDialog(props: Props) {
   const [mappings, setMappings] = useState<
     (Tables<'site_mappings_view'> & { changed?: boolean })[]
   >([]);
-  const [external, setExternal] = useState<any[]>([]);
+  const [external, setExternal] = useState<{ id: string; name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,7 +54,7 @@ export default function SophosMappingsDialog(props: Props) {
     }
 
     loadData();
-  }, []);
+  }, [props.integration, props.source.id]);
 
   const handleSave = async () => {
     setIsSubmitting(true);

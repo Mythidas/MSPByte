@@ -35,7 +35,7 @@ export default function MicrosoftIdentitiesTab({ sourceId, siteIds }: Props) {
     };
 
     loadData();
-  }, [sourceId]);
+  }, [sourceId, siteIds]);
 
   return (
     <TabsContent value="identities">

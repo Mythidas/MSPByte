@@ -2,7 +2,6 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -41,11 +40,11 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
       onSuccess(state.values as Tables<'sites'>);
       setIsOpen(false);
     }
-  }, [state]);
+  }, [onSuccess, state]);
 
-  const getValue = (name: string) => {
+  const getValue = (name: keyof SiteFormValues) => {
     if (state.success) return '';
-    return state.values && state.values['name'];
+    return state.values && state.values[name];
   };
 
   return (
@@ -65,7 +64,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
           <FormAlert errors={state.errors} message={state.message} />
           <Label className="flex flex-col items-start">
             Name
-            <Input name="name" placeholder="Enter name" defaultValue={getValue('name')} />
+            <Input name="name" placeholder="Enter name" defaultValue={getValue('name') as string} />
             <FormError name="name" errors={state.errors} />
           </Label>
           {!parentId && (

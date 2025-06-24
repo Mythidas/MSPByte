@@ -9,10 +9,11 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import DataTable, { DataTableColumnDef, DataTableHeader } from '@/components/ux/DataTable';
+import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
 import { Tables } from '@/db/schema';
 import { getSitesView } from '@/services/sites';
 import { getSiteMappings } from '@/services/siteSourceMappings';
+import { DataTableColumnDef } from '@/types/data-table';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -25,11 +26,9 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
   const [mappings, setMappings] = useState<
     (Tables<'site_mappings_view'> & { changed?: boolean })[]
   >([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      setIsLoading(true);
       try {
         const siteMappings = await getSiteMappings(source.id);
         const sites = await getSitesView();
@@ -62,13 +61,11 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
         setMappings(siteMappings.data.sort((a, b) => a.site_name!.localeCompare(b.site_name!)));
       } catch (error) {
         toast.error(`Failed to load mappings: ${error}`);
-      } finally {
-        setIsLoading(false);
       }
     }
 
     loadData();
-  }, []);
+  }, [source.id, source.name, source.slug]);
 
   const handleSave = (mapping: Tables<'site_mappings_view'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
@@ -132,7 +129,7 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
                   return b - a;
                 },
               },
-            ] as DataTableColumnDef<Tables<'site_mappings_view'>, undefined>[]
+            ] as DataTableColumnDef<Tables<'site_mappings_view'>>[]
           }
           data={mappings}
         />

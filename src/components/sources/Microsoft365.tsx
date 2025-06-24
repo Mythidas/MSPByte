@@ -26,12 +26,11 @@ import { Tables } from '@/db/schema';
 type Props = {
   source: Tables<'sources'>;
   integration: Tables<'source_integrations'> | null;
-  mappings: Tables<'site_source_mappings'>[];
   sites: Tables<'sites'>[];
   searchParams: { tab?: string };
 };
 
-export default function Microsoft365({ source, integration, mappings, ...props }: Props) {
+export default function Microsoft365({ source, integration, ...props }: Props) {
   const [state, formAction] = useActionState<FormState<Microsoft365FormValues>, FormData>(
     microsoft365IntegrationAction,
     {}
@@ -44,7 +43,7 @@ export default function Microsoft365({ source, integration, mappings, ...props }
       toast.info('Saved integration settings');
       router.refresh();
     }
-  }, [state]);
+  }, [state, router]);
 
   return (
     <Tabs defaultValue={props.searchParams.tab || 'overview'} className="flex flex-col size-full">

@@ -1,19 +1,16 @@
 'use client';
 
-import FormAlert from "@/components/ux/FormAlert";
-import { DeleteFormValues } from "@/lib/forms";
-import { FormState } from "@/types";
-import { useActionState, useEffect } from "react";
+import FormAlert from '@/components/ux/FormAlert';
+import { DeleteFormValues } from '@/lib/forms';
+import { FormState } from '@/types';
+import { useActionState, useEffect } from 'react';
 
 type Props = {
   id: string;
   url?: string;
   onSuccess?: () => void;
   children: React.ReactNode;
-  action: (
-    _prevState: any,
-    params: FormData
-  ) => Promise<FormState<DeleteFormValues>>;
+  action: (_prevState: unknown, params: FormData) => Promise<FormState<DeleteFormValues>>;
 };
 
 export default function DeleteForm({ id, url, onSuccess, children, action }: Props) {
@@ -21,7 +18,7 @@ export default function DeleteForm({ id, url, onSuccess, children, action }: Pro
 
   useEffect(() => {
     if (state.success && onSuccess) onSuccess();
-  }, [state])
+  }, [state, onSuccess]);
 
   return (
     <form id={id} action={formAction}>

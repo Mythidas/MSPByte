@@ -23,7 +23,7 @@ export default function SophosDevicesTab({ sourceId, siteIds }: Props) {
     };
 
     loadData();
-  }, [sourceId]);
+  }, [sourceId, siteIds]);
 
   return (
     <TabsContent value="devices">

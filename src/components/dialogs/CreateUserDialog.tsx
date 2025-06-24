@@ -49,10 +49,10 @@ export default function CreateUserDialog({ user, roles, onCreate }: Props) {
 
   useEffect(() => {
     if (state.success) {
-      onCreate && onCreate(state.values as Tables<'users'>);
+      if (onCreate) onCreate(state.values as Tables<'users'>);
       setIsOpen(false);
     }
-  }, [state]);
+  }, [state, onCreate]);
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -126,7 +126,7 @@ export default function CreateUserDialog({ user, roles, onCreate }: Props) {
 
           {!user.id && (
             <Label>
-              <Checkbox defaultChecked={sendEmail} onChange={(e) => setSendEmail(!sendEmail)} />
+              <Checkbox defaultChecked={sendEmail} onChange={() => setSendEmail(!sendEmail)} />
               Send invitation email?
               <FormError name="send_email" errors={state.errors} />
             </Label>

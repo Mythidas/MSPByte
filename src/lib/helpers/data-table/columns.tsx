@@ -8,7 +8,6 @@ import {
 import { booleanSort, listLengthSort } from '@/lib/helpers/data-table/sorting';
 import { cn } from '@/lib/utils';
 import { DataTableColumnDef } from '@/types/data-table';
-import { ClassValue } from 'clsx';
 
 type GenericColumnProps<TData> = {
   key: keyof TData;

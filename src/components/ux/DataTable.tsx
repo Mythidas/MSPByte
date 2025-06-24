@@ -2,7 +2,6 @@
 
 import {
   Column,
-  ColumnDef,
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
@@ -65,7 +64,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -82,6 +81,8 @@ import {
   FilterOperation,
   FilterValue,
   ColumnFilterMeta,
+  FilterPrimitive,
+  FilterPrimitiveTuple,
 } from '@/types/data-table';
 
 interface DataTableProps<TData> {
@@ -140,13 +141,15 @@ export default function DataTable<TData>({
       <div className="flex w-full h-fit justify-between">
         <div className="flex items-center w-full max-w-sm gap-2">
           <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={500} />
-          <DataTableFilters
-            table={table}
-            columnFilters={columnFilters}
-            columns={columns}
-            sorting={sorting}
-            data={data}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <DataTableFilters
+              table={table}
+              columnFilters={columnFilters}
+              columns={columns}
+              sorting={sorting}
+              data={data}
+            />
+          </Suspense>
 
           {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
             <DropdownMenu>
@@ -167,7 +170,7 @@ export default function DataTable<TData>({
                         checked={column.getIsVisible()}
                         onCheckedChange={(value) => column.toggleVisibility(!!value)}
                       >
-                        {(column.columnDef as any)?.meta?.label ?? column.id}
+                        {(column.columnDef as DataTableColumnDef<TData>)?.meta?.label ?? column.id}
                       </DropdownMenuCheckboxItem>
                     );
                   })}
@@ -188,7 +191,10 @@ export default function DataTable<TData>({
                     return (
                       <TableHead
                         key={header.id}
-                        className={cn('py-1 rounded', (header.column.columnDef as any).headerClass)}
+                        className={cn(
+                          'py-1 rounded',
+                          (header.column.columnDef as DataTableColumnDef<TData>).headerClass
+                        )}
                       >
                         {header.isPlaceholder
                           ? null
@@ -206,7 +212,10 @@ export default function DataTable<TData>({
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={cn('py-1', (cell.column.columnDef as any).cellClass)}
+                        className={cn(
+                          'py-1',
+                          (cell.column.columnDef as DataTableColumnDef<TData>).cellClass
+                        )}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
@@ -372,7 +381,7 @@ function DataTableFilters<TData>({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pendingFilters, setPendingFilters] = useState<Record<string, FilterValue>>({});
   const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
-  const { initialFilters, initialSorting, applyUrlState, isReady } = useTableURLState();
+  const { initialFilters, initialSorting, applyUrlState } = useTableURLState();
   const didInitFilters = useRef(false);
 
   useEffect(() => {
@@ -385,13 +394,13 @@ function DataTableFilters<TData>({
       table.setSorting(initialSorting);
       didInitFilters.current = true;
     }
-  }, [initialFilters, initialSorting, data]);
+  }, [initialFilters, initialSorting, data, table]);
 
   useEffect(() => {
     if (!drawerOpen) return;
 
     const currentFilters = table.getState().columnFilters;
-    const pending: Record<string, any> = {};
+    const pending: Record<string, FilterValue> = {};
     const active: Record<string, boolean> = {};
 
     for (const col of table.getAllColumns()) {
@@ -399,28 +408,17 @@ function DataTableFilters<TData>({
 
       if (found) {
         // If it's an operator filter, keep it as-is
-        if (
-          typeof found.value === 'object' &&
-          found.value !== null &&
-          'op' in found.value &&
-          'value' in found.value
-        ) {
-          pending[col.id] = { op: found.value.op, value: found.value.value };
-        } else {
-          // Fallback for simple filters (text, boolean, etc.)
-          pending[col.id] = found.value;
-        }
+        pending[col.id] = found.value as FilterValue;
         active[col.id] = true;
       } else {
         // Not currently filtered
-        pending[col.id] = '';
         active[col.id] = false;
       }
     }
 
     setPendingFilters(pending);
     setActiveFilters(active);
-  }, [drawerOpen]);
+  }, [drawerOpen, table]);
 
   const handleFilterApply = () => {
     const applied: ColumnFiltersState = [];
@@ -430,7 +428,7 @@ function DataTableFilters<TData>({
 
       // Look up the column's filter config
       const colDef = columns.find((c) => c.accessorKey === id) as
-        | DataTableColumnDef<any>
+        | DataTableColumnDef<TData>
         | undefined;
       const filterMeta = colDef?.filter;
 
@@ -439,22 +437,17 @@ function DataTableFilters<TData>({
       let value = rawValue;
       switch (filterMeta.type) {
         case 'boolean':
-          value = { op: 'eq', value: rawValue.value || false };
+          value = { op: 'eq', value: (rawValue.value ?? false) as FilterPrimitive | undefined };
           break;
         case 'text':
         case 'select':
-          value = { op: 'eq', value: rawValue.value || '' };
+          value = { op: 'eq', value: (rawValue.value ?? '') as FilterPrimitive | undefined };
           break;
         case 'number':
         case 'date':
-          if (typeof value === 'object' && value !== null && 'op' in value) {
-            const opValue = value as { op: string; value: any };
-            if (
-              opValue.value === undefined ||
-              (opValue.op === 'bt' && (!opValue.value?.[0] || !opValue.value?.[1]))
-            ) {
-              continue;
-            }
+          const opTuple = value.value as FilterPrimitiveTuple;
+          if (value.value === undefined || (value.op === 'bt' && (!opTuple[0] || opTuple[1]))) {
+            continue;
           }
           break;
       }
@@ -470,10 +463,10 @@ function DataTableFilters<TData>({
   const handleFilterClear = () => {
     const cleared = table.getAllColumns().reduce(
       (acc, col) => {
-        acc[col.id] = '';
+        acc[col.id] = { op: 'eq', value: undefined };
         return acc;
       },
-      {} as Record<string, any>
+      {} as Record<string, FilterValue>
     );
     setPendingFilters(cleared);
     setActiveFilters({});
@@ -484,32 +477,47 @@ function DataTableFilters<TData>({
     const newValue = (
       prev: Record<string, FilterValue>,
       op?: FilterOperation,
-      value?: number | [number, number]
-    ) => {
-      const prevVal = (prev[id] as any)?.value;
+      value?: FilterPrimitive | FilterPrimitiveTuple
+    ): Record<string, FilterValue> => {
+      const prevVal = prev[id]?.value;
+
+      if (op === 'bt') {
+        return {
+          ...prev,
+          [id]: {
+            op: 'bt',
+            value: (value ?? prevVal) as FilterPrimitiveTuple,
+          },
+        };
+      }
+
+      const validOp: Exclude<FilterOperation, 'bt'> = op ? op : 'eq';
+
       return {
         ...prev,
-        [id]: { op: op || 'eq', value: value || prevVal || '' },
+        [id]: {
+          op: validOp,
+          value: (value ?? prevVal ?? '') as FilterPrimitive | undefined,
+        },
       };
     };
 
-    const pendingValue = (pendingFilters[id] as any)?.value;
-    const pendingOp = (pendingFilters[id] as any)?.op || 'equals';
+    const pendingTuple = pendingFilters[id].value as FilterPrimitiveTuple;
 
     return (
       <>
-        {pendingOp === 'bt' ? (
+        {pendingFilters[id].op === 'bt' ? (
           <div className="flex gap-2">
             <SearchBar
               type="number"
               placeholder={meta.placeholder}
-              value={pendingValue?.[0] || ''}
+              value={(pendingTuple[0] as number) || 0}
               delay={0}
               onChange={(e) =>
                 setPendingFilters((prev) =>
                   newValue(prev, 'bt', [
                     Number(e.target.value),
-                    (prev[id] as any)?.value?.[1] || '',
+                    ((prev[id].value as FilterPrimitiveTuple)[1] as number) || 0,
                   ])
                 )
               }
@@ -522,12 +530,12 @@ function DataTableFilters<TData>({
             <SearchBar
               type="number"
               placeholder={meta.placeholder}
-              value={pendingValue?.[1] || ''}
+              value={(pendingTuple[1] as number) || 0}
               delay={0}
               onChange={(e) =>
                 setPendingFilters((prev) =>
                   newValue(prev, 'bt', [
-                    (prev[id] as any)?.value?.[0] || '',
+                    ((prev[id].value as FilterPrimitiveTuple)[0] as number) || 0,
                     Number(e.target.value),
                   ])
                 )
@@ -543,10 +551,12 @@ function DataTableFilters<TData>({
           <SearchBar
             type="number"
             placeholder={meta.placeholder}
-            value={pendingValue || ''}
+            value={(pendingFilters[id].value as number) || 0}
             delay={0}
             onChange={(e) =>
-              setPendingFilters((prev) => newValue(prev, pendingOp, Number(e.target.value)))
+              setPendingFilters((prev) =>
+                newValue(prev, pendingFilters[id].op, Number(e.target.value))
+              )
             }
             lead={
               <DataTableOperatorSelect
@@ -656,7 +666,7 @@ function DataTableFilters<TData>({
                 setActiveFilters((prev) => ({ ...prev, [colId]: !!checked }));
               }}
             />
-            {(col.columnDef.meta as any)?.label || col.columnDef.id}
+            {(col.columnDef as DataTableColumnDef<TData>).meta?.label || col.columnDef.id}
           </Label>
 
           <>
@@ -692,7 +702,9 @@ function DataTableFilters<TData>({
         <div className="p-4 space-y-4">
           {table
             .getAllColumns()
-            .filter((col) => col.getCanFilter() && !!(col.columnDef as any).filter)
+            .filter(
+              (col) => col.getCanFilter() && !!(col.columnDef as DataTableColumnDef<TData>).filter
+            )
             .map(renderFilter)}
         </div>
 

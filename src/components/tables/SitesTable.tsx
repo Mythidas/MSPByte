@@ -1,6 +1,5 @@
 'use client';
 
-import { TableCell, TableHead, TableRow } from '@/components/ui/table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,13 +8,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import DropDownItem from '@/components/ux/DropDownItem';
-import RouteTableRow from '@/components/ux/RouteTableRow';
 import CreateSiteDialog from '@/components/dialogs/CreateSiteDialog';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import MoveSiteDialog from '@/components/dialogs/MoveSiteDialog';
 import { Tables } from '@/db/schema';
 import { deleteSite } from '@/services/sites';
@@ -36,7 +31,7 @@ export default function SitesTable({ parentId, ...props }: Props) {
     setSites(props.sites);
   }, [props.sites]);
 
-  const handleDelete = async (e: any, site: Tables<'sites'>) => {
+  const handleDelete = async (e: React.MouseEvent<HTMLDivElement>, site: Tables<'sites'>) => {
     e.stopPropagation();
 
     try {

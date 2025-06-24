@@ -3,7 +3,7 @@
 import { siteFormSchema } from '@/lib/forms/sites';
 import { putSite } from '@/services/sites';
 
-export const createSiteAction = async (_prevState: any, params: FormData) => {
+export const createSiteAction = async (_prevState: unknown, params: FormData) => {
   const validation = siteFormSchema.safeParse({
     id: params.get('id'),
     parent_id: params.get('parent_id') || undefined,

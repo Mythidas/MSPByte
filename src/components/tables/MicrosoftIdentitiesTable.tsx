@@ -1,6 +1,6 @@
 'use client';
 
-import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
+import DataTable from '@/components/ux/DataTable';
 import { Tables } from '@/db/schema';
 import {
   booleanColumn,

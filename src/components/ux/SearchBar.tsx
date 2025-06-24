@@ -18,14 +18,16 @@ export default function SearchBar({ delay = 1000, onSearch, lead, placeholder, .
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 1000);
+    }, delay);
 
     return () => clearTimeout(timeout);
-  }, [query]);
+  }, [query, delay]);
 
   useEffect(() => {
-    onSearch && onSearch(debouncedQuery);
-  }, [debouncedQuery]);
+    if (onSearch) {
+      onSearch(debouncedQuery);
+    }
+  }, [debouncedQuery, onSearch]);
 
   return (
     <div className="flex w-full">

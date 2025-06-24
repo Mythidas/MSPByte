@@ -16,11 +16,11 @@ import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import { InviteFormValues } from '@/lib/forms/users';
 import { FormState } from '@/types';
-import { useActionState, useEffect } from 'react';
+import { useActionState } from 'react';
 
 type Props = {
   code: string;
-  action: (_prevState: any, params: FormData) => Promise<FormState<InviteFormValues>>;
+  action: (_prevState: unknown, params: FormData) => Promise<FormState<InviteFormValues>>;
 };
 
 export default function InviteForm(props: Props) {

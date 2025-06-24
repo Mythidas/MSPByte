@@ -100,7 +100,7 @@ async function SiteParentComponent({ source, site }: Props) {
           return (
             <SourceMetricCard
               key={metric.name}
-              metric={metric as any as Tables<'source_metrics'>}
+              metric={metric as unknown as Tables<'source_metrics'>}
               baseRoute={`/sites/${site!.id}/${source.slug}`}
             />
           );
@@ -125,7 +125,7 @@ async function SiteComponent({ source, site }: Props) {
           return (
             <SourceMetricCard
               key={metric.name}
-              metric={metric as any as Tables<'source_metrics'>}
+              metric={metric as Tables<'source_metrics'>}
               baseRoute={`/sites/${site!.id}/${source.slug}`}
             />
           );

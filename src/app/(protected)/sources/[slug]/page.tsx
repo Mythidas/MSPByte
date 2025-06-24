@@ -12,7 +12,7 @@ import Microsoft365Mappings from '@/components/mappings/Microsoft365Mappings';
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tab: string; search: string }>;
+  searchParams: Promise<{ tab: string }>;
 };
 
 export default async function Page({ ...props }: Props) {
@@ -27,21 +27,9 @@ export default async function Page({ ...props }: Props) {
   const getMappingComponent = () => {
     switch (params.slug) {
       case 'sophos-partner':
-        return (
-          <SophosPartnerMappings
-            source={source.data}
-            tab={searchParams.tab}
-            search={searchParams.search}
-          />
-        );
+        return <SophosPartnerMappings source={source.data} tab={searchParams.tab} />;
       case 'microsoft-365':
-        return (
-          <Microsoft365Mappings
-            source={source.data}
-            tab={searchParams.tab}
-            search={searchParams.search}
-          />
-        );
+        return <Microsoft365Mappings source={source.data} tab={searchParams.tab} />;
     }
   };
 

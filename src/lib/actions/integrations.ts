@@ -4,14 +4,14 @@ import { createClient } from '@/db/server';
 import { microsoft365FormSchema, sophosPartnerFormSchema } from '@/lib/forms/sources';
 import { redirect } from 'next/navigation';
 
-export const invalidIntegrationAction = async (_prevState: any, params: FormData) => {
+export const invalidIntegrationAction = async (_prevState: unknown) => {
   return {
     success: false,
     message: 'Invalid action',
   };
 };
 
-export const microsoft365IntegrationAction = async (_prevState: any, params: FormData) => {
+export const microsoft365IntegrationAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const valid = microsoft365FormSchema.safeParse({
     id: params.get('id'),
@@ -84,7 +84,7 @@ export const microsoft365IntegrationAction = async (_prevState: any, params: For
   };
 };
 
-export const sophosIntegrationAction = async (_prevState: any, params: FormData) => {
+export const sophosIntegrationAction = async (_prevState: unknown, params: FormData) => {
   const supabase = await createClient();
   const valid = sophosPartnerFormSchema.safeParse({
     id: params.get('id'),

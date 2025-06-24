@@ -1,4 +1,3 @@
-import { Card } from '@/components/ui/card';
 import {
   Breadcrumb,
   BreadcrumbLink,
@@ -14,7 +13,6 @@ import RouteCard from '@/components/ux/RouteCard';
 import SitesTable from '@/components/tables/SitesTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
-import { getSourceIntegrations } from 'packages/services/integrations';
 
 type Props = {
   params: Promise<{ id: string }>;

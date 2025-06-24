@@ -1,13 +1,10 @@
 'use client';
 
-import { TableCell, TableHead, TableRow } from '@/components/ui/table';
-import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { camelCase } from '@/lib/utils';
 import Link from 'next/link';
 import { Tables } from '@/db/schema';
 import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
+import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 
 type Props = {
   devices: Tables<'source_devices_view'>[];
@@ -18,8 +15,9 @@ export default function SophosDevicesTable({ devices, siteLevel }: Props) {
   const protectionTypes = () => {
     const types = new Set<string>();
     for (const device of devices) {
-      if ((device.metadata as any)?.packages?.protection?.name) {
-        types.add((device.metadata as any)?.packages?.protection?.name);
+      const name = (device.metadata as SPEndpoint)?.packages?.protection?.name;
+      if (name) {
+        types.add(name);
       }
     }
 
@@ -102,16 +100,18 @@ export default function SophosDevicesTable({ devices, siteLevel }: Props) {
         {
           accessorKey: 'protection',
           header: ({ column }) => <DataTableHeader column={column} label="Protection" />,
-          cell: ({ row }) => <div>{(row.original.metadata as any).packages.protection.name}</div>,
+          cell: ({ row }) => (
+            <div>{(row.original.metadata as SPEndpoint).packages.protection?.name}</div>
+          ),
           sortingFn: (rowA, rowB) => {
             if (
-              !(rowB.original.metadata as any).packages.protection.name ||
-              !(rowA.original.metadata as any).packages.protection.name
+              !(rowB.original.metadata as SPEndpoint).packages.protection?.name ||
+              !(rowA.original.metadata as SPEndpoint).packages.protection?.name
             ) {
               return 1;
             }
-            return (rowA.original.metadata as any).packages.protection.name.localeCompare(
-              (rowB.original.metadata as any).packages.protection.name
+            return (rowA.original.metadata as SPEndpoint).packages.protection!.name.localeCompare(
+              (rowB.original.metadata as SPEndpoint).packages.protection!.name
             );
           },
           filter: {
@@ -127,20 +127,24 @@ export default function SophosDevicesTable({ devices, siteLevel }: Props) {
           accessorKey: 'status',
           header: ({ column }) => <DataTableHeader column={column} label="Status" />,
           cell: ({ row }) => (
-            <div>{camelCase((row.original.metadata as any)?.packages?.protection?.status)}</div>
+            <div>
+              {camelCase((row.original.metadata as SPEndpoint)?.packages?.protection?.status || '')}
+            </div>
           ),
           filterFn: (row, colId, value) => {
-            return (row.original.metadata as any).packages.protection.status === value.value;
+            return (
+              (row.original.metadata as SPEndpoint).packages.protection?.status === value.value
+            );
           },
           sortingFn: (rowA, rowB) => {
             if (
-              !(rowB.original.metadata as any).packages.protection.status ||
-              !(rowA.original.metadata as any).packages.protection.status
+              !(rowB.original.metadata as SPEndpoint).packages.protection?.status ||
+              !(rowA.original.metadata as SPEndpoint).packages.protection?.status
             ) {
               return 1;
             }
-            return (rowA.original.metadata as any).packages.protection.status.localeCompare(
-              (rowB.original.metadata as any).packages.protection.status
+            return (rowA.original.metadata as SPEndpoint).packages.protection!.status.localeCompare(
+              (rowB.original.metadata as SPEndpoint).packages.protection!.status
             );
           },
           filter: {

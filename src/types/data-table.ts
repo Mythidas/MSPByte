@@ -18,6 +18,13 @@ export type DataTableColumnDef<TData> = {
   filter?: ColumnFilterMeta;
   headerClass?: ClassValue;
   cellClass?: ClassValue;
+  meta?: {
+    label?: string;
+  };
 } & ColumnDef<TData, undefined>;
 
-export type FilterValue = { op: FilterOperation; value: any } | { op: 'bt'; value: [any, any] };
+export type FilterPrimitive = string | number | boolean | string[];
+export type FilterPrimitiveTuple = [FilterPrimitive, FilterPrimitive];
+export type FilterValue =
+  | { op: Exclude<FilterOperation, 'bt'>; value: FilterPrimitive | undefined }
+  | { op: 'bt'; value: FilterPrimitiveTuple };
