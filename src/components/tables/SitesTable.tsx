@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import DropDownItem from '@/components/ux/DropDownItem';
@@ -19,6 +19,10 @@ import { useRouter } from 'next/navigation';
 import MoveSiteDialog from '@/components/dialogs/MoveSiteDialog';
 import { Tables } from '@/db/schema';
 import { deleteSite } from '@/services/sites';
+import DataTable from '@/components/ux/DataTable';
+import { DataTableColumnDef } from '@/types/data-table';
+import { column, textColumn } from '@/lib/helpers/data-table/columns';
+import Link from 'next/link';
 
 type Props = {
   sites: Tables<'sites'>[];
@@ -26,15 +30,11 @@ type Props = {
 };
 
 export default function SitesTable({ parentId, ...props }: Props) {
-  const [search, setSearch] = useState('');
   const [sites, setSites] = useState(props.sites);
-  const router = useRouter();
 
-  function filterSites(site: Tables<'sites'>) {
-    const lowerSearch = search.toLowerCase();
-    const lowerName = site.name.toLowerCase();
-    return lowerName.includes(lowerSearch);
-  }
+  useEffect(() => {
+    setSites(props.sites);
+  }, [props.sites]);
 
   const handleDelete = async (e: any, site: Tables<'sites'>) => {
     e.stopPropagation();
@@ -63,68 +63,57 @@ export default function SitesTable({ parentId, ...props }: Props) {
   };
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center w-full max-w-sm space-x-2">
-          <Input
-            placeholder="Search sites..."
-            className="h-9"
-            type="search"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+    <DataTable
+      data={sites}
+      action={
         <div className="flex gap-2">
           {parentId && (
             <MoveSiteDialog sites={sites} parentId={parentId} onSuccess={moveCallback} />
           )}
           <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
         </div>
-      </div>
-
-      <Card className="py-2">
-        {/* <PaginatedTable
-          data={sites.filter(filterSites)}
-          head={() => (
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          )}
-          body={(data) => (
-            <>
-              {data.map((site) => (
-                <RouteTableRow
-                  key={site.id}
-                  route={`/sites/${site.id}`}
-                  module="sites"
-                  level="read"
-                >
-                  <TableCell>{site.name}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropDownItem
-                          onClick={(e) => handleDelete(e, site)}
-                          variant="destructive"
-                          module="sites"
-                          level="full"
-                        >
-                          Delete
-                        </DropDownItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </RouteTableRow>
-              ))}
-            </>
-          )}
-        /> */}
-      </Card>
-    </>
+      }
+      columns={
+        [
+          textColumn({
+            key: 'name',
+            label: 'Name',
+            enableHiding: false,
+            simpleSearch: true,
+            cell: ({ row }) => (
+              <Link href={`/sites/${row.original.id}`} className="hover:text-primary">
+                {row.original.name}
+              </Link>
+            ),
+          }),
+          column({
+            key: 'id',
+            label: 'Actions',
+            alignRight: true,
+            enableSorting: false,
+            enableHiding: false,
+            cell: ({ row }) => (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropDownItem
+                    onClick={(e) => handleDelete(e, row.original)}
+                    variant="destructive"
+                    module="Sites"
+                    level="Full"
+                  >
+                    Delete
+                  </DropDownItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ),
+          }),
+        ] as DataTableColumnDef<Tables<'sites'>>[]
+      }
+    />
   );
 }

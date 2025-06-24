@@ -1,7 +1,7 @@
 'use client';
 
 import { createClient } from '@/db/client';
-import { RoleAccessLevel, RoleAccessModule } from '@/types';
+import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
 import { createContext, useContext } from 'react';
 
 const supabase = createClient();
@@ -44,14 +44,14 @@ export function hasAccess(
 ) {
   if (!context || !context.roles || !context.roles.rights) return false;
   const rights = context.roles.rights as Record<RoleAccessModule, string>;
-  const value = rights[module];
+  const value = rights[module] as RoleAccessLevel;
 
-  if (value === 'none') return false;
-  else if (access === 'read') {
-    return value === 'read' || value === 'edit' || value === 'full';
-  } else if (access === 'edit') {
-    return value === 'edit' || value === 'full';
+  if (value === 'None') return false;
+  else if (access === 'Read') {
+    return value === 'Read' || value === 'Write' || value === 'Full';
+  } else if (access === 'Write') {
+    return value === 'Write' || value === 'Full';
   }
 
-  return value === 'full';
+  return value === 'Full';
 }

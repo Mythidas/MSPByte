@@ -51,7 +51,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <RouteButton module="sites" level="edit">
+        <RouteButton module="Sites" level="Write">
           <HousePlus className="h-4 w-4 mr-2" />
           Add Site
         </RouteButton>

@@ -7,24 +7,20 @@ import SearchBox from '@/components/ux/SearchBox';
 import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export default function AppNavbar() {
   const [sites, setSites] = useState<Tables<'sites'>[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    const loadSites = async () => {
-      try {
-        const sites = await getSites();
-        if (!sites.ok) return;
+  const handleSearch = async (search: string) => {
+    try {
+      const sites = await getSites(undefined, search);
+      if (!sites.ok) return;
 
-        setSites(sites.data);
-      } catch {}
-    };
-
-    loadSites();
-  }, []);
+      setSites(sites.data);
+    } catch {}
+  };
 
   const handleSelect = (value: string) => {
     router.push(`/sites/${value}`);
@@ -39,6 +35,7 @@ export default function AppNavbar() {
             placeholder="Search sites...."
             lead={<span>Sites</span>}
             onSelect={handleSelect}
+            onSearch={handleSearch}
             options={sites.map((s) => {
               return { label: s.name, value: s.id };
             })}

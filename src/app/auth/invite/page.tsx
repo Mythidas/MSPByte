@@ -1,10 +1,9 @@
-
-import InviteForm from "@/components/forms/InviteForm";
-import FormAlert from "@/components/ux/FormAlert";
-import { registerAction } from "@/lib/actions/form/auth";
+import InviteForm from '@/components/forms/InviteForm';
+import FormAlert from '@/components/ux/FormAlert';
+import { registerAction } from '@/lib/actions/form/auth';
 
 type Props = {
-  searchParams: Promise<{ code: string }>
+  searchParams: Promise<{ code: string }>;
 };
 
 export default async function SignIn(props: Props) {
@@ -14,7 +13,5 @@ export default async function SignIn(props: Props) {
     return <FormAlert message="Invalid invite code." />;
   }
 
-  return (
-    <InviteForm code={searchParams.code} action={registerAction} />
-  );
+  return <InviteForm code={searchParams.code} action={registerAction} />;
 }

@@ -98,16 +98,12 @@ export default function IntegrationsTable({ sources, integrations }: Props) {
                     <DropdownMenuContent align="end">
                       <DropDownItem
                         route={`/integrations/${source.slug}`}
-                        module="integrations"
-                        level="read"
+                        module="Sources"
+                        level="Write"
                       >
                         Edit
                       </DropDownItem>
-                      <DropDownItem
-                        onClick={() => syncNow(source)}
-                        module="integrations"
-                        level="edit"
-                      >
+                      <DropDownItem onClick={() => syncNow(source)} module="Sources" level="Write">
                         Sync
                       </DropDownItem>
                     </DropdownMenuContent>

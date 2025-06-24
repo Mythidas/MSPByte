@@ -2,10 +2,10 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { RoleAccessLevel, RoleAccessModule } from '@/types';
 import { hasAccess, useUser } from '@/lib/providers/UserContext';
 import { cn } from '@/lib/utils';
 import { Card } from '@/components/ui/card';
+import { RoleAccessLevel, RoleAccessModule } from '@/types/rights';
 
 type Props = {
   module: RoleAccessModule;

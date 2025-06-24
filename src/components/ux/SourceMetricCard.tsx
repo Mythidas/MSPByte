@@ -100,8 +100,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
             <RouteButton
               variant="ghost"
               route={`${baseRoute || metric.route}?${formatFilters(metric.filters as Record<string, string>)}`}
-              module="devices"
-              level="read"
+              module="Sources"
+              level="Read"
             >
               <MoveRight />
             </RouteButton>

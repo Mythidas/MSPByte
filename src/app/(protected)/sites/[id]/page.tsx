@@ -78,8 +78,8 @@ export default async function Page({ ...props }: Props) {
               key={mapping.id}
               className="justify-center items-center"
               route={`/sites/${params.id}/${source?.slug}`}
-              module="sites"
-              level="read"
+              module="Sources"
+              level="Read"
             >
               {source?.name}
             </RouteCard>

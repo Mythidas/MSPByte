@@ -86,6 +86,7 @@ export const registerAction = async (_prevState: any, params: FormData) => {
     },
   });
 
+  console.log(error);
   if (error) {
     return {
       success: false,

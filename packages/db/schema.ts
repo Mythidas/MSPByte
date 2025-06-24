@@ -56,21 +56,21 @@ export type Database = {
           description: string
           id: string
           name: string
-          rights: Json | null
+          rights: Json
           tenant_id: string | null
         }
         Insert: {
           description: string
           id?: string
           name: string
-          rights?: Json | null
+          rights?: Json
           tenant_id?: string | null
         }
         Update: {
           description?: string
           id?: string
           name?: string
-          rights?: Json | null
+          rights?: Json
           tenant_id?: string | null
         }
         Relationships: [
@@ -633,7 +633,7 @@ export type Database = {
           },
         ]
       }
-      source_licenses: {
+      source_license_info: {
         Row: {
           created_at: string | null
           id: string

@@ -25,8 +25,8 @@ export default async function Page({ ...props }: Props) {
                 key={source.id}
                 className="justify-center items-center"
                 route={`/sources/${source.slug}`}
-                module="sites"
-                level="read"
+                module="Sources"
+                level="Read"
               >
                 {source.name}
               </RouteCard>

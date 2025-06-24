@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 import SearchBox from '@/components/ux/SearchBox';
 import { Tables } from '@/db/schema';
 import { getParentSites, updateSite } from '@/services/sites';
+import RouteButton from '@/components/ux/RouteButton';
 
 type Props = {
   sites: Tables<'sites'>[];
@@ -76,7 +77,9 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="secondary">Move Site</Button>
+        <RouteButton variant="secondary" module="Sites" level="Write">
+          Move Site
+        </RouteButton>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

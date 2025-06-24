@@ -1,10 +1,10 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import ReactDOM from 'react-dom';
 import { useEffect, useRef, useState } from 'react';
+import SearchBar from '@/components/ux/SearchBar';
 
 type Option = { label: string; value: string };
 
@@ -15,6 +15,7 @@ type Props = {
   lead?: React.ReactNode;
   loading?: boolean;
   onSelect?: (value: string) => void;
+  onSearch?: (search: string) => void;
 };
 
 export default function SearchBox({
@@ -24,6 +25,7 @@ export default function SearchBox({
   lead,
   loading,
   onSelect,
+  onSearch,
 }: Props) {
   const [selected, setSelected] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
@@ -139,7 +141,7 @@ export default function SearchBox({
 
   return (
     <>
-      <div ref={wrapperRef} className="relative flex flex-col w-full z-[999]">
+      <div ref={wrapperRef} className="relative flex flex-col w-full">
         <div className="flex w-full">
           {lead && (
             <div
@@ -151,12 +153,13 @@ export default function SearchBox({
               {lead}
             </div>
           )}
-          <Input
+          <SearchBar
             placeholder={
               (selected && options.find((opt) => opt.value === selected)?.label) ||
               placeholder ||
               'Search...'
             }
+            onSearch={onSearch}
             onChange={(e) => setSearch(e.target.value.toLowerCase())}
             value={search}
             className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}

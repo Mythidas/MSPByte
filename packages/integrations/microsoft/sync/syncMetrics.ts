@@ -6,7 +6,7 @@ import { putSourceMetrics } from '@/services/metrics';
 export async function syncMetrics(
   mapping: Tables<'site_source_mappings'>,
   policies: Tables<'source_policies'>[],
-  licenses: Tables<'source_licenses'>[],
+  licenses: Tables<'source_license_info'>[],
   identities: Tables<'source_identities'>[]
 ): Promise<APIResponse<null>> {
   const totalIdentities: TablesInsert<'source_metrics'> = {
@@ -74,7 +74,7 @@ export async function syncMetrics(
     unit: 'identities',
     total: identities.length,
     route: '/sources/microsoft-365',
-    filters: { tab: 'identities', filter: '' },
+    filters: { tab: 'identities', filter: 'last_activity+gt+60' },
     metadata: {},
     is_historic: false,
     visual: 'progress',

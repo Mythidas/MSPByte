@@ -10,6 +10,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   SortingState,
+  Table as TTable,
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
@@ -72,54 +73,35 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { ClassValue } from 'clsx';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useTableURLState } from '@/hooks/useTableURLState';
 import { Input } from '@/components/ui/input';
-import { Option } from '@/types';
 import MultiSelect from '@/components/ux/MultiSelect';
-
-export type FilterOperation = 'eq' | 'ne' | 'gt' | 'lt' | 'bt' | 'in';
-export type FilterType = 'text' | 'select' | 'boolean' | 'date' | 'number' | 'multiselect';
-
-export type ColumnFilterMeta = {
-  type: FilterType;
-  options?: Option[]; // For selects
-  placeholder?: string;
-  operations?: FilterOperation[];
-};
-
-export type DataTableColumnDef<TData> = {
-  accessorKey?: string;
-  simpleSearch?: boolean;
-  filter?: ColumnFilterMeta;
-  headerClass?: ClassValue;
-  cellClass?: ClassValue;
-} & ColumnDef<TData, undefined>;
+import {
+  DataTableColumnDef,
+  FilterOperation,
+  FilterValue,
+  ColumnFilterMeta,
+} from '@/types/data-table';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
   data: TData[];
   initialVisibility?: VisibilityState;
+  action?: React.ReactNode;
 }
-
-type PendingFilterValue = { op: FilterOperation; value: any } | { op: 'bt'; value: [any, any] };
 
 export default function DataTable<TData>({
   columns,
   data,
   initialVisibility = {},
+  action,
 }: DataTableProps<TData>) {
-  const { initialFilters, initialSorting, applyUrlState, isReady } = useTableURLState();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialVisibility);
   const [globalSearch, setGlobalSearch] = useState('');
 
-  const [pendingFilters, setPendingFilters] = useState<Record<string, PendingFilterValue>>({});
-  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const didInitFilters = useRef(false);
   const simpleSearchFields = columns
     .filter((col) => (col as DataTableColumnDef<TData>).simpleSearch)
     .map((col) => col.accessorKey)
@@ -153,6 +135,246 @@ export default function DataTable<TData>({
     },
   });
 
+  return (
+    <div className="flex flex-col size-full gap-4">
+      <div className="flex w-full h-fit justify-between">
+        <div className="flex items-center w-full max-w-sm gap-2">
+          <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={500} />
+          <DataTableFilters
+            table={table}
+            columnFilters={columnFilters}
+            columns={columns}
+            sorting={sorting}
+            data={data}
+          />
+
+          {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="ml-auto">
+                  <Grid2X2 />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => {
+                    return (
+                      <DropdownMenuCheckboxItem
+                        key={column.id}
+                        className="capitalize"
+                        checked={column.getIsVisible()}
+                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      >
+                        {(column.columnDef as any)?.meta?.label ?? column.id}
+                      </DropdownMenuCheckboxItem>
+                    );
+                  })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
+        <div>{action}</div>
+      </div>
+
+      <Card className="py-0">
+        <ScrollArea className="flex items-start overflow-auto max-h-[70vh]">
+          <Table>
+            <TableHeader className="sticky top-0 bg-card">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className={cn('py-1 rounded', (header.column.columnDef as any).headerClass)}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell
+                        key={cell.id}
+                        className={cn('py-1', (cell.column.columnDef as any).cellClass)}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+            <DataTableFooter table={table} />
+          </Table>
+        </ScrollArea>
+      </Card>
+    </div>
+  );
+}
+
+interface SortedHeaderProps<TValue> {
+  column: Column<TValue>;
+  label: string;
+}
+
+export function DataTableHeader<TValue>({ column, label }: SortedHeaderProps<TValue>) {
+  return (
+    <Button
+      variant="none"
+      onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+      className="px-0!"
+    >
+      {label}
+      {column.getIsSorted() === 'asc' && <MoveUp />}
+      {column.getIsSorted() === 'desc' && <MoveDown />}
+      {!column.getIsSorted() && column.getCanSort() && <ArrowUpDown />}
+    </Button>
+  );
+}
+
+type DataTableFooterProps<TData> = {
+  table: TTable<TData>;
+};
+
+function DataTableFooter<TData>({ table }: DataTableFooterProps<TData>) {
+  const generateLinks = () => {
+    const totalPages = table.getPageCount();
+    const page = table.getState().pagination.pageIndex + 1;
+    const display =
+      page === 1
+        ? [1, 2, 3]
+        : page === totalPages
+          ? [totalPages - 2, totalPages - 1, totalPages]
+          : [page - 1, page, page + 1];
+
+    return display.map((index) => {
+      if (index < 1 || index > totalPages) return null;
+      return (
+        <PaginationItem key={index}>
+          <PaginationLink
+            onClick={() => table.setPageIndex(index - 1)}
+            isActive={page === index}
+            className="hover:cursor-pointer"
+          >
+            {index}
+          </PaginationLink>
+        </PaginationItem>
+      );
+    });
+  };
+
+  return (
+    <TableCaption className="sticky bottom-0 z-50 bg-card space-y-2 py-2 rounded">
+      <Separator />
+      <Pagination>
+        <PaginationContent>
+          <PaginationItem>
+            <PaginationPrevious
+              onClick={() => table.getCanPreviousPage() && table.previousPage()}
+            />
+          </PaginationItem>
+          {generateLinks()}
+          <PaginationItem>
+            <PaginationNext onClick={() => table.getCanNextPage() && table.nextPage()} />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
+      <Separator />
+      <div className="flex w-full gap-2 justify-center items-center">
+        <span>Pages: {table.getPageCount()}</span>
+        <Separator orientation="vertical" />
+        <span>Total: {table.getRowCount()}</span>
+        <Separator orientation="vertical" />
+        <Label>
+          Page Size:
+          <Select onValueChange={(v) => table.setPageSize(Number(v))}>
+            <SelectTrigger>
+              <SelectValue placeholder={table.getState().pagination.pageSize} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="25">25</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+        </Label>
+      </div>
+    </TableCaption>
+  );
+}
+
+function DataTableOperatorSelect({
+  onSelect,
+  defaultValue,
+}: {
+  onSelect: (op: FilterOperation) => void;
+  defaultValue?: string;
+}) {
+  return (
+    <Select
+      onValueChange={(e) => onSelect(e as FilterOperation)}
+      defaultValue={defaultValue || 'eq'}
+    >
+      <SelectTrigger noIcon className="p-0! h-fit!">
+        <SelectValue defaultValue={defaultValue || 'eq'} />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="eq">
+          <Equal />
+        </SelectItem>
+        <SelectItem value="gt">
+          <ChevronRight />
+        </SelectItem>
+        <SelectItem value="lt">
+          <ChevronLeft />
+        </SelectItem>
+        <SelectItem value="bt">
+          <ChevronLeft /> <ChevronRight />
+        </SelectItem>
+      </SelectContent>
+    </Select>
+  );
+}
+
+type DataTableDrawerProps<TData> = {
+  table: TTable<TData>;
+  columnFilters: ColumnFiltersState;
+  columns: DataTableColumnDef<TData>[];
+  sorting: SortingState;
+  data: TData[];
+};
+
+function DataTableFilters<TData>({
+  table,
+  columnFilters,
+  columns,
+  sorting,
+  data,
+}: DataTableDrawerProps<TData>) {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [pendingFilters, setPendingFilters] = useState<Record<string, FilterValue>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
+  const { initialFilters, initialSorting, applyUrlState, isReady } = useTableURLState();
+  const didInitFilters = useRef(false);
+
   useEffect(() => {
     if (
       !didInitFilters.current &&
@@ -160,7 +382,7 @@ export default function DataTable<TData>({
       data.length > 0 // wait for your async data
     ) {
       table.setColumnFilters(initialFilters);
-      setSorting(initialSorting);
+      table.setSorting(initialSorting);
       didInitFilters.current = true;
     }
   }, [initialFilters, initialSorting, data]);
@@ -199,32 +421,6 @@ export default function DataTable<TData>({
     setPendingFilters(pending);
     setActiveFilters(active);
   }, [drawerOpen]);
-
-  const generateLinks = () => {
-    const totalPages = table.getPageCount();
-    const page = table.getState().pagination.pageIndex + 1;
-    const display =
-      page === 1
-        ? [1, 2, 3]
-        : page === totalPages
-          ? [totalPages - 2, totalPages - 1, totalPages]
-          : [page - 1, page, page + 1];
-
-    return display.map((index) => {
-      if (index < 1 || index > totalPages) return null;
-      return (
-        <PaginationItem key={index}>
-          <PaginationLink
-            onClick={() => table.setPageIndex(index - 1)}
-            isActive={page === index}
-            className="hover:cursor-pointer"
-          >
-            {index}
-          </PaginationLink>
-        </PaginationItem>
-      );
-    });
-  };
 
   const handleFilterApply = () => {
     const applied: ColumnFiltersState = [];
@@ -266,7 +462,6 @@ export default function DataTable<TData>({
       applied.push({ id, value });
     }
 
-    console.log(applied);
     table.setColumnFilters(applied);
     applyUrlState({ filters: applied, sorting });
     setDrawerOpen(false);
@@ -285,35 +480,9 @@ export default function DataTable<TData>({
     table.setColumnFilters([]);
   };
 
-  const renderOperators = (defaultValue: string, onSelect: (op: FilterOperation) => void) => {
-    return (
-      <Select onValueChange={(e) => onSelect(e as FilterOperation)} defaultValue={defaultValue}>
-        <SelectTrigger noIcon>
-          <SelectValue placeholder="Operators" defaultValue={defaultValue} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="equals">
-            <Equal />
-          </SelectItem>
-          <SelectItem value="greater">
-            <ChevronRight />
-          </SelectItem>
-          <SelectItem value="less">
-            <ChevronLeft />
-          </SelectItem>
-          <SelectItem value="between">
-            <ChevronLeft /> <ChevronRight />
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    );
-  };
-
-  const renderFilterDate = (meta: ColumnFilterMeta, id: string, value: string | undefined) => {};
-
-  const renderFilterNumber = (meta: ColumnFilterMeta, id: string) => {
+  const renderFilterNumberOrDate = (meta: ColumnFilterMeta, id: string) => {
     const newValue = (
-      prev: Record<string, PendingFilterValue>,
+      prev: Record<string, FilterValue>,
       op?: FilterOperation,
       value?: number | [number, number]
     ) => {
@@ -329,15 +498,13 @@ export default function DataTable<TData>({
 
     return (
       <>
-        {renderOperators(pendingOp, (op) => {
-          setPendingFilters((prev) => newValue(prev, op));
-        })}
-
-        {pendingOp === 'between' ? (
+        {pendingOp === 'bt' ? (
           <div className="flex gap-2">
-            <Input
+            <SearchBar
               type="number"
+              placeholder={meta.placeholder}
               value={pendingValue?.[0] || ''}
+              delay={0}
               onChange={(e) =>
                 setPendingFilters((prev) =>
                   newValue(prev, 'bt', [
@@ -346,10 +513,17 @@ export default function DataTable<TData>({
                   ])
                 )
               }
+              lead={
+                <DataTableOperatorSelect
+                  onSelect={(op) => setPendingFilters((prev) => newValue(prev, op))}
+                />
+              }
             />
-            <Input
+            <SearchBar
               type="number"
+              placeholder={meta.placeholder}
               value={pendingValue?.[1] || ''}
+              delay={0}
               onChange={(e) =>
                 setPendingFilters((prev) =>
                   newValue(prev, 'bt', [
@@ -358,14 +532,26 @@ export default function DataTable<TData>({
                   ])
                 )
               }
+              lead={
+                <DataTableOperatorSelect
+                  onSelect={(op) => setPendingFilters((prev) => newValue(prev, op))}
+                />
+              }
             />
           </div>
         ) : (
-          <Input
+          <SearchBar
             type="number"
+            placeholder={meta.placeholder}
             value={pendingValue || ''}
+            delay={0}
             onChange={(e) =>
               setPendingFilters((prev) => newValue(prev, pendingOp, Number(e.target.value)))
+            }
+            lead={
+              <DataTableOperatorSelect
+                onSelect={(op) => setPendingFilters((prev) => newValue(prev, op))}
+              />
             }
           />
         )}
@@ -416,7 +602,7 @@ export default function DataTable<TData>({
     if (!meta.options) return null;
     return (
       <Select
-        value={value}
+        value={value || ''}
         onValueChange={(e) =>
           setPendingFilters((prev) => ({
             ...prev,
@@ -428,8 +614,8 @@ export default function DataTable<TData>({
           <SelectValue placeholder={meta.placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {meta?.options.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+          {meta?.options.map((opt, idx) => (
+            <SelectItem key={idx} value={opt.value}>
               {opt.label}
             </SelectItem>
           ))}
@@ -444,7 +630,7 @@ export default function DataTable<TData>({
         type="text"
         className="w-full border px-2 py-1 rounded"
         placeholder={meta.placeholder || `Search ${id}`}
-        value={value}
+        value={value || ''}
         onChange={(e) =>
           setPendingFilters((prev) => ({
             ...prev,
@@ -458,7 +644,7 @@ export default function DataTable<TData>({
   const renderFilter = (col: Column<TData, unknown>) => {
     const colId = col.id;
     const filterMeta = (col.columnDef as DataTableColumnDef<TData>).filter!;
-    const currentValue = pendingFilters[colId] as PendingFilterValue;
+    const currentValue = pendingFilters[colId] as FilterValue;
 
     return (
       <div key={colId} className="space-y-2 border-b pb-4">
@@ -484,9 +670,8 @@ export default function DataTable<TData>({
               renderFilterMultiSelect(filterMeta, colId, currentValue?.value as string[])}
             {filterMeta.type === 'boolean' &&
               renderFilterBoolean(filterMeta, colId, currentValue?.value as boolean)}
-            {filterMeta.type === 'number' && renderFilterNumber(filterMeta, colId)}
-            {filterMeta.type === 'date' &&
-              renderFilterDate(filterMeta, colId, currentValue?.value as string)}
+            {filterMeta.type === 'number' && renderFilterNumberOrDate(filterMeta, colId)}
+            {filterMeta.type === 'date' && renderFilterNumberOrDate(filterMeta, colId)}
           </>
         </div>
       </div>
@@ -494,168 +679,30 @@ export default function DataTable<TData>({
   };
 
   return (
-    <div className="flex flex-col size-full gap-4">
-      <div className="flex items-center w-full max-w-sm gap-2">
-        <SearchBar placeholder="Search identities..." onSearch={setGlobalSearch} />
-        <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen}>
-          <DrawerTrigger asChild>
-            <Button variant="ghost">
-              {columnFilters.length > 0 ? <FunnelPlus /> : <Funnel />}
-            </Button>
-          </DrawerTrigger>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Filters</DrawerTitle>
-              <DrawerDescription>Toggle and set filters by column.</DrawerDescription>
-            </DrawerHeader>
+    <Drawer direction="left" open={drawerOpen} onOpenChange={setDrawerOpen}>
+      <DrawerTrigger asChild>
+        <Button variant="ghost">{columnFilters.length > 0 ? <FunnelPlus /> : <Funnel />}</Button>
+      </DrawerTrigger>
+      <DrawerContent>
+        <DrawerHeader>
+          <DrawerTitle>Filters</DrawerTitle>
+          <DrawerDescription>Toggle and set filters by column.</DrawerDescription>
+        </DrawerHeader>
 
-            <div className="p-4 space-y-4">
-              {table
-                .getAllColumns()
-                .filter((col) => col.getCanFilter() && !!(col.columnDef as any).filter)
-                .map(renderFilter)}
-            </div>
+        <div className="p-4 space-y-4">
+          {table
+            .getAllColumns()
+            .filter((col) => col.getCanFilter() && !!(col.columnDef as any).filter)
+            .map(renderFilter)}
+        </div>
 
-            <DrawerFooter className="flex flex-row w-full gap-2 items-end justify-end">
-              <Button variant="destructive" onClick={handleFilterClear}>
-                Clear
-              </Button>
-              <Button onClick={handleFilterApply}>Apply</Button>
-            </DrawerFooter>
-          </DrawerContent>
-        </Drawer>
-
-        {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="ml-auto">
-                <Grid2X2 />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {table
-                .getAllColumns()
-                .filter((column) => column.getCanHide())
-                .map((column) => {
-                  return (
-                    <DropdownMenuCheckboxItem
-                      key={column.id}
-                      className="capitalize"
-                      checked={column.getIsVisible()}
-                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                    >
-                      {(column.columnDef as any)?.meta?.label ?? column.id}
-                    </DropdownMenuCheckboxItem>
-                  );
-                })}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-
-      <Card className="py-0">
-        <ScrollArea className="flex items-start overflow-auto max-h-[70vh]">
-          <Table>
-            <TableHeader className="sticky top-0 bg-card">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className={cn('py-1 rounded', (header.column.columnDef as any).headerClass)}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn('py-1', (cell.column.columnDef as any).cellClass)}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-            <TableCaption className="sticky bottom-0 z-50 bg-card space-y-2 py-2 rounded">
-              <Separator />
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      onClick={() => table.getCanPreviousPage() && table.previousPage()}
-                    />
-                  </PaginationItem>
-                  {generateLinks()}
-                  <PaginationItem>
-                    <PaginationNext onClick={() => table.getCanNextPage() && table.nextPage()} />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-              <Separator />
-              <div className="flex w-full gap-2 justify-center items-center">
-                <span>Pages: {table.getPageCount()}</span>
-                <Separator orientation="vertical" />
-                <span>Total: {data.length}</span>
-                <Separator orientation="vertical" />
-                <Label>
-                  Page Size:
-                  <Select onValueChange={(v) => table.setPageSize(Number(v))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={table.getState().pagination.pageSize} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="25">25</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Label>
-              </div>
-            </TableCaption>
-          </Table>
-        </ScrollArea>
-      </Card>
-    </div>
-  );
-}
-
-interface SortedHeaderProps<TValue> {
-  column: Column<TValue>;
-  label: string;
-}
-
-export function DataTableHeader<TValue>({ column, label }: SortedHeaderProps<TValue>) {
-  return (
-    <Button
-      variant="none"
-      onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      className="px-0!"
-    >
-      {label}
-      {column.getIsSorted() === 'asc' && <MoveUp />}
-      {column.getIsSorted() === 'desc' && <MoveDown />}
-      {!column.getIsSorted() && <ArrowUpDown />}
-    </Button>
+        <DrawerFooter className="flex flex-row w-full gap-2 items-end justify-end">
+          <Button variant="destructive" onClick={handleFilterClear}>
+            Clear
+          </Button>
+          <Button onClick={handleFilterApply}>Apply</Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   );
 }

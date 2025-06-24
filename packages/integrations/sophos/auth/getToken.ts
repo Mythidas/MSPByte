@@ -56,8 +56,8 @@ export async function getToken(
     };
   } catch (err) {
     return Debug.error({
-      module: 'integrations',
-      context: 'get-token',
+      module: 'SophosPartner',
+      context: 'getToken',
       message: String(err),
       time: new Date(),
     });

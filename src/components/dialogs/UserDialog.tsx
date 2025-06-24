@@ -22,7 +22,7 @@ import { Separator } from '@/components/ui/separator';
 import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import { SubmitButton } from '@/components/ux/SubmitButton';
-import { Tables } from '@/db/schema';
+import { Tables, TablesInsert } from '@/db/schema';
 import { createInviteAction } from '@/lib/actions/form/users';
 import { UserFormValues } from '@/lib/forms/users';
 import { useUser } from '@/lib/providers/UserContext';
@@ -31,7 +31,7 @@ import { UserPlus } from 'lucide-react';
 import { useActionState, useState } from 'react';
 
 type Props = {
-  user: Tables<'users'>;
+  user: TablesInsert<'users'>;
   roles: Tables<'roles'>[];
 };
 

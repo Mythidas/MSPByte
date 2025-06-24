@@ -2,7 +2,7 @@
 
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { Schema } from 'packages/db';
+import { Schema, tables } from 'packages/db';
 import { createClient } from 'packages/db/server';
 import { Tables } from 'packages/db/schema';
 
@@ -56,33 +56,15 @@ export async function getUpperSites(): Promise<APIResponse<Tables<'sites'>[]>> {
   }
 }
 
-export async function getSites(parentId?: string): Promise<APIResponse<Tables<'sites'>[]>> {
-  try {
-    const supabase = await createClient();
-
-    let query = supabase
-      .from('sites')
-      .select('*')
-      .eq('is_parent', false)
-      .order('name', { ascending: true });
+export async function getSites(
+  parentId?: string,
+  name?: string
+): Promise<APIResponse<Tables<'sites'>[]>> {
+  return tables.select('sites', (query) => {
+    query = query.eq('is_parent', false).order('name');
     if (parentId) query = query.eq('parent_id', parentId);
-
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'sites',
-      context: 'get-sites',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+    if (name) query = query.ilike('name', `%${name}%`);
+  });
 }
 
 export async function getSitesView(

@@ -38,8 +38,8 @@ export async function getEndpoints(
     };
   } catch (err) {
     return Debug.error({
-      module: 'integrations',
-      context: 'get-endpoints',
+      module: 'SophosPartner',
+      context: 'getEndpoints',
       message: String(err),
       time: new Date(),
     });

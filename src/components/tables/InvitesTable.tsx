@@ -17,99 +17,74 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import DeleteForm from '@/components/forms/DeleteForm';
 import DropDownItem from '@/components/ux/DropDownItem';
 import { deleteInviteAction } from '@/lib/actions/form/users';
 import { Tables } from '@/db/schema';
+import DataTable from '@/components/ux/DataTable';
+import { DataTableColumnDef } from '@/types/data-table';
+import { dateColumn, textColumn } from '@/lib/helpers/data-table/columns';
+import { getRoles } from '@/services/roles';
+import { getInvites } from '@/services/users';
 
-type Props = {
-  invites: Tables<'invites'>[];
-  roles: Tables<'roles'>[];
-};
+export default function InvitesTable() {
+  const [invites, setInvites] = useState<Tables<'invites'>[]>([]);
+  const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
 
-export default function InvitesTable({ invites, roles }: Props) {
-  const [search, setSearch] = useState('');
+  useEffect(() => {
+    const loadData = async () => {
+      const invites = await getInvites();
+      const roles = await getRoles();
 
-  function filterInvites(invite: Tables<'invites'>) {
-    const lowerSearch = search.toLowerCase();
-    const lowerName = invite.name.toLowerCase();
-    const lowerEmail = invite.email.toLowerCase();
-    const lowerRole = roles.find((e) => e.id === invite.role_id)?.name.toLowerCase();
-    return (
-      lowerEmail.includes(lowerSearch) ||
-      lowerName.includes(lowerSearch) ||
-      lowerRole?.includes(lowerSearch)
-    );
-  }
+      if (invites.ok && roles.ok) {
+        setInvites(invites.data);
+        setRoles(roles.data);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center w-full max-w-sm space-x-2">
-          <Input
-            placeholder="Search invites..."
-            className="h-9"
-            type="search"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
-      <Card className="py-2">
-        <Table>
-          <TableCaption>Total Invites: {invites.length}</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invites.filter(filterInvites).map((invite) => (
-              <TableRow key={invite.id}>
-                <TableCell>
-                  <div className="flex items-center space-x-3">
-                    <Avatar>
-                      <AvatarFallback>{invite.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                    </Avatar>
-                    <div className="font-medium">{`${invite.name}`}</div>
-                  </div>
-                </TableCell>
-                <TableCell>{invite.email}</TableCell>
-                <TableCell>{roles.find((role) => role.id === invite.role_id)?.name}</TableCell>
-                <TableCell>{new Date(invite.created_at || '').toDateString() || ''}</TableCell>
-                <TableCell>
-                  <DeleteForm id={invite.id} action={deleteInviteAction}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropDownItem
-                          form={invite.id}
-                          type="submit"
-                          variant="destructive"
-                          module="users"
-                          level="full"
-                        >
-                          Delete
-                        </DropDownItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </DeleteForm>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </>
+    <DataTable
+      data={invites}
+      columns={
+        [
+          textColumn({
+            key: 'name',
+            label: 'Name',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          textColumn({
+            key: 'email',
+            label: 'Email',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          textColumn({
+            key: 'role_id',
+            label: 'Role',
+            cell: ({ row }) => (
+              <div>{roles.find((role) => role.id === row.original.role_id)?.name}</div>
+            ),
+            filter: {
+              type: 'select',
+              options: roles.map((role) => {
+                return { label: role.name, value: role.id };
+              }),
+            },
+            filterFn: (row, colId, value) => row.original.role_id === value.value,
+          }),
+          dateColumn({
+            key: 'created_at',
+            label: 'Created',
+          }),
+        ] as DataTableColumnDef<Tables<'invites'>>[]
+      }
+    />
   );
 }

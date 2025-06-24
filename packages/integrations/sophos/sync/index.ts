@@ -20,12 +20,12 @@ export async function syncSophosPartner(
       throw new Error(siteMappings.error.message);
     }
 
-    for await (const mapping of siteMappings.data) {
-      const token = await getToken(integration);
-      if (!token.ok) {
-        throw new Error(token.error.message);
-      }
+    const token = await getToken(integration);
+    if (!token.ok) {
+      throw new Error(token.error.message);
+    }
 
+    for await (const mapping of siteMappings.data) {
       await syncMapping(token.data, mapping);
     }
 
@@ -41,8 +41,8 @@ export async function syncSophosPartner(
     };
   } catch (err) {
     return Debug.error({
-      module: 'integrations',
-      context: 'sync-sophos-partner',
+      module: 'SophosPartner',
+      context: 'syncSophosPartner',
       message: String(err),
       time: new Date(),
     });
