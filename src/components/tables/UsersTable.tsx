@@ -1,6 +1,6 @@
 'use client';
 
-import CreateUserDialog from '@/components/dialogs/UserDialog';
+import CreateUserDialog from '@/components/dialogs/CreateUserDialog';
 import { Tables } from '@/db/schema';
 import DataTable from '@/components/ux/DataTable';
 import { dateColumn, textColumn } from '@/lib/helpers/data-table/columns';
@@ -29,6 +29,10 @@ export default function UsersTable() {
     loadData();
   }, []);
 
+  const handleCreate = (user: Tables<'users'>) => {
+    setUsers([...users, user]);
+  };
+
   return (
     <DataTable
       data={users}
@@ -42,6 +46,7 @@ export default function UsersTable() {
             name: '',
             email: '',
           }}
+          onCreate={handleCreate}
         />
       }
       columns={

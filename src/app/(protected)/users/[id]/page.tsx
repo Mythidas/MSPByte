@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { getRoles } from 'packages/services/roles';
-import { editUserAction } from '@/lib/actions/form/users';
+import { editUserAction } from '@/lib/actions/users';
 import UserForm from '@/components/forms/UserForm';
 import { getUser } from 'packages/services/users';
 

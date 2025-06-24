@@ -23,21 +23,22 @@ import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables, TablesInsert } from '@/db/schema';
-import { createInviteAction } from '@/lib/actions/form/users';
+import { createUserAction } from '@/lib/actions/users';
 import { UserFormValues } from '@/lib/forms/users';
 import { useUser } from '@/lib/providers/UserContext';
 import { FormState } from '@/types';
 import { UserPlus } from 'lucide-react';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 
 type Props = {
   user: TablesInsert<'users'>;
   roles: Tables<'roles'>[];
+  onCreate?: (user: Tables<'users'>) => void;
 };
 
-export default function UserDialog({ user, roles }: Props) {
+export default function CreateUserDialog({ user, roles, onCreate }: Props) {
   const [state, formAction] = useActionState<FormState<UserFormValues>, FormData>(
-    createInviteAction,
+    createUserAction,
     {}
   );
   const [isOpen, setIsOpen] = useState(false);
@@ -45,6 +46,13 @@ export default function UserDialog({ user, roles }: Props) {
   const [sendEmail, setSendEmail] = useState(true);
   const context = useUser();
   const tag = user.id ? 'Edit' : 'Create';
+
+  useEffect(() => {
+    if (state.success) {
+      onCreate && onCreate(state.values as Tables<'users'>);
+      setIsOpen(false);
+    }
+  }, [state]);
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>

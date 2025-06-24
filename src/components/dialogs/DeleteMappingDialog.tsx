@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
-import { deleteSiteSourceMapping } from '@/lib/actions/form/sources';
+import { deleteSiteSourceMapping } from '@/lib/actions/sources';
 import { Trash2 } from 'lucide-react';
 
 export function DeleteMappingDialog({

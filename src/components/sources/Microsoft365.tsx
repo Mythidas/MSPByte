@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
-import { microsoft365IntegrationAction } from '@/lib/actions/form/integrations';
+import { microsoft365IntegrationAction } from '@/lib/actions/integrations';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { Microsoft365FormValues } from '@/lib/forms/sources';

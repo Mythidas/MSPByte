@@ -1,4 +1,3 @@
-import InvitesTable from '@/components/tables/InvitesTable';
 import RolesTable from '@/components/tables/RolesTable';
 import UsersTable from '@/components/tables/UsersTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
@@ -28,9 +27,6 @@ export default async function UsersPage(props: Props) {
         </TabsContent>
         <TabsContent value="roles">
           <RolesTable />
-        </TabsContent>
-        <TabsContent value="invites">
-          <InvitesTable />
         </TabsContent>
       </Tabs>
     </div>

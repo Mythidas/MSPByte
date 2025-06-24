@@ -1,6 +1,6 @@
 import InviteForm from '@/components/forms/InviteForm';
 import FormAlert from '@/components/ux/FormAlert';
-import { registerAction } from '@/lib/actions/form/auth';
+import { registerAction } from '@/lib/actions/auth';
 
 type Props = {
   searchParams: Promise<{ code: string }>;

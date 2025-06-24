@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { signOutAction } from '@/lib/actions/form/auth';
+import { signOutAction } from '@/lib/actions/auth';
 import { useUser } from '@/lib/providers/UserContext';
 import { useEffect, useRef, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';

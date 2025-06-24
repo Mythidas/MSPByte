@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Settings } from 'lucide-react';
 import SophosMappingsDialog from '@/components/dialogs/SophosMappingsDialog';
-import { sophosIntegrationAction } from '@/lib/actions/form/integrations';
+import { sophosIntegrationAction } from '@/lib/actions/integrations';
 import { Tables } from '@/db/schema';
 
 type Props = {

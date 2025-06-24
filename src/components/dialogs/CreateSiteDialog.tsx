@@ -16,7 +16,7 @@ import FormError from '@/components/ux/FormError';
 import RouteButton from '@/components/ux/RouteButton';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
-import { createSiteAction } from '@/lib/actions/form/sites';
+import { createSiteAction } from '@/lib/actions/sites';
 import { SiteFormValues } from '@/lib/forms/sites';
 import { useUser } from '@/lib/providers/UserContext';
 import { FormState } from '@/types';
