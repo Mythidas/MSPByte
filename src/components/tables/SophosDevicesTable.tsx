@@ -1,6 +1,6 @@
 'use client';
 
-import { camelCase } from '@/lib/utils';
+import { pascalCase } from '@/lib/utils';
 import Link from 'next/link';
 import { Tables } from '@/db/schema';
 import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
@@ -128,7 +128,9 @@ export default function SophosDevicesTable({ devices, siteLevel }: Props) {
           header: ({ column }) => <DataTableHeader column={column} label="Status" />,
           cell: ({ row }) => (
             <div>
-              {camelCase((row.original.metadata as SPEndpoint)?.packages?.protection?.status || '')}
+              {pascalCase(
+                (row.original.metadata as SPEndpoint)?.packages?.protection?.status || ''
+              )}
             </div>
           ),
           filterFn: (row, colId, value) => {

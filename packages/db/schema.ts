@@ -9,48 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      invites: {
-        Row: {
-          created_at: string | null
-          email: string
-          id: string
-          name: string
-          role_id: string
-          tenant_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          email: string
-          id?: string
-          name: string
-          role_id: string
-          tenant_id: string
-        }
-        Update: {
-          created_at?: string | null
-          email?: string
-          id?: string
-          name?: string
-          role_id?: string
-          tenant_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invites_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "invites_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       roles: {
         Row: {
           description: string
@@ -976,6 +934,7 @@ export type Database = {
           last_login: string | null
           name: string
           role_id: string
+          status: string | null
           tenant_id: string
         }
         Insert: {
@@ -984,6 +943,7 @@ export type Database = {
           last_login?: string | null
           name: string
           role_id: string
+          status?: string | null
           tenant_id: string
         }
         Update: {
@@ -992,6 +952,7 @@ export type Database = {
           last_login?: string | null
           name?: string
           role_id?: string
+          status?: string | null
           tenant_id?: string
         }
         Relationships: [

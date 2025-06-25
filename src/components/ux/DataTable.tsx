@@ -84,12 +84,14 @@ import {
   FilterPrimitive,
   FilterPrimitiveTuple,
 } from '@/types/data-table';
+import { Spinner } from '@/components/ux/Spinner';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
   data: TData[];
   initialVisibility?: VisibilityState;
   action?: React.ReactNode;
+  isLoading?: boolean;
 }
 
 export default function DataTable<TData>({
@@ -97,12 +99,12 @@ export default function DataTable<TData>({
   data,
   initialVisibility = {},
   action,
+  isLoading,
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialVisibility);
   const [globalSearch, setGlobalSearch] = useState('');
-
   const simpleSearchFields = columns
     .filter((col) => (col as DataTableColumnDef<TData>).simpleSearch)
     .map((col) => col.accessorKey)
@@ -135,6 +137,53 @@ export default function DataTable<TData>({
       });
     },
   });
+
+  const renderBody = () => {
+    if (isLoading) {
+      return (
+        <TableRow>
+          <TableCell
+            colSpan={columns.length}
+            className="h-24 text-center justify-center items-center"
+          >
+            <div className="flex w-full justify-center items-center">
+              <Spinner />
+            </div>
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    if (!table.getRowModel().rows?.length) {
+      return (
+        <TableRow>
+          <TableCell colSpan={columns.length} className="h-24 text-center">
+            No results.
+          </TableCell>
+        </TableRow>
+      );
+    }
+
+    return (
+      <>
+        {table.getRowModel().rows.map((row) => (
+          <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+            {row.getVisibleCells().map((cell) => (
+              <TableCell
+                key={cell.id}
+                className={cn(
+                  'py-1',
+                  (cell.column.columnDef as DataTableColumnDef<TData>).cellClass
+                )}
+              >
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </>
+    );
+  };
 
   return (
     <div className="flex flex-col size-full gap-4">
@@ -205,31 +254,7 @@ export default function DataTable<TData>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell
-                        key={cell.id}
-                        className={cn(
-                          'py-1',
-                          (cell.column.columnDef as DataTableColumnDef<TData>).cellClass
-                        )}
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+            <TableBody>{renderBody()}</TableBody>
             <DataTableFooter table={table} />
           </Table>
         </ScrollArea>

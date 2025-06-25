@@ -3,6 +3,7 @@
 import { createAdminClient, createClient } from '@/db/server';
 import { loginFormSchema } from '@/lib/forms/auth';
 import { inviteFormSchema } from '@/lib/forms/users';
+import { login, logout } from '@/services/auth';
 import { redirect } from 'next/navigation';
 
 export async function loginAction(_prevState: unknown, params: FormData) {
@@ -10,7 +11,6 @@ export async function loginAction(_prevState: unknown, params: FormData) {
     email: params.get('email'),
     password: params.get('password'),
   });
-  const supabase = await createClient();
 
   if (valid.error) {
     return {
@@ -20,37 +20,24 @@ export async function loginAction(_prevState: unknown, params: FormData) {
     };
   }
 
-  const user = await supabase.auth.signInWithPassword({
-    email: valid.data.email,
-    password: valid.data.password,
-  });
-
-  if (user.error) {
+  const result = await login(valid.data.email, valid.data.password);
+  if (!result.ok) {
     return {
       success: false,
+      errors: { auth: [result.error.message] },
       values: Object.fromEntries(params.entries()),
-      message: 'Failed to authenticate user. Invalid Email or Password.',
     };
   }
-
-  await supabase
-    .from('users')
-    .update({
-      last_login: new Date().toISOString(),
-    })
-    .eq('id', user.data.user.id);
 
   return redirect('/');
 }
 
 export async function signOutAction() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  await logout();
   return redirect('/auth/login');
 }
 
 export const registerAction = async (_prevState: unknown, params: FormData) => {
-  const supabase = await createClient();
   const valid = inviteFormSchema.safeParse({
     code: params.get('code'),
     password: params.get('password'),
@@ -64,55 +51,24 @@ export const registerAction = async (_prevState: unknown, params: FormData) => {
     };
   }
 
-  const { data: invite } = await supabase
-    .from('invites')
-    .select()
-    .eq('id', valid.data.code)
-    .single();
-
-  if (!invite) {
-    return {
-      success: false,
-      values: Object.fromEntries(params.entries()),
-      message: 'Failed to find invite.',
-    };
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email: invite.email,
+  const supabaseAdmin = await createAdminClient();
+  const { data, error } = await supabaseAdmin.auth.admin.updateUserById(valid.data.code, {
     password: valid.data.password,
-    options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_ORIGIN}/auth/callback`,
-    },
   });
 
-  console.log(error);
   if (error) {
     return {
       success: false,
+      errors: { db: [error.message] },
       values: Object.fromEntries(params.entries()),
-      message: error.code + ' ' + error.message,
-    };
-  } else {
-    if (data.user) {
-      const supabaseAdmin = await createAdminClient();
-      const { data: user } = await supabaseAdmin
-        .from('users')
-        .select()
-        .eq('id', data.user.id)
-        .single();
-      await supabaseAdmin.auth.admin.updateUserById(user.id, {
-        app_metadata: {
-          tenant_id: user.tenant_id,
-          role_id: user.role_id,
-        },
-      });
-    }
-
-    return {
-      success: true,
-      values: Object.fromEntries(params.entries()),
-      message: 'Thank you for Registering! Check your email for a confirmation.',
     };
   }
+
+  const result = await login(data.user?.email || '', valid.data.password);
+
+  if (!result.ok) {
+    redirect('/auth/login');
+  }
+
+  redirect('/');
 };

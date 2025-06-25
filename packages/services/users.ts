@@ -1,5 +1,6 @@
 'use server';
 
+import { TablesUpdate } from '@/db/schema';
 import { tables } from 'packages/db';
 
 export async function getUsers() {
@@ -12,6 +13,6 @@ export async function getUser(id: string) {
   });
 }
 
-export async function getInvites() {
-  return tables.select('invites');
+export async function updateUser(id: string, row: TablesUpdate<'users'>) {
+  return tables.update('users', id, row);
 }

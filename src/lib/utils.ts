@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function camelCase(str: string) {
+export function pascalCase(str: string) {
   return str.substring(0, 1).toUpperCase() + str.substring(1);
 }
 
@@ -14,7 +14,7 @@ export class Debug {
   static error(error: APIError) {
     // write to db later
     console.error(
-      `[${error.time.toLocaleTimeString()}][${camelCase(error.module)}][${error.context}] ${error.message}`
+      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
     );
     return {
       ok: false,
@@ -25,7 +25,7 @@ export class Debug {
   static warn(error: APIError) {
     // write to db later
     console.warn(
-      `[${error.time.toLocaleTimeString()}][${camelCase(error.module)}][${error.context}] ${error.message}`
+      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
     );
     return {
       ok: false,

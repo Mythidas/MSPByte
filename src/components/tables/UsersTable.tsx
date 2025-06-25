@@ -9,13 +9,17 @@ import { useUser } from '@/lib/providers/UserContext';
 import { useEffect, useState } from 'react';
 import { getUsers } from '@/services/users';
 import { getRoles } from '@/services/roles';
+import { pascalCase } from '@/lib/utils';
 
 export default function UsersTable() {
   const [users, setUsers] = useState<Tables<'users'>[]>([]);
   const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { user: context } = useUser();
 
   useEffect(() => {
+    setIsLoading(true);
+
     const loadData = async () => {
       const users = await getUsers();
       const roles = await getRoles();
@@ -24,6 +28,8 @@ export default function UsersTable() {
         setUsers(users.data);
         setRoles(roles.data);
       }
+
+      setIsLoading(false);
     };
 
     loadData();
@@ -36,16 +42,11 @@ export default function UsersTable() {
   return (
     <DataTable
       data={users}
+      isLoading={isLoading}
       action={
         <CreateUserDialog
           roles={roles}
-          user={{
-            id: '',
-            tenant_id: context?.tenant_id || '',
-            role_id: '',
-            name: '',
-            email: '',
-          }}
+          tenantId={context?.tenant_id || ''}
           onCreate={handleCreate}
         />
       }
@@ -84,6 +85,11 @@ export default function UsersTable() {
               const role = roles.find((role) => role.id === row.original.role_id)?.name;
               return role ? role === value.value : false;
             },
+          }),
+          textColumn({
+            key: 'status',
+            label: 'Status',
+            cell: ({ row }) => pascalCase(row.original.status || ''),
           }),
         ] as DataTableColumnDef<Tables<'users'>>[]
       }
