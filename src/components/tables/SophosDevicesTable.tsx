@@ -3,8 +3,9 @@
 import { pascalCase } from '@/lib/utils';
 import Link from 'next/link';
 import { Tables } from '@/db/schema';
-import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
+import DataTable from '@/components/ux/table/DataTable';
+import { DataTableHeader } from '@/components/ux/table/DataTableHeader';
 
 type Props = {
   devices: Tables<'source_devices_view'>[];

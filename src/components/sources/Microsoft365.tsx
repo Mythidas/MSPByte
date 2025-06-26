@@ -80,7 +80,7 @@ export default function Microsoft365({ source, integration, ...props }: Props) {
           </div>
           <div className="flex flex-col gap-2"></div>
           <div>
-            <SubmitButton pendingText="Saving...">Save</SubmitButton>
+            <SubmitButton>Save</SubmitButton>
           </div>
         </form>
       </TabsContent>

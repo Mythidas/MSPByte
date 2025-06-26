@@ -17,10 +17,9 @@ export default async function UsersPage(props: Props) {
       </div>
 
       <Tabs defaultValue={searchParams.tab || 'users'} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-3">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
           <RouteTabsTrigger value="users">Users</RouteTabsTrigger>
           <RouteTabsTrigger value="roles">Roles</RouteTabsTrigger>
-          <RouteTabsTrigger value="invites">Invites</RouteTabsTrigger>
         </TabsList>
         <TabsContent value="users">
           <UsersTable />

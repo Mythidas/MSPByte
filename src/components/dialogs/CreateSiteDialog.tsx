@@ -40,7 +40,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
       onSuccess(state.values as Tables<'sites'>);
       setIsOpen(false);
     }
-  }, [onSuccess, state]);
+  }, [state]);
 
   const getValue = (name: keyof SiteFormValues) => {
     if (state.success) return '';
@@ -79,7 +79,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <SubmitButton pendingText="Creating Site...">Create Site</SubmitButton>
+            <SubmitButton>Create Site</SubmitButton>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

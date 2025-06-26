@@ -2,14 +2,15 @@
 
 import CreateUserDialog from '@/components/dialogs/CreateUserDialog';
 import { Tables } from '@/db/schema';
-import DataTable from '@/components/ux/DataTable';
-import { dateColumn, textColumn } from '@/lib/helpers/data-table/columns';
+import DataTable from '@/components/ux/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
 import { useUser } from '@/lib/providers/UserContext';
 import { useEffect, useState } from 'react';
 import { getUsers } from '@/services/users';
 import { getRoles } from '@/services/roles';
 import { pascalCase } from '@/lib/utils';
+import { textColumn, dateColumn } from '@/components/ux/table/DataTableColumn';
+import UserTableUserDrawer from '@/components/drawers/UserTableUserDrawer';
 
 export default function UsersTable() {
   const [users, setUsers] = useState<Tables<'users'>[]>([]);
@@ -39,6 +40,11 @@ export default function UsersTable() {
     setUsers([...users, user]);
   };
 
+  const handleSave = (user: Tables<'users'>) => {
+    const zUsers = [...users].filter((u) => u.id !== user.id);
+    setUsers([...zUsers, user]);
+  };
+
   return (
     <DataTable
       data={users}
@@ -57,6 +63,16 @@ export default function UsersTable() {
             label: 'Name',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => (
+              <UserTableUserDrawer
+                user={row.original}
+                disabled={row.original.id === context?.id}
+                roles={roles}
+                onSave={handleSave}
+              >
+                {row.original.name}
+              </UserTableUserDrawer>
+            ),
           }),
           textColumn({
             key: 'email',

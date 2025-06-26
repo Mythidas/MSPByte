@@ -1,13 +1,13 @@
 'use client';
 
-import DataTable from '@/components/ux/DataTable';
+import DataTable from '@/components/ux/table/DataTable';
 import { Tables } from '@/db/schema';
 import {
   booleanColumn,
   dateColumn,
   listColumn,
   textColumn,
-} from '@/lib/helpers/data-table/columns';
+} from '@/components/ux/table/DataTableColumn';
 import { DataTableColumnDef } from '@/types/data-table';
 import Link from 'next/link';
 
@@ -19,6 +19,11 @@ type Props = {
 };
 
 export default function MicrosoftIdentitiesTable({ identities, licenses, siteLevel }: Props) {
+  const initialVisibility = {
+    parent_name: !siteLevel,
+    site_name: !siteLevel,
+  };
+
   const getEnforcement = (str: string) => {
     switch (str) {
       case 'security_defaults':
@@ -33,7 +38,7 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, siteLev
   return (
     <DataTable
       data={identities}
-      initialVisibility={siteLevel ? { parent_name: false, site_name: false } : {}}
+      initialVisibility={initialVisibility}
       columns={
         [
           textColumn({

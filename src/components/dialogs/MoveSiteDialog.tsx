@@ -116,7 +116,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <SubmitButton onClick={handleMove} pendingText="Move Site" pending={isLoading}>
+          <SubmitButton onClick={handleMove} pending={isLoading}>
             Move Site
           </SubmitButton>
         </AlertDialogFooter>

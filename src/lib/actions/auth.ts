@@ -1,6 +1,6 @@
 'use server';
 
-import { createAdminClient, createClient } from '@/db/server';
+import { createAdminClient } from '@/db/server';
 import { loginFormSchema } from '@/lib/forms/auth';
 import { inviteFormSchema } from '@/lib/forms/users';
 import { login, logout } from '@/services/auth';

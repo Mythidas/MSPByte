@@ -14,9 +14,9 @@ import { toast } from 'sonner';
 import MoveSiteDialog from '@/components/dialogs/MoveSiteDialog';
 import { Tables } from '@/db/schema';
 import { deleteSite } from '@/services/sites';
-import DataTable from '@/components/ux/DataTable';
+import DataTable from '@/components/ux/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
-import { column, textColumn } from '@/lib/helpers/data-table/columns';
+import { column, textColumn } from '@/components/ux/table/DataTableColumn';
 import Link from 'next/link';
 
 type Props = {

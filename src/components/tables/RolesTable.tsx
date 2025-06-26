@@ -1,9 +1,9 @@
 'use client';
 
 import { Tables } from '@/db/schema';
-import DataTable from '@/components/ux/DataTable';
+import DataTable from '@/components/ux/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
-import { numberColumn, textColumn } from '@/lib/helpers/data-table/columns';
+import { numberColumn, textColumn } from '@/components/ux/table/DataTableColumn';
 import { getRoles } from '@/services/roles';
 import { getUsers } from '@/services/users';
 import { useState, useEffect } from 'react';
@@ -11,8 +11,11 @@ import { useState, useEffect } from 'react';
 export default function RolesTable() {
   const [users, setUsers] = useState<Tables<'users'>[]>([]);
   const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
+
     const loadData = async () => {
       const users = await getUsers();
       const roles = await getRoles();
@@ -21,6 +24,8 @@ export default function RolesTable() {
         setUsers(users.data);
         setRoles(roles.data);
       }
+
+      setIsLoading(false);
     };
 
     loadData();
@@ -28,6 +33,7 @@ export default function RolesTable() {
   return (
     <DataTable
       data={roles}
+      isLoading={isLoading}
       columns={
         [
           textColumn({

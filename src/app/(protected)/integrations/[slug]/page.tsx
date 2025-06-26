@@ -86,6 +86,8 @@ export default async function SourcePage(props: Props) {
           style={{ backgroundColor: source.data.color || '' }}
         >
           <Image
+            width={2048}
+            height={1080}
             src={source.data.logo_url || ''}
             alt={`${source.data.name} Logo`}
             className="w-1/3 h-fit max-h-14 object-contain"

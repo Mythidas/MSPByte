@@ -13,7 +13,7 @@ export async function syncIdentities(
   graphUsers: TablesInsert<'source_identities'>[]
 ): Promise<APIResponse<Tables<'source_identities'>[]>> {
   try {
-    const existingIdentities = await getSourceIdentities(mapping.source_id, [mapping.site_id]);
+    const existingIdentities = await getSourceIdentities([mapping.id]);
     if (!existingIdentities.ok) {
       throw new Error(existingIdentities.error.message);
     }

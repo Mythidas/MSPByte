@@ -43,8 +43,7 @@ export async function transformIdentities(
 
       identities.push({
         tenant_id: mapping.tenant_id,
-        source_id: mapping.source_id,
-        site_id: mapping.site_id,
+        mapping_id: mapping.id,
 
         external_id: user.id,
         enabled: user.accountEnabled!,

@@ -186,7 +186,7 @@ export default function SophosMappingsDialog(props: Props) {
         }
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <SubmitButton onClick={handleSave} pendingText="Saving..." pending={isSubmitting}>
+          <SubmitButton onClick={handleSave} pending={isSubmitting}>
             Save Changes
           </SubmitButton>
         </AlertDialogFooter>

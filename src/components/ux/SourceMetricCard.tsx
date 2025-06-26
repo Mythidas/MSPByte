@@ -92,7 +92,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   }
 
   return (
-    <Card>
+    <Card className="bg-linear-to-t from-primary/5 to-card">
       <CardHeader>
         <span className="text-base">{metric.name}</span>
         <CardAction>

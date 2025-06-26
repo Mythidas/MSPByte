@@ -56,6 +56,9 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
             if (onClear) {
               onClear(mapping);
             }
+
+            toast.info('Cleared site info');
+            return;
           }
         }
       }
@@ -109,7 +112,9 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
 
         if (!result.ok) throw new Error(result.error.message);
         if (onSave) {
-          onSave({ ...mapping, ...result.data });
+          console.log(mapping);
+          console.log(result.data);
+          onSave({ ...mapping, ...result.data[0] });
         }
       }
 
@@ -186,13 +191,11 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
               <SubmitButton
                 variant="destructive"
                 onClick={handleClear}
-                pendingText="Clear"
-                pending={isSaving}
                 disabled={!mapping.external_id || isSaving}
               >
                 Clear
               </SubmitButton>
-              <SubmitButton onClick={handleSave} pendingText="Saving..." pending={isSaving}>
+              <SubmitButton onClick={handleSave} pending={isSaving}>
                 Save
               </SubmitButton>
             </div>

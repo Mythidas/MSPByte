@@ -1,4 +1,4 @@
-import { DataTableHeader } from '@/components/ux/DataTable';
+import { DataTableHeader } from '@/components/ux/table/DataTableHeader';
 import {
   booleanFilter,
   daysAgoFilter,
@@ -129,7 +129,13 @@ export function dateColumn<TData>({
     label,
     cell: ({ row }) => {
       if (props.cell) return props.cell;
-      return <div>{new Date((row.original[key] as string) || '').toLocaleString()}</div>;
+      return (
+        <div>
+          {row.original[key]
+            ? new Date(row.original[key] as string).toLocaleString()
+            : 'Unavailable'}
+        </div>
+      );
     },
     filterFn: (row, colId, value) => daysAgoFilter(row, colId as keyof TData, value),
     filter: {

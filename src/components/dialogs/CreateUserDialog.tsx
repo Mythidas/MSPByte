@@ -22,10 +22,9 @@ import { Separator } from '@/components/ui/separator';
 import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import { SubmitButton } from '@/components/ux/SubmitButton';
-import { Tables, TablesInsert } from '@/db/schema';
+import { Tables } from '@/db/schema';
 import { createUserAction } from '@/lib/actions/users';
 import { UserFormValues } from '@/lib/forms/users';
-import { useUser } from '@/lib/providers/UserContext';
 import { FormState } from '@/types';
 import { UserPlus } from 'lucide-react';
 import { useActionState, useEffect, useState } from 'react';
@@ -44,7 +43,6 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState('');
   const [sendEmail, setSendEmail] = useState(true);
-  const { user: context } = useUser();
 
   useEffect(() => {
     if (state.success) {

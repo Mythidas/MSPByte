@@ -91,7 +91,7 @@ export default function SophosPartner({ source, integration, ...props }: Props) 
             <FormError name="client_secret" errors={state.errors} />
           </div>
           <div>
-            <SubmitButton pendingText="Saving...">Save</SubmitButton>
+            <SubmitButton>Save</SubmitButton>
           </div>
         </form>
       </TabsContent>

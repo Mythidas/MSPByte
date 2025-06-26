@@ -3,13 +3,15 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import DataTable, { DataTableHeader } from '@/components/ux/DataTable';
+import DataTable from '@/components/ux/table/DataTable';
+import { DataTableHeader } from '@/components/ux/table/DataTableHeader';
 import { Tables } from '@/db/schema';
 import { getSitesView } from '@/services/sites';
 import { getSiteMappings } from '@/services/siteSourceMappings';
@@ -65,18 +67,20 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
     }
 
     loadData();
-  }, [source.id, source.name, source.slug]);
+  }, [source]);
 
   const handleSave = (mapping: Tables<'site_mappings_view'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push(mapping);
     setMappings(newMappings.sort((a, b) => a.site_name!.localeCompare(b.site_name!)));
+    console.log(mapping);
   };
 
   const handleClear = (mapping: Tables<'site_mappings_view'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push({
       ...mapping,
+      id: '',
       metadata: {},
       external_id: '',
       external_name: '',
@@ -90,11 +94,15 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
         <Button variant="ghost">Edit Mappings</Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent className="!max-w-[100vw] w-[80vw] h-fit py-2">
+      <AlertDialogContent className="!max-w-[100vw] w-[80vw] h-fit">
         <AlertDialogHeader>
           <AlertDialogTitle>Edit Mappings</AlertDialogTitle>
         </AlertDialogHeader>
+        <AlertDialogDescription>
+          Table of Microsoft 365 site mappings with Graph API info
+        </AlertDialogDescription>
         <DataTable
+          data={mappings}
           columns={
             [
               {
@@ -131,7 +139,6 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
               },
             ] as DataTableColumnDef<Tables<'site_mappings_view'>>[]
           }
-          data={mappings}
         />
         <AlertDialogFooter>
           <AlertDialogCancel>Close</AlertDialogCancel>

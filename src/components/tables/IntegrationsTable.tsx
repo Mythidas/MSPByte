@@ -1,130 +1,99 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import DropDownItem from '@/components/ux/DropDownItem';
-import { MoreHorizontal } from 'lucide-react';
-import { syncSource } from '@/core/sync';
 import { Tables } from '@/db/schema';
+import { getSourceIntegrations } from '@/services/integrations';
+import { getSources } from '@/services/sources';
+import DataTable from '@/components/ux/table/DataTable';
+import { DataTableColumnDef } from '@/types/data-table';
+import { column, textColumn } from '@/components/ux/table/DataTableColumn';
+import Link from 'next/link';
 
-type Props = {
-  sources: Tables<'sources'>[];
-  integrations: Tables<'source_integrations'>[];
-};
+export default function IntegrationsTable() {
+  const [integrations, setIntegrations] = useState<Tables<'source_integrations'>[]>([]);
+  const [sources, setSources] = useState<Tables<'sources'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function IntegrationsTable({ sources, integrations }: Props) {
-  const [search, setSearch] = useState('');
+  useEffect(() => {
+    setIsLoading(true);
 
-  function filterSources(source: Tables<'sources'>) {
-    const lowerSearch = search.toLowerCase();
-    const lowerName = source.name.toLowerCase();
-    const lowerDesc = source.description.toLowerCase();
-    const lowerCat = source.category?.toLowerCase();
-    return (
-      lowerName.includes(lowerSearch) ||
-      lowerDesc.includes(lowerSearch) ||
-      lowerCat?.includes(lowerSearch)
-    );
-  }
+    const loadData = async () => {
+      const integrations = await getSourceIntegrations();
+      const sources = await getSources();
 
-  function isIntegrated(source: Tables<'sources'>) {
-    return !!integrations.find((i) => i.source_id === source.id);
-  }
+      if (integrations.ok && sources.ok) {
+        setIntegrations(integrations.data);
+        setSources(sources.data);
+      }
 
-  function lastSync(source: Tables<'sources'>) {
-    const integration = integrations.find((i) => i.source_id === source.id);
-    const date = integration?.last_sync_at
-      ? new Date(integration.last_sync_at).toLocaleDateString()
-      : 'Never';
-    return `Last Sync: ${date}`;
-  }
+      setIsLoading(false);
+    };
 
-  async function syncNow(source: Tables<'sources'>) {
-    const integration = integrations.find((i) => i.source_id === source.id);
-    if (!integration) return;
-
-    syncSource(integration);
-    alert('Started integration sync');
-  }
+    loadData();
+  }, []);
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center w-full max-w-sm space-x-2">
-          <Input
-            placeholder="Search sources..."
-            className="h-9"
-            type="search"
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-2">
-        {sources.filter(filterSources).map((source) => {
-          return (
-            <Card key={source.id} className="flex flex-col justify-between">
-              <CardHeader>
-                <CardTitle>
-                  <div className="flex w-full gap-2 items-center">
-                    <Image src={source.icon_url || ''} alt="Sophos Icon" width={32} height={32} />
-                    {source.name}
-                  </div>
-                </CardTitle>
-                <CardDescription>{source.description}</CardDescription>
-                <CardAction>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropDownItem
-                        route={`/integrations/${source.slug}`}
-                        module="Sources"
-                        level="Write"
-                      >
-                        Edit
-                      </DropDownItem>
-                      <DropDownItem onClick={() => syncNow(source)} module="Sources" level="Write">
-                        Sync
-                      </DropDownItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardAction>
-              </CardHeader>
-              <CardFooter>
-                <div className="flex w-full justify-between">
-                  {isIntegrated(source) ? (
-                    <Badge className="text-sm">Active</Badge>
-                  ) : (
-                    <Badge className="text-sm" variant="destructive">
-                      Inactive
-                    </Badge>
-                  )}
-                  {isIntegrated(source) && <span>{lastSync(source)}</span>}
+    <DataTable
+      data={sources}
+      isLoading={isLoading}
+      columns={
+        [
+          textColumn({
+            key: 'name',
+            label: 'Name',
+            enableHiding: false,
+            simpleSearch: true,
+            cell: ({ row }) => {
+              return (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src={row.original.icon_url || ''}
+                    alt={row.original.name}
+                    width={30}
+                    height={30}
+                  />
+                  <Link href={`/integrations/${row.original.slug}`} className="hover:text-primary">
+                    {row.original.name}
+                  </Link>
                 </div>
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
-    </>
+              );
+            },
+          }),
+          textColumn({
+            key: 'description',
+            label: 'Description',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          column({
+            key: 'is_active',
+            label: 'Status',
+            enableHiding: false,
+            cell: ({ row }) => {
+              const exists = integrations.find((i) => i.source_id === row.original.id);
+              return (
+                <Badge variant={exists ? 'default' : 'secondary'}>
+                  {exists ? 'Enabled' : 'Disabled'}
+                </Badge>
+              );
+            },
+            filter: {
+              type: 'select',
+              placeholder: 'Select Status',
+              options: [
+                { label: 'Enabled', value: 'enabled' },
+                { label: 'Disabled', value: 'disabled' },
+              ],
+            },
+            filterFn: (row, colId, value) => {
+              const exists = integrations.find((i) => i.source_id === row.original.id);
+              return value.value === 'enabled' ? !!exists : !exists;
+            },
+          }),
+        ] as DataTableColumnDef<Tables<'sources'>>[]
+      }
+    />
   );
 }

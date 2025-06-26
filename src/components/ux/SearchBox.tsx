@@ -151,16 +151,6 @@ export default function SearchBox({
     <>
       <div ref={wrapperRef} className="relative flex flex-col w-full">
         <div className="flex w-full">
-          {lead && (
-            <div
-              className={cn(
-                'flex flex-col bg-secondary rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm',
-                isOpen && 'rounded-b-none'
-              )}
-            >
-              {lead}
-            </div>
-          )}
           <SearchBar
             placeholder={
               (selected && options.find((opt) => opt.value === selected)?.label) ||
@@ -170,6 +160,9 @@ export default function SearchBox({
             onSearch={handleSearch}
             className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}
             onClick={openDropdown}
+            delay={500}
+            lead={lead}
+            leadClass={cn(isOpen && 'rounded-b-none!')}
             ref={inputRef}
           />
         </div>

@@ -20,9 +20,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*", "./packages/*"]
+      "@/*": ["./src/*", "./packages/*"],
+      "@radix-ui/*": ["_do_not_use_radix_directly/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "./src/middleware.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "supabase"]
 }

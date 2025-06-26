@@ -49,9 +49,7 @@ export function DeleteMappingDialog({
             onSuccess={() => window.location.reload()}
             action={deleteSiteSourceMapping}
           >
-            <SubmitButton pendingText="Deleting Mapping..." variant="destructive">
-              Delete Mapping
-            </SubmitButton>
+            <SubmitButton variant="destructive">Delete Mapping</SubmitButton>
           </DeleteForm>
         </AlertDialogFooter>
       </AlertDialogContent>

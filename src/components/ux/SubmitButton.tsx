@@ -6,11 +6,10 @@ import { type ComponentProps } from 'react';
 import { useFormStatus } from 'react-dom';
 
 type Props = ComponentProps<typeof Button> & {
-  pendingText?: string;
   pending?: boolean;
 };
 
-export function SubmitButton({ children, pending = false, pendingText, ...props }: Props) {
+export function SubmitButton({ children, pending = false, ...props }: Props) {
   const { pending: status } = useFormStatus();
 
   return (

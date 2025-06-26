@@ -3,16 +3,25 @@
 import { Input } from '@/components/ui/input';
 import { useDebouncedValue } from '@/hooks/useDebouncedValue';
 import { cn } from '@/lib/utils';
+import { ClassValue } from 'clsx';
 import { useEffect, useState } from 'react';
 
 type Props = {
   delay?: number;
   onSearch?: (query: string) => void;
   lead?: React.ReactNode;
+  leadClass?: ClassValue;
   placeholder?: string;
 } & React.ComponentProps<typeof Input>;
 
-export default function SearchBar({ delay = 1000, onSearch, lead, placeholder, ...props }: Props) {
+export default function SearchBar({
+  delay = 1000,
+  onSearch,
+  lead,
+  placeholder,
+  leadClass,
+  ...props
+}: Props) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebouncedValue(query, delay);
 
@@ -25,7 +34,8 @@ export default function SearchBar({ delay = 1000, onSearch, lead, placeholder, .
       {lead && (
         <div
           className={cn(
-            'flex flex-col bg-secondary rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm'
+            leadClass,
+            'flex flex-col bg-input rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm'
           )}
         >
           {lead}
@@ -34,7 +44,7 @@ export default function SearchBar({ delay = 1000, onSearch, lead, placeholder, .
       <Input
         type="search"
         placeholder={placeholder || 'Search...'}
-        className={cn(lead && 'rounded-l-none')}
+        className={cn(props.className, lead && 'rounded-l-none')}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         {...props}
