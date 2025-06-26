@@ -16,13 +16,14 @@ export async function getUsers(
 
     const fields = getSupportedUserFields(licenses);
 
-    const users = await client.data
+    let query = client.data
       .api('/users')
       .select(fields.join(','))
       .header('ConsistencyLevel', 'eventual')
-      .filter(`endswith(mail,\'${mapping.external_name}\')`)
-      .orderby('userPrincipalName')
-      .get();
+      .orderby('userPrincipalName');
+    if (mapping.external_name) query = query.filter(`endswith(mail,\'${mapping.external_name}\')`);
+
+    const users = await query.get();
 
     return {
       ok: true,

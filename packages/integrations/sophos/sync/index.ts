@@ -4,7 +4,6 @@ import { Tables } from '@/db/schema';
 import { getToken } from '@/integrations/sophos/auth';
 import { syncMapping } from '@/integrations/sophos/sync/syncMapping';
 import { Debug, Timer } from '@/lib/utils';
-import { updateSourceIntegration } from '@/services/integrations';
 import { getSiteSourceMappings } from '@/services/siteSourceMappings';
 import { APIResponse } from '@/types';
 
@@ -28,10 +27,6 @@ export async function syncSophosPartner(
     for await (const mapping of siteMappings.data) {
       await syncMapping(token.data, mapping);
     }
-
-    await updateSourceIntegration(integration.id, {
-      last_sync_at: new Date().toISOString(),
-    });
 
     timer.summary();
 

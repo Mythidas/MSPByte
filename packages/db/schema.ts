@@ -46,27 +46,33 @@ export type Database = {
           external_id: string
           external_name: string
           id: string
+          last_sync: string | null
           metadata: Json | null
           site_id: string
           source_id: string
+          status: string
           tenant_id: string
         }
         Insert: {
           external_id: string
           external_name: string
           id?: string
+          last_sync?: string | null
           metadata?: Json | null
           site_id: string
           source_id: string
+          status?: string
           tenant_id: string
         }
         Update: {
           external_id?: string
           external_name?: string
           id?: string
+          last_sync?: string | null
           metadata?: Json | null
           site_id?: string
           source_id?: string
+          status?: string
           tenant_id?: string
         }
         Relationships: [
@@ -504,10 +510,7 @@ export type Database = {
           config: Json
           created_at: string | null
           id: string
-          last_sync_at: string | null
-          progress: number | null
           source_id: string
-          status: string | null
           tenant_id: string
           token: string | null
           token_expiration: string | null
@@ -516,10 +519,7 @@ export type Database = {
           config: Json
           created_at?: string | null
           id?: string
-          last_sync_at?: string | null
-          progress?: number | null
           source_id: string
-          status?: string | null
           tenant_id: string
           token?: string | null
           token_expiration?: string | null
@@ -528,10 +528,7 @@ export type Database = {
           config?: Json
           created_at?: string | null
           id?: string
-          last_sync_at?: string | null
-          progress?: number | null
           source_id?: string
-          status?: string | null
           tenant_id?: string
           token?: string | null
           token_expiration?: string | null
@@ -1297,24 +1294,13 @@ export type Database = {
           config: Json | null
           created_at: string | null
           id: string | null
-          last_sync_at: string | null
           source_id: string | null
           source_name: string | null
           source_slug: string | null
-          status: string | null
-          tenant_id: string | null
           token: string | null
           token_expiration: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "source_integrations_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       source_metrics_aggregated: {
         Row: {

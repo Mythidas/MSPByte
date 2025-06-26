@@ -2,7 +2,6 @@
 
 import { Debug, Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { updateSourceIntegration } from '@/services/integrations';
 import { Tables } from '@/db/schema';
 import { syncMapping } from '@/integrations/microsoft/sync/syncMapping';
 import { getSiteSourceMappings } from '@/services/siteSourceMappings';
@@ -21,10 +20,6 @@ export async function syncMicrosoft365(
     for (const mapping of mappings.data) {
       await syncMapping(mapping);
     }
-
-    await updateSourceIntegration(integration.id, {
-      last_sync_at: new Date().toISOString(),
-    });
 
     timer.summary();
 

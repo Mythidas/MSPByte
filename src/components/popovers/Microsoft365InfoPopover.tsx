@@ -3,8 +3,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
+import { Info } from 'lucide-react';
 import {
   deleteSiteSourceMapping,
   putSiteSourceMapping,
@@ -153,11 +155,20 @@ export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Pr
           </div>
           <form className="grid gap-2">
             <Label className="flex gap-2 whitespace-nowrap justify-between">
-              Domain
+              <span className="flex gap-2 items-center">
+                Domain
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-4" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    If blank, integration will sync all domains in tenant
+                  </TooltipContent>
+                </Tooltip>
+              </span>
               <Input
                 placeholder="example.com"
                 className="col-span-2 w-8/12"
-                required
                 defaultValue={mapping.external_name || ''}
                 ref={domainRef}
               />
