@@ -76,7 +76,7 @@ export default function AppSidebar() {
   return (
     <Sidebar className="w-48">
       <SidebarHeader>
-        <span className="p-2">MSPByte</span>
+        <span className="p-2">MSP Byte</span>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

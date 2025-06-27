@@ -1,33 +1,35 @@
 import { Tables } from '@/db/schema';
-import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
-import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
-import { getSource } from '@/services/sources';
+import { putSourceSyncJobs } from '@/services/sources';
 import { APIResponse } from '@/types';
 
 export async function syncSource(
   integration: Tables<'source_integrations'>,
-  siteIds?: string[]
-): Promise<APIResponse<null>> {
+  siteIds: string[]
+): Promise<APIResponse<Tables<'source_sync_jobs'>[]>> {
   try {
-    const source = await getSource(integration.source_id);
+    const jobs = await putSourceSyncJobs(
+      siteIds.map((s) => {
+        return {
+          source_id: integration.source_id,
+          tenant_id: integration.tenant_id,
+          site_id: s,
+        };
+      })
+    );
 
-    if (!source.ok) {
-      throw new Error(source.error.message);
+    if (!jobs.ok) {
+      throw new Error(jobs.error.message);
     }
 
-    switch (source.data.slug) {
-      case 'sophos-partner':
-        return await syncSophosPartner(integration, siteIds);
-      case 'microsoft-365':
-        return await syncMicrosoft365(integration, siteIds);
-      default:
-        throw new Error('No sync defined for this source');
-    }
+    return {
+      ok: true,
+      data: jobs.data,
+    };
   } catch (err) {
     return Debug.error({
       module: 'integrations',
-      context: 'sync-integration',
+      context: 'syncSource',
       message: String(err),
       time: new Date(),
     });

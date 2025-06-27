@@ -1,8 +1,7 @@
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
-import { createClient } from 'packages/db/server';
-import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
-import { Database, Tables, TablesInsert, TablesUpdate } from 'packages/db/schema';
+import { PostgrestFilterBuilder } from 'npm:@supabase/postgrest-js@1.19.4';
+import { APIResponse, Debug, getAuthToken } from '../../utils.ts';
+import { Database, Tables, TablesInsert, TablesUpdate } from './schema.ts';
+import { createClient } from './server.ts';
 
 type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 type RowType<T extends TableOrView> = T extends keyof Database['public']['Tables']
@@ -21,14 +20,14 @@ export async function tablesSelectGeneric<T extends TableOrView>(
   modifyQuery?: (query: QueryBuilder<T>) => void
 ): Promise<APIResponse<Tables<T>[]>> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     let query = supabase.from(table as any).select('*');
 
     if (modifyQuery) {
       modifyQuery(query as any);
     }
 
-    let results = [];
+    const results = [];
 
     while (true) {
       const { data, error } = await query.range(results.length, results.length + 999);
@@ -58,7 +57,7 @@ export async function tablesSelectSingleGeneric<T extends TableOrView>(
   modifyQuery?: (query: QueryBuilder<T>) => void
 ): Promise<APIResponse<Tables<T>>> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     let query = supabase.from(table as any).select('*');
 
     if (modifyQuery) {
@@ -84,18 +83,15 @@ export async function tablesSelectSingleGeneric<T extends TableOrView>(
 
 export async function tablesInsertGeneric<T extends keyof Database['public']['Tables']>(
   table: T,
-  rows: TablesInsert<T>[],
-  modifyQuery?: (query: QueryBuilder<T>) => void
+  rows: TablesInsert<T>[]
 ): Promise<APIResponse<Tables<T>[]>> {
   try {
-    const supabase = await createClient();
-    let query = supabase.from(table).insert(rows as any);
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from(table)
+      .insert(rows as any)
+      .select();
 
-    if (modifyQuery) {
-      modifyQuery(query as any);
-    }
-
-    const { data, error } = await query.select();
     if (error) throw new Error(error.message);
 
     return {
@@ -118,7 +114,7 @@ export async function tablesUpdateGeneric<T extends keyof Database['public']['Ta
   row: TablesUpdate<T>
 ): Promise<APIResponse<Tables<T>>> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { data, error } = await supabase
       .from(table)
       .update(row as any)
@@ -147,7 +143,7 @@ export async function tablesDeleteGeneric<T extends keyof Database['public']['Ta
   ids: string[]
 ): Promise<APIResponse<null>> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
     const { error } = await supabase
       .from(table)
       .delete()

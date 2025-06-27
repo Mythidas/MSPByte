@@ -11,7 +11,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: 'MSPByte',
+  title: 'MSP Byte',
   description: 'SaaS delivering asset tracking to MSPs',
 };
 
