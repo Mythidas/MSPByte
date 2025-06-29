@@ -45,7 +45,6 @@ export default function SearchBar({
         type="search"
         placeholder={placeholder || 'Search...'}
         className={cn(props.className, lead && 'rounded-l-none')}
-        value={query}
         onChange={(e) => setQuery(e.target.value)}
         {...props}
       />

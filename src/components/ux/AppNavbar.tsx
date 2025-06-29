@@ -34,6 +34,7 @@ export default function AppNavbar() {
             placeholder="Search sites...."
             lead={<span>Sites</span>}
             onSelect={handleSelect}
+            delay={0}
             options={sites.map((s) => {
               return { label: s.name, value: s.id };
             })}

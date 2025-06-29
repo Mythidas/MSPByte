@@ -3,25 +3,25 @@
 import SourceMetricCard from '@/components/ux/SourceMetricCard';
 import { Spinner } from '@/components/ux/Spinner';
 import { Tables } from '@/db/schema';
-import { getSourceMetrics } from '@/services/metrics';
+import { getSourceMetricsAggregatedGrouped } from '@/services/metrics';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type Props = {
   sourceId: string;
-  siteIds?: string[];
+  parentId: string;
 };
 
-export default function SourceMetricsTable({ sourceId, siteIds }: Props) {
+export default function SourceMetricsAggregatedGroupedTable({ sourceId, parentId }: Props) {
   const [isLoading, setIsLoading] = useState(true);
-  const [metrics, setMetrics] = useState<Tables<'source_metrics'>[]>([]);
+  const [metrics, setMetrics] = useState<Tables<'source_metrics_aggregated_grouped'>[]>([]);
 
   useEffect(() => {
     const load = async () => {
       try {
         setIsLoading(true);
 
-        const metrics = await getSourceMetrics(sourceId, siteIds);
+        const metrics = await getSourceMetricsAggregatedGrouped(sourceId, parentId);
 
         if (!metrics.ok) {
           throw new Error();

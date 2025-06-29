@@ -32,12 +32,12 @@ export default function RootLayout({
           <SpeedInsights />
           <main className="h-screen w-screen flex flex-col items-center justify-center">
             {children}
+            <div
+              id="search-portal"
+              className="fixed top-0 flex flex-col z-[999] w-screen h-screen pointer-events-none"
+            ></div>
           </main>
           <Toaster position="top-center" />
-          <div
-            id="search-portal"
-            className="fixed top-0 flex flex-col z-[999] w-screen h-screen pointer-events-none"
-          />
         </ThemeProvider>
       </body>
     </html>

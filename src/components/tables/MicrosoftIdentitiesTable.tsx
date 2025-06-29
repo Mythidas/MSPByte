@@ -10,15 +10,35 @@ import {
 } from '@/components/ux/table/DataTableColumn';
 import { DataTableColumnDef } from '@/types/data-table';
 import Link from 'next/link';
+import { getSourceIdentitiesView } from '@/services/identities';
+import { getSourceLicenses } from '@/services/licenses';
+import { useAsync } from '@/hooks/useAsync';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
-  identities: TData[];
-  licenses: Tables<'source_license_info'>[];
+  sourceId: string;
+  siteIds?: string[];
   siteLevel?: boolean;
 };
 
-export default function MicrosoftIdentitiesTable({ identities, licenses, siteLevel }: Props) {
+export default function MicrosoftIdentitiesTable({ sourceId, siteIds, siteLevel }: Props) {
+  const { data, isLoading } = useAsync({
+    fetcher: async () => {
+      const identitiesRes = await getSourceIdentitiesView(sourceId, siteIds);
+      if (!identitiesRes.ok) throw new Error('Failed to get identities');
+
+      const allSkus = [...new Set(identitiesRes.data.flatMap((i) => i.license_skus!))];
+      const licensesRes = await getSourceLicenses(sourceId, allSkus);
+      if (!licensesRes.ok) throw new Error('Failed to get licenses');
+
+      return {
+        identities: identitiesRes.data,
+        licenses: licensesRes.data,
+      };
+    },
+    deps: [sourceId, siteIds],
+  });
+
   const initialVisibility = {
     parent_name: !siteLevel,
     site_name: !siteLevel,
@@ -37,7 +57,8 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, siteLev
 
   return (
     <DataTable
-      data={identities}
+      data={data?.identities || []}
+      isLoading={isLoading}
       initialVisibility={initialVisibility}
       columns={
         [
@@ -108,13 +129,13 @@ export default function MicrosoftIdentitiesTable({ identities, licenses, siteLev
             label: 'Licenses',
             filter: {
               type: 'multiselect',
-              options: licenses.map((lic) => {
+              options: data?.licenses.map((lic) => {
                 return { label: lic.name, value: lic.sku };
               }),
               placeholder: 'Select Licenses',
             },
             filterFn: (row, colId, value) => {
-              return row.original.license_skus!.some((sku) => value.includes(sku));
+              return row.original.license_skus!.some((sku) => value.value.includes(sku));
             },
           }),
           dateColumn({

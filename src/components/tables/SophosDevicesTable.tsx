@@ -6,13 +6,41 @@ import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import DataTable from '@/components/ux/table/DataTable';
 import { DataTableHeader } from '@/components/ux/table/DataTableHeader';
+import { useEffect, useState } from 'react';
+import { getSourceDevicesView } from '@/services/devices';
+import { toast } from 'sonner';
 
 type Props = {
-  devices: Tables<'source_devices_view'>[];
+  sourceId: string;
+  siteIds?: string[];
   siteLevel?: boolean;
 };
 
-export default function SophosDevicesTable({ devices, siteLevel }: Props) {
+export default function SophosDevicesTable({ sourceId, siteIds, siteLevel }: Props) {
+  const [devices, setDevices] = useState<Tables<'source_devices_view'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+
+        const devices = await getSourceDevicesView(sourceId, siteIds);
+        if (!devices.ok) {
+          throw new Error();
+        }
+
+        setDevices(devices.data);
+      } catch {
+        toast.error('Failed to fetch data. Please refresh.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [sourceId, siteIds]);
+
   const protectionTypes = () => {
     const types = new Set<string>();
     for (const device of devices) {
@@ -30,6 +58,7 @@ export default function SophosDevicesTable({ devices, siteLevel }: Props) {
   return (
     <DataTable
       data={devices}
+      isLoading={isLoading}
       initialVisibility={siteLevel ? { parent_name: false, site_name: false } : {}}
       columns={[
         {

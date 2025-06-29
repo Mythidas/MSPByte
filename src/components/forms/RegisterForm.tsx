@@ -1,95 +1,117 @@
 'use client';
 
-import { useState } from 'react';
 import {
   Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import FormAlert from '@/components/ux/FormAlert';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import FormError from '@/components/ux/FormError';
 import { SubmitButton } from '@/components/ux/SubmitButton';
-import { register } from '@/services/auth';
-import { redirect } from 'next/navigation';
+import { useState } from 'react';
+import { LogIn } from 'lucide-react';
+import { register as authRegister } from '@/services/auth';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+
+const formSchema = z
+  .object({
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    confirmPassword: z.string().min(6, 'Password mus be at least 6 characters'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
+type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   code: string;
 };
 
 export default function RegisterForm({ code }: Props) {
-  const [password, setPassword] = useState('');
-  const [confirm, setConfirm] = useState('');
-  const [errors, setErrors] = useState<Record<string, string[]> | undefined>(undefined);
-  const [message, setMessage] = useState<string | undefined>(undefined);
-  const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const router = useRouter();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setErrors(undefined);
-    setMessage(undefined);
+  const onSubmit = async (data: FormData) => {
+    try {
+      setIsSaving(true);
 
-    if (password !== confirm) {
-      setErrors({ confirm: ['Passwords do not match'] });
-      return;
+      const result = await authRegister(code, data.password);
+      if (!result.ok) {
+        throw result.error.message;
+      }
+
+      router.push('/');
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : (err as { message: string })?.message || 'Unknown error';
+      toast.error(`Failed to Login: ${errorMessage}`);
+      setIsSaving(false);
     }
-
-    setLoading(true);
-
-    const result = await register(code, password);
-    if (result.ok) {
-      redirect('/');
-    } else {
-      toast.error(result.error.message);
-    }
-
-    setLoading(false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FormAlert message={message} />
-      <Card>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="w-full h-full flex items-center justify-center"
+    >
+      <Card className="w-2/3 h-fit">
         <CardHeader>
-          <CardTitle>Invitation</CardTitle>
-          <CardDescription>Welcome to MSPByte!</CardDescription>
+          <CardTitle>Register</CardTitle>
+          <CardDescription>Welcome to MSP Byte!</CardDescription>
         </CardHeader>
-        <Separator />
-        <CardContent className="flex flex-col gap-2">
-          <Label className="flex flex-col items-start">
+        <CardContent className="grid gap-4">
+          <Label className="grid gap-2">
             Set Password
-            <Input
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <Input type="password" placeholder="Password" {...register('password')} />
             <FormError name="password" errors={errors} />
           </Label>
-          <Label className="flex flex-col items-start">
+
+          <Label className="grid gap-2">
             Confirm Password
             <Input
-              name="confirm"
               type="password"
-              placeholder="••••••••"
-              value={confirm}
-              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Confirm Password"
+              {...register('confirmPassword')}
             />
-            <FormError name="confirm" errors={errors} />
+            <FormError name="confirmPassword" errors={errors} />
           </Label>
         </CardContent>
-        <Separator />
-        <CardFooter>
-          <SubmitButton className="w-full" pending={loading}>
+        <CardFooter className="grid gap-4">
+          <SubmitButton pending={isSaving} className="w-full">
             Register
+            <LogIn />
           </SubmitButton>
+          <Separator />
+          <span className="flex items-center">
+            Already have an account?
+            <Button asChild variant="link" className="px-2 text-base">
+              <Link href="/auth/login">Login</Link>
+            </Button>
+          </span>
         </CardFooter>
       </Card>
     </form>

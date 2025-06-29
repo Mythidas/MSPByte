@@ -1,19 +1,16 @@
-type Props = {
-  name: string;
-  errors?: Record<string, string[]>;
+import { FieldErrors, FieldValues } from 'react-hook-form';
+
+type Props<T extends FieldValues> = {
+  name: keyof T;
+  errors: FieldErrors<T>;
 };
 
-export default function FormError(props: Props) {
-  if (!props.errors) return;
+export default function FormError<T extends FieldValues>({ name, errors }: Props<T>) {
+  const error = errors?.[name];
 
-  const formatErrors = () => {
-    if (!props.errors || !props.errors[props.name]) return "";
-    return props.errors[props.name].join("\n");
-  };
+  if (!error) return null;
 
-  return (
-    <span className="text-red-500">
-      {formatErrors()}
-    </span>
-  );
+  const message = typeof error === 'object' && 'message' in error ? String(error.message) : '';
+
+  return <span className="text-red-500 text-sm">{message}</span>;
 }

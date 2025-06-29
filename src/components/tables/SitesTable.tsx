@@ -13,23 +13,49 @@ import CreateSiteDialog from '@/components/dialogs/CreateSiteDialog';
 import { toast } from 'sonner';
 import MoveSiteDialog from '@/components/dialogs/MoveSiteDialog';
 import { Tables } from '@/db/schema';
-import { deleteSite } from '@/services/sites';
+import { deleteSite, getSites, getUpperSites } from '@/services/sites';
 import DataTable from '@/components/ux/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
 import { column, textColumn } from '@/components/ux/table/DataTableColumn';
 import Link from 'next/link';
 
 type Props = {
-  sites: Tables<'sites'>[];
   parentId?: string;
 };
 
-export default function SitesTable({ parentId, ...props }: Props) {
-  const [sites, setSites] = useState(props.sites);
+export default function SitesTable({ parentId }: Props) {
+  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setSites(props.sites);
-  }, [props.sites]);
+    const load = async () => {
+      try {
+        setIsLoading(true);
+
+        if (parentId) {
+          const sites = await getSites(parentId);
+          if (!sites.ok) {
+            throw new Error();
+          }
+
+          setSites(sites.data);
+        } else {
+          const sites = await getUpperSites();
+          if (!sites.ok) {
+            throw new Error();
+          }
+
+          setSites(sites.data);
+        }
+      } catch {
+        toast.error('Failed to load sites. Please refresh.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, [parentId]);
 
   const handleDelete = async (e: React.MouseEvent<HTMLDivElement>, site: Tables<'sites'>) => {
     e.stopPropagation();
@@ -60,6 +86,7 @@ export default function SitesTable({ parentId, ...props }: Props) {
   return (
     <DataTable
       data={sites}
+      isLoading={isLoading}
       action={
         <div className="flex gap-2">
           {parentId && (

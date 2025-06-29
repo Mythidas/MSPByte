@@ -16,7 +16,7 @@ export async function login(email: string, password: string): Promise<APIRespons
     });
 
     if (error) {
-      throw new Error(error.message);
+      throw error.message;
     }
 
     await updateUser(data.user.id, {
@@ -69,7 +69,7 @@ export async function register(code: string, password: string): Promise<APIRespo
         return Debug.error({
           module: 'auth',
           context: 'register',
-          message: 'User invalid or already registered',
+          message: 'Code invalid or already registered',
           time: new Date(),
         });
       }

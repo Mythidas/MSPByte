@@ -8,8 +8,8 @@ import { Card } from '@/components/ui/card';
 import { RoleAccessLevel, RoleAccessModule } from '@/types/rights';
 
 type Props = {
-  module: RoleAccessModule;
-  level: RoleAccessLevel;
+  module?: RoleAccessModule;
+  level?: RoleAccessLevel;
   route?: string;
   disabled?: boolean;
   className?: string;
@@ -20,15 +20,17 @@ export default function RouteCard({
   children,
   module,
   level,
-  disabled,
+  disabled: _disabled,
   className,
   ...props
 }: Props) {
   const router = useRouter();
   const { user } = useUser();
 
+  const disabled = _disabled || (module && level && !hasAccess(user, module, level));
+
   const handleRoute = () => {
-    if (route && !disabled && hasAccess(user, module, level)) {
+    if (route && !disabled) {
       router.push(route);
     }
   };

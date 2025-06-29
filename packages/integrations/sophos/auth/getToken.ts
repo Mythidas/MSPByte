@@ -1,3 +1,5 @@
+'use server';
+
 import { Tables } from '@/db/schema';
 import { createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';

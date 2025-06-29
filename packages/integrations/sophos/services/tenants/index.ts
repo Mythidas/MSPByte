@@ -1,3 +1,5 @@
+'use server';
+
 import { Tables } from '@/db/schema';
 import { getPartnerID, getToken } from '@/integrations/sophos/auth';
 import { Debug } from '@/lib/utils';

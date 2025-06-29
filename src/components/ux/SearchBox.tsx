@@ -14,6 +14,8 @@ type Props = {
   defaultValue?: string;
   lead?: React.ReactNode;
   loading?: boolean;
+  delay?: number;
+  portal?: boolean;
   onSelect?: (value: string) => void;
   onSearch?: (search: string) => void;
 };
@@ -24,13 +26,15 @@ export default function SearchBox({
   placeholder,
   lead,
   loading,
+  delay = 1000,
+  portal,
   onSelect,
   onSearch,
 }: Props) {
   const [selected, setSelected] = useState(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [usePortal, setUsePortal] = useState(false);
+  const [usePortal, setUsePortal] = useState(portal);
   const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -76,8 +80,16 @@ export default function SearchBox({
         wrapperRect.top < 0 ||
         wrapperRect.bottom > window.innerHeight;
 
-      setUsePortal(wouldBeClipped);
-      if (wouldBeClipped) {
+      if (!portal) {
+        setUsePortal(wouldBeClipped);
+        if (wouldBeClipped) {
+          setDropdownPos({
+            top: inputRect.bottom + window.scrollY,
+            left: inputRect.left + window.scrollX,
+            width: inputRect.width,
+          });
+        }
+      } else {
         setDropdownPos({
           top: inputRect.bottom + window.scrollY,
           left: inputRect.left + window.scrollX,
@@ -95,6 +107,7 @@ export default function SearchBox({
     setSearch('');
     setIsOpen(false);
     onSelect?.(option.value);
+    if (inputRef.current) inputRef.current.value = '';
   };
 
   const handleSearch = useCallback(
@@ -110,7 +123,7 @@ export default function SearchBox({
   const dropdownContent = (
     <div
       className={cn(
-        'absolute bg-input rounded-md shadow max-h-[30vh] overflow-x-hidden overflow-y-auto z-[999]',
+        'absolute bg-input rounded-md shadow max-h-[30vh] overflow-x-hidden overflow-y-auto z-[999] pointer-events-auto',
         !usePortal && 'top-full w-full',
         isOpen && 'rounded-t-none'
       )}
@@ -118,7 +131,6 @@ export default function SearchBox({
       style={
         usePortal
           ? {
-              position: 'absolute',
               top: dropdownPos.top,
               left: dropdownPos.left,
               width: dropdownPos.width,
@@ -160,7 +172,7 @@ export default function SearchBox({
             onSearch={handleSearch}
             className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}
             onClick={openDropdown}
-            delay={500}
+            delay={delay}
             lead={lead}
             leadClass={cn(isOpen && 'rounded-b-none!')}
             ref={inputRef}

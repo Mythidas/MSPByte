@@ -2,33 +2,14 @@
 
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { Schema, tables } from 'packages/db';
+import { tables } from 'packages/db';
 import { createClient } from 'packages/db/server';
-import { Tables } from 'packages/db/schema';
+import { Tables, TablesInsert } from 'packages/db/schema';
 
 export async function getParentSites(): Promise<APIResponse<Tables<'sites'>[]>> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('sites')
-      .select('*')
-      .eq('is_parent', true)
-      .order('name', { ascending: true });
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'sites',
-      context: 'get-parent-sites',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+  return tables.select('sites', (query) => {
+    query = query.eq('is_parent', true).order('name');
+  });
 }
 
 export async function getUpperSites(): Promise<APIResponse<Tables<'sites'>[]>> {
@@ -119,32 +100,8 @@ export async function getSite(id: string): Promise<APIResponse<Tables<'sites'>>>
   }
 }
 
-export async function putSite(site: Tables<'sites'>): Promise<APIResponse<Tables<'sites'>>> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from('sites')
-      .insert({
-        ...site,
-        id: undefined,
-      })
-      .select()
-      .single();
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data: data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'sites',
-      context: 'put-site',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+export async function putSite(sites: TablesInsert<'sites'>[]) {
+  return tables.insert('sites', sites);
 }
 
 export async function updateSite(site: Tables<'sites'>): Promise<APIResponse<null>> {

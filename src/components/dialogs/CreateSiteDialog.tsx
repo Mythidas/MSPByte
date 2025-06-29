@@ -10,17 +10,25 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import RouteButton from '@/components/ux/RouteButton';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
-import { createSiteAction } from '@/lib/actions/sites';
-import { SiteFormValues } from '@/lib/forms/sites';
 import { useUser } from '@/lib/providers/UserContext';
-import { FormState } from '@/types';
+import { putSite } from '@/services/sites';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { HousePlus } from 'lucide-react';
-import { useActionState, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
+
+const formSchema = z.object({
+  name: z.string(),
+  isParent: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   parentId?: string;
@@ -29,22 +37,38 @@ type Props = {
 
 export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [state, formAction] = useActionState<FormState<SiteFormValues>, FormData>(
-    createSiteAction,
-    {}
-  );
+  const [isSaving, setIsSaving] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+  });
   const { user } = useUser();
 
-  useEffect(() => {
-    if (state.success && onSuccess) {
-      onSuccess(state.values as Tables<'sites'>);
-      setIsOpen(false);
-    }
-  }, [state]);
+  const onSubmit = async (data: FormData) => {
+    try {
+      const result = await putSite([
+        {
+          tenant_id: user!.tenant_id,
+          parent_id: parentId,
+          name: data.name,
+          is_parent: data.isParent ? data.isParent === 'on' : false,
+        },
+      ]);
 
-  const getValue = (name: keyof SiteFormValues) => {
-    if (state.success) return '';
-    return state.values && state.values[name];
+      if (!result.ok) {
+        throw result.error.message;
+      }
+
+      if (onSuccess) onSuccess(result.data[0]);
+      setIsOpen(false);
+    } catch (err) {
+      toast.error(`Failed to save site: ${err}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -56,30 +80,26 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
         </RouteButton>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form className="flex flex-col gap-4" action={formAction}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Create Site</AlertDialogTitle>
           </AlertDialogHeader>
 
-          <FormAlert errors={state.errors} message={state.message} />
           <Label className="flex flex-col items-start">
             Name
-            <Input name="name" placeholder="Enter name" defaultValue={getValue('name') as string} />
-            <FormError name="name" errors={state.errors} />
+            <Input placeholder="Enter name" {...register('name')} />
+            <FormError name="name" errors={errors} />
           </Label>
           {!parentId && (
             <Label>
-              <Checkbox name="is_parent" defaultChecked={false} />
+              <Checkbox {...register('isParent')} />
               Parent?
             </Label>
           )}
-          <input hidden name="id" defaultValue={''} />
-          <input hidden name="tenant_id" defaultValue={user?.tenant_id} />
-          <input hidden name="parent_id" defaultValue={parentId} />
 
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <SubmitButton>Create Site</SubmitButton>
+            <SubmitButton pending={isSaving}>Create Site</SubmitButton>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>

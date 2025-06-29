@@ -1,4 +1,9 @@
-import SophosDevicesTab from '@/components/tabs/SophosDevicesTab';
+'use client';
+
+import SophosDevicesTable from '@/components/tables/SophosDevicesTable';
+import SourceMetricsAggregatedGroupedTable from '@/components/tables/SourceMetricsAggregatedGroupedTable';
+import SourceMetricsAggregatedTable from '@/components/tables/SourceMetricsAggregatedTable';
+import SourceMetricsTable from '@/components/tables/SourceMetricsTable';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -6,31 +11,26 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import ErrorDisplay from '@/components/ux/ErrorDisplay';
 import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
-import SourceMetricCard from '@/components/ux/SourceMetricCard';
+import { Spinner } from '@/components/ux/Spinner';
 import SyncSourceItem from '@/components/ux/SyncSourceItem';
 import { Tables } from '@/db/schema';
-import {
-  getSourceMetricsAggregated,
-  getSourceMetricsAggregatedGrouped,
-  getSourceMetrics,
-} from '@/services/metrics';
 import { getSites } from '@/services/sites';
 import { Settings } from 'lucide-react';
-
-// TODO: Change this to client component and lazy load
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 type Props = {
   source: Tables<'sources'>;
   site?: Tables<'sites'>;
-  tab?: string;
 };
 
-export default async function SophosPartnerMappings({ source, site, tab }: Props) {
+export default function SophosPartnerMappings({ source, site }: Props) {
+  const searchParams = useSearchParams();
   const type = !site ? 'global' : site.is_parent ? 'parent' : 'site';
 
-  const renderBody = async () => {
+  const renderBody = () => {
     switch (type) {
       case 'global':
         return GlobalComponent({ source });
@@ -42,8 +42,11 @@ export default async function SophosPartnerMappings({ source, site, tab }: Props
   };
 
   return (
-    <Tabs defaultValue={tab || 'dashboard'} value={tab}>
-      <div className="flex w-full justify-between">
+    <Tabs
+      defaultValue={searchParams.get('tab') || 'dashboard'}
+      value={searchParams.get('tab') || 'dashboard'}
+    >
+      <div className="flex size-full justify-between">
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
           <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
@@ -60,78 +63,114 @@ export default async function SophosPartnerMappings({ source, site, tab }: Props
         </DropdownMenu>
       </div>
 
-      {await renderBody()}
+      {renderBody()}
     </Tabs>
   );
 }
 
-async function GlobalComponent({ source }: Props) {
-  const metrics = await getSourceMetricsAggregated(source.id);
-  const sites = await getSites();
+function GlobalComponent({ source }: Props) {
+  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!metrics.ok || !sites.ok) {
-    return <ErrorDisplay />;
-  }
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+
+        const sites = await getSites();
+
+        if (!sites.ok) {
+          throw new Error();
+        }
+
+        setSites(sites.data);
+      } catch {
+        toast.error('Failed to fetch data. Please refresh.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, []);
 
   return (
     <>
-      <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
-        {metrics.data.map((metric) => {
-          return <SourceMetricCard key={metric.name} metric={metric as Tables<'source_metrics'>} />;
-        })}
+      <TabsContent value="dashboard">
+        <SourceMetricsAggregatedTable sourceId={source.id} />
       </TabsContent>
-      <SophosDevicesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} />
+      <TabsContent value="devices">
+        {isLoading ? (
+          <div className="flex size-full justify-center items-center">
+            <Spinner size={48} />
+          </div>
+        ) : (
+          <SophosDevicesTable
+            sourceId={source.id}
+            siteIds={sites.map((s) => s.id)}
+            siteLevel={sites?.length === 1}
+          />
+        )}
+      </TabsContent>
     </>
   );
 }
 
-async function SiteParentComponent({ source, site }: Props) {
-  const metrics = await getSourceMetricsAggregatedGrouped(source.id, site!.id);
-  const sites = await getSites(site!.id);
+function SiteParentComponent({ source, site }: Props) {
+  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  if (!metrics.ok || !sites.ok) {
-    return <ErrorDisplay />;
-  }
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setIsLoading(true);
+
+        const sites = await getSites(site?.id);
+
+        if (!sites.ok) {
+          throw new Error();
+        }
+
+        setSites(sites.data);
+      } catch {
+        toast.error('Failed to fetch data. Please refresh.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
+  }, [source, site]);
 
   return (
     <>
-      <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
-        {metrics.data.map((metric) => {
-          return (
-            <SourceMetricCard
-              key={metric.name}
-              metric={metric as unknown as Tables<'source_metrics'>}
-              baseRoute={`/sites/${site!.id}/${source.slug}`}
-            />
-          );
-        })}
+      <TabsContent value="dashboard">
+        <SourceMetricsAggregatedGroupedTable sourceId={source.id} parentId={site!.id} />
       </TabsContent>
-      <SophosDevicesTab sourceId={source.id} siteIds={sites.data.map((s) => s.id)} />
+      <TabsContent value="devices">
+        {isLoading ? (
+          <div className="flex size-full justify-center items-center">
+            <Spinner size={48} />
+          </div>
+        ) : (
+          <SophosDevicesTable
+            sourceId={source.id}
+            siteIds={sites.map((s) => s.id)}
+            siteLevel={sites?.length === 1}
+          />
+        )}
+      </TabsContent>
     </>
   );
 }
 
-async function SiteComponent({ source, site }: Props) {
-  const metrics = await getSourceMetrics(source.id, [site!.id]);
-
-  if (!metrics.ok) {
-    return <ErrorDisplay />;
-  }
-
+function SiteComponent({ source, site }: Props) {
   return (
     <>
-      <TabsContent value="dashboard" className="grid grid-cols-4 gap-2">
-        {metrics.data.map((metric) => {
-          return (
-            <SourceMetricCard
-              key={metric.name}
-              metric={metric as unknown as Tables<'source_metrics'>}
-              baseRoute={`/sites/${site!.id}/${source.slug}`}
-            />
-          );
-        })}
+      <TabsContent value="dashboard">
+        <SourceMetricsTable sourceId={source.id} siteIds={[site!.id]} />
       </TabsContent>
-      <SophosDevicesTab sourceId={source.id} siteIds={[site!.id]} />
+      <SophosDevicesTable sourceId={source.id} />
     </>
   );
 }

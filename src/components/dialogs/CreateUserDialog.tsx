@@ -19,15 +19,25 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import FormAlert from '@/components/ux/FormAlert';
 import FormError from '@/components/ux/FormError';
 import { SubmitButton } from '@/components/ux/SubmitButton';
 import { Tables } from '@/db/schema';
-import { createUserAction } from '@/lib/actions/users';
-import { UserFormValues } from '@/lib/forms/users';
-import { FormState } from '@/types';
+import { putUser } from '@/services/users';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { UserPlus } from 'lucide-react';
-import { useActionState, useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import z from 'zod';
+
+const formSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  roleId: z.string().uuid({ message: 'Please select a role' }),
+  sendEmail: z.string(),
+});
+
+type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   tenantId: string;
@@ -36,20 +46,43 @@ type Props = {
 };
 
 export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
-  const [state, formAction] = useActionState<FormState<UserFormValues>, FormData>(
-    createUserAction,
-    {}
-  );
   const [isOpen, setIsOpen] = useState(false);
-  const [role, setRole] = useState('');
-  const [sendEmail, setSendEmail] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+  });
 
-  useEffect(() => {
-    if (state.success) {
-      if (onCreate) onCreate(state.values as Tables<'users'>);
+  const onSubmit = async (data: FormData) => {
+    try {
+      setIsSaving(true);
+      const result = await putUser(
+        {
+          id: '',
+          tenant_id: tenantId,
+          role_id: data.roleId,
+          ...data,
+        },
+        data.sendEmail === 'on'
+      );
+
+      if (!result.ok) {
+        throw result.error.message;
+      }
+
+      if (onCreate) onCreate(result.data);
       setIsOpen(false);
+    } catch (err) {
+      toast.error(`Failed to create user: ${err}`);
+    } finally {
+      setIsSaving(false);
     }
-  }, [state]);
+  };
 
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
@@ -60,43 +93,30 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form className="flex flex-col gap-4" action={formAction}>
+        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
           <AlertDialogHeader>
             <AlertDialogTitle>Create User</AlertDialogTitle>
           </AlertDialogHeader>
 
-          <input hidden name="tenant_id" defaultValue={tenantId} />
-          <input hidden id="role_id" name="role_id" defaultValue={role} />
-          <input
-            hidden
-            id="send_email"
-            name="send_email"
-            type="checkbox"
-            checked={sendEmail}
-            readOnly
-          />
-
-          <FormAlert errors={state.errors} message={state.message} />
           <Label className="flex flex-col items-start">
             Name
-            <Input name="name" placeholder="John Doe" defaultValue={state.values?.name} />
-            <FormError name="name" errors={state.errors} />
+            <Input placeholder="John Doe" {...register('name')} />
+            <FormError name="name" errors={errors} />
           </Label>
           <Label className="flex flex-col items-start">
             Email
-            <Input
-              name="email"
-              placeholder="John.Doe@email.com"
-              defaultValue={state.values?.email}
-            />
-            <FormError name="email" errors={state.errors} />
+            <Input placeholder="John.Doe@email.com" {...register('email')} />
+            <FormError name="email" errors={errors} />
           </Label>
 
           <Separator />
 
           <Label className="flex flex-col items-start">
             Role
-            <Select onValueChange={(e) => setRole(e)} defaultValue={state.values?.role_id}>
+            <Select
+              onValueChange={(value) => setValue('roleId', value, { shouldValidate: true })}
+              defaultValue={watch('roleId')}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
@@ -108,19 +128,19 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
                 ))}
               </SelectContent>
             </Select>
-            <FormError name="role_id" errors={state.errors} />
+            <FormError name="roleId" errors={errors} />
           </Label>
 
           <Label>
-            <Checkbox defaultChecked={sendEmail} onChange={() => setSendEmail(!sendEmail)} />
+            <Checkbox {...register('sendEmail')} />
             Send invitation email?
-            <FormError name="send_email" errors={state.errors} />
+            <FormError name="sendEmail" errors={errors} />
           </Label>
 
           <Separator />
           <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
-            <SubmitButton>Create</SubmitButton>
+            <AlertDialogCancel disabled={isSaving}>Close</AlertDialogCancel>
+            <SubmitButton pending={isSaving}>Create</SubmitButton>
           </AlertDialogFooter>
         </form>
       </AlertDialogContent>
