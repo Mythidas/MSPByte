@@ -3,7 +3,7 @@
 import MicrosoftIdentitiesTable from '@/components/tables/MicrosoftIdentitiesTable';
 import SourceMetricsAggregatedGroupedTable from '@/components/tables/SourceMetricsAggregatedGroupedTable';
 import SourceMetricsAggregatedTable from '@/components/tables/SourceMetricsAggregatedTable';
-import SourceMetricsTable from '@/components/tables/SourceMetricsTable';
+import MicrosoftDashboardTab from '@/components/tabs/MicrosoftDashboardTab';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -159,9 +159,7 @@ function SiteParentComponent({ source, site }: Props) {
 function SiteComponent({ source, site }: Props) {
   return (
     <>
-      <TabsContent value="dashboard">
-        <SourceMetricsTable sourceId={source.id} siteIds={[site!.id]} />
-      </TabsContent>
+      <MicrosoftDashboardTab sourceId={source.id} siteId={site!.id} />
       <TabsContent value="identities">
         <MicrosoftIdentitiesTable sourceId={source.id} siteIds={[site!.id]} siteLevel />
       </TabsContent>

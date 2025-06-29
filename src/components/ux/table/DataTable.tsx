@@ -11,7 +11,6 @@ import {
   useReactTable,
   VisibilityState,
 } from '@tanstack/react-table';
-
 import {
   Table,
   TableBody,
@@ -24,12 +23,13 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/ux/SearchBar';
 import { Button } from '@/components/ui/button';
-import { Grid2X2 } from 'lucide-react';
+import { Download, Grid2X2 } from 'lucide-react';
 import { Suspense, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -37,6 +37,7 @@ import { DataTableColumnDef } from '@/types/data-table';
 import { Spinner } from '@/components/ux/Spinner';
 import { DataTableFilters } from '@/components/ux/table/DataTableFilters';
 import { DataTableFooter } from '@/components/ux/table/DataTableFooter';
+import * as XLSX from 'xlsx';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
@@ -137,6 +138,116 @@ export default function DataTable<TData>({
     );
   };
 
+  function downloadTSV() {
+    const rows = table.getFilteredRowModel().rows;
+    const columns = table
+      .getVisibleFlatColumns()
+      .map((col: DataTableColumnDef<TData>) => col.id || col.accessorKey)
+      .filter(Boolean) as (keyof TData)[];
+    const data = rows.map((row) => {
+      const rowData: Record<string, unknown> = {};
+
+      columns.forEach((col: keyof TData) => {
+        if (!col) return;
+
+        // Access the rendered cell value (as string)
+        const cell = row.getValue(col as string);
+
+        // You can format this here if needed
+        rowData[col as string] = typeof cell === 'object' ? JSON.stringify(cell) : cell;
+      });
+
+      return rowData;
+    });
+
+    const tsv = [
+      columns.join('\t'), // headers
+      ...data.map((row) => columns.map((key) => row[key as string] ?? '').join('\t')),
+    ].join('\n');
+
+    const blob = new Blob([tsv], { type: 'text/tab-separated-values' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'table-export.tsv';
+    link.click();
+  }
+
+  function downloadCSV() {
+    const rows = table.getFilteredRowModel().rows;
+    const columns = table
+      .getVisibleFlatColumns()
+      .map((col: DataTableColumnDef<TData>) => col.id || col.accessorKey)
+      .filter(Boolean) as (keyof TData)[];
+    const data = rows.map((row) => {
+      const rowData: Record<string, unknown> = {};
+
+      columns.forEach((col: keyof TData) => {
+        if (!col) return;
+
+        // Access the rendered cell value (as string)
+        const cell = row.getValue(col as string);
+
+        // You can format this here if needed
+        rowData[col as string] = typeof cell === 'object' ? JSON.stringify(cell) : cell;
+      });
+
+      return rowData;
+    });
+
+    if (!data.length) return;
+
+    const escape = (val: unknown) => {
+      const str = String(val ?? '');
+      return str.includes(',') || str.includes('"') || str.includes('\n')
+        ? `"${str.replace(/"/g, '""')}"`
+        : str;
+    };
+
+    const csv = [
+      columns.join(','), // Header row
+      ...data.map((row) => columns.map((col) => escape(row[col as string])).join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'table-export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function downloadXLSX() {
+    const rows = table.getFilteredRowModel().rows;
+    const columns = table
+      .getVisibleFlatColumns()
+      .map((col: DataTableColumnDef<TData>) => col.id || col.accessorKey)
+      .filter(Boolean) as (keyof TData)[];
+    const data = rows.map((row) => {
+      const rowData: Record<string, unknown> = {};
+
+      columns.forEach((col: keyof TData) => {
+        if (!col) return;
+
+        // Access the rendered cell value (as string)
+        const cell = row.getValue(col as string);
+
+        // You can format this here if needed
+        rowData[col as string] = typeof cell === 'object' ? JSON.stringify(cell) : cell;
+      });
+
+      return rowData;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    XLSX.writeFile(workbook, 'table-export.xlsx');
+  }
+
   return (
     <div className="flex flex-col size-full gap-4">
       <div className="flex w-full h-fit justify-between">
@@ -178,6 +289,19 @@ export default function DataTable<TData>({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="ml-auto">
+                <Download />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={downloadCSV}>.csv</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadTSV}>.tsv</DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadXLSX}>.xlsx</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div>{action}</div>
       </div>
