@@ -10,9 +10,10 @@ import { toast } from 'sonner';
 type Props = {
   sourceId: string;
   siteIds?: string[];
+  baseRoute?: string;
 };
 
-export default function SourceMetricsTable({ sourceId, siteIds }: Props) {
+export default function SourceMetricsTable({ sourceId, siteIds, baseRoute }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState<Tables<'source_metrics'>[]>([]);
 
@@ -53,6 +54,7 @@ export default function SourceMetricsTable({ sourceId, siteIds }: Props) {
           <SourceMetricCard
             key={metric.name}
             metric={metric as unknown as Tables<'source_metrics'>}
+            baseRoute={baseRoute}
           />
         );
       })}

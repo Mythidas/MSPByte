@@ -3,31 +3,29 @@
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { syncSource } from '@/core/sync';
 import { Tables } from '@/db/schema';
-import { getSourceIntegration } from '@/services/integrations';
 import { getSites } from '@/services/sites';
 import { getSiteSourceMappings } from '@/services/siteSourceMappings';
 import { toast } from 'sonner';
 
 type Props = {
   type: 'global' | 'parent' | 'site';
-  source: Tables<'sources'>;
+  sourceId: string;
   site?: Tables<'sites'>;
 };
 
-export default function SyncSourceItem({ type, source, site }: Props) {
+export default function SyncSourceItem({ type, sourceId, site }: Props) {
   const handleSync = async () => {
     try {
-      const integration = await getSourceIntegration(undefined, source.id);
-      if (!integration.ok) return;
-
       switch (type) {
         case 'global': {
-          const mappings = await getSiteSourceMappings(integration.data.source_id);
+          const mappings = await getSiteSourceMappings(sourceId);
           if (!mappings.ok) {
             throw new Error(mappings.error.message);
           }
 
-          const jobs = await syncSource(integration.data, [...mappings.data.map((s) => s.site_id)]);
+          const jobs = await syncSource(sourceId, mappings.data[0].tenant_id, [
+            ...mappings.data.map((s) => s.site_id),
+          ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
           }
@@ -41,14 +39,14 @@ export default function SyncSourceItem({ type, source, site }: Props) {
             throw new Error(sites.error.message);
           }
 
-          const mappings = await getSiteSourceMappings(integration.data.source_id, [
-            ...sites.data.map((s) => s.id),
-          ]);
+          const mappings = await getSiteSourceMappings(sourceId, [...sites.data.map((s) => s.id)]);
           if (!mappings.ok) {
             throw new Error(mappings.error.message);
           }
 
-          const jobs = await syncSource(integration.data, [...mappings.data.map((s) => s.site_id)]);
+          const jobs = await syncSource(sourceId, mappings.data[0].tenant_id, [
+            ...mappings.data.map((s) => s.site_id),
+          ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
           }
@@ -57,7 +55,7 @@ export default function SyncSourceItem({ type, source, site }: Props) {
           break;
         }
         case 'site': {
-          const jobs = await syncSource(integration.data, [site!.id]);
+          const jobs = await syncSource(sourceId, site!.tenant_id, [site!.id]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
           }

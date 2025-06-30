@@ -6,9 +6,8 @@ export function getSources() {
   return tables.select('sources');
 }
 
-export function getSource(id?: string, slug?: string) {
+export function getSource(id?: string) {
   return tables.selectSingle('sources', (query) => {
     if (id) query = query.eq('id', id);
-    if (slug) query = query.eq('slug', slug);
   });
 }

@@ -5,12 +5,13 @@ import { toast } from 'sonner';
 
 type UseAsyncOptions<T> = {
   fetcher: () => Promise<T>;
+  initial: T;
   deps?: unknown[];
   immediate?: boolean;
 };
 
-export function useAsync<T>({ fetcher, deps = [], immediate = true }: UseAsyncOptions<T>) {
-  const [data, setData] = useState<T | null>(null);
+export function useAsync<T>({ fetcher, initial, deps = [], immediate = true }: UseAsyncOptions<T>) {
+  const [data, setData] = useState<T>(initial);
   const [isLoading, setIsLoading] = useState(immediate);
   const [error, setError] = useState<Error | null>(null);
 

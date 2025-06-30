@@ -52,7 +52,7 @@ export default function SourcesTable({ route }: Props) {
             return (
               <RouteCard
                 key={integration.id}
-                route={`${route}/${integration.source_slug}`}
+                route={`${route}/${integration.source_id}`}
                 module="Sources"
                 level="Read"
               >

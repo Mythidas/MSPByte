@@ -11,13 +11,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import DataTable from '@/components/ux/table/DataTable';
+import { textColumn } from '@/components/ux/table/DataTableColumn';
 import { DataTableHeader } from '@/components/ux/table/DataTableHeader';
 import { Tables } from '@/db/schema';
+import { useAsync } from '@/hooks/useAsync';
 import { getSitesView } from '@/services/sites';
 import { getSiteMappings } from '@/services/siteSourceMappings';
 import { DataTableColumnDef } from '@/types/data-table';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
 
 type Props = {
   source: Tables<'sources'>;
@@ -26,57 +27,34 @@ type Props = {
 
 export default function Microsoft365MappingsDialog({ source }: Props) {
   const [mappings, setMappings] = useState<
-    (Tables<'site_mappings_view'> & { changed?: boolean })[]
+    (Tables<'site_source_mappings'> & { changed?: boolean })[]
   >([]);
+  const [sites, setSites] = useState<Tables<'sites_view'>[]>([]);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const siteMappings = await getSiteMappings(source.id);
-        const sites = await getSitesView();
+  const { isLoading } = useAsync({
+    initial: undefined,
+    fetcher: async () => {
+      const siteMappings = await getSiteMappings(source.id);
+      const sites = await getSitesView();
 
-        if (!siteMappings.ok || !sites.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        for (const site of sites.data) {
-          const exists = siteMappings.data.find((m) => m.site_id === site.id);
-          if (!exists) {
-            siteMappings.data.push({
-              id: null,
-              site_id: site.id,
-              source_id: source.id,
-              tenant_id: site.tenant_id,
-              is_parent: site.is_parent,
-              parent_id: site.parent_id,
-              parent_name: site.parent_name,
-              source_name: source.name,
-              source_slug: source.slug,
-              metadata: {},
-              external_id: '',
-              external_name: '',
-              site_name: site.name,
-            });
-          }
-        }
-
-        setMappings(siteMappings.data.sort((a, b) => a.site_name!.localeCompare(b.site_name!)));
-      } catch (error) {
-        toast.error(`Failed to load mappings: ${error}`);
+      if (!siteMappings.ok || !sites.ok) {
+        throw new Error('Failed to fetch data');
       }
-    }
 
-    loadData();
-  }, [source]);
+      setMappings(siteMappings.data);
+      setSites(sites.data.sort((a, b) => a.name!.localeCompare(b.name!)));
+    },
+    deps: [source],
+  });
 
-  const handleSave = (mapping: Tables<'site_mappings_view'>) => {
+  const handleSave = (mapping: Tables<'site_source_mappings'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push(mapping);
-    setMappings(newMappings.sort((a, b) => a.site_name!.localeCompare(b.site_name!)));
+    setMappings(newMappings);
     console.log(mapping);
   };
 
-  const handleClear = (mapping: Tables<'site_mappings_view'>) => {
+  const handleClear = (mapping: Tables<'site_source_mappings'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push({
       ...mapping,
@@ -85,7 +63,7 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
       external_id: '',
       external_name: '',
     });
-    setMappings(newMappings.sort((a, b) => a.site_name!.localeCompare(b.site_name!)));
+    setMappings(newMappings);
   };
 
   return (
@@ -102,28 +80,30 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
           Table of Microsoft 365 site mappings with Graph API info
         </AlertDialogDescription>
         <DataTable
-          data={mappings}
+          data={sites}
+          isLoading={isLoading}
           columns={
             [
-              {
-                accessorKey: 'site_name',
-                header: ({ column }) => <DataTableHeader column={column} label="Site" />,
+              textColumn({
+                key: 'name',
+                label: 'Name',
                 enableHiding: false,
                 simpleSearch: true,
-              },
-              {
-                accessorKey: 'parent_name',
-                header: ({ column }) => <DataTableHeader column={column} label="Parent" />,
+              }),
+              textColumn({
+                key: 'parent_name',
+                label: 'Parent',
                 enableHiding: false,
                 simpleSearch: true,
-              },
+              }),
               {
                 accessorKey: 'MicrosoftInfo',
                 header: ({ column }) => <DataTableHeader column={column} label="Microsoft Info" />,
                 headerClass: 'text-right',
                 cell: ({ row }) => (
                   <Microsoft365InfoPopover
-                    mapping={row.original}
+                    site={row.original}
+                    mapping={mappings.find((m) => m.site_id === row.original.id)}
                     onSave={handleSave}
                     onClear={handleClear}
                   />
@@ -131,13 +111,15 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
                 cellClass: 'text-right',
                 enableHiding: false,
                 sortingFn: (rowA, rowB) => {
-                  const a = rowA.original.external_id ? 1 : 0;
-                  const b = rowB.original.external_id ? 1 : 0;
+                  const mappingA = mappings.find((m) => m.site_id === rowA.original.id);
+                  const mappingB = mappings.find((m) => m.site_id === rowB.original.id);
+                  const a = mappingA ? 1 : 0;
+                  const b = mappingB ? 1 : 0;
 
                   return b - a;
                 },
               },
-            ] as DataTableColumnDef<Tables<'site_mappings_view'>>[]
+            ] as DataTableColumnDef<Tables<'sites_view'>>[]
           }
         />
         <AlertDialogFooter>

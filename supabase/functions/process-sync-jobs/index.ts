@@ -3,13 +3,13 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { syncJob } from './packages/core/syncJob.ts';
 import { createClient } from './packages/db/server.ts';
 import { setAuthToken } from './utils.ts';
-const MAX_JOBS = 10;
+const MAX_DURATION = 200;
 Deno.serve(async (req) => {
   try {
     setAuthToken(req.headers.get('Authorization') || '');
     const supabase = createClient();
     const { data: jobs, error } = await supabase.rpc('claim_sync_jobs', {
-      max_jobs: MAX_JOBS,
+      max_est_duration: MAX_DURATION,
     });
     if (error) {
       throw error.message;

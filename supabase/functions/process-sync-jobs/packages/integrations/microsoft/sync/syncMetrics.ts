@@ -1,13 +1,22 @@
 import { APIResponse, Debug } from '../../../../utils.ts';
 import { Tables, TablesInsert } from '../../../db/schema.ts';
-import { putSourceMetrics } from '../../../services/metrics.ts';
+import {
+  deleteSourceMetrics,
+  getSourceMetrics,
+  putSourceMetrics,
+} from '../../../services/metrics.ts';
 
 export async function syncMetrics(
   mapping: Tables<'site_source_mappings'>,
-  policies: Tables<'source_policies'>[],
-  licenses: Tables<'source_license_info'>[],
+  _policies: Tables<'source_policies'>[],
+  _licenses: Tables<'source_license_info'>[],
   identities: Tables<'source_identities'>[]
 ): Promise<APIResponse<null>> {
+  const metrics = await getSourceMetrics(mapping.source_id, [mapping.site_id]);
+  if (metrics.ok) {
+    await deleteSourceMetrics(metrics.data.map((m) => m.id));
+  }
+
   const totalIdentities: TablesInsert<'source_metrics'> = {
     tenant_id: mapping.tenant_id,
     site_id: mapping.site_id,
@@ -29,12 +38,36 @@ export async function syncMetrics(
     tenant_id: mapping.tenant_id,
     site_id: mapping.site_id,
     source_id: mapping.source_id,
-    name: 'No MFA Enforced',
-    metric: identities.filter((id) => !id.mfa_enforced && id.enabled).length,
+    name: 'No MFA Enforced (Member)',
+    metric: identities.filter((id) => !id.mfa_enforced && id.enabled && id.type === 'member')
+      .length,
     unit: 'identities',
     total: identities.length,
     route: '/sources/microsoft-365',
-    filters: { tab: 'identities', filter: 'mfa_enforced+eq+false+and+enable+eq+true' },
+    filters: {
+      tab: 'identities',
+      filter: 'mfa_enforced+eq+false+and+enable+eq+true+and+type+eq+member',
+    },
+    metadata: {},
+    is_historic: false,
+    visual: 'progress',
+    thresholds: { info: 0, warn: 30, crticial: 60, highest: false },
+    created_at: new Date().toISOString(),
+  };
+
+  const mfaEnforcedMetricGuest: TablesInsert<'source_metrics'> = {
+    tenant_id: mapping.tenant_id,
+    site_id: mapping.site_id,
+    source_id: mapping.source_id,
+    name: 'No MFA Enforced (Guest)',
+    metric: identities.filter((id) => !id.mfa_enforced && id.enabled && id.type === 'guest').length,
+    unit: 'identities',
+    total: identities.length,
+    route: '/sources/microsoft-365',
+    filters: {
+      tab: 'identities',
+      filter: 'mfa_enforced+eq+false+and+enable+eq+true+and+type+eq+guest',
+    },
     metadata: {},
     is_historic: false,
     visual: 'progress',
@@ -51,7 +84,7 @@ export async function syncMetrics(
     unit: 'identities',
     total: identities.length,
     route: '/sources/microsoft-365',
-    filters: { tab: 'identities', filter: 'enable+eq+false' },
+    filters: { tab: 'identities', filter: 'enabled+eq+false' },
     metadata: {},
     is_historic: false,
     visual: 'progress',
@@ -85,6 +118,7 @@ export async function syncMetrics(
     await putSourceMetrics([
       totalIdentities,
       mfaEnforcedMetric,
+      mfaEnforcedMetricGuest,
       disabledAccountsMetric,
       inactiveAccounts,
     ]);

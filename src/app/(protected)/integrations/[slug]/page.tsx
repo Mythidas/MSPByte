@@ -17,12 +17,17 @@ import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useAsync } from '@/hooks/useAsync';
 import { Spinner } from '@/components/ux/Spinner';
+import { Tables } from '@/db/schema';
 
 export default function Page() {
   const params = useParams();
-  const { data, isLoading } = useAsync({
+  const { data, isLoading } = useAsync<{
+    source: Tables<'sources'> | undefined;
+    integration: Tables<'source_integrations'> | undefined;
+  }>({
+    initial: { source: undefined, integration: undefined },
     fetcher: async () => {
-      const source = await getSource(undefined, params['slug'] as string);
+      const source = await getSource(params['slug'] as string);
       if (!source.ok) {
         throw 'Failed to fetch source. Please refresh.';
       }
@@ -45,11 +50,14 @@ export default function Page() {
     );
   }
 
-  if (!data || !data?.source) {
+  if (!data || !data.source) {
     return null;
   }
 
   const renderBody = () => {
+    if (!data || !data.source) {
+      return null;
+    }
     switch (params.slug) {
       case 'sophos-partner':
         return <SophosPartner source={data.source} integration={data.integration} />;

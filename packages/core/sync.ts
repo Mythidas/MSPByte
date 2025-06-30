@@ -4,15 +4,28 @@ import { putSourceSyncJobs } from '@/services/sources';
 import { APIResponse } from '@/types';
 
 export async function syncSource(
-  integration: Tables<'source_integrations'>,
+  sourceId: string,
+  tenantId: string,
   siteIds: string[]
 ): Promise<APIResponse<Tables<'source_sync_jobs'>[]>> {
+  const getEstDuration = () => {
+    switch (sourceId) {
+      case 'microsoft-365':
+        return 75;
+      case 'sophos-partner':
+        return 20;
+      default:
+        return 30;
+    }
+  };
+
   try {
     const jobs = await putSourceSyncJobs(
       siteIds.map((s) => {
         return {
-          source_id: integration.source_id,
-          tenant_id: integration.tenant_id,
+          source_id: sourceId,
+          tenant_id: tenantId,
+          est_duration: getEstDuration(),
           site_id: s,
         };
       })

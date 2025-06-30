@@ -5,18 +5,20 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import SophosPartnerMappings from '@/components/mappings/SophosPartnerMappings';
 import ErrorDisplay from '@/components/ux/ErrorDisplay';
 import { getSource } from 'packages/services/sources';
-import Microsoft365Mappings from '@/components/mappings/Microsoft365Mappings';
+import MicrosoftGlobalMapping from '@/components/integrations/microsoft/mappings/MicrosoftGlobalMapping';
+import SophosGlobalMapping from '@/components/integrations/sophos/mappings/SophosGlobalMapping';
 
 type Props = {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ tab?: string }>;
 };
 
 export default async function Page({ ...props }: Props) {
   const params = await props.params;
-  const source = await getSource(undefined, params.slug);
+  const searchParams = await props.searchParams;
+  const source = await getSource(params.slug);
 
   if (!source.ok) {
     return <ErrorDisplay />;
@@ -25,9 +27,9 @@ export default async function Page({ ...props }: Props) {
   const getMappingComponent = () => {
     switch (params.slug) {
       case 'sophos-partner':
-        return <SophosPartnerMappings source={source.data} />;
+        return <SophosGlobalMapping sourceId={params.slug} />;
       case 'microsoft-365':
-        return <Microsoft365Mappings source={source.data} />;
+        return <MicrosoftGlobalMapping sourceId={params.slug} tab={searchParams.tab} />;
     }
   };
 

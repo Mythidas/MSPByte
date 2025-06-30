@@ -23,7 +23,7 @@ export async function transformIdentities(
   mapping: Tables<'site_source_mappings'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
   try {
-    const identities = [];
+    const identities: TablesInsert<'source_identities'>[] = [];
     for await (const user of users) {
       const mfaMethods = await getAuthenticationMethods(user.id, mapping);
       const userContext = await getUserContext(user, mapping);
@@ -43,12 +43,14 @@ export async function transformIdentities(
 
       identities.push({
         tenant_id: mapping.tenant_id,
-        mapping_id: mapping.id,
+        source_id: mapping.source_id,
+        site_id: mapping.site_id,
 
         external_id: user.id,
         enabled: user.accountEnabled!,
         email: user.userPrincipalName!,
         name: user.displayName!,
+        type: user.userType.toLowerCase(),
         mfa_enforced: mfaEnforced,
         enforcement_type: mfaEnforced
           ? securityDefaultsEnabled

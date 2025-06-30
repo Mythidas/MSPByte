@@ -13,3 +13,7 @@ export function getSourceMetrics(sourceId: string, siteIds?: string[]) {
 export function putSourceMetrics(metrics: TablesInsert<'source_metrics'>[]) {
   return tables.insert('source_metrics', metrics);
 }
+
+export function deleteSourceMetrics(ids: string[]) {
+  return tables.delete('source_metrics', ids);
+}

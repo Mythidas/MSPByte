@@ -1,6 +1,7 @@
 export type MSGraphUser = {
   id: string;
   userPrincipalName: string;
+  userType?: string;
   displayName?: string;
   accountEnabled?: boolean;
   mail?: string;

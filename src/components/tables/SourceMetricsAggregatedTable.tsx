@@ -46,7 +46,7 @@ export default function SourceMetricsAggregatedTable({ sourceId }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-4 gap-2 size-full">
+    <div className="grid grid-cols-4 gap-2 w-full h-fit">
       {metrics.map((metric) => {
         return (
           <SourceMetricCard

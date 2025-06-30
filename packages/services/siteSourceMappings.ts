@@ -4,8 +4,7 @@ import { tables } from 'packages/db';
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 
 export async function getSiteMappings(sourceId?: string) {
-  return tables.select('site_mappings_view', (query) => {
-    query = query.eq('is_parent', false).order('site_name').order('parent_name');
+  return tables.select('site_source_mappings', (query) => {
     if (sourceId) {
       query = query.eq('source_id', sourceId);
     }
@@ -13,7 +12,7 @@ export async function getSiteMappings(sourceId?: string) {
 }
 
 export async function getSiteMapping(id: string) {
-  return tables.selectSingle('site_mappings_view', (query) => {
+  return tables.selectSingle('site_source_mappings', (query) => {
     query = query.eq('id', id);
   });
 }

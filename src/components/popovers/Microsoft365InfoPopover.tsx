@@ -1,217 +1,189 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+'use client';
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import { SubmitButton } from '@/components/ux/SubmitButton';
-import { Tables } from '@/db/schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 import { Info } from 'lucide-react';
+import z from 'zod';
+
 import {
-  deleteSiteSourceMapping,
   putSiteSourceMapping,
   updateSiteSourceMapping,
-} from 'packages/services/siteSourceMappings';
-import { useRef, useState } from 'react';
-import { toast } from 'sonner';
+  deleteSiteSourceMapping,
+} from '@/services/siteSourceMappings';
+import { Tables } from '@/db/schema';
+import { useState } from 'react';
+import FormError from '@/components/ux/FormError';
 
-type MetaData = {
-  client_id: string;
-  client_secret: string;
-};
+const schema = z.object({
+  domains: z.string().optional(),
+  tenant_id: z.string().min(1, 'Tenant ID is required'),
+  client_id: z.string().min(1, 'Client ID is required'),
+  client_secret: z.string().min(1, 'Client Secret is required'),
+});
+
+type FormData = z.infer<typeof schema>;
 
 type Props = {
-  mapping: Tables<'site_mappings_view'>;
-  onSave?: (mapping: Tables<'site_mappings_view'>) => void;
-  onClear?: (mapping: Tables<'site_mappings_view'>) => void;
+  site: Tables<'sites_view'>;
+  mapping?: Tables<'site_source_mappings'>;
+  onSave?: (mapping: Tables<'site_source_mappings'>) => void;
+  onClear?: (mapping: Tables<'site_source_mappings'>) => void;
 };
 
-export default function Microsoft365InfoPopover({ mapping, onSave, onClear }: Props) {
+export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [cleared, setCleared] = useState(false);
-  const domainRef = useRef<HTMLInputElement>(null);
-  const tenantRef = useRef<HTMLInputElement>(null);
-  const clientRef = useRef<HTMLInputElement>(null);
-  const secretRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      domains: mapping?.external_name,
+      tenant_id: mapping?.external_id || '',
+      client_id: (mapping?.metadata as { client_id: string })?.client_id || '',
+    },
+  });
+
+  const handleClear = async () => {
+    if (!mapping) return;
+
     setIsSaving(true);
-
     try {
-      if (cleared) {
-        if (
-          tenantRef.current &&
-          domainRef.current &&
-          clientRef.current &&
-          secretRef.current &&
-          mapping.id
-        ) {
-          if (
-            !tenantRef.current.value &&
-            !domainRef.current.value &&
-            !clientRef.current.value &&
-            !secretRef.current.value
-          ) {
-            const result = await deleteSiteSourceMapping(mapping.id);
-            if (!result.ok) throw new Error(result.error.message);
-            if (onClear) {
-              onClear(mapping);
-            }
+      const result = await deleteSiteSourceMapping(mapping.id);
+      if (!result.ok) throw new Error(result.error.message);
 
-            toast.info('Cleared site info');
-            return;
-          }
-        }
-      }
-
-      if (mapping.id) {
-        if (!tenantRef.current || !domainRef.current || !clientRef.current || !secretRef.current)
-          return;
-
-        const result = await updateSiteSourceMapping(mapping.id, {
-          id: mapping.id,
-          tenant_id: mapping.tenant_id!,
-          site_id: mapping.site_id!,
-          source_id: mapping.source_id!,
-          external_id: tenantRef.current.value,
-          external_name: domainRef.current.value,
-          metadata: {
-            client_id: clientRef.current.value,
-            client_secret: secretRef.current.value,
-          },
-        });
-
-        if (!result.ok) throw new Error(result.error.message);
-
-        if (onSave)
-          onSave({
-            ...mapping,
-            external_id: tenantRef.current.value,
-            external_name: domainRef.current.value,
-            metadata: {
-              client_id: clientRef.current.value,
-              client_secret: secretRef.current.value,
-            },
-          });
-      } else {
-        if (!tenantRef.current || !domainRef.current || !clientRef.current || !secretRef.current)
-          return;
-
-        const result = await putSiteSourceMapping([
-          {
-            tenant_id: mapping.tenant_id!,
-            site_id: mapping.site_id!,
-            source_id: mapping.source_id!,
-            external_id: tenantRef.current.value,
-            external_name: domainRef.current.value,
-            metadata: {
-              client_id: clientRef.current.value,
-              client_secret: secretRef.current.value,
-            },
-          },
-        ]);
-
-        if (!result.ok) throw new Error(result.error.message);
-        if (onSave) {
-          console.log(mapping);
-          console.log(result.data);
-          onSave({ ...mapping, ...result.data[0] });
-        }
-      }
-
-      toast.info('Saved site info');
+      toast.success('Mapping cleared');
+      onClear?.(mapping);
+      setIsOpen(false);
     } catch (err) {
-      toast.error(`Failed to save info: ${err}`);
+      toast.error(`Failed to clear: ${err}`);
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleClear = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
+  const onSubmit = async (data: FormData) => {
+    setIsSaving(true);
+    try {
+      if (mapping) {
+        const result = await updateSiteSourceMapping(mapping.id, {
+          ...mapping,
+          external_id: data.tenant_id,
+          external_name: data.domains,
+          metadata: {
+            client_id: data.client_id,
+            client_secret: data.client_secret,
+          },
+        });
+        if (!result.ok) throw new Error(result.error.message);
 
-    if (domainRef.current) domainRef.current.value = '';
-    if (tenantRef.current) tenantRef.current.value = '';
-    if (clientRef.current) clientRef.current.value = '';
-    if (secretRef.current) secretRef.current.value = '';
-    setCleared(true);
+        toast.success('Mapping updated');
+        onSave?.({ ...mapping, ...result.data });
+      } else {
+        const result = await putSiteSourceMapping([
+          {
+            tenant_id: site.tenant_id!,
+            site_id: site.id!,
+            source_id: 'microsoft-365',
+            external_id: data.tenant_id,
+            external_name: data.domains || '',
+            metadata: {
+              client_id: data.client_id,
+              client_secret: data.client_secret,
+            },
+          },
+        ]);
+        if (!result.ok) throw new Error(result.error.message);
+        toast.success('Mapping created');
+        onSave?.(result.data[0]);
+      }
+      setIsOpen(false);
+    } catch (err) {
+      toast.error(`Save failed: ${err}`);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant={mapping.external_id ? 'default' : 'secondary'}>
-          {mapping.external_id ? 'Edit' : 'No Info'}
+        <Button variant={mapping?.external_id ? 'default' : 'secondary'}>
+          {mapping?.external_id ? 'Edit' : 'No Info'}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96 bg-card">
-        <div className="grid gap-4">
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-2">
-            <h4 className="leading-none font-medium">Microsoft Info</h4>
-            <p className="text-muted-foreground text-sm">
+            <h4 className="font-medium leading-none">Microsoft Info</h4>
+            <p className="text-sm text-muted-foreground">
               Set the Tenant Application info for API access.
             </p>
           </div>
-          <form className="grid gap-2">
-            <Label className="flex gap-2 whitespace-nowrap justify-between">
-              <span className="flex gap-2 items-center">
-                Domain
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-4" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    If blank, integration will sync all domains in tenant
-                  </TooltipContent>
-                </Tooltip>
-              </span>
-              <Input
-                placeholder="example.com"
-                className="col-span-2 w-8/12"
-                defaultValue={mapping.external_name || ''}
-                ref={domainRef}
-              />
-            </Label>
-            <Label className="flex gap-2 whitespace-nowrap justify-between">
-              Tenant ID
-              <Input
-                placeholder="*****"
-                className="col-span-2 w-8/12"
-                required
-                defaultValue={mapping.external_id || ''}
-                ref={tenantRef}
-              />
-            </Label>
-            <Label className="flex gap-2 whitespace-nowrap justify-between">
-              Client ID
-              <Input
-                placeholder="*****"
-                className="col-span-2 w-8/12"
-                required
-                defaultValue={(mapping.metadata as MetaData).client_id || ''}
-                ref={clientRef}
-              />
-            </Label>
-            <Label className="flex gap-2 whitespace-nowrap justify-between">
-              Client Secret
-              <Input placeholder="*****" className="col-span-2 w-8/12" required ref={secretRef} />
-            </Label>
-            <Separator />
-            <div className="flex gap-2 w-full justify-end">
-              <SubmitButton
-                variant="destructive"
-                onClick={handleClear}
-                disabled={!mapping.external_id || isSaving}
-              >
-                Clear
-              </SubmitButton>
-              <SubmitButton onClick={handleSave} pending={isSaving}>
-                Save
-              </SubmitButton>
-            </div>
-          </form>
-        </div>
+
+          <Label className="flex justify-between items-center gap-2">
+            <span className="flex items-center gap-1">
+              Domains
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-4" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  If blank, integration will sync all domains in tenant.
+                </TooltipContent>
+              </Tooltip>
+            </span>
+            <Input placeholder="Comma Separated" className="w-8/12" {...register('domains')} />
+            <FormError name="domains" errors={errors} />
+          </Label>
+
+          <Label className="flex justify-between gap-2">
+            Tenant ID
+            <Input className="w-8/12" placeholder="Directory ID" {...register('tenant_id')} />
+            <FormError name="tenant_id" errors={errors} />
+          </Label>
+
+          <Label className="flex justify-between gap-2">
+            Client ID
+            <Input className="w-8/12" placeholder="App ID" {...register('client_id')} />
+            <FormError name="client_id" errors={errors} />
+          </Label>
+
+          <Label className="flex justify-between gap-2">
+            Client Secret
+            <Input
+              className="w-8/12"
+              placeholder="App Secret"
+              type="password"
+              {...register('client_secret')}
+            />
+            <FormError name="client_secret" errors={errors} />
+          </Label>
+
+          <Separator />
+          <div className="flex justify-end gap-2">
+            <SubmitButton
+              variant="destructive"
+              disabled={!mapping}
+              onClick={handleClear}
+              type="button"
+            >
+              Clear
+            </SubmitButton>
+            <SubmitButton pending={isSaving}>Save</SubmitButton>
+          </div>
+        </form>
       </PopoverContent>
     </Popover>
   );

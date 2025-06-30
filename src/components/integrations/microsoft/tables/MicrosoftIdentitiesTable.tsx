@@ -13,6 +13,7 @@ import Link from 'next/link';
 import { getSourceIdentitiesView } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
 import { useAsync } from '@/hooks/useAsync';
+import { pascalCase } from '@/lib/utils';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -23,6 +24,7 @@ type Props = {
 
 export default function MicrosoftIdentitiesTable({ sourceId, siteIds, siteLevel }: Props) {
   const { data, isLoading } = useAsync({
+    initial: { identities: [], licenses: [] },
     fetcher: async () => {
       const identitiesRes = await getSourceIdentitiesView(sourceId, siteIds);
       if (!identitiesRes.ok) throw new Error('Failed to get identities');
@@ -101,6 +103,19 @@ export default function MicrosoftIdentitiesTable({ sourceId, siteIds, siteLevel 
             label: 'Email',
             enableHiding: false,
             simpleSearch: true,
+          }),
+          textColumn({
+            key: 'type',
+            label: 'Type',
+            cell: ({ row }) => <div>{pascalCase(row.original.type || '')}</div>,
+            filter: {
+              type: 'select',
+              placeholder: 'Select Type',
+              options: [
+                { label: 'Member', value: 'member' },
+                { label: 'Guest', value: 'guest' },
+              ],
+            },
           }),
           booleanColumn({
             key: 'mfa_enforced',

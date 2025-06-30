@@ -14,118 +14,134 @@ import { SubmitButton } from '@/components/ux/SubmitButton';
 import DataTable from '@/components/ux/table/DataTable';
 import { column, textColumn } from '@/components/ux/table/DataTableColumn';
 import { Tables } from '@/db/schema';
+import { useAsync } from '@/hooks/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
+import { getSitesView } from '@/services/sites';
 import {
   getSiteMappings,
   putSiteSourceMapping,
   deleteSiteSourceMapping,
 } from '@/services/siteSourceMappings';
 import { DataTableColumnDef } from '@/types/data-table';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+
+// Util
+function cleanName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function isSimilarStr(first: string, second: string) {
+  return cleanName(first) === cleanName(second);
+}
 
 type Props = {
   source: Tables<'sources'>;
   integration: Tables<'source_integrations'>;
 };
 
-export default function SophosMappingsDialog(props: Props) {
+export default function SophosMappingsDialog({ source, integration }: Props) {
   const [mappings, setMappings] = useState<
-    (Tables<'site_mappings_view'> & { changed?: boolean })[]
-  >([]);
-  const [external, setExternal] = useState<{ id: string; name: string }[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+    Record<string, Tables<'site_source_mappings'> & { changed?: boolean }>
+  >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const tenants = await getTenants(props.integration);
-        const siteMappings = await getSiteMappings(props.source.id);
+  const {
+    data: { external, sites },
+    isLoading,
+  } = useAsync({
+    initial: { external: [], sites: [] },
+    fetcher: async () => {
+      const tenants = await getTenants(integration);
+      const siteMappings = await getSiteMappings(source.id);
+      const sites = await getSitesView();
 
-        if (!tenants.ok || !siteMappings.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        setMappings(siteMappings.data);
-        setExternal(tenants.data);
-      } catch (error) {
-        toast.error(`Failed to load mappings: ${error}`);
-      } finally {
-        setIsLoading(false);
+      if (!tenants.ok || !siteMappings.ok || !sites.ok) {
+        throw new Error('Failed to fetch data');
       }
-    }
 
-    loadData();
-  }, [props.integration, props.source.id]);
+      const mapBySite: Record<string, Tables<'site_source_mappings'>> = {};
+      for (const mapping of siteMappings.data) {
+        mapBySite[mapping.site_id] = mapping;
+      }
+
+      setMappings(mapBySite);
+
+      return { external: tenants.data, sites: sites.data };
+    },
+    deps: [integration, source.id],
+  });
 
   const handleSave = async () => {
     setIsSubmitting(true);
 
-    for await (const mapping of mappings) {
-      if (mapping.changed) {
-        if (mapping.external_id) {
-          await putSiteSourceMapping([
-            {
-              tenant_id: props.integration.tenant_id,
-              site_id: mapping.site_id!,
-              source_id: props.source.id,
-              external_id: mapping.external_id!,
-              external_name: mapping.external_name!,
-              metadata: mapping.metadata,
-            },
-          ]);
-        } else if (mapping.id) {
-          await deleteSiteSourceMapping(mapping.id);
-        }
+    for (const site of sites) {
+      const mapping = mappings[site.id!];
+      if (!mapping?.changed) continue;
+
+      if (mapping.external_id) {
+        await putSiteSourceMapping([
+          {
+            tenant_id: integration.tenant_id,
+            site_id: site.id!,
+            source_id: source.id,
+            external_id: mapping.external_id,
+            external_name: mapping.external_name,
+            metadata: mapping.metadata,
+          },
+        ]);
+      } else if (mapping.id) {
+        await deleteSiteSourceMapping(mapping.id);
       }
     }
 
     setIsSubmitting(false);
-    setMappings(
-      [...mappings].map((m) => {
-        return { ...m, changed: false };
-      })
-    );
+    setMappings((prev) => {
+      const next = { ...prev };
+      for (const key in next) {
+        next[key] = { ...next[key], changed: false };
+      }
+      return next;
+    });
     toast.info('Site Mappings Saved!', { position: 'top-center' });
   };
 
   const handleAutoMatch = () => {
-    const newMappings = [...mappings];
-    for (const mapping of newMappings) {
-      if (mapping.external_id) continue;
-
-      const match = external.find((ex) => isSimilarStr(ex.name, mapping.site_name!));
-      if (match) {
-        mapping.external_id = match.id!;
-        mapping.external_name = match.name;
-        mapping.changed = true;
-        mapping.metadata = match;
-      }
+    const updated = { ...mappings };
+    for (const site of sites) {
+      const match = external.find((ex) => isSimilarStr(ex.name, site.name ?? ''));
+      if (!match) continue;
+      updated[site.id!] = {
+        ...updated[site.id!],
+        site_id: site.id!,
+        source_id: source.id,
+        tenant_id: integration.tenant_id,
+        external_id: match.id,
+        external_name: match.name,
+        metadata: match,
+        changed: true,
+      };
     }
-
-    setMappings(newMappings);
+    setMappings(updated);
   };
 
   const handleClearAll = () => {
-    setMappings(
-      [...mappings].map((m) => {
-        return { ...m, external_name: '', external_id: '', changed: true };
-      })
-    );
-  };
-
-  function cleanName(name: string): string {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '') // Remove special chars
-      .replace(/\s+/g, ' ') // Collapse spaces
-      .trim();
-  }
-
-  const isSimilarStr = (first: string, second: string) => {
-    return cleanName(first) === cleanName(second);
+    const updated = { ...mappings };
+    for (const site of sites) {
+      if (updated[site.id!]) {
+        updated[site.id!] = {
+          ...updated[site.id!],
+          external_id: '',
+          external_name: '',
+          changed: true,
+        };
+      }
+    }
+    setMappings(updated);
   };
 
   return (
@@ -139,8 +155,9 @@ export default function SophosMappingsDialog(props: Props) {
           <AlertDialogTitle>Edit Mappings</AlertDialogTitle>
           <AlertDialogDescription></AlertDialogDescription>
         </AlertDialogHeader>
+
         <DataTable
-          data={mappings}
+          data={sites}
           isLoading={isLoading}
           action={
             <div className="flex gap-2">
@@ -153,7 +170,7 @@ export default function SophosMappingsDialog(props: Props) {
           columns={
             [
               textColumn({
-                key: 'site_name',
+                key: 'name',
                 label: 'Site',
                 enableHiding: false,
                 simpleSearch: true,
@@ -165,43 +182,46 @@ export default function SophosMappingsDialog(props: Props) {
                 simpleSearch: true,
               }),
               column({
-                key: 'external_id',
+                key: 'tenant_id',
                 label: 'Sophos Site',
                 enableHiding: false,
                 simpleSearch: true,
-                cell: ({ row, table }) => {
+                cell: ({ row }) => {
+                  const mapping = mappings[row.original.id!];
+
                   return (
                     <SearchBox
                       placeholder="Search sites"
-                      options={external.map((e) => {
-                        return { label: e.name, value: e.id };
-                      })}
-                      defaultValue={row.original.external_id || ''}
+                      options={external.map((e) => ({ label: e.name, value: e.id }))}
+                      defaultValue={mapping?.external_name || ''}
                       portal
                       delay={0}
-                      onSelect={(e) => {
-                        const site = external.find((site) => site.id === e);
+                      onSelect={(val) => {
+                        const site = external.find((site) => site.id === val);
                         if (!site) return;
-
-                        const index =
-                          row.index +
-                          table.getState().pagination.pageIndex *
-                            table.getState().pagination.pageSize;
-                        const newMappings = [...mappings];
-                        newMappings[index].external_id = site.id;
-                        newMappings[index].external_name = site.name;
-                        newMappings[index].changed = true;
-                        newMappings[index].metadata = site;
-                        setMappings(newMappings);
+                        setMappings((prev) => ({
+                          ...prev,
+                          [row.original.id!]: {
+                            ...prev[row.original.id!],
+                            site_id: row.original.id!,
+                            source_id: source.id,
+                            tenant_id: integration.tenant_id,
+                            external_id: site.id,
+                            external_name: site.name,
+                            metadata: site,
+                            changed: true,
+                          },
+                        }));
                       }}
                       loading={isLoading}
                     />
                   );
                 },
               }),
-            ] as DataTableColumnDef<Tables<'site_mappings_view'>>[]
+            ] as DataTableColumnDef<Tables<'sites_view'>>[]
           }
         />
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <SubmitButton onClick={handleSave} pending={isSubmitting}>

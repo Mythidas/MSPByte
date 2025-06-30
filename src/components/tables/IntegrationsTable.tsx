@@ -54,7 +54,7 @@ export default function IntegrationsTable() {
                     width={30}
                     height={30}
                   />
-                  <Link href={`/integrations/${row.original.slug}`} className="hover:text-primary">
+                  <Link href={`/integrations/${row.original.id}`} className="hover:text-primary">
                     {row.original.name}
                   </Link>
                 </div>

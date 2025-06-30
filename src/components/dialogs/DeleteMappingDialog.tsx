@@ -45,7 +45,7 @@ export function DeleteMappingDialog({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <DeleteForm
             id={mapping.id}
-            url={`/integrations/source/${source.slug}?tab=configuration`}
+            url={`/integrations/source/${source.id}?tab=configuration`}
             onSuccess={() => window.location.reload()}
             action={deleteSiteSourceMapping}
           >
