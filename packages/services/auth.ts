@@ -37,6 +37,35 @@ export async function login(email: string, password: string): Promise<APIRespons
   }
 }
 
+export async function loginWithAzure(): Promise<APIResponse<string>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'azure',
+      options: {
+        scopes: 'openid email profile offline_access',
+        redirectTo: `${process.env.NEXT_PUBLIC_ORIGIN}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      throw error.message;
+    }
+
+    return {
+      ok: true,
+      data: data.url,
+    };
+  } catch (err) {
+    return Debug.error({
+      module: 'auth',
+      context: 'ssoLogin',
+      message: String(err),
+      time: new Date(),
+    });
+  }
+}
+
 export async function logout(): Promise<APIResponse<null>> {
   try {
     const supabase = await createClient();

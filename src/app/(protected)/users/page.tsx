@@ -1,7 +1,7 @@
-import RolesTable from '@/components/tables/RolesTable';
-import UsersTable from '@/components/tables/UsersTable';
+import RolesTable from '@/components/domains/users/RolesTable';
+import UsersTable from '@/components/domains/users/UsersTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
+import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 
 type Props = {
   searchParams: Promise<{ tab: string }>;

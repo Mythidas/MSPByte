@@ -1,4 +1,4 @@
-import RegisterForm from '@/components/forms/RegisterForm';
+import RegisterForm from '@/components/domains/users/RegisterForm';
 
 type Props = {
   searchParams: Promise<{ code: string }>;

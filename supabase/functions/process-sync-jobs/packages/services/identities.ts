@@ -3,10 +3,11 @@
 import { tables } from '../db/index.ts';
 import { TablesInsert, TablesUpdate } from '../db/schema.ts';
 
-export async function getSourceIdentities(mappingIds?: string[]) {
+export async function getSourceIdentities(sourceId?: string, siteId?: string) {
   return await tables.select('source_identities', (query) => {
     query = query.order('name');
-    if (mappingIds) query = query.in('mapping_id', mappingIds);
+    if (sourceId) query = query.eq('source_id', sourceId);
+    if (siteId) query = query.eq('site_id', siteId);
   });
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import SophosPartner from '@/components/sources/SophosPartner';
+import SophosPartner from '@/components/domains/sophos/SophosPartner';
 import { Badge } from '@/components/ui/badge';
 import { getSource } from 'packages/services/sources';
 import { getSourceIntegration } from 'packages/services/integrations';
@@ -12,11 +12,11 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import Microsoft365 from '@/components/sources/Microsoft365';
+import Microsoft365 from '@/components/domains/microsoft/Microsoft365';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useAsync } from '@/hooks/useAsync';
-import { Spinner } from '@/components/ux/Spinner';
+import { Spinner } from '@/components/common/Spinner';
 import { Tables } from '@/db/schema';
 
 export default function Page() {

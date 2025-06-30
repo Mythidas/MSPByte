@@ -13,13 +13,16 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormError from '@/components/ux/FormError';
-import { SubmitButton } from '@/components/ux/SubmitButton';
+import FormError from '@/components/common/FormError';
+import { SubmitButton } from '@/components/common/SubmitButton';
 import { useState } from 'react';
 import { LogIn } from 'lucide-react';
-import { login } from '@/services/auth';
+import { login, loginWithAzure } from '@/services/auth';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
+import { FaMicrosoft } from 'react-icons/fa';
+import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -28,8 +31,8 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export default function SignIn() {
-  const [isSaving, setIsSaving] = useState(false);
+export default function Page() {
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const {
     register,
@@ -41,7 +44,7 @@ export default function SignIn() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      setIsSaving(true);
+      setIsLoading(true);
 
       const result = await login(data.email, data.password);
       if (!result.ok) {
@@ -57,7 +60,27 @@ export default function SignIn() {
             ? err
             : (err as { message: string })?.message || 'Unknown error';
       toast.error(`Failed to Login: ${errorMessage}`);
-      setIsSaving(false);
+      setIsLoading(false);
+    }
+  };
+
+  const ssoLoginAzure = async () => {
+    try {
+      setIsLoading(true);
+
+      const result = await loginWithAzure();
+      if (!result.ok) throw result.error.message;
+
+      window.location.href = result.data;
+    } catch (err) {
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+            ? err
+            : (err as { message: string })?.message || 'Unknown error';
+      toast.error(`Failed to Login: ${errorMessage}`);
+      setIsLoading(false);
     }
   };
 
@@ -73,24 +96,50 @@ export default function SignIn() {
         </CardHeader>
         <CardContent className="grid gap-4">
           <Label className="grid gap-2">
-            Email
-            <Input type="email" placeholder="John.Doe@example.com" {...register('email')} />
+            Email (Currently Disabled)
+            <Input
+              type="email"
+              placeholder="John.Doe@example.com"
+              disabled
+              {...register('email')}
+            />
             <FormError name="email" errors={errors} />
           </Label>
 
           <Label className="grid gap-2">
             Password
-            <Input type="password" placeholder="Password" {...register('password')} />
+            <Input type="password" placeholder="Password" disabled {...register('password')} />
             <FormError name="password" errors={errors} />
           </Label>
         </CardContent>
-        <CardFooter>
-          <SubmitButton pending={isSaving} className="w-full">
+        <CardFooter className="flex flex-col gap-4">
+          <SubmitButton pending={isLoading} disabled className="w-full">
             Login
             <LogIn />
           </SubmitButton>
+          <div className="flex gap-2 items-center w-full justify-center overflow-clip">
+            <Separator />
+            <span className="w-fit">OR</span>
+            <Separator />
+          </div>
+          <div className="grid grid-cols-1">
+            <AuthIcon onClick={ssoLoginAzure} disabled={isLoading}>
+              <FaMicrosoft />
+            </AuthIcon>
+          </div>
         </CardFooter>
       </Card>
     </form>
+  );
+}
+
+function AuthIcon({
+  children,
+  ...props
+}: { children: React.ReactNode } & React.ComponentProps<typeof Button>) {
+  return (
+    <Button variant="secondary" {...props}>
+      {children}
+    </Button>
   );
 }

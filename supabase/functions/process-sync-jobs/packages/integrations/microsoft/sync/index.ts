@@ -2,23 +2,22 @@
 
 import { APIResponse, Timer, Debug } from '../../../../utils.ts';
 import { Tables } from '../../../db/schema.ts';
-import { getSiteSourceMappings } from '../../../services/siteSourceMappings.ts';
+import { getSiteSourceMapping } from '../../../services/siteSourceMappings.ts';
 import { syncMapping } from './syncMapping.ts';
 
 export async function syncMicrosoft365(
   integration: Tables<'source_integrations'>,
-  siteIds?: string[]
+  siteId: string
 ): Promise<APIResponse<null>> {
   try {
     const timer = new Timer('Microsoft365Sync');
-    const mappings = await getSiteSourceMappings(integration.source_id, siteIds);
-    if (!mappings.ok) {
-      throw new Error(mappings.error.message);
+    const mapping = await getSiteSourceMapping(integration.source_id!, siteId);
+    if (!mapping.ok) {
+      throw new Error(mapping.error.message);
     }
 
-    for (const mapping of mappings.data) {
-      await syncMapping(mapping);
-    }
+    const result = await syncMapping(mapping.data);
+    if (!result.ok) throw result.error.message;
 
     timer.summary();
 

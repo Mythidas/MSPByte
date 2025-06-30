@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
             status: 'failed',
             error: String(result.error.message),
             retry_count: (job.retry_count ?? 0) + 1,
+            last_attemt_at: new Date().toISOString(),
           })
           .eq('id', job.id);
       }

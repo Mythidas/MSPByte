@@ -6,13 +6,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { getSite } from 'packages/services/sites';
-import ErrorDisplay from '@/components/ux/ErrorDisplay';
+import ErrorDisplay from '@/components/common/ErrorDisplay';
 import { getSource } from 'packages/services/sources';
-import MicrosoftSiteMapping from '@/components/integrations/microsoft/mappings/MicrosoftSiteMapping';
-import MicrosoftParentMapping from '@/components/integrations/microsoft/mappings/MicrosoftParentMapping';
+import MicrosoftSiteMapping from '@/components/domains/microsoft/mappings/MicrosoftSiteMapping';
+import MicrosoftParentMapping from '@/components/domains/microsoft/mappings/MicrosoftParentMapping';
 import { Tables } from '@/db/schema';
-import SophosSiteMapping from '@/components/integrations/sophos/mappings/SophosSiteMapping';
-import SophosParentMapping from '@/components/integrations/sophos/mappings/SophosParentMapping';
+import SophosSiteMapping from '@/components/domains/sophos/mappings/SophosSiteMapping';
+import SophosParentMapping from '@/components/domains/sophos/mappings/SophosParentMapping';
 
 type Props = {
   params: Promise<{ id: string; slug: string }>;

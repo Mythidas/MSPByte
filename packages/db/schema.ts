@@ -1013,7 +1013,7 @@ export type Database = {
         }
         Insert: {
           email: string
-          id: string
+          id?: string
           last_login?: string | null
           name: string
           role_id: string

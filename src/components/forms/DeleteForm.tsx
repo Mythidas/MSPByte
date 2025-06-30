@@ -1,6 +1,6 @@
 'use client';
 
-import FormAlert from '@/components/ux/FormAlert';
+import FormAlert from '@/components/common/FormAlert';
 import { DeleteFormValues } from '@/lib/forms';
 import { FormState } from '@/types';
 import { useActionState, useEffect } from 'react';

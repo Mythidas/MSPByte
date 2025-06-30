@@ -1,7 +1,7 @@
 'use server';
 
-import AppNavbar from '@/components/ux/AppNavbar';
-import AppSidebar from '@/components/ux/AppSidebar';
+import AppNavbar from '@/components/common/navbar/AppNavbar';
+import AppSidebar from '@/components/common/navbar/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { UserProvider } from '@/lib/providers/UserProvider';
 

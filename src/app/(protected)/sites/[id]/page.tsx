@@ -6,11 +6,11 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { getSite } from 'packages/services/sites';
-import ErrorDisplay from '@/components/ux/ErrorDisplay';
-import SitesTable from '@/components/tables/SitesTable';
+import ErrorDisplay from '@/components/common/ErrorDisplay';
+import SitesTable from '@/components/domains/sites/SitesTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import RouteTabsTrigger from '@/components/ux/RouteTabsTrigger';
-import SourcesTable from '@/components/tables/SourcesTable';
+import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
+import SourcesTable from '@/components/domains/sources/SourcesTable';
 
 type Props = {
   params: Promise<{ id: string }>;

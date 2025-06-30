@@ -40,7 +40,14 @@ export async function putUser(
       throw createError.message;
     }
 
-    const { data, error } = await supabaseAdmin.from('users').insert(row).select().single();
+    const { data, error } = await supabaseAdmin
+      .from('users')
+      .insert({
+        ...row,
+        id: createData.user.id,
+      })
+      .select()
+      .single();
 
     if (error) {
       throw error.message;
@@ -49,8 +56,8 @@ export async function putUser(
     if (_sendEmail) {
       const email = await sendEmail({
         to: row.email,
-        subject: 'Set Your Password',
-        html: `Click <a href="${process.env.NEXT_PUBLIC_ORIGIN}/auth/register?code=${createData.user.id}">here</a> to set your password and access your account.`,
+        subject: 'Login to MSP Byte!',
+        html: `Click <a href="${process.env.NEXT_PUBLIC_ORIGIN}/auth/login">here</a> to access your account.`,
       });
 
       if (email.error) {
