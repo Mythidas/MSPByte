@@ -14,9 +14,10 @@ type Props = {
   sourceId: string;
   siteIds?: string[];
   siteLevel?: boolean;
+  parentLevel?: boolean;
 };
 
-export default function SophosDevicesTable({ sourceId, siteIds, siteLevel }: Props) {
+export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
   const [devices, setDevices] = useState<Tables<'source_devices_view'>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -59,7 +60,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel }: Pro
     <DataTable
       data={devices}
       isLoading={isLoading}
-      initialVisibility={siteLevel ? { parent_name: false, site_name: false } : {}}
+      initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
       columns={[
         {
           accessorKey: 'site_name',

@@ -13,7 +13,7 @@ import CreateSiteDialog from '@/components/domains/sites/CreateSiteDialog';
 import { toast } from 'sonner';
 import MoveSiteDialog from '@/components/domains/sites/MoveSiteDialog';
 import { Tables } from '@/db/schema';
-import { deleteSite, getSites, getUpperSites } from '@/services/sites';
+import { deleteSites, getSitesView } from '@/services/sites';
 import DataTable from '@/components/common/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
 import { column, textColumn } from '@/components/common/table/DataTableColumn';
@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function SitesTable({ parentId }: Props) {
-  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
+  const [sites, setSites] = useState<Tables<'sites_view'>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -32,21 +32,12 @@ export default function SitesTable({ parentId }: Props) {
       try {
         setIsLoading(true);
 
-        if (parentId) {
-          const sites = await getSites(parentId);
-          if (!sites.ok) {
-            throw new Error();
-          }
-
-          setSites(sites.data);
-        } else {
-          const sites = await getUpperSites();
-          if (!sites.ok) {
-            throw new Error();
-          }
-
-          setSites(sites.data);
+        const sites = await getSitesView(parentId);
+        if (!sites.ok) {
+          throw new Error();
         }
+
+        setSites(sites.data);
       } catch {
         toast.error('Failed to load sites. Please refresh.');
       } finally {
@@ -57,11 +48,11 @@ export default function SitesTable({ parentId }: Props) {
     load();
   }, [parentId]);
 
-  const handleDelete = async (e: React.MouseEvent<HTMLDivElement>, site: Tables<'sites'>) => {
+  const handleDelete = async (e: React.MouseEvent<HTMLDivElement>, site: Tables<'sites_view'>) => {
     e.stopPropagation();
 
     try {
-      const result = await deleteSite(site.id);
+      const result = await deleteSites([site.id!]);
 
       if (!result.ok) {
         throw new Error(result.error.message);
@@ -74,8 +65,8 @@ export default function SitesTable({ parentId }: Props) {
     }
   };
 
-  const createCallback = (site: Tables<'sites'>) => {
-    setSites([...sites, site].sort((a, b) => a.name.localeCompare(b.name)));
+  const createCallback = (site: Tables<'sites_view'>) => {
+    setSites([...sites, site].sort((a, b) => a.name!.localeCompare(b.name!)));
   };
 
   const moveCallback = (site: Tables<'sites'>, parent: string) => {
@@ -90,7 +81,11 @@ export default function SitesTable({ parentId }: Props) {
       action={
         <div className="flex gap-2">
           {parentId && (
-            <MoveSiteDialog sites={sites} parentId={parentId} onSuccess={moveCallback} />
+            <MoveSiteDialog
+              sites={sites as Tables<'sites'>[]}
+              parentId={parentId}
+              onSuccess={moveCallback}
+            />
           )}
           <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
         </div>
@@ -104,7 +99,18 @@ export default function SitesTable({ parentId }: Props) {
             simpleSearch: true,
             cell: ({ row }) => (
               <Link href={`/sites/${row.original.id}`} className="hover:text-primary">
-                {row.original.name}
+                {row.original.name} {row.original.is_parent && '(Parent)'}
+              </Link>
+            ),
+          }),
+          textColumn({
+            key: 'parent_name',
+            label: 'Parent',
+            enableHiding: false,
+            simpleSearch: true,
+            cell: ({ row }) => (
+              <Link href={`/sites/${row.original.parent_id}`} className="hover:text-primary">
+                {row.original.parent_name}
               </Link>
             ),
           }),
@@ -134,7 +140,7 @@ export default function SitesTable({ parentId }: Props) {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'sites'>>[]
+        ] as DataTableColumnDef<Tables<'sites_view'>>[]
       }
     />
   );

@@ -42,7 +42,11 @@ export default function SophosDevicesTab({ sourceId, parentId }: Props) {
 
   return (
     <TabsContent value="devices">
-      <SophosDevicesTable sourceId={sourceId} siteIds={data.sites.map((s) => s.id)} />
+      <SophosDevicesTable
+        sourceId={sourceId}
+        siteIds={data.sites.map((s) => s.id)}
+        parentLevel={!!parentId}
+      />
     </TabsContent>
   );
 }

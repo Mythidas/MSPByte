@@ -15,7 +15,7 @@ type Props = {
 } & React.ComponentProps<typeof Input>;
 
 export default function SearchBar({
-  delay = 1000,
+  delay = 0,
   onSearch,
   lead,
   placeholder,

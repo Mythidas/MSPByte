@@ -4,22 +4,27 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import HeaderAuth from '@/components/common/navbar/HeaderAuth';
 import ModeToggle from '@/components/common/navbar/ModeToggle';
 import SearchBox from '@/components/common/SearchBox';
-import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useAsync } from '@/hooks/useAsync';
 
 export default function AppNavbar() {
-  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    getSites().then((res) => {
-      if (res.ok) {
-        setSites(res.data);
-      }
-    });
-  }, []);
+  const {
+    data: { sites },
+  } = useAsync({
+    initial: { sites: [] },
+    fetcher: async () => {
+      const sites = await getSites();
+      if (!sites.ok) throw sites.error.message;
+
+      return {
+        sites: sites.data,
+      };
+    },
+    deps: [],
+  });
 
   const handleSelect = (value: string) => {
     router.push(`/sites/${value}`);

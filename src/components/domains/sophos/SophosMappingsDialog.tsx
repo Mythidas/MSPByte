@@ -16,7 +16,6 @@ import { column, textColumn } from '@/components/common/table/DataTableColumn';
 import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
-import { getSitesView } from '@/services/sites';
 import {
   getSiteMappings,
   putSiteSourceMapping,
@@ -25,6 +24,7 @@ import {
 import { DataTableColumnDef } from '@/types/data-table';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { getSitesView } from '@/services/sites';
 
 // Util
 function cleanName(name: string): string {
@@ -198,6 +198,7 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
                       delay={0}
                       onSelect={(val) => {
                         const site = external.find((site) => site.id === val);
+                        console.log(site);
                         if (!site) return;
                         setMappings((prev) => ({
                           ...prev,
@@ -224,8 +225,12 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
 
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <SubmitButton onClick={handleSave} pending={isSubmitting}>
-            Save Changes
+          <SubmitButton
+            onClick={handleSave}
+            pending={isSubmitting}
+            disabled={Object.entries(mappings).filter((val) => val[1].changed).length === 0}
+          >
+            Save Changes {Object.entries(mappings).filter((val) => val[1].changed).length || ''}
           </SubmitButton>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -46,7 +46,7 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
           <SourceMetricsAggregatedGroupedTable sourceId={sourceId} parentId={site!.id} />
         </div>
       </TabsContent>
-      <MicrosoftIdentitiesTab sourceId={sourceId} siteId={site.id} />
+      <MicrosoftIdentitiesTab sourceId={sourceId} parent={site} />
     </Tabs>
   );
 }

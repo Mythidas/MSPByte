@@ -61,7 +61,10 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         throw new Error('No site selected');
       }
 
-      const result = await updateSite({ ...site, parent_id: parent.id } as Tables<'sites'>);
+      const result = await updateSite(site.id, {
+        ...site,
+        parent_id: parent.id,
+      } as Tables<'sites'>);
       if (result.ok && onSuccess && site) {
         onSuccess(site, parent.name);
       }

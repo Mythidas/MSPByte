@@ -15,7 +15,7 @@ import RouteButton from '@/components/common/routed/RouteButton';
 import { SubmitButton } from '@/components/common/SubmitButton';
 import { Tables } from '@/db/schema';
 import { useUser } from '@/lib/providers/UserContext';
-import { putSite } from '@/services/sites';
+import { getSiteView, putSite } from '@/services/sites';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HousePlus } from 'lucide-react';
 import { useState } from 'react';
@@ -32,7 +32,7 @@ type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   parentId?: string;
-  onSuccess?: (site: Tables<'sites'>) => void;
+  onSuccess?: (site: Tables<'sites_view'>) => void;
 };
 
 export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
@@ -49,6 +49,8 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
 
   const onSubmit = async (data: FormData) => {
     try {
+      setIsSaving(true);
+
       const result = await putSite([
         {
           tenant_id: user!.tenant_id,
@@ -62,7 +64,13 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
         throw result.error.message;
       }
 
-      if (onSuccess) onSuccess(result.data[0]);
+      const view = await getSiteView(result.data[0].id);
+
+      if (!view.ok) {
+        throw view.error.message;
+      }
+
+      if (onSuccess) onSuccess(view.data);
       setIsOpen(false);
     } catch (err) {
       toast.error(`Failed to save site: ${err}`);

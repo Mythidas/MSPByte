@@ -4,24 +4,25 @@ import ErrorDisplay from '@/components/common/ErrorDisplay';
 import Loader from '@/components/common/Loader';
 import { useAsync } from '@/hooks/useAsync';
 import { getSites } from '@/services/sites';
+import { Tables } from '@/db/schema';
 
 type Props = {
   sourceId: string;
-  siteId?: string;
+  parent?: Tables<'sites'>;
 };
 
-export default function MicrosoftIdentitiesTab({ sourceId, siteId }: Props) {
+export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
   const { data, isLoading } = useAsync({
     initial: { sites: [] },
     fetcher: async () => {
-      const sites = await getSites(siteId);
+      const sites = await getSites(parent?.id);
       if (!sites.ok) throw 'Failed to fetch sites. Please refresh.';
 
       return {
-        sites: sites.data,
+        sites: parent ? [parent, ...sites.data] : sites.data,
       };
     },
-    deps: [siteId],
+    deps: [parent],
   });
 
   if (isLoading) {
@@ -45,7 +46,8 @@ export default function MicrosoftIdentitiesTab({ sourceId, siteId }: Props) {
       <MicrosoftIdentitiesTable
         sourceId={sourceId}
         siteIds={data.sites.map((s) => s.id)}
-        siteLevel={!siteId}
+        siteLevel={!parent}
+        parentLevel={!!parent}
       />
     </TabsContent>
   );

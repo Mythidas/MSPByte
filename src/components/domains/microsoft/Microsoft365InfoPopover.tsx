@@ -41,6 +41,7 @@ type Props = {
 export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   const {
     register,
@@ -58,7 +59,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
   const handleClear = async () => {
     if (!mapping) return;
 
-    setIsSaving(true);
+    setIsClearing(true);
     try {
       const result = await deleteSiteSourceMapping(mapping.id);
       if (!result.ok) throw new Error(result.error.message);
@@ -69,7 +70,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
     } catch (err) {
       toast.error(`Failed to clear: ${err}`);
     } finally {
-      setIsSaving(false);
+      setIsClearing(false);
     }
   };
 
@@ -108,7 +109,6 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
         toast.success('Mapping created');
         onSave?.(result.data[0]);
       }
-      setIsOpen(false);
     } catch (err) {
       toast.error(`Save failed: ${err}`);
     } finally {
@@ -162,12 +162,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
 
           <Label className="flex justify-between gap-2">
             Client Secret
-            <Input
-              className="w-8/12"
-              placeholder="App Secret"
-              type="password"
-              {...register('client_secret')}
-            />
+            <Input className="w-8/12" placeholder="App Secret" {...register('client_secret')} />
             <FormError name="client_secret" errors={errors} />
           </Label>
 
@@ -175,13 +170,16 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
           <div className="flex justify-end gap-2">
             <SubmitButton
               variant="destructive"
-              disabled={!mapping}
+              disabled={isSaving || isClearing || !mapping}
               onClick={handleClear}
+              pending={isClearing}
               type="button"
             >
               Clear
             </SubmitButton>
-            <SubmitButton pending={isSaving}>Save</SubmitButton>
+            <SubmitButton pending={isSaving} disabled={isSaving || isClearing}>
+              Save
+            </SubmitButton>
           </div>
         </form>
       </PopoverContent>

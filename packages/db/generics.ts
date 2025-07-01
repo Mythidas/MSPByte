@@ -16,6 +16,37 @@ type QueryBuilder<T extends TableOrView> = PostgrestFilterBuilder<
   RowType<T>
 >;
 
+export async function tablesCountGeneric<T extends TableOrView>(
+  table: T,
+  modifyQuery?: (query: QueryBuilder<T>) => void
+): Promise<APIResponse<number>> {
+  try {
+    const supabase = await createClient();
+
+    let query = supabase.from(table as any).select('*', { count: 'exact', head: true }); // head = no rows, just headers/meta
+
+    if (modifyQuery) {
+      modifyQuery(query as any);
+    }
+
+    const { count, error } = await query;
+
+    if (error) throw new Error(error.message);
+
+    return {
+      ok: true,
+      data: count ?? 0,
+    };
+  } catch (err) {
+    return Debug.error({
+      module: 'supabase',
+      context: `count_${String(table)}`,
+      message: String(err),
+      time: new Date(),
+    });
+  }
+}
+
 export async function tablesSelectGeneric<T extends TableOrView>(
   table: T,
   modifyQuery?: (query: QueryBuilder<T>) => void

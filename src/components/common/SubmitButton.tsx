@@ -7,13 +7,19 @@ import { useFormStatus } from 'react-dom';
 
 type Props = ComponentProps<typeof Button> & {
   pending?: boolean;
+  disabled?: boolean;
 };
 
-export function SubmitButton({ children, pending = false, ...props }: Props) {
+export function SubmitButton({ children, disabled, pending, ...props }: Props) {
   const { pending: status } = useFormStatus();
 
   return (
-    <Button type="submit" aria-disabled={status || pending} disabled={status || pending} {...props}>
+    <Button
+      type="submit"
+      aria-disabled={disabled || status || pending}
+      disabled={disabled || status || pending}
+      {...props}
+    >
       {(status || pending) && <Spinner size={18} />} {children}
     </Button>
   );

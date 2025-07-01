@@ -20,9 +20,15 @@ type Props = {
   sourceId: string;
   siteIds?: string[];
   siteLevel?: boolean;
+  parentLevel?: boolean;
 };
 
-export default function MicrosoftIdentitiesTable({ sourceId, siteIds, siteLevel }: Props) {
+export default function MicrosoftIdentitiesTable({
+  sourceId,
+  siteIds,
+  siteLevel,
+  parentLevel,
+}: Props) {
   const { data, isLoading } = useAsync({
     initial: { identities: [], licenses: [] },
     fetcher: async () => {
@@ -42,7 +48,7 @@ export default function MicrosoftIdentitiesTable({ sourceId, siteIds, siteLevel 
   });
 
   const initialVisibility = {
-    parent_name: !siteLevel,
+    parent_name: !siteLevel && !parentLevel,
     site_name: !siteLevel,
   };
 

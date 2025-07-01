@@ -1,4 +1,5 @@
 import {
+  tablesCountGeneric,
   tablesDeleteGeneric,
   tablesInsertGeneric,
   tablesSelectGeneric,
@@ -13,4 +14,5 @@ export const tables = {
   insert: tablesInsertGeneric,
   update: tablesUpdateGeneric,
   delete: tablesDeleteGeneric,
+  count: tablesCountGeneric,
 };

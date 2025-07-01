@@ -175,6 +175,7 @@ export default function SearchBox({
             delay={delay}
             lead={lead}
             leadClass={cn(isOpen && 'rounded-b-none!')}
+            defaultValue={defaultValue}
             ref={inputRef}
           />
         </div>

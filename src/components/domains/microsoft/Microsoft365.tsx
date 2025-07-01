@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 import z from 'zod';
 import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import Microsoft365MappingsDialog from '@/components/domains/microsoft/Microsoft365MappingsDiablog';
+import Microsoft365MappingsDialog from '@/components/domains/microsoft/Microsoft365MappingsDialog';
 import { deleteSourceIntegrations, putSourceIntegrations } from '@/services/integrations';
 
 const formSchema = z

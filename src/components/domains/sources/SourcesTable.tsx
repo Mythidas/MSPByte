@@ -1,67 +1,97 @@
 'use client';
 
-import { CardHeader } from '@/components/ui/card';
-import RouteCard from '@/components/common/routed/RouteCard';
+import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
 import { Spinner } from '@/components/common/Spinner';
-import { Tables } from '@/db/schema';
 import { getSourceIntegrationsView } from '@/services/integrations';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { getSiteSourceMappings } from '@/services/siteSourceMappings';
+import { Settings } from 'lucide-react';
+import Link from 'next/link';
+import SearchBar from '@/components/common/SearchBar';
 
 type Props = {
-  route: string;
+  siteIds?: string[];
+  sub?: string;
+  route?: string;
 };
 
-export default function SourcesTable({ route }: Props) {
-  const [integrations, setIntegrations] = useState<Tables<'source_integrations_view'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setIsLoading(true);
-
-        const integrations = await getSourceIntegrationsView();
-
-        if (!integrations.ok) {
-          throw new Error();
-        }
-
-        setIntegrations(integrations.data);
-      } catch {
-        toast.error('Failed to load data. Please refresh.');
-      } finally {
-        setIsLoading(false);
+export default function SourcesTable({ siteIds, route, sub = 'individual' }: Props) {
+  const [search, setSearch] = useState('');
+  const { content } = useLazyLoad({
+    loader: async () => {
+      const integrations = await getSourceIntegrationsView();
+      if (!integrations.ok) {
+        return {
+          mappings: [],
+          integrations: [],
+        };
       }
-    };
+      if (siteIds) {
+        const mappings = await getSiteSourceMappings(undefined, siteIds);
+        if (mappings.ok) {
+          return {
+            mappings: mappings.data,
+            integrations: integrations.data,
+          };
+        }
+      }
 
-    load();
-  }, []);
+      return {
+        mappings: [],
+        integrations: integrations.data,
+      };
+    },
+    render: (data) => {
+      return (
+        <div className="grid grid-cols-4 gap-4">
+          {data.integrations
+            .filter((integration) => {
+              const lowerSearch = search.toLowerCase();
+              const lowerName = integration?.source_name?.toLowerCase();
+              return lowerName?.includes(lowerSearch);
+            })
+            .map((integration) => {
+              if (siteIds) {
+                if (!data.mappings.some((mapping) => mapping.source_id === integration.source_id)) {
+                  return null;
+                }
+              }
+
+              return (
+                <Card key={integration.id}>
+                  <CardHeader>
+                    {integration?.source_name}
+                    <CardAction>
+                      <Link href={`${route}/${integration?.source_id}?sub=${sub}`}>
+                        <Settings className="w-4 h-4" />
+                      </Link>
+                    </CardAction>
+                  </CardHeader>
+                  <CardContent className="text-sm text-muted-foreground">
+                    {siteIds && 'Last Sync: N/A'}
+                  </CardContent>
+                </Card>
+              );
+            })}
+        </div>
+      );
+    },
+    skeleton: () => (
+      <div className="flex w-full justify-center items-center">
+        <Spinner />
+      </div>
+    ),
+    deps: [],
+  });
 
   return (
     <div className="flex flex-col gap-4 size-full">
-      <h1 className="text-2xl font-bold">Sources</h1>
-      {isLoading && (
-        <div className="flex size-full justify-center items-center">
-          <Spinner size={48} />
-        </div>
-      )}
-      {!isLoading && (
-        <div className="grid grid-cols-4 gap-2">
-          {integrations.map((integration) => {
-            return (
-              <RouteCard
-                key={integration.id}
-                route={`${route}/${integration.source_id}`}
-                module="Sources"
-                level="Read"
-              >
-                <CardHeader className="text-center">{integration.source_name}</CardHeader>
-              </RouteCard>
-            );
-          })}
-        </div>
-      )}
+      <div className="w-2/5">
+        <SearchBar placeholder="Search integrations..." onSearch={setSearch} />
+      </div>
+
+      {content}
     </div>
   );
 }
