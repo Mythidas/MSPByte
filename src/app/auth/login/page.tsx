@@ -70,6 +70,7 @@ export default function Page() {
 
       const result = await loginWithAzure();
       if (!result.ok) throw result.error.message;
+      console.log(process.env.NEXT_PUBLIC_ORIGIN);
 
       window.location.href = result.data;
     } catch (err) {
