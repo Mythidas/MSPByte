@@ -14,6 +14,7 @@ import { getSourceIdentitiesView } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
 import { useAsync } from '@/hooks/useAsync';
 import { pascalCase } from '@/lib/utils';
+import MicrosoftIdentityDrawer from '@/components/domains/microsoft/MicrosoftIdentityDrawer';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -103,12 +104,26 @@ export default function MicrosoftIdentitiesTable({
             label: 'Name',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => (
+              <MicrosoftIdentityDrawer
+                label={row.original.name!}
+                identity={row.original}
+                licenses={data.licenses}
+              />
+            ),
           }),
           textColumn({
             key: 'email',
             label: 'Email',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => (
+              <MicrosoftIdentityDrawer
+                label={row.original.email!}
+                identity={row.original}
+                licenses={data.licenses}
+              />
+            ),
           }),
           textColumn({
             key: 'type',

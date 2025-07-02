@@ -309,7 +309,7 @@ export default function DataTable<TData>({
       <Card className="py-0 gap-2 rounded-none bg-linear-to-t from-primary/5 to-card">
         <ScrollArea className="max-h-[60vh] max-w-full">
           <Table>
-            <TableHeader className="sticky top-0 bg-card rounded-md z-10">
+            <TableHeader className="sticky top-0 bg-card rounded z-10">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
                   {headerGroup.headers.map((header) => {

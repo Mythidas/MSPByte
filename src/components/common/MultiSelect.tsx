@@ -1,11 +1,21 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
-import ReactDOM from 'react-dom';
-import { useEffect, useRef, useState } from 'react';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { cn } from '@/lib/utils';
+import { Check, ChevronDown, X } from 'lucide-react';
+import { useState } from 'react';
 
 type Option = { label: string; value: string };
 
@@ -16,175 +26,176 @@ type Props = {
   lead?: React.ReactNode;
   loading?: boolean;
   onChange?: (values: string[]) => void;
+  maxDisplayedBadges?: number;
+  className?: string;
+  disabled?: boolean;
 };
 
 export default function MultiSelect({
   options,
   defaultValues = [],
-  placeholder,
+  placeholder = 'Select items...',
   lead,
-  loading,
+  loading = false,
   onChange,
+  maxDisplayedBadges = 3,
+  className,
+  disabled = false,
 }: Props) {
   const [selected, setSelected] = useState<string[]>(defaultValues);
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
-  const [usePortal, setUsePortal] = useState(false);
-  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
+  const [open, setOpen] = useState(false);
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        !inputRef.current?.contains(e.target as Node) &&
-        !dropdownRef.current?.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    const stopScroll = (e: WheelEvent) => {
-      if (!dropdownRef.current?.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('wheel', stopScroll, { passive: true });
-    return () => document.removeEventListener('wheel', stopScroll);
-  }, [isOpen]);
-
-  const openDropdown = () => {
-    const inputRect = inputRef.current?.getBoundingClientRect();
-    const wrapperRect = wrapperRef.current?.getBoundingClientRect();
-    const dropdownHeight = 200;
-
-    if (inputRect && wrapperRect) {
-      const wouldBeClipped =
-        inputRect.bottom + dropdownHeight > window.innerHeight ||
-        wrapperRect.top < 0 ||
-        wrapperRect.bottom > window.innerHeight;
-
-      setUsePortal(wouldBeClipped);
-      if (wouldBeClipped) {
-        setDropdownPos({
-          top: inputRect.bottom + window.scrollY,
-          left: inputRect.left + window.scrollX,
-          width: inputRect.width,
-        });
-      }
-    }
-
-    setIsOpen(true);
-    setSearch('');
-  };
-
-  const toggleSelection = (value: string) => {
+  const handleSelect = (value: string) => {
     const isSelected = selected.includes(value);
-    const next = isSelected ? selected.filter((v) => v !== value) : [...selected, value];
+    const newSelected = isSelected
+      ? selected.filter((item) => item !== value)
+      : [...selected, value];
 
-    setSelected(next);
-    onChange?.(next);
+    setSelected(newSelected);
+    onChange?.(newSelected);
   };
 
-  const clearSelection = () => {
+  const handleRemove = (value: string, event?: React.MouseEvent) => {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    const newSelected = selected.filter((item) => item !== value);
+    setSelected(newSelected);
+    onChange?.(newSelected);
+  };
+
+  const handleClear = () => {
     setSelected([]);
     onChange?.([]);
   };
 
-  const filteredOptions = options.filter((o) =>
-    o.label.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const dropdownContent = (
-    <div
-      ref={dropdownRef}
-      className={cn(
-        'absolute bg-card rounded-md shadow max-h-[30vh] overflow-y-auto z-[999] w-fit',
-        !usePortal && 'top-full',
-        isOpen && 'rounded-t-none'
-      )}
-      style={
-        usePortal
-          ? {
-              position: 'absolute',
-              top: dropdownPos.top,
-              left: dropdownPos.left,
-              width: dropdownPos.width,
-            }
-          : undefined
-      }
-    >
-      <div className="flex flex-col px-1 pt-1 sticky top-0 z-10 bg-card gap-1">
-        <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
-        <Separator />
-      </div>
-      <div className="grid w-full">
-        {loading ? (
-          <Button disabled variant="ghost">
-            Loading...
-          </Button>
-        ) : (
-          filteredOptions.map((opt) => (
-            <Button
-              key={opt.value}
-              variant={selected.includes(opt.value) ? 'secondary' : 'ghost'}
-              className="w-full justify-start text-left rounded-none"
-              onClick={() => toggleSelection(opt.value)}
-            >
-              {selected.includes(opt.value) ? '✓ ' : ''} {opt.label}
-            </Button>
-          ))
-        )}
-      </div>
-      <div className="flex flex-col sticky bottom-0 z-10 bg-card gap-1 justify-end p-1">
-        <Separator />
-        <Button variant="destructive" size="sm" onClick={clearSelection}>
-          Clear
-        </Button>
-      </div>
-    </div>
-  );
+  const selectedOptions = options.filter((option) => selected.includes(option.value));
+  const displayedBadges = selectedOptions.slice(0, maxDisplayedBadges);
+  const hiddenCount = Math.max(0, selectedOptions.length - maxDisplayedBadges);
 
   return (
-    <>
-      <div ref={wrapperRef} className="relative flex flex-col w-full z-[999]">
-        <div className="flex w-full">
-          {lead && (
-            <div
-              className={cn(
-                'flex items-center bg-secondary rounded-md rounded-r-none px-2 py-1 text-sm',
-                isOpen && 'rounded-b-none'
+    <div className={cn('relative', className)}>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              'w-full justify-between min-h-10 h-auto py-2',
+              selected.length > 0 && 'px-2',
+              disabled && 'cursor-not-allowed opacity-50'
+            )}
+            disabled={disabled}
+          >
+            <div className="flex items-center w-full">
+              {lead && (
+                <div className="flex items-center bg-muted rounded px-2 py-1 mr-2 text-xs font-medium">
+                  {lead}
+                </div>
               )}
-            >
-              {lead}
+
+              <div className="flex items-center justify-start w-full">
+                {selected.length === 0 ? (
+                  <span className="text-muted-foreground font-normal">{placeholder}</span>
+                ) : (
+                  <div className="flex items-center gap-1 w-full overflow-hidden">
+                    <ScrollArea className="w-full">
+                      <div className="flex items-center gap-1">
+                        {displayedBadges.map((option) => (
+                          <Badge
+                            key={option.value}
+                            variant="secondary"
+                            className="text-xs font-normal px-2 py-1 gap-2 flex-shrink-0"
+                          >
+                            {option.label}
+                            <span
+                              className="h-auto w-fit px-0.5! hover:bg-transparent"
+                              onClick={(e) => handleRemove(option.value, e)}
+                            >
+                              <X className="h-3 rounded p-0.5" />
+                            </span>
+                          </Badge>
+                        ))}
+                        {hiddenCount > 0 && (
+                          <Badge
+                            variant="outline"
+                            className="text-xs font-normal px-2 py-1 flex-shrink-0"
+                          >
+                            +{hiddenCount} more
+                          </Badge>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-          <Input
-            placeholder={
-              selected.length > 0
-                ? options
-                    .filter((opt) => selected.includes(opt.value))
-                    .map((opt) => opt.label)
-                    .join(', ')
-                : placeholder || 'Select...'
-            }
-            onClick={openDropdown}
-            readOnly
-            className={cn(isOpen && 'rounded-b-none', lead && 'rounded-l-none')}
-            ref={inputRef}
-          />
-        </div>
-        {!usePortal && isOpen && dropdownContent}
-      </div>
-      {usePortal && isOpen && typeof window !== 'undefined'
-        ? ReactDOM.createPortal(dropdownContent, document.getElementById('search-portal')!)
-        : null}
-    </>
+
+            <ChevronDown
+              className={cn(
+                'ml-2 h-4 w-4 shrink-0 transition-transform duration-200',
+                open && 'rotate-180'
+              )}
+            />
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+          <Command>
+            <CommandInput placeholder="Search options..." className="h-9" />
+            <CommandList>
+              <CommandEmpty>{loading ? 'Loading...' : 'No options found.'}</CommandEmpty>
+              <CommandGroup>
+                <ScrollArea className="h-72">
+                  {options.map((option) => {
+                    const isSelected = selected.includes(option.value);
+                    return (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => handleSelect(option.value)}
+                        className="cursor-pointer"
+                        disabled={loading}
+                      >
+                        <div
+                          className={cn(
+                            'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+                            isSelected
+                              ? 'bg-primary text-primary-foreground'
+                              : 'opacity-50 [&_svg]:invisible'
+                          )}
+                        >
+                          <Check className="h-3 w-3" />
+                        </div>
+                        <span className="flex-1">{option.label}</span>
+                      </CommandItem>
+                    );
+                  })}
+                </ScrollArea>
+              </CommandGroup>
+
+              {selected.length > 0 && (
+                <>
+                  <Separator />
+                  <CommandGroup>
+                    <div className="p-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleClear}
+                        className="w-full text-xs"
+                      >
+                        Clear All ({selected.length})
+                      </Button>
+                    </div>
+                  </CommandGroup>
+                </>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

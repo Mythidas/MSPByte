@@ -266,10 +266,11 @@ export function DataTableFilters<TData>({
     if (!meta.options) return null;
     return (
       <MultiSelect
+        className="relative flex w-full max-w-full"
         options={meta.options}
         defaultValues={value}
         placeholder={meta.placeholder}
-        lead="In"
+        maxDisplayedBadges={1}
         onChange={(e) =>
           setPendingFilters((prev) => ({
             ...prev,
@@ -365,7 +366,7 @@ export function DataTableFilters<TData>({
       <DrawerTrigger asChild>
         <Button variant="ghost">{columnFilters.length > 0 ? <FunnelPlus /> : <Funnel />}</Button>
       </DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent className="w-[30vw]! max-w-[30vw]!">
         <DrawerHeader>
           <DrawerTitle>Filters</DrawerTitle>
           <DrawerDescription>Toggle and set filters by column.</DrawerDescription>

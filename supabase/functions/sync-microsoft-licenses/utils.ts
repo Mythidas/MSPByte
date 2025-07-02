@@ -1,26 +1,35 @@
-import { APIError } from '@/types';
-import { clsx, type ClassValue } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+let _authToken: string | null = null;
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+export function setAuthToken(token: string) {
+  _authToken = token;
 }
 
-export function pascalCase(str: string) {
-  return str.substring(0, 1).toUpperCase() + str.substring(1);
+export function getAuthToken(): string | null {
+  return _authToken;
 }
 
-export function prettyText(input: string): string {
-  return input
-    .replace(/[_-]+/g, ' ') // Replace underscores and dashes with spaces
-    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
-}
+export type APIError = {
+  module: string;
+  context: string;
+  message: string;
+  time: Date;
+};
+
+export type APIResponse<T> =
+  | {
+      ok: true;
+      data: T;
+    }
+  | {
+      ok: false;
+      error: APIError;
+    };
 
 export class Debug {
   static error(error: APIError) {
     // write to db later
     console.error(
-      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+      `[${error.time.toLocaleTimeString()}][${error.module}][${error.context}] ${error.message}`
     );
     return {
       ok: false,
@@ -31,7 +40,7 @@ export class Debug {
   static warn(error: APIError) {
     // write to db later
     console.warn(
-      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+      `[${error.time.toLocaleTimeString()}][${error.module}][${error.context}] ${error.message}`
     );
     return {
       ok: false,

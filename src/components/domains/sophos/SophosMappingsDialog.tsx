@@ -194,8 +194,6 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
                       placeholder="Search sites"
                       options={external.map((e) => ({ label: e.name, value: e.id }))}
                       defaultValue={mapping?.external_name || ''}
-                      portal
-                      delay={0}
                       onSelect={(val) => {
                         const site = external.find((site) => site.id === val);
                         console.log(site);

@@ -531,7 +531,6 @@ export type Database = {
           services: string[]
           sku: string
           source_id: string | null
-          tags: string[]
         }
         Insert: {
           created_at?: string | null
@@ -541,7 +540,6 @@ export type Database = {
           services: string[]
           sku: string
           source_id?: string | null
-          tags: string[]
         }
         Update: {
           created_at?: string | null
@@ -551,7 +549,6 @@ export type Database = {
           services?: string[]
           sku?: string
           source_id?: string | null
-          tags?: string[]
         }
         Relationships: [
           {
@@ -1013,7 +1010,7 @@ export type Database = {
         }
         Insert: {
           email: string
-          id: string
+          id?: string
           last_login?: string | null
           name: string
           role_id: string

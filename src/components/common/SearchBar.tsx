@@ -35,7 +35,7 @@ export default function SearchBar({
         <div
           className={cn(
             leadClass,
-            'flex flex-col bg-input rounded-md rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm'
+            'flex flex-col bg-input rounded rounded-r-none w-fit px-2 py-1 items-center justify-center text-sm'
           )}
         >
           {lead}

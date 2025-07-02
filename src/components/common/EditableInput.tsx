@@ -21,6 +21,7 @@ export default function EditableInput({ defaultValue, onChange, disabled }: Prop
     if (ref.current) ref.current.value = defaultValue;
     setIsEditing(false);
     setValue('');
+    if (onChange) onChange(defaultValue);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
