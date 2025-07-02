@@ -10,9 +10,14 @@ import { toast } from 'sonner';
 type Props = {
   sourceId: string;
   parentId: string;
+  baseRoute: string;
 };
 
-export default function SourceMetricsAggregatedGroupedTable({ sourceId, parentId }: Props) {
+export default function SourceMetricsAggregatedGroupedTable({
+  sourceId,
+  parentId,
+  baseRoute,
+}: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [metrics, setMetrics] = useState<Tables<'source_metrics_aggregated_grouped'>[]>([]);
 
@@ -53,6 +58,7 @@ export default function SourceMetricsAggregatedGroupedTable({ sourceId, parentId
           <SourceMetricCard
             key={metric.name}
             metric={metric as unknown as Tables<'source_metrics'>}
+            baseRoute={baseRoute}
           />
         );
       })}

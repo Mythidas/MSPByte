@@ -60,7 +60,7 @@ export default async function Page({ ...props }: Props) {
     return renderContent('site');
   }
 
-  if (site.data.is_parent && searchParams.sub !== 'individual') {
+  if (site.data.is_parent && searchParams.sub === 'aggregated') {
     return renderContent('parent');
   }
 

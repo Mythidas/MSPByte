@@ -41,7 +41,14 @@ export default function SophosParentMapping({ sourceId, site, tab }: Props) {
       </div>
 
       <TabsContent value="dashboard">
-        <SourceMetricsAggregatedGroupedTable sourceId={sourceId} parentId={site.id} />
+        <div className="grid gap-4">
+          <h2 className="font-bold text-xl">Quick Metrics</h2>
+          <SourceMetricsAggregatedGroupedTable
+            sourceId={sourceId}
+            parentId={site!.id}
+            baseRoute={`/sites/${site!.id}/${sourceId}?sub=aggregated`}
+          />
+        </div>
       </TabsContent>
       <SophosDevicesTab sourceId={sourceId} parentId={site.id} />
     </Tabs>

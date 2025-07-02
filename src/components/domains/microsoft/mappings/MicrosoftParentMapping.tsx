@@ -43,7 +43,11 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
       <TabsContent value="dashboard">
         <div className="grid gap-4">
           <h2 className="font-bold text-xl">Quick Metrics</h2>
-          <SourceMetricsAggregatedGroupedTable sourceId={sourceId} parentId={site!.id} />
+          <SourceMetricsAggregatedGroupedTable
+            sourceId={sourceId}
+            parentId={site!.id}
+            baseRoute={`/sites/${site!.id}/${sourceId}?sub=aggregated`}
+          />
         </div>
       </TabsContent>
       <MicrosoftIdentitiesTab sourceId={sourceId} parent={site} />

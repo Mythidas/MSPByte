@@ -46,7 +46,7 @@ export async function syncMetrics(
     route: '/sources/microsoft-365',
     filters: {
       tab: 'identities',
-      filter: 'mfa_enforced+eq+false+and+enable+eq+true+and+type+eq+member',
+      filter: 'mfa_enforced+eq+false+and+enabled+eq+true+and+type+eq+member',
     },
     metadata: {},
     is_historic: false,
@@ -66,7 +66,7 @@ export async function syncMetrics(
     route: '/sources/microsoft-365',
     filters: {
       tab: 'identities',
-      filter: 'mfa_enforced+eq+false+and+enable+eq+true+and+type+eq+guest',
+      filter: 'mfa_enforced+eq+false+and+enabled+eq+true+and+type+eq+guest',
     },
     metadata: {},
     is_historic: false,

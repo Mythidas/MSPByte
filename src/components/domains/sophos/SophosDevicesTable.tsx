@@ -145,6 +145,9 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
               (rowB.original.metadata as SPEndpoint).packages.protection!.name
             );
           },
+          filterFn: (row, colId, value) => {
+            return (row.original.metadata as SPEndpoint).packages.protection?.name === value.value;
+          },
           filter: {
             type: 'select',
             options: protectionTypes(),

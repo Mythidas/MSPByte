@@ -99,7 +99,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
           {metric.route && (
             <RouteButton
               variant="ghost"
-              route={`${baseRoute || metric.route}?${formatFilters(metric.filters as Record<string, string>)}`}
+              route={`${baseRoute || metric.route}${baseRoute?.includes('?') ? '&' : '?'}${formatFilters(metric.filters as Record<string, string>)}`}
               module="Sources"
               level="Read"
             >

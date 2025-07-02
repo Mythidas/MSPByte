@@ -1292,34 +1292,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "sites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "sites_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["site_id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "source_identities_view"
-            referencedColumns: ["parent_id"]
-          },
-          {
             foreignKeyName: "source_metrics_source_id_fkey"
             columns: ["source_id"]
             isOneToOne: false

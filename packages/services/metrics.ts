@@ -2,7 +2,7 @@
 
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { Schema } from 'packages/db';
+import { tables } from 'packages/db';
 import { createClient } from 'packages/db/server';
 import { Tables, TablesInsert } from 'packages/db/schema';
 
@@ -60,35 +60,10 @@ export async function getSourceMetricsAggregated(
   }
 }
 
-export async function getSourceMetricsAggregatedGrouped(
-  sourceId: string,
-  parentId: string
-): Promise<APIResponse<Tables<'source_metrics_aggregated_grouped'>[]>> {
-  try {
-    const supabase = await createClient();
-
-    let query = supabase
-      .from('source_metrics_aggregated_grouped')
-      .select()
-      .eq('source_id', sourceId)
-      .eq('parent_id', parentId);
-
-    const { data, error } = await query;
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'integrations',
-      context: 'get-source-metrics-aggregated',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+export async function getSourceMetricsAggregatedGrouped(sourceId: string, parentId: string) {
+  return tables.select('source_metrics_aggregated_grouped', (query) => {
+    query = query.eq('source_id', sourceId).eq('parent_id', parentId);
+  });
 }
 
 export async function putSourceMetrics(
