@@ -25,15 +25,17 @@ export default function MicrosoftIdentityDrawer({ label, identity, licenses }: P
   return (
     <Drawer direction="right" open={isOpen} onOpenChange={setIsOpen}>
       <DrawerTrigger className="hover:cursor-pointer hover:text-primary">{label}</DrawerTrigger>
-      <DrawerContent>
+      <DrawerContent data-vaul-no-drag>
         <DrawerHeader>
           <DrawerTitle className="flex justify-between items-center">
-            {identity.name}
+            <span className="select-text">{identity.name}</span>
             <Badge variant={identity.enabled ? 'default' : 'secondary'}>
               {identity.enabled ? 'Active' : 'Disabled'}
             </Badge>
           </DrawerTitle>
-          <DrawerDescription>{identity.email}</DrawerDescription>
+          <DrawerDescription>
+            <span className="select-text">{identity.email}</span>
+          </DrawerDescription>
         </DrawerHeader>
         <Separator />
 
@@ -41,7 +43,9 @@ export default function MicrosoftIdentityDrawer({ label, identity, licenses }: P
           <div className="flex justify-between">
             <Label className="flex flex-col gap-2 items-start">
               <span className="text-base font-bold">Last Active</span>
-              <span>{new Date(identity.last_activity!).toLocaleString()}</span>
+              <span className="select-text">
+                {new Date(identity.last_activity!).toLocaleString()}
+              </span>
             </Label>
             <Badge variant={identity.type === 'member' ? 'default' : 'secondary'} className="h-fit">
               {pascalCase(identity.type!)}
@@ -67,8 +71,8 @@ export default function MicrosoftIdentityDrawer({ label, identity, licenses }: P
                   (method) => {
                     return (
                       <div key={method.id} className="flex gap-2">
-                        <span>{pascalCase(method.type)}</span>
-                        <span>{method.displayName}</span>
+                        <span className="select-text">{pascalCase(method.type)}</span>
+                        <span className="select-text">{method.displayName}</span>
                       </div>
                     );
                   }
@@ -85,7 +89,11 @@ export default function MicrosoftIdentityDrawer({ label, identity, licenses }: P
                 {licenses
                   .filter((lic) => identity.license_skus?.includes(lic.sku))
                   .map((license) => {
-                    return <span key={license.id}>{license.name}</span>;
+                    return (
+                      <span key={license.id} className="select-text">
+                        {license.name}
+                      </span>
+                    );
                   })}
               </div>
             </Label>
