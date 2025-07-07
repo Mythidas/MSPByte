@@ -46,7 +46,6 @@ export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
       <MicrosoftIdentitiesTable
         sourceId={sourceId}
         siteIds={data.sites.map((s) => s.id)}
-        siteLevel={!parent}
         parentLevel={!!parent}
       />
     </TabsContent>

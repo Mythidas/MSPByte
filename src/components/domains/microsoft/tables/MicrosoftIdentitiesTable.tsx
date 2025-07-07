@@ -4,6 +4,7 @@ import DataTable from '@/components/common/table/DataTable';
 import { Tables } from '@/db/schema';
 import {
   booleanColumn,
+  column,
   dateColumn,
   listColumn,
   textColumn,
@@ -154,6 +155,27 @@ export default function MicrosoftIdentitiesTable({
                 { label: 'Security Defaults', value: 'security_defaults' },
                 { label: 'None', value: 'none' },
               ],
+            },
+          }),
+          column({
+            key: 'ca_capable',
+            label: 'CA Capable',
+            cell: ({ row }) => (
+              <div>
+                {(row.original.metadata as { valid_mfa_license: boolean }).valid_mfa_license
+                  ? 'Yes'
+                  : 'No'}
+              </div>
+            ),
+            filter: {
+              type: 'boolean',
+              placeholder: 'Select CA Capable',
+            },
+            filterFn: (row, colId, value) => {
+              return (
+                (row.original.metadata as { valid_mfa_license: boolean }).valid_mfa_license ===
+                value.value
+              );
             },
           }),
           listColumn({

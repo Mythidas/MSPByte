@@ -10,15 +10,19 @@ import { cn } from '@/lib/utils';
 import { DataTableColumnDef } from '@/types/data-table';
 
 type GenericColumnProps<TData> = {
-  key: keyof TData;
+  key: string;
   label: string;
   alignRight?: boolean;
 } & Partial<DataTableColumnDef<TData>>;
 
+type StrictGenericColumnProps<TData> = {
+  key: keyof TData;
+} & GenericColumnProps<TData>;
+
 type BooleanColumnProps<TData> = {
   valid?: string;
   invalid?: string;
-} & GenericColumnProps<TData>;
+} & StrictGenericColumnProps<TData>;
 
 export function column<TData>({
   key,
@@ -44,7 +48,7 @@ export function textColumn<TData>({
   key,
   label,
   ...props
-}: GenericColumnProps<TData>): DataTableColumnDef<TData> {
+}: StrictGenericColumnProps<TData>): DataTableColumnDef<TData> {
   return column({
     key,
     label,
@@ -61,7 +65,7 @@ export function numberColumn<TData>({
   key,
   label,
   ...props
-}: GenericColumnProps<TData>): DataTableColumnDef<TData> {
+}: StrictGenericColumnProps<TData>): DataTableColumnDef<TData> {
   return column({
     key,
     label,
@@ -78,7 +82,7 @@ export function listColumn<TData>({
   key,
   label,
   ...props
-}: GenericColumnProps<TData>): DataTableColumnDef<TData> {
+}: StrictGenericColumnProps<TData>): DataTableColumnDef<TData> {
   return column({
     key,
     label,
@@ -123,7 +127,7 @@ export function dateColumn<TData>({
   key,
   label,
   ...props
-}: GenericColumnProps<TData>): DataTableColumnDef<TData> {
+}: StrictGenericColumnProps<TData>): DataTableColumnDef<TData> {
   return column({
     key,
     label,

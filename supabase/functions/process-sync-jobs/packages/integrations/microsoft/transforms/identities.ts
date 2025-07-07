@@ -29,9 +29,7 @@ export async function transformIdentities(
           (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
         ) || [];
       const mfaEnforced =
-        securityDefaultsEnabled ||
-        (isUserCapableOfCA(licenseSkus, subscribedSkus) &&
-          isUserRequiredToUseMFA(caPolicies, userContext.data));
+        securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
       const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
       identities.push({
@@ -57,6 +55,7 @@ export async function transformIdentities(
           ...(user as any),
           roles: userContext.data.roles,
           groups: userContext.data.groups,
+          valid_mfa_license: isUserRequiredToUseMFA(caPolicies, userContext.data),
         },
         created_at: new Date().toISOString(),
       });

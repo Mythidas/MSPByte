@@ -114,6 +114,25 @@ export async function syncMetrics(
     created_at: new Date().toISOString(),
   };
 
+  const invalidCALicense: TablesInsert<'source_metrics'> = {
+    tenant_id: mapping.tenant_id,
+    site_id: mapping.site_id,
+    source_id: mapping.source_id,
+    name: 'No CA License',
+    metric: identities.filter((id) => {
+      return (id.metadata as any).valid_mfa_license;
+    }).length,
+    unit: 'identities',
+    total: identities.length,
+    route: '/sources/microsoft-365',
+    filters: { tab: 'identities', filter: 'ca_capable+eq+false' },
+    metadata: {},
+    is_historic: false,
+    visual: 'progress',
+    thresholds: { info: 10, warn: 30, crticial: 50, highest: false },
+    created_at: new Date().toISOString(),
+  };
+
   try {
     await putSourceMetrics([
       totalIdentities,
@@ -121,6 +140,7 @@ export async function syncMetrics(
       mfaEnforcedMetricGuest,
       disabledAccountsMetric,
       inactiveAccounts,
+      invalidCALicense,
     ]);
 
     return {

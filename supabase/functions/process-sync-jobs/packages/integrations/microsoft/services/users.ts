@@ -135,6 +135,7 @@ export function getSupportedUserFields(licenses: MSGraphSubscribedSku[]): string
     'assignedLicenses',
     'assignedPlans',
     'userType',
+    'proxyAddresses',
   ];
 
   const licenseCapabilities = {
