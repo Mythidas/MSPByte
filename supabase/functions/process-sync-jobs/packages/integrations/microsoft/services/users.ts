@@ -5,7 +5,7 @@ import { MSGraphSubscribedSku } from '../types/licenses.ts';
 import { MSGraphUser, MSGraphUserContext } from '../types/users.ts';
 
 export async function getUsers(
-  mapping: Tables<'site_source_mappings'>,
+  mapping: Tables<'source_tenants'>,
   licenses: MSGraphSubscribedSku[]
 ): Promise<APIResponse<MSGraphUser[]>> {
   try {
@@ -47,7 +47,7 @@ export async function getUsers(
 
 export async function getUserContext(
   user: MSGraphUser,
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<MSGraphUserContext>> {
   try {
     const token = await getGraphToken(mapping.source_id, mapping.site_id);

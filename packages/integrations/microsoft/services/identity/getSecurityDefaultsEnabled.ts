@@ -4,7 +4,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getSecurityDefaultsEnabled(
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<boolean>> {
   try {
     const client = await getGraphClient(mapping.source_id, mapping.site_id);

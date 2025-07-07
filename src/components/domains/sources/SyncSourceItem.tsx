@@ -4,7 +4,7 @@ import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { syncSource } from '@/core/sync';
 import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
-import { getSiteSourceMappings } from '@/services/siteSourceMappings';
+import { getSourceTenants } from '@/services/source/tenants/tenants';
 import { toast } from 'sonner';
 
 type Props = {
@@ -19,7 +19,7 @@ export default function SyncSourceItem({ type, sourceId, site }: Props) {
     try {
       switch (type) {
         case 'global': {
-          const mappings = await getSiteSourceMappings(sourceId);
+          const mappings = await getSourceTenants(sourceId);
           if (!mappings.ok) {
             throw new Error(mappings.error.message);
           }
@@ -40,7 +40,7 @@ export default function SyncSourceItem({ type, sourceId, site }: Props) {
             throw new Error(sites.error.message);
           }
 
-          const mappings = await getSiteSourceMappings(sourceId, [
+          const mappings = await getSourceTenants(sourceId, [
             site!.id,
             ...sites.data.map((s) => s.id),
           ]);

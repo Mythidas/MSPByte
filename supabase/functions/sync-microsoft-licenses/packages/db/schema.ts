@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       roles: {
@@ -34,72 +39,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "roles_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      site_source_mappings: {
-        Row: {
-          external_id: string
-          external_name: string
-          id: string
-          metadata: Json | null
-          site_id: string
-          source_id: string
-          tenant_id: string
-        }
-        Insert: {
-          external_id: string
-          external_name: string
-          id?: string
-          metadata?: Json | null
-          site_id: string
-          source_id?: string
-          tenant_id: string
-        }
-        Update: {
-          external_id?: string
-          external_name?: string
-          id?: string
-          metadata?: Json | null
-          site_id?: string
-          source_id?: string
-          tenant_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "site_source_mappings_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "sites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "site_source_mappings_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "sites_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "site_source_mappings_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["site_id"]
-          },
-          {
-            foreignKeyName: "site_source_mappings_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_identities_view"
-            referencedColumns: ["parent_id"]
-          },
-          {
-            foreignKeyName: "site_source_mappings_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -857,83 +796,66 @@ export type Database = {
       }
       source_tenants: {
         Row: {
-          created_at: string | null
           external_id: string
+          external_name: string
           id: string
+          last_sync: string | null
           metadata: Json | null
-          name: string | null
           site_id: string
-          source_id: string | null
+          source_id: string
           tenant_id: string
-          updated_at: string | null
         }
         Insert: {
-          created_at?: string | null
           external_id: string
+          external_name: string
           id?: string
+          last_sync?: string | null
           metadata?: Json | null
-          name?: string | null
           site_id: string
-          source_id?: string | null
+          source_id?: string
           tenant_id: string
-          updated_at?: string | null
         }
         Update: {
-          created_at?: string | null
           external_id?: string
+          external_name?: string
           id?: string
+          last_sync?: string | null
           metadata?: Json | null
-          name?: string | null
           site_id?: string
-          source_id?: string | null
+          source_id?: string
           tenant_id?: string
-          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "source_tenants_site_id_fkey"
+            foreignKeyName: "site_source_mappings_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "source_tenants_site_id_fkey"
+            foreignKeyName: "site_source_mappings_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "sites_view"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "source_tenants_site_id_fkey"
+            foreignKeyName: "site_source_mappings_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "source_devices_view"
             referencedColumns: ["site_id"]
           },
           {
-            foreignKeyName: "source_tenants_site_id_fkey"
+            foreignKeyName: "site_source_mappings_site_id_fkey"
             columns: ["site_id"]
             isOneToOne: false
             referencedRelation: "source_identities_view"
             referencedColumns: ["parent_id"]
           },
           {
-            foreignKeyName: "source_tenants_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_tenants_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_tenants_tenant_id_fkey"
+            foreignKeyName: "site_source_mappings_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -1292,34 +1214,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "sites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "sites_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["site_id"]
-          },
-          {
-            foreignKeyName: "sites_parent_id_fkey"
-            columns: ["parent_id"]
-            isOneToOne: false
-            referencedRelation: "source_identities_view"
-            referencedColumns: ["parent_id"]
-          },
-          {
             foreignKeyName: "source_metrics_source_id_fkey"
             columns: ["source_id"]
             isOneToOne: false
@@ -1442,21 +1336,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -1474,14 +1372,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -1497,14 +1397,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -1520,14 +1422,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -1535,14 +1439,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never

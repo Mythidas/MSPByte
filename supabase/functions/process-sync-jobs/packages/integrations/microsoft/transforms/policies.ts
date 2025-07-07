@@ -3,7 +3,7 @@ import { MSGraphConditionalAccessPolicy } from '../types/conditionalAccess.ts';
 
 export function transformPolicies(
   caPolicies: MSGraphConditionalAccessPolicy[],
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): TablesInsert<'source_policies'>[] {
   return caPolicies.map((policy) => ({
     tenant_id: mapping.tenant_id,

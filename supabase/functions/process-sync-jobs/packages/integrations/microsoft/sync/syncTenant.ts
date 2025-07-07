@@ -10,33 +10,31 @@ import { syncIdentities } from './syncIdentities.ts';
 import { syncMetrics } from './syncMetrics.ts';
 import { syncPolicies } from './syncPolicices.ts';
 
-export async function syncMapping(
-  mapping: Tables<'site_source_mappings'>
-): Promise<APIResponse<null>> {
+export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIResponse<null>> {
   const timer = new Timer('MicrosoftSyncMapping', false);
   try {
     timer.begin('fetchExternal');
-    const subscribedSkus = await getSubscribedSku(mapping);
-    const caPolicies = await getConditionalAccessPolicies(mapping);
-    const securityDefaults = await getSecurityDefaultsEnabled(mapping);
+    const subscribedSkus = await getSubscribedSku(tenant);
+    const caPolicies = await getConditionalAccessPolicies(tenant);
+    const securityDefaults = await getSecurityDefaultsEnabled(tenant);
     if (!subscribedSkus.ok || !caPolicies.ok || !securityDefaults.ok) {
       throw new Error('Failed to fetch external data.');
     }
 
-    const users = await getUsers(mapping, subscribedSkus.data);
+    const users = await getUsers(tenant, subscribedSkus.data);
     if (!users.ok) {
       throw new Error('Failed to fetch data.');
     }
     timer.end('fetchExternal');
 
     timer.begin('transforms');
-    const transformedPolicies = transformPolicies(caPolicies.data, mapping);
+    const transformedPolicies = transformPolicies(caPolicies.data, tenant);
     const transformedUsers = await transformIdentities(
       users.data,
       subscribedSkus.data,
       caPolicies.data,
       securityDefaults.data,
-      mapping
+      tenant
     );
     if (!transformedUsers.ok) {
       throw new Error('Failed to transform users');
@@ -44,15 +42,15 @@ export async function syncMapping(
     timer.end('transforms');
 
     timer.begin('syncData');
-    const policies = await syncPolicies(mapping, transformedPolicies);
-    const identities = await syncIdentities(mapping, transformedUsers.data);
+    const policies = await syncPolicies(tenant, transformedPolicies);
+    const identities = await syncIdentities(tenant, transformedUsers.data);
     if (!policies.ok || !identities.ok) {
       throw new Error('Failed to sync data');
     }
     timer.end('syncData');
 
     timer.begin('syncMetrics');
-    const metrics = await syncMetrics(mapping, policies.data, [], identities.data);
+    const metrics = await syncMetrics(tenant, policies.data, [], identities.data);
     if (!metrics.ok) {
       throw new Error(metrics.error.message);
     }

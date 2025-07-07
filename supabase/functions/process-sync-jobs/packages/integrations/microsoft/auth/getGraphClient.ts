@@ -1,7 +1,7 @@
-import { getSiteSourceMapping } from '../../../services/siteSourceMappings.ts';
+import { getSourceTenant } from '../../../services/source-tenants.ts';
 
 export async function getGraphToken(sourceId: string, siteId: string) {
-  const mapping = await getSiteSourceMapping(sourceId, siteId);
+  const mapping = await getSourceTenant(sourceId, siteId);
   if (!mapping.ok) {
     throw new Error(mapping.error.message);
   }

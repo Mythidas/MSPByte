@@ -16,7 +16,7 @@ import { DataTableHeader } from '@/components/common/table/DataTableHeader';
 import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
 import { getSitesView } from '@/services/sites';
-import { getSiteMappings } from '@/services/siteSourceMappings';
+import { getSourceTenants } from '@/services/source/tenants/tenants';
 import { DataTableColumnDef } from '@/types/data-table';
 import { useState } from 'react';
 
@@ -26,15 +26,15 @@ type Props = {
 };
 
 export default function Microsoft365MappingsDialog({ source }: Props) {
-  const [mappings, setMappings] = useState<
-    (Tables<'site_source_mappings'> & { changed?: boolean })[]
-  >([]);
+  const [mappings, setMappings] = useState<(Tables<'source_tenants'> & { changed?: boolean })[]>(
+    []
+  );
   const [sites, setSites] = useState<Tables<'sites_view'>[]>([]);
 
   const { isLoading } = useAsync({
     initial: undefined,
     fetcher: async () => {
-      const siteMappings = await getSiteMappings(source.id);
+      const siteMappings = await getSourceTenants(source.id);
       const sites = await getSitesView();
 
       if (!siteMappings.ok || !sites.ok) {
@@ -47,14 +47,14 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
     deps: [source],
   });
 
-  const handleSave = (mapping: Tables<'site_source_mappings'>) => {
+  const handleSave = (mapping: Tables<'source_tenants'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push(mapping);
     setMappings(newMappings);
     console.log(mapping);
   };
 
-  const handleClear = (mapping: Tables<'site_source_mappings'>) => {
+  const handleClear = (mapping: Tables<'source_tenants'>) => {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push({
       ...mapping,

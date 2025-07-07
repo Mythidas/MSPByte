@@ -2,7 +2,7 @@ import { Tables, TablesInsert } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 
 export function transformDevices(
-  mapping: Tables<'site_source_mappings'>,
+  mapping: Tables<'source_tenants'>,
   devices: SPEndpoint[]
 ): TablesInsert<'source_devices'>[] {
   return devices.map((device) => {

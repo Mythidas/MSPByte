@@ -5,7 +5,7 @@ import { Spinner } from '@/components/common/Spinner';
 import { getSourceIntegrationsView } from '@/services/integrations';
 import { useState } from 'react';
 import { useLazyLoad } from '@/hooks/useLazyLoad';
-import { getSiteSourceMappings } from '@/services/siteSourceMappings';
+import { getSourceTenants } from '@/services/source/tenants/tenants';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
 import SearchBar from '@/components/common/SearchBar';
@@ -28,7 +28,7 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
         };
       }
       if (siteIds) {
-        const mappings = await getSiteSourceMappings(undefined, siteIds);
+        const mappings = await getSourceTenants(undefined, siteIds);
         if (mappings.ok) {
           return {
             mappings: mappings.data,

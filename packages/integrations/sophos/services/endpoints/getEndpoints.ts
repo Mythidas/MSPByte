@@ -7,7 +7,7 @@ import { APIResponse } from '@/types';
 
 export async function getEndpoints(
   token: string,
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<SPEndpoint[]>> {
   try {
     if (!token) {

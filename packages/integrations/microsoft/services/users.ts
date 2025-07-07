@@ -7,7 +7,7 @@ import { APIResponse } from '@/types';
 import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getUsers(
-  mapping: Tables<'site_source_mappings'>,
+  mapping: Tables<'source_tenants'>,
   licenses: MSGraphSubscribedSku[]
 ): Promise<APIResponse<MSGraphUser[]>> {
   try {
@@ -41,7 +41,7 @@ export async function getUsers(
 
 export async function getUserContext(
   user: MSGraphUser,
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<MSGraphUserContext>> {
   try {
     const client = await getGraphClient(mapping.source_id, mapping.site_id);

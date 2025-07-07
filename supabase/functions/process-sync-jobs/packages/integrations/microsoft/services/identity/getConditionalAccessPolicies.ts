@@ -4,7 +4,7 @@ import { getGraphToken, graphFetch } from '../../auth/getGraphClient.ts';
 import { MSGraphConditionalAccessPolicy } from '../../types/conditionalAccess.ts';
 
 export async function getConditionalAccessPolicies(
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<MSGraphConditionalAccessPolicy[]>> {
   try {
     const token = await getGraphToken(mapping.source_id, mapping.site_id);

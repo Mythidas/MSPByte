@@ -17,10 +17,10 @@ import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
 import {
-  getSiteMappings,
-  putSiteSourceMapping,
-  deleteSiteSourceMapping,
-} from '@/services/siteSourceMappings';
+  getSourceTenants,
+  putSourceTenant,
+  deleteSourceTenant,
+} from '@/services/source/tenants/tenants';
 import { DataTableColumnDef } from '@/types/data-table';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -46,7 +46,7 @@ type Props = {
 
 export default function SophosMappingsDialog({ source, integration }: Props) {
   const [mappings, setMappings] = useState<
-    Record<string, Tables<'site_source_mappings'> & { changed?: boolean }>
+    Record<string, Tables<'source_tenants'> & { changed?: boolean }>
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -57,14 +57,14 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
     initial: { external: [], sites: [] },
     fetcher: async () => {
       const tenants = await getTenants(integration);
-      const siteMappings = await getSiteMappings(source.id);
+      const siteMappings = await getSourceTenants(source.id);
       const sites = await getSitesView();
 
       if (!tenants.ok || !siteMappings.ok || !sites.ok) {
         throw new Error('Failed to fetch data');
       }
 
-      const mapBySite: Record<string, Tables<'site_source_mappings'>> = {};
+      const mapBySite: Record<string, Tables<'source_tenants'>> = {};
       for (const mapping of siteMappings.data) {
         mapBySite[mapping.site_id] = mapping;
       }
@@ -84,7 +84,7 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
       if (!mapping?.changed) continue;
 
       if (mapping.external_id) {
-        await putSiteSourceMapping([
+        await putSourceTenant([
           {
             tenant_id: integration.tenant_id,
             site_id: site.id!,
@@ -95,7 +95,7 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
           },
         ]);
       } else if (mapping.id) {
-        await deleteSiteSourceMapping(mapping.id);
+        await deleteSourceTenant(mapping.id);
       }
     }
 

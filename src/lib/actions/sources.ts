@@ -19,10 +19,7 @@ export const deleteSiteSourceMapping = async (_prevState: unknown, params: FormD
     };
   }
 
-  const { error } = await supabase
-    .from('site_source_mappings')
-    .delete()
-    .eq('id', validation.data.id);
+  const { error } = await supabase.from('source_tenants').delete().eq('id', validation.data.id);
 
   if (error) {
     return {

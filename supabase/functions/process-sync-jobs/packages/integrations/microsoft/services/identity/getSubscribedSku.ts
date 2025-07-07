@@ -5,7 +5,7 @@ import { getGraphToken } from '../../auth/index.ts';
 import { MSGraphSubscribedSku } from '../../types/licenses.ts';
 
 export async function getSubscribedSku(
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<MSGraphSubscribedSku[]>> {
   try {
     const token = await getGraphToken(mapping.source_id, mapping.site_id);

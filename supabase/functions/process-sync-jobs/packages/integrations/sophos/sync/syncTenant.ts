@@ -5,14 +5,14 @@ import { transformDevices } from '../transforms/devices/transformDevices.ts';
 import { syncDevices } from './syncDevices.ts';
 import { syncMetrics } from './syncMetrics.ts';
 
-export async function syncMapping(
+export async function syncTenant(
   token: string,
-  mapping: Tables<'site_source_mappings'>
+  tenant: Tables<'source_tenants'>
 ): Promise<APIResponse<null>> {
   const timer = new Timer('syncSiteMapping', false);
   try {
     timer.begin('fetch-external');
-    const endpoints = await getEndpoints(token, mapping);
+    const endpoints = await getEndpoints(token, tenant);
     timer.end('fetch-external');
 
     if (!endpoints.ok) {
@@ -20,16 +20,16 @@ export async function syncMapping(
     }
 
     timer.begin('transforms');
-    const transformedDevices = transformDevices(mapping, endpoints.data);
+    const transformedDevices = transformDevices(tenant, endpoints.data);
     timer.end('transforms');
 
     timer.begin('syncs');
-    const devices = await syncDevices(mapping, transformedDevices);
+    const devices = await syncDevices(tenant, transformedDevices);
     if (!devices.ok) {
       throw new Error(devices.error.message);
     }
 
-    const metrics = await syncMetrics(mapping, devices.data);
+    const metrics = await syncMetrics(tenant, devices.data);
     timer.end('syncs');
     timer.summary();
 

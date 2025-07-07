@@ -4,7 +4,7 @@ import { getGraphToken, graphFetch } from '../../auth/getGraphClient.ts';
 
 export async function getAuthenticationMethods(
   id: string,
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<any[]>> {
   try {
     const token = await getGraphToken(mapping.source_id, mapping.site_id);

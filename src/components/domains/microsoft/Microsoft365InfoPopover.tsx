@@ -14,10 +14,10 @@ import { Info } from 'lucide-react';
 import z from 'zod';
 
 import {
-  putSiteSourceMapping,
-  updateSiteSourceMapping,
-  deleteSiteSourceMapping,
-} from '@/services/siteSourceMappings';
+  putSourceTenant,
+  updateSourceTenant,
+  deleteSourceTenant,
+} from '@/services/source/tenants/tenants';
 import { Tables } from '@/db/schema';
 import { useState } from 'react';
 import FormError from '@/components/common/FormError';
@@ -33,9 +33,9 @@ type FormData = z.infer<typeof schema>;
 
 type Props = {
   site: Tables<'sites_view'>;
-  mapping?: Tables<'site_source_mappings'>;
-  onSave?: (mapping: Tables<'site_source_mappings'>) => void;
-  onClear?: (mapping: Tables<'site_source_mappings'>) => void;
+  mapping?: Tables<'source_tenants'>;
+  onSave?: (mapping: Tables<'source_tenants'>) => void;
+  onClear?: (mapping: Tables<'source_tenants'>) => void;
 };
 
 export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear }: Props) {
@@ -61,7 +61,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
 
     setIsClearing(true);
     try {
-      const result = await deleteSiteSourceMapping(mapping.id);
+      const result = await deleteSourceTenant(mapping.id);
       if (!result.ok) throw new Error(result.error.message);
 
       toast.success('Mapping cleared');
@@ -78,7 +78,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
     setIsSaving(true);
     try {
       if (mapping) {
-        const result = await updateSiteSourceMapping(mapping.id, {
+        const result = await updateSourceTenant(mapping.id, {
           ...mapping,
           external_id: data.tenant_id,
           external_name: data.domains,
@@ -92,7 +92,7 @@ export default function Microsoft365InfoPopover({ site, mapping, onSave, onClear
         toast.success('Mapping updated');
         onSave?.({ ...mapping, ...result.data });
       } else {
-        const result = await putSiteSourceMapping([
+        const result = await putSourceTenant([
           {
             tenant_id: site.tenant_id!,
             site_id: site.id!,

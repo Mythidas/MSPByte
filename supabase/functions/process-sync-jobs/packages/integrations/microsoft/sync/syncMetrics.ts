@@ -7,20 +7,20 @@ import {
 } from '../../../services/metrics.ts';
 
 export async function syncMetrics(
-  mapping: Tables<'site_source_mappings'>,
+  tenant: Tables<'source_tenants'>,
   _policies: Tables<'source_policies'>[],
   _licenses: Tables<'source_license_info'>[],
   identities: Tables<'source_identities'>[]
 ): Promise<APIResponse<null>> {
-  const metrics = await getSourceMetrics(mapping.source_id, [mapping.site_id]);
+  const metrics = await getSourceMetrics(tenant.source_id, [tenant.site_id]);
   if (metrics.ok) {
     await deleteSourceMetrics(metrics.data.map((m) => m.id));
   }
 
   const totalIdentities: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'Total Identities',
     metric: identities.length,
     unit: 'identities',
@@ -35,9 +35,9 @@ export async function syncMetrics(
   };
 
   const mfaEnforcedMetric: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'No MFA Enforced (Member)',
     metric: identities.filter((id) => !id.mfa_enforced && id.enabled && id.type === 'member')
       .length,
@@ -56,9 +56,9 @@ export async function syncMetrics(
   };
 
   const mfaEnforcedMetricGuest: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'No MFA Enforced (Guest)',
     metric: identities.filter((id) => !id.mfa_enforced && id.enabled && id.type === 'guest').length,
     unit: 'identities',
@@ -76,9 +76,9 @@ export async function syncMetrics(
   };
 
   const disabledAccountsMetric: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'Disabled Accounts',
     metric: identities.filter((id) => !id.enabled).length,
     unit: 'identities',
@@ -94,9 +94,9 @@ export async function syncMetrics(
 
   const sixtyDaysAgo = Date.now() - 1000 * 60 * 60 * 24 * 60;
   const inactiveAccounts: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'Inactive Accounts (60 Days)',
     metric: identities.filter((id) => {
       if (!id.last_activity) return false;
@@ -115,12 +115,12 @@ export async function syncMetrics(
   };
 
   const invalidCALicense: TablesInsert<'source_metrics'> = {
-    tenant_id: mapping.tenant_id,
-    site_id: mapping.site_id,
-    source_id: mapping.source_id,
+    tenant_id: tenant.tenant_id,
+    site_id: tenant.site_id,
+    source_id: tenant.source_id,
     name: 'No CA License',
     metric: identities.filter((id) => {
-      return (id.metadata as any).valid_mfa_license;
+      return !(id.metadata as any).valid_mfa_license;
     }).length,
     unit: 'identities',
     total: identities.length,

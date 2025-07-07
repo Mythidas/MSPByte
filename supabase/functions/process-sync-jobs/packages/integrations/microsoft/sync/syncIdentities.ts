@@ -8,11 +8,11 @@ import {
 } from '../../../services/identities.ts';
 
 export async function syncIdentities(
-  mapping: Tables<'site_source_mappings'>,
+  tenant: Tables<'source_tenants'>,
   graphUsers: TablesInsert<'source_identities'>[]
 ): Promise<APIResponse<Tables<'source_identities'>[]>> {
   try {
-    const existingIdentities = await getSourceIdentities(mapping.source_id!, mapping.site_id!);
+    const existingIdentities = await getSourceIdentities(tenant.source_id!, tenant.site_id!);
     if (!existingIdentities.ok) {
       throw new Error(existingIdentities.error.message);
     }

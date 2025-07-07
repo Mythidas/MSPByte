@@ -3,7 +3,7 @@ import { Tables } from '../../../../db/schema.ts';
 import { getGraphToken, graphFetch } from '../../auth/getGraphClient.ts';
 
 export async function getSecurityDefaultsEnabled(
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<boolean>> {
   try {
     const token = await getGraphToken(mapping.source_id, mapping.site_id);

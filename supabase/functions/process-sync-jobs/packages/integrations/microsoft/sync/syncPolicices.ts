@@ -8,11 +8,11 @@ import {
 } from '../../../services/policies.ts';
 
 export async function syncPolicies(
-  mapping: Tables<'site_source_mappings'>,
+  tenant: Tables<'source_tenants'>,
   caPolicies: TablesInsert<'source_policies'>[]
 ): Promise<APIResponse<Tables<'source_policies'>[]>> {
   try {
-    const existingPolicies = await getSourcePolicies(mapping.source_id, [mapping.site_id]);
+    const existingPolicies = await getSourcePolicies(tenant.source_id, [tenant.site_id]);
     if (!existingPolicies.ok) {
       throw new Error(existingPolicies.error.message);
     }

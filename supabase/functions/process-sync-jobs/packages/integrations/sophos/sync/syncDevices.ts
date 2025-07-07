@@ -8,11 +8,11 @@ import {
 } from '../../../services/devices.ts';
 
 export async function syncDevices(
-  mapping: Tables<'site_source_mappings'>,
+  tenant: Tables<'source_tenants'>,
   spDevices: TablesInsert<'source_devices'>[]
 ): Promise<APIResponse<Tables<'source_devices'>[]>> {
   try {
-    const existingDevices = await getSourceDevices(mapping.source_id, [mapping.site_id]);
+    const existingDevices = await getSourceDevices(tenant.source_id, [tenant.site_id]);
     if (!existingDevices.ok) {
       throw new Error(existingDevices.error.message);
     }

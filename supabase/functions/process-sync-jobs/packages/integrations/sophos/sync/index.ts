@@ -2,12 +2,9 @@
 
 import { APIResponse, Debug, Timer } from '../../../../utils.ts';
 import { Tables } from '../../../db/schema.ts';
-import {
-  getSiteSourceMapping,
-  getSiteSourceMappings,
-} from '../../../services/siteSourceMappings.ts';
+import { getSourceTenant } from '../../../services/source-tenants.ts';
 import { getToken } from '../auth/getToken.ts';
-import { syncMapping } from './syncMapping.ts';
+import { syncTenant } from './syncTenant.ts';
 
 export async function syncSophosPartner(
   integration: Tables<'source_integrations'>,
@@ -16,9 +13,9 @@ export async function syncSophosPartner(
   try {
     const timer = new Timer('SophosPartnerSync');
 
-    const mapping = await getSiteSourceMapping(integration.source_id!, siteId);
-    if (!mapping.ok) {
-      throw new Error(mapping.error.message);
+    const tenant = await getSourceTenant(integration.source_id!, siteId);
+    if (!tenant.ok) {
+      throw new Error(tenant.error.message);
     }
 
     const token = await getToken(integration);
@@ -26,7 +23,7 @@ export async function syncSophosPartner(
       throw new Error(token.error.message);
     }
 
-    const result = await syncMapping(token.data, mapping.data);
+    const result = await syncTenant(token.data, tenant.data);
     if (!result.ok) throw result.error.message;
 
     timer.summary();

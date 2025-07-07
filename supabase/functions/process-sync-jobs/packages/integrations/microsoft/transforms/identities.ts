@@ -13,7 +13,7 @@ export async function transformIdentities(
   subscribedSkus: MSGraphSubscribedSku[],
   caPolicies: MSGraphConditionalAccessPolicy[],
   securityDefaultsEnabled: boolean,
-  mapping: Tables<'site_source_mappings'>
+  mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
   try {
     const identities: TablesInsert<'source_identities'>[] = [];

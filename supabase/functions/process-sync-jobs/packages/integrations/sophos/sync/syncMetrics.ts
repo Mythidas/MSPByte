@@ -4,7 +4,7 @@ import { putSourceMetrics } from '../../../services/metrics.ts';
 import { SPEndpoint } from '../types/endpoints.ts';
 
 export async function syncMetrics(
-  mapping: Tables<'site_source_mappings'>,
+  tenant: Tables<'source_tenants'>,
   devices: Tables<'source_devices'>[]
 ): Promise<APIResponse<null>> {
   try {
@@ -17,9 +17,9 @@ export async function syncMetrics(
     }
 
     const totalDevices = {
-      tenant_id: mapping.tenant_id,
-      site_id: mapping.site_id,
-      source_id: mapping.source_id,
+      tenant_id: tenant.tenant_id,
+      site_id: tenant.site_id,
+      source_id: tenant.source_id,
       name: 'Total Devices',
       metric: devices.length,
       unit: 'devices',
@@ -34,9 +34,9 @@ export async function syncMetrics(
     };
 
     const mdrManagedDevices = {
-      tenant_id: mapping.tenant_id,
-      site_id: mapping.site_id,
-      source_id: mapping.source_id,
+      tenant_id: tenant.tenant_id,
+      site_id: tenant.site_id,
+      source_id: tenant.source_id,
       name: 'MDR Managed Devices',
       metric: mdrManaged,
       unit: 'devices',
@@ -51,9 +51,9 @@ export async function syncMetrics(
     };
 
     const upgradableDevices = {
-      tenant_id: mapping.tenant_id,
-      site_id: mapping.site_id,
-      source_id: mapping.source_id,
+      tenant_id: tenant.tenant_id,
+      site_id: tenant.site_id,
+      source_id: tenant.source_id,
       name: 'Upgradable Devices',
       metric: upgradeable,
       unit: 'devices',

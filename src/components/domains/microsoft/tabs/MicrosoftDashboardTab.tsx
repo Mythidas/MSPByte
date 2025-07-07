@@ -5,7 +5,7 @@ import ErrorDisplay from '@/components/common/ErrorDisplay';
 import { Spinner } from '@/components/common/Spinner';
 import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
-import { getSiteSourceMapping } from '@/services/siteSourceMappings';
+import { getSourceTenant } from '@/services/source/tenants/tenants';
 
 type Props = {
   sourceId: string;
@@ -14,11 +14,11 @@ type Props = {
 
 export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
   const { data, isLoading } = useAsync<{
-    mapping: Tables<'site_source_mappings'> | undefined;
+    mapping: Tables<'source_tenants'> | undefined;
   }>({
     initial: { mapping: undefined },
     fetcher: async () => {
-      const mapping = await getSiteSourceMapping(sourceId, siteId);
+      const mapping = await getSourceTenant(sourceId, siteId);
       if (!mapping.ok) throw 'Failed to fetch mapping. Please refresh.';
 
       return {
