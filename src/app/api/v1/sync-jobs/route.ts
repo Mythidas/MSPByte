@@ -7,7 +7,7 @@ export const runtime = 'nodejs'; // Important!
 export const dynamic = 'force-dynamic'; // Avoid caching
 const MAX_DURATION = 250; // seconds
 
-export async function POST() {
+export async function GET() {
   try {
     const supabase = await createAdminClient();
     const { data: jobs, error } = await supabase.rpc('claim_sync_jobs', {
@@ -23,7 +23,6 @@ export async function POST() {
       syncJob(job, supabase);
     }
     return NextResponse.json({ status: 'started' });
-    // deno-lint-ignore no-explicit-any
   } catch (err) {
     return new Response(
       JSON.stringify({
