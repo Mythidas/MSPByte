@@ -1,3 +1,5 @@
+'use server';
+
 import { Tables } from '@/db/schema';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
