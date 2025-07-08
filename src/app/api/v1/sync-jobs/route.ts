@@ -22,7 +22,17 @@ export async function GET() {
         throw error.message;
       }
       if (!jobs?.length) {
-        throw 'No jobs found';
+        Debug.warn({
+          module: '/api/v1/sync-jobs',
+          context: 'GET',
+          message: 'No jobs found',
+          time: new Date(),
+        });
+
+        return new Response(JSON.stringify({ message: 'No jobs found' }), {
+          headers: { 'Content-Type': 'application/json' },
+          status: 200,
+        });
       }
 
       for (const job of jobs) {

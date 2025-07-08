@@ -45,7 +45,7 @@ export async function transformIdentities(
         enabled: user.accountEnabled!,
         email: user.userPrincipalName!,
         name: user.displayName!,
-        type: user.userType.toLowerCase(),
+        type: user.userType ? user.userType.toLowerCase() : 'member',
         mfa_enforced: mfaEnforced,
         enforcement_type: mfaEnforced
           ? securityDefaultsEnabled
