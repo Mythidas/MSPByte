@@ -4,7 +4,6 @@ import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 import { getSourceIntegration } from '@/services/integrations';
 import { getSource } from '@/services/sources';
-import { APIResponse } from '@/types';
 import { SupabaseClient } from '@supabase/supabase-js';
 
 export async function syncJob(job: Tables<'source_sync_jobs'>, supabase: SupabaseClient) {

@@ -3,15 +3,17 @@
 import { Schema } from 'packages/db';
 import { createServerClient } from '@supabase/ssr';
 import { createClient as _createClient } from '@supabase/supabase-js';
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
+import { getBearerToken } from '@/db/context';
 
 export const createClient = async (bearer?: string) => {
   const cookieStore = await cookies();
-  const global = !bearer
+  const token = bearer || getBearerToken();
+  const global = !token
     ? undefined
     : {
         headers: {
-          Authorization: `Bearer ${bearer}`,
+          Authorization: `Bearer ${token}`,
         },
       };
 
