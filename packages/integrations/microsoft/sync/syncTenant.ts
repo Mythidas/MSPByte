@@ -1,15 +1,18 @@
-import { APIResponse, Timer, Debug } from '../../../../utils.ts';
-import { Tables } from '../../../db/schema.ts';
-import { updateSourceTenant } from '../../../services/source-tenants.ts';
-import { getConditionalAccessPolicies } from '../services/identity/getConditionalAccessPolicies.ts';
-import { getSecurityDefaultsEnabled } from '../services/identity/getSecurityDefaultsEnabled.ts';
-import { getSubscribedSku } from '../services/identity/getSubscribedSku.ts';
-import { getUsers } from '../services/users.ts';
-import { transformIdentities } from '../transforms/identities.ts';
-import { transformPolicies } from '../transforms/policies.ts';
-import { syncIdentities } from './syncIdentities.ts';
-import { syncMetrics } from './syncMetrics.ts';
-import { syncPolicies } from './syncPolicices.ts';
+import { Tables } from '@/db/schema';
+import {
+  getSubscribedSku,
+  getConditionalAccessPolicies,
+  getSecurityDefaultsEnabled,
+} from '@/integrations/microsoft/services/identity';
+import { getUsers } from '@/integrations/microsoft/services/users';
+import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
+import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
+import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
+import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
+import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
+import { Debug, Timer } from '@/lib/utils';
+import { updateSourceTenant } from '@/services/source/tenants/tenants';
+import { APIResponse } from '@/types';
 
 export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIResponse<null>> {
   const timer = new Timer('MicrosoftSyncMapping', false);

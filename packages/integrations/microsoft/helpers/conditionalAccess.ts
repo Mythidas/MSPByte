@@ -1,6 +1,6 @@
-import { MSGraphSubscribedSku } from 'packages/integrations/microsoft/types';
-import { MSGraphConditionalAccessPolicy } from 'packages/integrations/microsoft/types/conditionalAccess';
-import { MSGraphUserContext } from 'packages/integrations/microsoft/types/users';
+import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
+import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
+import { MSGraphUserContext } from '@/integrations/microsoft/types/users';
 
 export function doesPolicyApplyToUser(
   policy: MSGraphConditionalAccessPolicy,

@@ -3,10 +3,17 @@
 import { Schema } from 'packages/db';
 import { createServerClient } from '@supabase/ssr';
 import { createClient as _createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
-export const createClient = async () => {
+export const createClient = async (bearer?: string) => {
   const cookieStore = await cookies();
+  const global = !bearer
+    ? undefined
+    : {
+        headers: {
+          Authorization: `Bearer ${bearer}`,
+        },
+      };
 
   return createServerClient<Schema.Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -28,6 +35,7 @@ export const createClient = async () => {
           }
         },
       },
+      global,
     }
   );
 };

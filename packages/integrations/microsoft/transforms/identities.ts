@@ -1,18 +1,15 @@
-import { Debug } from '@/lib/utils';
-import { Tables, TablesInsert } from 'packages/db/schema';
-import {
-  isUserCapableOfCA,
-  isUserRequiredToUseMFA,
-} from 'packages/integrations/microsoft/helpers/conditionalAccess';
-import { getAuthenticationMethods } from 'packages/integrations/microsoft/services/identity';
-import { getUserContext } from 'packages/integrations/microsoft/services/users';
-import { MSGraphSubscribedSku } from 'packages/integrations/microsoft/types';
-import { MSGraphConditionalAccessPolicy } from 'packages/integrations/microsoft/types/conditionalAccess';
+import { Tables, TablesInsert } from '@/db/schema';
+import { isUserRequiredToUseMFA } from '@/integrations/microsoft/helpers/conditionalAccess';
+import { getAuthenticationMethods } from '@/integrations/microsoft/services/identity';
+import { getUserContext } from '@/integrations/microsoft/services/users';
+import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
 import {
   MSGraphAuthenticationMethod,
   AuthenticationMethodType,
-} from 'packages/integrations/microsoft/types/identity';
-import { MSGraphUser } from 'packages/integrations/microsoft/types/users';
+} from '@/integrations/microsoft/types/identity';
+import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
+import { MSGraphUser } from '@/integrations/microsoft/types/users';
+import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function transformIdentities(
@@ -36,9 +33,7 @@ export async function transformIdentities(
           (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
         ) || [];
       const mfaEnforced =
-        securityDefaultsEnabled ||
-        (isUserCapableOfCA(licenseSkus, subscribedSkus) &&
-          isUserRequiredToUseMFA(caPolicies, userContext.data));
+        securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
       const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
       identities.push({

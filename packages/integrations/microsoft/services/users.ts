@@ -1,6 +1,6 @@
 import { Tables } from '@/db/schema';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
-import { MSGraphSubscribedSku } from '@/integrations/microsoft/types';
+import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser, MSGraphUserContext } from '@/integrations/microsoft/types/users';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';

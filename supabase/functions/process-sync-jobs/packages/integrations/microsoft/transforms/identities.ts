@@ -1,6 +1,6 @@
 import { APIResponse, Debug } from '../../../../utils.ts';
 import { Tables, TablesInsert } from '../../../db/schema.ts';
-import { isUserCapableOfCA, isUserRequiredToUseMFA } from '../helpers/conditionalAccess.ts';
+import { isUserRequiredToUseMFA } from '../helpers/conditionalAccess.ts';
 import { getAuthenticationMethods } from '../services/identity/getAuthenticationMethods.ts';
 import { getUserContext } from '../services/users.ts';
 import { MSGraphConditionalAccessPolicy } from '../types/conditionalAccess.ts';

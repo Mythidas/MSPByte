@@ -3,10 +3,10 @@
 import { tables } from 'packages/db';
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 
-export async function getSourceIdentities(mappingIds?: string[]) {
+export async function getSourceIdentities(sourceId: string, siteIds?: string[]) {
   return await tables.select('source_identities', (query) => {
-    query = query.order('name');
-    if (mappingIds) query = query.in('mapping_id', mappingIds);
+    query = query.order('name').eq('source_id', sourceId);
+    if (siteIds) query = query.in('site_id', siteIds);
   });
 }
 

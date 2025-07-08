@@ -118,23 +118,6 @@ export async function updateSourceMetric(
   }
 }
 
-export async function deleteSourceMetric(id: string): Promise<APIResponse<null>> {
-  try {
-    const supabase = await createClient();
-
-    const { error } = await supabase.from('source_metrics').delete().eq('id', id);
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data: null,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'integrations',
-      context: 'update-source-metric',
-      message: String(err),
-      time: new Date(),
-    });
-  }
+export async function deleteSourceMetrics(ids: string[]): Promise<APIResponse<null>> {
+  return tables.delete('source_metrics', ids);
 }
