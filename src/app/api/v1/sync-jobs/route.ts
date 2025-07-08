@@ -18,7 +18,7 @@ export async function GET() {
       throw error.message;
     }
     if (!jobs?.length) {
-      return 'No jobs found';
+      throw 'No jobs found';
     }
     for (const job of jobs) {
       syncJob(job, supabase);
