@@ -41,7 +41,7 @@ export const createClient = async (bearer?: string) => {
 };
 
 export const createAdminClient = async () => {
-  return _createClient(
+  return _createClient<Schema.Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_SUPABASE_SERVICE_KEY!
   );

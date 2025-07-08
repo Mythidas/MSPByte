@@ -1,7 +1,10 @@
-import { type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { updateSession } from 'packages/db/middleware';
 
 export async function middleware(request: NextRequest) {
+  const isCron = request.headers.get('x-vercel-cron') === '1';
+  if (isCron) return NextResponse.next();
+
   return await updateSession(request);
 }
 
