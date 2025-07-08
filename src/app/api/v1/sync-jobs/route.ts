@@ -1,6 +1,7 @@
 // app/api/sync-job.ts
 import { syncJob } from '@/core/syncJob';
 import { createAdminClient } from '@/db/server';
+import { Debug } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs'; // Important!
@@ -17,13 +18,19 @@ export async function GET() {
       throw error.message;
     }
     if (!jobs?.length) {
-      return new Response('No jobs found');
+      return 'No jobs found';
     }
     for (const job of jobs) {
       syncJob(job, supabase);
     }
     return NextResponse.json({ status: 'started' });
   } catch (err) {
+    Debug.error({
+      module: '/api/v1/sync-jobs',
+      context: 'GET',
+      message: String(err),
+      time: new Date(),
+    });
     return new Response(
       JSON.stringify({
         message: String(err),
