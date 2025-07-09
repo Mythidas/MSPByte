@@ -10,8 +10,9 @@ import {
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
-import { Settings } from 'lucide-react';
+import { Database, Settings } from 'lucide-react';
 import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/MicrosoftIdentitiesTab';
+import MicrosoftGlobalboardTab from '@/components/domains/microsoft/tabs/MicrosoftGlobalDashboardTab';
 
 type Props = {
   sourceId: string;
@@ -20,31 +21,30 @@ type Props = {
 
 export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
   return (
-    <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
-      <div className="flex size-full justify-between">
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Database className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Microsoft 365</h1>
+            <p className="text-sm text-muted-foreground">Integration dashboard and metrics</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <SyncSourceItem type="global" sourceId={sourceId} button />
+        </div>
+      </div>
+      <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <SyncSourceItem type="global" sourceId={sourceId} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
 
-      <TabsContent value="dashboard">
-        <div className="grid gap-4">
-          <h2 className="font-bold text-xl">Quick Metrics</h2>
-          <SourceMetricsAggregatedTable sourceId={sourceId} />
-        </div>
-      </TabsContent>
-      <MicrosoftIdentitiesTab sourceId={sourceId} />
-    </Tabs>
+        <MicrosoftGlobalboardTab sourceId={sourceId} />
+        <MicrosoftIdentitiesTab sourceId={sourceId} />
+      </Tabs>
+    </>
   );
 }

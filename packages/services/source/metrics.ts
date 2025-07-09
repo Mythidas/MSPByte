@@ -18,7 +18,7 @@ export async function getSourceMetricsRollup(
 ) {
   return tables.rpc('get_rollup_metrics', {
     _scope: scope,
-    _id: siteId || '',
+    _id: siteId || '00000000-0000-0000-0000-000000000000',
     _source_id: sourceId,
   });
 }

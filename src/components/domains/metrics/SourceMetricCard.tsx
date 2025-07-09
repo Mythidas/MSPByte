@@ -1,114 +1,89 @@
-import { Card, CardHeader, CardAction, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardAction, CardContent, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import RouteButton from '@/components/common/routed/RouteButton';
-import { Tables } from '@/db/schema';
+import { Database, Json, Tables } from '@/db/schema';
 import { cn } from '@/lib/utils';
-import { MoveRight } from 'lucide-react';
+import { LucideProps, TrendingUp } from 'lucide-react';
+import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import Link from 'next/link';
+
+type RollupMetric = Database['public']['Functions']['get_rollup_metrics']['Returns'][number];
 
 type Props = {
-  metric: Tables<'source_metrics'>;
+  metric: RollupMetric;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   baseRoute?: string;
 };
 
-export default function SourceMetricCard({ metric, baseRoute }: Props) {
-  function formatFilters(filters: Record<string, string>) {
+export default function SourceMetricCard({ metric, icon: Icon, baseRoute }: Props) {
+  console.log(metric);
+  const filtersFormatted = () => {
     let parsed = '';
-    for (const [key, value] of Object.entries(filters)) {
+    for (const [key, value] of Object.entries((metric.filters as Record<string, string>[])[0])) {
       if (parsed.length > 0) parsed += '&';
       parsed += `${key}=${value}`;
     }
 
     return parsed;
-  }
-
-  function getState(percent: number) {
-    if (!metric.thresholds) return 'neutral';
-
-    const thresholds = metric.thresholds as Record<string, number | boolean | undefined>;
-    const highest = (thresholds['highest'] as boolean) || false;
-
-    const info = thresholds['info'] !== undefined ? (thresholds['info'] as number) : undefined;
-    const warn = thresholds['warn'] !== undefined ? (thresholds['warn'] as number) : undefined;
-    const critical =
-      thresholds['critical'] !== undefined ? (thresholds['critical'] as number) : undefined;
-
-    if (highest) {
-      if (warn !== undefined && percent > warn) return 'info';
-      if (critical !== undefined && percent > critical) return 'warn';
-      if (critical !== undefined && percent <= critical) return 'critical';
-    } else {
-      if (info !== undefined && percent <= info) return 'info';
-      if (info !== undefined && percent > info) return 'warn';
-      if (warn !== undefined && percent > warn) return 'critical';
-    }
-
-    return 'neutral';
-  }
-
-  function getColor(state: 'info' | 'warn' | 'critical' | 'neutral') {
-    switch (state) {
-      case 'warn':
-        return '[&>div]:bg-amber-500 bg-amber-500/30';
-      case 'critical':
-        return '[&>div]:bg-red-500 bg-red-500/30';
-      case 'neutral':
-        return '[&>div]:bg-slate-500 bg-slate-500/30';
-      default:
-        return '';
-    }
-  }
-
-  const defaultVisual = () => {
-    return (
-      <span>
-        {metric.metric} {metric.unit}
-      </span>
-    );
   };
 
-  const progressBar = () => {
-    if (!metric.total) return defaultVisual();
-
-    const percent = (metric.metric / metric.total) * 100;
-    const state = getState(percent);
-    const color = getColor(state);
-    return (
-      <div className="flex gap-2 justify-center items-center">
-        <span>{metric.metric}</span>
-        <Progress className={cn(color)} value={(metric.metric! / metric.total) * 100} />
-        <span>{metric.total}</span>
-        <span>{metric.unit}</span>
-      </div>
-    );
-  };
-
-  function getVisual() {
+  const valueDisplay = () => {
     switch (metric.visual) {
-      case 'progress':
-        return progressBar();
+      case 'percentage': {
+        const percent = (metric.value / metric.total) * 100;
+        return `${percent} %`;
+      }
       default:
-        return defaultVisual();
+        return metric.value;
     }
-  }
+  };
+
+  const deltaDisplay = () => {
+    switch (metric.visual) {
+      case 'percentage': {
+        const percent = (metric.delta / metric.total) * 100;
+        return `${percent} %`;
+      }
+      default:
+        return metric.delta;
+    }
+  };
 
   return (
     <Card className="bg-linear-to-t from-primary/5 to-card">
-      <CardHeader>
-        <span className="text-base">{metric.name}</span>
-        <CardAction>
-          {metric.route && (
-            <RouteButton
-              variant="ghost"
-              route={`${baseRoute || metric.route}${baseRoute?.includes('?') ? '&' : '?'}${formatFilters(metric.filters as Record<string, string>)}`}
-              module="Sources"
-              level="Read"
-            >
-              <MoveRight />
-            </RouteButton>
-          )}
-        </CardAction>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">
+          <Link
+            href={
+              baseRoute
+                ? `${baseRoute}?${filtersFormatted()}`
+                : `${metric.route}?${filtersFormatted()}`
+            }
+          >
+            {metric.name}
+          </Link>
+        </CardTitle>
+        <Icon className="h-4 w-4 text-muted-foreground" />
       </CardHeader>
-      <CardContent>{getVisual()}</CardContent>
+      <CardContent>
+        <div className="space-y-1">
+          <div className="text-2xl font-bold">{valueDisplay()}</div>
+          <div className="flex items-center gap-1">
+            <TrendingUp
+              className={`h-3 w-3 ${metric.roc_positive ? 'text-green-600' : 'text-red-600'}`}
+            />
+            <span
+              className={`text-xs font-medium ${
+                metric.roc_positive ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {deltaDisplay()}
+            </span>
+            <span className="text-xs text-muted-foreground">vs last sync</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{metric.description}</p>
+        </div>
+      </CardContent>
     </Card>
   );
 }

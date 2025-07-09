@@ -9,15 +9,18 @@ import {
   Unlock,
   ShieldCheck,
   Circle,
+  Layers2,
 } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { useLazyLoad } from '@/hooks/useLazyLoad';
 import { getSourceMetricsRollup } from '@/services/source/metrics';
-import { getSourceTenant } from '@/services/source/tenants';
+import { getSourceTenants } from '@/services/source/tenants';
 import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import { Skeleton } from '@/components/ui/skeleton';
 import Loader from '@/components/common/Loader';
 import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
+import { getSites } from '@/services/sites';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const getMetricIcon = (name: string) => {
   switch (name) {
@@ -55,6 +58,13 @@ const getMfaConfig = (enforcement: string) => {
         color: 'bg-red-100 text-red-800',
         description: 'No tenant-wide MFA enforcement configured',
       };
+    case 'mixed':
+      return {
+        label: 'Mixed',
+        icon: Layers2,
+        color: 'bg-red-100 text-red-800',
+        description: 'MFA enforcement varies between children',
+      };
     default:
       return {
         label: 'Unknown',
@@ -67,23 +77,32 @@ const getMfaConfig = (enforcement: string) => {
 
 type Props = {
   sourceId: string;
-  siteId: string;
 };
 
-export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
+export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
   const { content } = useLazyLoad({
     loader: async () => {
-      const tenant = await getSourceTenant(sourceId, siteId);
+      const sites = await getSites();
+      if (!sites.ok) return undefined;
+
+      const tenant = await getSourceTenants(sourceId, [...sites.data.map((s) => s.id)]);
       if (tenant.ok) {
-        return {
-          ...tenant.data,
-          metadata: tenant.data.metadata as MicrosoftTenantMetadata,
-        };
+        return tenant.data;
       }
     },
     render: (data) => {
       if (!data) return null;
-      const mfaConfig = getMfaConfig(data.metadata.mfa_enforcement);
+      const uniformOrMixed = () => {
+        const arr = data.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
+        if (arr.length === 0) return 'mixed';
+        const first = arr[0];
+        return arr.every((val) => val === first) ? first : 'mixed';
+      };
+
+      const mfaConfig = getMfaConfig(uniformOrMixed());
+      const domains = data.flatMap(
+        (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
+      );
 
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -95,19 +114,24 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
                 Domains
               </CardTitle>
               <CardDescription>
-                {data.metadata.domains.length} domain{data.metadata.domains.length !== 1 ? 's' : ''}{' '}
-                configured
+                {domains.length} domain{domains.length !== 1 ? 's' : ''} configured
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {data.metadata.domains.map((domain) => (
-                  <Badge key={domain} variant="secondary" className="flex items-center gap-1">
-                    <Globe className="h-3 w-3" />
-                    {domain}
-                  </Badge>
-                ))}
-              </div>
+              <ScrollArea className="max-h-16 overflow-auto">
+                <div className="flex flex-wrap gap-2">
+                  {domains.map((domain, idx) => (
+                    <Badge
+                      key={domain + idx}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      <Globe className="h-3 w-3" />
+                      {domain}
+                    </Badge>
+                  ))}
+                </div>
+              </ScrollArea>
             </CardContent>
           </Card>
 
@@ -180,7 +204,7 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
 
   const { content: MetricsGrid } = useLazyLoad({
     loader: async () => {
-      const metrics = await getSourceMetricsRollup('site', sourceId, siteId);
+      const metrics = await getSourceMetricsRollup('global', sourceId);
       console.log(metrics);
       if (metrics.ok) {
         return metrics.data;

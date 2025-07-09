@@ -1192,13 +1192,18 @@ export type Database = {
       get_rollup_metrics: {
         Args: { _scope: string; _id: string; _source_id: string }
         Returns: {
-          metric_key: string
+          name: string
           value: number
           delta: number
           unit: string
+          total: number
           source_id: string
           roc_positive: boolean
           description: string
+          route: string
+          visual: string
+          filters: Json
+          thresholds: Json
           created_at: string
         }[]
       }
