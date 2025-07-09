@@ -70,6 +70,7 @@ export default function MicrosoftIdentitiesTable({
       data={data?.identities || []}
       isLoading={isLoading}
       initialVisibility={initialVisibility}
+      height="max-h-[50vh]"
       columns={
         [
           textColumn({

@@ -38,6 +38,7 @@ import { Spinner } from '@/components/common/Spinner';
 import { DataTableFilters } from '@/components/common/table/DataTableFilters';
 import { DataTableFooter } from '@/components/common/table/DataTableFooter';
 import * as XLSX from 'xlsx';
+import { ClassValue } from 'clsx';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
@@ -45,6 +46,7 @@ interface DataTableProps<TData> {
   initialVisibility?: VisibilityState;
   action?: React.ReactNode;
   isLoading?: boolean;
+  height?: ClassValue;
 }
 
 export default function DataTable<TData>({
@@ -53,6 +55,7 @@ export default function DataTable<TData>({
   initialVisibility = {},
   action,
   isLoading,
+  height = 'max-h-[60vh]',
 }: DataTableProps<TData>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -307,7 +310,7 @@ export default function DataTable<TData>({
       </div>
 
       <Card className="py-0 gap-2 rounded-none bg-linear-to-t from-primary/5 to-card">
-        <ScrollArea className="max-h-[60vh] max-w-full">
+        <ScrollArea className={cn(height && height, 'max-w-full')}>
           <Table>
             <TableHeader className="sticky top-0 bg-card rounded z-10">
               {table.getHeaderGroups().map((headerGroup) => (

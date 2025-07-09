@@ -173,6 +173,36 @@ export async function tablesUpdateGeneric<T extends keyof Database['public']['Ta
   }
 }
 
+export async function tablesUpsertGeneric<T extends keyof Database['public']['Tables']>(
+  table: T,
+  rows: TablesUpdate<T>[],
+  modifyQuery?: (query: QueryBuilder<T>) => void
+): Promise<APIResponse<Tables<T>[]>> {
+  try {
+    const supabase = await createClient();
+    let query = supabase.from(table).upsert(rows as any);
+
+    if (modifyQuery) {
+      modifyQuery(query as any);
+    }
+
+    const { data, error } = await query.select();
+    if (error) throw new Error(error.message);
+
+    return {
+      ok: true,
+      data: data as Tables<T>[],
+    };
+  } catch (err) {
+    return Debug.error({
+      module: 'supabase',
+      context: `insert_${String(table)}`,
+      message: String(err),
+      time: new Date(),
+    });
+  }
+}
+
 export async function tablesDeleteGeneric<T extends keyof Database['public']['Tables']>(
   table: T,
   ids: string[]
@@ -194,6 +224,31 @@ export async function tablesDeleteGeneric<T extends keyof Database['public']['Ta
     return Debug.error({
       module: 'supabase',
       context: `delete_${String(table)}`,
+      message: String(err),
+      time: new Date(),
+    });
+  }
+}
+
+export async function tablesRPCGeneric<
+  Fn extends keyof Database['public']['Functions'],
+  Args extends Database['public']['Functions'][Fn]['Args'],
+  Ret = Database['public']['Functions'][Fn]['Returns'],
+>(fn: Fn, args: Args): Promise<APIResponse<Ret>> {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc(fn, args);
+
+    if (error) throw new Error(error.message);
+
+    return {
+      ok: true,
+      data: data as Ret,
+    };
+  } catch (err) {
+    return Debug.error({
+      module: 'supabase',
+      context: `rpc_${String(fn)}`,
       message: String(err),
       time: new Date(),
     });

@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function SiteHeader({ site }: Props) {
-  const { content } = useLazyLoad({
+  const { content: ChildBadge } = useLazyLoad({
     loader: async () => {
       if (!site.is_parent) return undefined;
       const children = await getSitesCount(site.id);
@@ -21,11 +21,12 @@ export default function SiteHeader({ site }: Props) {
       }
     },
     render: (data) => {
-      if (!data) return null;
+      if (!site.is_parent) return null;
+
       return (
         <Badge variant="outline">
           <Users className="h-3 w-3 mr-1" />
-          {data} Child Sites
+          {data || 0} Child Sites
         </Badge>
       );
     },
@@ -48,7 +49,7 @@ export default function SiteHeader({ site }: Props) {
             <Badge variant={site.is_parent ? 'default' : 'secondary'}>
               {site.is_parent ? 'Parent Site' : 'Site'}
             </Badge>
-            {content}
+            {ChildBadge}
           </div>
         </div>
       </div>

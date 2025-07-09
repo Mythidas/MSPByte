@@ -16,7 +16,7 @@ import { DataTableHeader } from '@/components/common/table/DataTableHeader';
 import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
 import { getSitesView } from '@/services/sites';
-import { getSourceTenants } from '@/services/source/tenants/tenants';
+import { getSourceTenants } from '@/services/source/tenants';
 import { DataTableColumnDef } from '@/types/data-table';
 import { useState } from 'react';
 

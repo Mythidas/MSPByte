@@ -1,5 +1,5 @@
 import { Debug } from '@/lib/utils';
-import { getSourceTenant } from '@/services/source/tenants/tenants';
+import { getSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 import { ClientSecretCredential } from '@azure/identity';
 import { Client } from '@microsoft/microsoft-graph-client';

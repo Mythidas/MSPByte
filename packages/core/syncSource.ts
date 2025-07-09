@@ -27,6 +27,7 @@ export async function syncSource(
           tenant_id: tenantId,
           est_duration: getEstDuration(),
           site_id: s,
+          created_at: new Date().toISOString(),
         };
       })
     );

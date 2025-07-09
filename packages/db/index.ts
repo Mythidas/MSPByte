@@ -2,17 +2,21 @@ import {
   tablesCountGeneric,
   tablesDeleteGeneric,
   tablesInsertGeneric,
+  tablesRPCGeneric,
   tablesSelectGeneric,
   tablesSelectSingleGeneric,
   tablesUpdateGeneric,
-} from 'packages/db/generics';
+  tablesUpsertGeneric,
+} from '@/db/generics';
 
-export * as Schema from 'packages/db/schema';
+export * as Schema from '@/db/schema';
 export const tables = {
   select: tablesSelectGeneric,
   selectSingle: tablesSelectSingleGeneric,
   insert: tablesInsertGeneric,
   update: tablesUpdateGeneric,
+  upsert: tablesUpsertGeneric,
   delete: tablesDeleteGeneric,
   count: tablesCountGeneric,
+  rpc: tablesRPCGeneric,
 };

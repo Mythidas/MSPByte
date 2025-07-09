@@ -509,52 +509,52 @@ export type Database = {
       source_metrics: {
         Row: {
           created_at: string | null
+          description: string | null
           filters: Json | null
           id: string
-          is_historic: boolean
-          metadata: Json | null
           metric: number
           name: string
+          roc_positive: boolean
           route: string | null
           site_id: string
           source_id: string | null
           tenant_id: string
           thresholds: Json | null
-          total: number | null
+          total: number
           unit: string
           visual: string | null
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           filters?: Json | null
           id?: string
-          is_historic?: boolean
-          metadata?: Json | null
           metric: number
           name: string
+          roc_positive?: boolean
           route?: string | null
           site_id: string
           source_id?: string | null
           tenant_id: string
           thresholds?: Json | null
-          total?: number | null
+          total: number
           unit: string
           visual?: string | null
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           filters?: Json | null
           id?: string
-          is_historic?: boolean
-          metadata?: Json | null
           metric?: number
           name?: string
+          roc_positive?: boolean
           route?: string | null
           site_id?: string
           source_id?: string | null
           tenant_id?: string
           thresholds?: Json | null
-          total?: number | null
+          total?: number
           unit?: string
           visual?: string | null
         }
@@ -1170,135 +1170,6 @@ export type Database = {
           },
         ]
       }
-      source_metrics_aggregated: {
-        Row: {
-          filters: Json | null
-          metric: number | null
-          name: string | null
-          route: string | null
-          source_id: string | null
-          thresholds: Json | null
-          total: number | null
-          unit: string | null
-          visual: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      source_metrics_aggregated_grouped: {
-        Row: {
-          filters: Json | null
-          metric: number | null
-          name: string | null
-          parent_id: string | null
-          route: string | null
-          source_id: string | null
-          thresholds: Json | null
-          total: number | null
-          unit: string | null
-          visual: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      source_metrics_newest: {
-        Row: {
-          created_at: string | null
-          filters: Json | null
-          id: string | null
-          is_historic: boolean | null
-          metadata: Json | null
-          metric: number | null
-          name: string | null
-          route: string | null
-          site_id: string | null
-          source_id: string | null
-          tenant_id: string | null
-          thresholds: Json | null
-          total: number | null
-          unit: string | null
-          visual: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "sites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "sites_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["site_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_identities_view"
-            referencedColumns: ["parent_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Functions: {
       claim_sync_jobs: {
@@ -1316,6 +1187,19 @@ export type Database = {
           started_at: string | null
           status: string
           tenant_id: string
+        }[]
+      }
+      get_rollup_metrics: {
+        Args: { _scope: string; _id: string; _source_id: string }
+        Returns: {
+          metric_key: string
+          value: number
+          delta: number
+          unit: string
+          source_id: string
+          roc_positive: boolean
+          description: string
+          created_at: string
         }[]
       }
       has_access: {

@@ -16,11 +16,7 @@ import { column, textColumn } from '@/components/common/table/DataTableColumn';
 import { Tables } from '@/db/schema';
 import { useAsync } from '@/hooks/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
-import {
-  getSourceTenants,
-  putSourceTenant,
-  deleteSourceTenant,
-} from '@/services/source/tenants/tenants';
+import { getSourceTenants, putSourceTenant, deleteSourceTenant } from '@/services/source/tenants';
 import { DataTableColumnDef } from '@/types/data-table';
 import { useState } from 'react';
 import { toast } from 'sonner';

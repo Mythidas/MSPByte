@@ -5,7 +5,7 @@ import { Spinner } from '@/components/common/Spinner';
 import { getSourceIntegrationsView } from '@/services/integrations';
 import { useState } from 'react';
 import { useLazyLoad } from '@/hooks/useLazyLoad';
-import { getSourceTenants } from '@/services/source/tenants/tenants';
+import { getSourceTenants } from '@/services/source/tenants';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
 import SearchBar from '@/components/common/SearchBar';

@@ -3,7 +3,7 @@
 import { Tables } from '@/db/schema';
 import { syncTenant } from '@/integrations/microsoft/sync/syncTenant';
 import { Debug, Timer } from '@/lib/utils';
-import { getSourceTenant } from '@/services/source/tenants/tenants';
+import { getSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 
 export async function syncMicrosoft365(

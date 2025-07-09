@@ -13,11 +13,7 @@ import { toast } from 'sonner';
 import { Info } from 'lucide-react';
 import z from 'zod';
 
-import {
-  putSourceTenant,
-  updateSourceTenant,
-  deleteSourceTenant,
-} from '@/services/source/tenants/tenants';
+import { putSourceTenant, updateSourceTenant, deleteSourceTenant } from '@/services/source/tenants';
 import { Tables } from '@/db/schema';
 import { useState } from 'react';
 import FormError from '@/components/common/FormError';

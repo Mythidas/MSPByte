@@ -1,7 +1,7 @@
 import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import { Debug } from '@/lib/utils';
-import { putSourceMetrics } from '@/services/metrics';
+import { putSourceMetrics } from '@/services/source/metrics';
 import { APIResponse } from '@/types';
 
 export async function syncMetrics(
@@ -68,7 +68,7 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
-    await putSourceMetrics([totalDevices, mdrManagedDevices, upgradableDevices]);
+    // await putSourceMetrics([totalDevices, mdrManagedDevices, upgradableDevices]);
 
     return {
       ok: true,

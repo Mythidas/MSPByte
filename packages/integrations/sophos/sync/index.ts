@@ -4,7 +4,7 @@ import { Tables } from '@/db/schema';
 import { getToken } from '@/integrations/sophos/auth';
 import { syncTenant } from '@/integrations/sophos/sync/syncTenant';
 import { Debug, Timer } from '@/lib/utils';
-import { getSourceTenant } from '@/services/source/tenants/tenants';
+import { getSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 
 export async function syncSophosPartner(

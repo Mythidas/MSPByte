@@ -2,17 +2,56 @@
 
 import MicrosoftIdentitiesTable from '@/components/domains/microsoft/tables/MicrosoftIdentitiesTable';
 import MicrosoftDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftDashboardTab';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
-import { Settings } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, Database, RefreshCw } from 'lucide-react';
+import { TooltipTrigger, TooltipContent, Tooltip } from '@/components/ui/tooltip';
+import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { Badge } from '@/components/ui/badge';
+import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const getStatusConfig = (status: string) => {
+  switch (status) {
+    case 'completed':
+      return {
+        variant: 'default',
+        icon: CheckCircle2,
+        label: 'Synced',
+        color: 'text-green-600',
+      };
+    case 'running':
+      return {
+        variant: 'secondary',
+        icon: RefreshCw,
+        label: 'Syncing',
+        color: 'text-blue-600',
+      };
+    case 'failed':
+      return {
+        variant: 'destructive',
+        icon: AlertCircle,
+        label: 'Failed',
+        color: 'text-red-600',
+      };
+    case 'pending':
+      return {
+        variant: 'secondary',
+        icon: Clock,
+        label: 'Pending',
+        color: 'text-yellow-600',
+      };
+    default:
+      return {
+        variant: 'destructive',
+        icon: AlertCircle,
+        label: 'Unknown',
+        color: 'text-gray-600',
+      };
+  }
+};
 
 type Props = {
   sourceId: string;
@@ -21,29 +60,70 @@ type Props = {
 };
 
 export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
+  const { content } = useLazyLoad({
+    loader: async () => {
+      const syncJob = await getSourceSyncJobLatest(sourceId, site.id);
+      if (syncJob.ok) {
+        return syncJob.data;
+      }
+    },
+    render: (data) => {
+      if (!data) return null;
+      const config = getStatusConfig(data.status);
+
+      return (
+        <Tooltip>
+          <TooltipTrigger>
+            <Badge
+              variant={config.variant as 'default' | 'secondary' | 'destructive' | 'outline' | null}
+              className="flex items-center gap-1 text-sm"
+            >
+              <config.icon className="h-3 w-3" />
+              {config.label}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="font-medium">
+              Last sync:{' '}
+              {new Date(
+                data.completed_at || data.started_at || data.created_at || ''
+              ).toLocaleString()}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    },
+    skeleton: () => <Skeleton className="w-24 h-6" />,
+  });
+
   return (
-    <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
-      <div className="flex size-full justify-between">
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Database className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Microsoft 365</h1>
+            <p className="text-sm text-muted-foreground">Integration dashboard and metrics</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          {content}
+          <SyncSourceItem type="site" sourceId={sourceId} site={site} button />
+        </div>
+      </div>
+      <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <SyncSourceItem type="site" sourceId={sourceId} site={site} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
 
-      <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
-      <TabsContent value="identities">
-        <MicrosoftIdentitiesTable sourceId={sourceId} siteIds={[site!.id]} siteLevel />
-      </TabsContent>
-    </Tabs>
+        <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
+        <TabsContent value="identities">
+          <MicrosoftIdentitiesTable sourceId={sourceId} siteIds={[site!.id]} siteLevel />
+        </TabsContent>
+      </Tabs>
+    </>
   );
 }

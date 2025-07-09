@@ -11,7 +11,7 @@ import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
 import { Debug, Timer } from '@/lib/utils';
-import { updateSourceTenant } from '@/services/source/tenants/tenants';
+import { updateSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 
 export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIResponse<null>> {

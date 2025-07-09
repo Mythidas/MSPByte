@@ -3,7 +3,7 @@
 import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
 import { Spinner } from '@/components/common/Spinner';
 import { Tables } from '@/db/schema';
-import { getSourceMetrics } from '@/services/metrics';
+import { getSourceMetrics } from '@/services/source/metrics';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
