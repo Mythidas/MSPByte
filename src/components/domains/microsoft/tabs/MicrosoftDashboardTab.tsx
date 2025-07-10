@@ -173,7 +173,6 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
               <SourceMetricCard
                 key={metric.name}
                 metric={metric}
-                filters={metric.filters as Record<string, string>}
                 baseRoute={`/sites/${siteId}/microsoft-365`}
               />
             );

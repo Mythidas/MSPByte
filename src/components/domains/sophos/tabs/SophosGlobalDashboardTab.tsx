@@ -6,13 +6,12 @@ import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
 
 type Props = {
   sourceId: string;
-  siteId: string;
 };
 
-export default function SophosDashboardTab({ sourceId, siteId }: Props) {
+export default function SophosGlobalDashboardTab({ sourceId }: Props) {
   const { content: MetricsGrid } = useLazyLoad({
     loader: async () => {
-      const metrics = await getSourceMetricsRollup('site', sourceId, siteId);
+      const metrics = await getSourceMetricsRollup('global', sourceId);
       if (metrics.ok) {
         return metrics.data;
       }

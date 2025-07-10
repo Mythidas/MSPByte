@@ -9,10 +9,10 @@ type Props = {
   siteId: string;
 };
 
-export default function SophosDashboardTab({ sourceId, siteId }: Props) {
+export default function SophosParentashboardTab({ sourceId, siteId }: Props) {
   const { content: MetricsGrid } = useLazyLoad({
     loader: async () => {
-      const metrics = await getSourceMetricsRollup('site', sourceId, siteId);
+      const metrics = await getSourceMetricsRollup('parent', sourceId, siteId);
       if (metrics.ok) {
         return metrics.data;
       }

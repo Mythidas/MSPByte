@@ -187,19 +187,12 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
       }
     },
     render: (data) => {
-      console.log(data);
       if (!data) return null;
 
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((metric) => {
-            return (
-              <SourceMetricCard
-                key={metric.name}
-                metric={metric}
-                filters={(metric.filters as Record<string, string>[])[0]}
-              />
-            );
+            return <SourceMetricCard key={metric.name} metric={metric} />;
           })}
         </div>
       );

@@ -8,14 +8,13 @@ type RollupMetric = Database['public']['Functions']['get_rollup_metrics']['Retur
 
 type Props = {
   metric: RollupMetric;
-  filters: Record<string, string>;
   baseRoute?: string;
 };
 
-export default function SourceMetricCard({ metric, filters, baseRoute }: Props) {
+export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const filtersFormatted = () => {
     let parsed = '';
-    for (const [key, value] of Object.entries(filters)) {
+    for (const [key, value] of Object.entries(metric.filters as Record<string, string>)) {
       if (parsed.length > 0) parsed += '&';
       parsed += `${key}=${value}`;
     }

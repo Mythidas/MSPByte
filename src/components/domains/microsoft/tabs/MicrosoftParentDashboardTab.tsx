@@ -190,7 +190,6 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
               <SourceMetricCard
                 key={metric.name}
                 metric={metric}
-                filters={(metric.filters as Record<string, string>[])[0]}
                 baseRoute={`/sites/${siteId}/microsoft-365`}
               />
             );

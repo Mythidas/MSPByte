@@ -1,46 +1,44 @@
 'use client';
 
 import SophosDevicesTab from '@/components/domains/sophos/tabs/SophosDevicesTab';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
-import { Tables } from '@/db/schema';
-import { Settings } from 'lucide-react';
+import { Database } from 'lucide-react';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
   tab?: string;
 };
 
-export default function SophosGlobalMapping({ sourceId, site, tab }: Props) {
+export default function SophosGlobalMapping({ sourceId, tab }: Props) {
   return (
-    <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
-      <div className="flex size-full justify-between">
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Database className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">Sophos Partner</h1>
+            <p className="text-sm text-muted-foreground">Integration dashboard and metrics</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <SyncSourceItem type="global" sourceId={sourceId} button />
+        </div>
+      </div>
+      <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
           <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
         </TabsList>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Settings className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <SyncSourceItem type="global" sourceId={sourceId} site={site} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
 
-      <TabsContent value="dashboard"></TabsContent>
-      <SophosDevicesTab sourceId={sourceId} />
-    </Tabs>
+        <TabsContent value="dashboard">
+          <div className="grid gap-4"></div>
+        </TabsContent>
+        <SophosDevicesTab sourceId={sourceId} />
+      </Tabs>
+    </>
   );
 }
