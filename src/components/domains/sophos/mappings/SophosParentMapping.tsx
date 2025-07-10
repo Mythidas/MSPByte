@@ -1,7 +1,6 @@
 'use client';
 
 import SophosDevicesTab from '@/components/domains/sophos/tabs/SophosDevicesTab';
-import SourceMetricsAggregatedGroupedTable from '@/components/domains/metrics/tables/SourceMetricsAggregatedGroupedTable';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -41,14 +40,7 @@ export default function SophosParentMapping({ sourceId, site, tab }: Props) {
       </div>
 
       <TabsContent value="dashboard">
-        <div className="grid gap-4">
-          <h2 className="font-bold text-xl">Quick Metrics</h2>
-          <SourceMetricsAggregatedGroupedTable
-            sourceId={sourceId}
-            parentId={site!.id}
-            baseRoute={`/sites/${site!.id}/${sourceId}?sub=aggregated`}
-          />
-        </div>
+        <div className="grid gap-4"></div>
       </TabsContent>
       <SophosDevicesTab sourceId={sourceId} parentId={site.id} />
     </Tabs>

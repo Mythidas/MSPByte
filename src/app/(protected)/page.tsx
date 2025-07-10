@@ -1,7 +1,6 @@
 'use client';
 
 import Loader from '@/components/common/Loader';
-import SourceMetricsAggregatedTable from '@/components/domains/metrics/tables/SourceMetricsAggregatedTable';
 import { useAsync } from '@/hooks/useAsync';
 import { getSourceIntegrationsView } from '@/services/integrations';
 
@@ -34,7 +33,6 @@ export default function Home() {
         return (
           <div key={integration.id} className="flex flex-col gap-4">
             <h1>{integration.source_name}</h1>
-            <SourceMetricsAggregatedTable sourceId={integration.source_id!} />
           </div>
         );
       })}

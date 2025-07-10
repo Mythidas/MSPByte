@@ -1,25 +1,21 @@
-import { Card, CardHeader, CardAction, CardContent, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import RouteButton from '@/components/common/routed/RouteButton';
-import { Database, Json, Tables } from '@/db/schema';
-import { cn } from '@/lib/utils';
-import { LucideProps, TrendingUp } from 'lucide-react';
-import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Database } from '@/db/schema';
+import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import Icon from '@/components/common/Icon';
 
 type RollupMetric = Database['public']['Functions']['get_rollup_metrics']['Returns'][number];
 
 type Props = {
   metric: RollupMetric;
-  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
+  filters: Record<string, string>;
   baseRoute?: string;
 };
 
-export default function SourceMetricCard({ metric, icon: Icon, baseRoute }: Props) {
-  console.log(metric);
+export default function SourceMetricCard({ metric, filters, baseRoute }: Props) {
   const filtersFormatted = () => {
     let parsed = '';
-    for (const [key, value] of Object.entries((metric.filters as Record<string, string>[])[0])) {
+    for (const [key, value] of Object.entries(filters)) {
       if (parsed.length > 0) parsed += '&';
       parsed += `${key}=${value}`;
     }
@@ -31,7 +27,7 @@ export default function SourceMetricCard({ metric, icon: Icon, baseRoute }: Prop
     switch (metric.visual) {
       case 'percentage': {
         const percent = (metric.value / metric.total) * 100;
-        return `${percent} %`;
+        return `${percent.toFixed(0)}%`;
       }
       default:
         return metric.value;
@@ -42,7 +38,7 @@ export default function SourceMetricCard({ metric, icon: Icon, baseRoute }: Prop
     switch (metric.visual) {
       case 'percentage': {
         const percent = (metric.delta / metric.total) * 100;
-        return `${percent} %`;
+        return `${percent.toFixed(0)}%`;
       }
       default:
         return metric.delta;
@@ -63,7 +59,7 @@ export default function SourceMetricCard({ metric, icon: Icon, baseRoute }: Prop
             {metric.name}
           </Link>
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="h-4 w-4 text-muted-foreground" iconName={metric.icon} />
       </CardHeader>
       <CardContent>
         <div className="space-y-1">

@@ -1,16 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Shield,
-  Users,
-  Globe,
-  CheckCircle2,
-  Lock,
-  Unlock,
-  ShieldCheck,
-  Circle,
-  Layers2,
-} from 'lucide-react';
+import { Shield, Globe, Lock, Unlock, ShieldCheck, Layers2 } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { useLazyLoad } from '@/hooks/useLazyLoad';
 import { getSourceMetricsRollup } from '@/services/source/metrics';
@@ -20,19 +10,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Loader from '@/components/common/Loader';
 import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
 import { getSites } from '@/services/sites';
-
-const getMetricIcon = (name: string) => {
-  switch (name) {
-    case 'Total Identities':
-      return Users;
-    case 'Licensed Identities':
-      return CheckCircle2;
-    case 'MFA Enabled':
-      return Shield;
-    default:
-      return Circle;
-  }
-};
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -199,7 +176,6 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
   const { content: MetricsGrid } = useLazyLoad({
     loader: async () => {
       const metrics = await getSourceMetricsRollup('parent', sourceId, siteId);
-      console.log(metrics);
       if (metrics.ok) {
         return metrics.data;
       }
@@ -210,9 +186,14 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((metric) => {
-            const Icon = getMetricIcon(metric.name);
-
-            return <SourceMetricCard key={metric.name} metric={metric} icon={Icon} />;
+            return (
+              <SourceMetricCard
+                key={metric.name}
+                metric={metric}
+                filters={(metric.filters as Record<string, string>[])[0]}
+                baseRoute={`/sites/${siteId}/microsoft-365`}
+              />
+            );
           })}
         </div>
       );

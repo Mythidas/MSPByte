@@ -1,18 +1,11 @@
 'use client';
 
-import SourceMetricsAggregatedTable from '@/components/domains/metrics/tables/SourceMetricsAggregatedTable';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
-import { Database, Settings } from 'lucide-react';
+import { Database } from 'lucide-react';
 import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/MicrosoftIdentitiesTab';
-import MicrosoftGlobalboardTab from '@/components/domains/microsoft/tabs/MicrosoftGlobalDashboardTab';
+import MicrosoftGlobalDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftGlobalDashboardTab';
 
 type Props = {
   sourceId: string;
@@ -42,7 +35,7 @@ export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
 
-        <MicrosoftGlobalboardTab sourceId={sourceId} />
+        <MicrosoftGlobalDashboardTab sourceId={sourceId} />
         <MicrosoftIdentitiesTab sourceId={sourceId} />
       </Tabs>
     </>

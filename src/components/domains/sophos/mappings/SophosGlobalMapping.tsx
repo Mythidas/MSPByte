@@ -1,7 +1,6 @@
 'use client';
 
 import SophosDevicesTab from '@/components/domains/sophos/tabs/SophosDevicesTab';
-import SourceMetricsAggregatedTable from '@/components/domains/metrics/tables/SourceMetricsAggregatedTable';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -40,9 +39,7 @@ export default function SophosGlobalMapping({ sourceId, site, tab }: Props) {
         </DropdownMenu>
       </div>
 
-      <TabsContent value="dashboard">
-        <SourceMetricsAggregatedTable sourceId={sourceId} />
-      </TabsContent>
+      <TabsContent value="dashboard"></TabsContent>
       <SophosDevicesTab sourceId={sourceId} />
     </Tabs>
   );

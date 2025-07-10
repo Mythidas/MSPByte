@@ -506,106 +506,88 @@ export type Database = {
           },
         ]
       }
-      source_metrics: {
+      source_metric_definitions: {
         Row: {
           created_at: string | null
-          description: string | null
-          filters: Json | null
+          description: string
+          filters: Json
+          icon: string | null
           id: string
-          metric: number
-          name: string
-          roc_positive: boolean
-          route: string | null
-          site_id: string
-          source_id: string | null
-          tenant_id: string
-          thresholds: Json | null
-          total: number
+          order: number | null
+          roc_positive: boolean | null
+          route: string
+          thresholds: Json
           unit: string
+          updated_at: string | null
           visual: string | null
         }
         Insert: {
           created_at?: string | null
-          description?: string | null
-          filters?: Json | null
-          id?: string
-          metric: number
-          name: string
-          roc_positive?: boolean
-          route?: string | null
-          site_id: string
-          source_id?: string | null
-          tenant_id: string
-          thresholds?: Json | null
-          total: number
+          description: string
+          filters: Json
+          icon?: string | null
+          id: string
+          order?: number | null
+          roc_positive?: boolean | null
+          route: string
+          thresholds: Json
           unit: string
+          updated_at?: string | null
           visual?: string | null
         }
         Update: {
           created_at?: string | null
-          description?: string | null
-          filters?: Json | null
+          description?: string
+          filters?: Json
+          icon?: string | null
+          id?: string
+          order?: number | null
+          roc_positive?: boolean | null
+          route?: string
+          thresholds?: Json
+          unit?: string
+          updated_at?: string | null
+          visual?: string | null
+        }
+        Relationships: []
+      }
+      source_metrics: {
+        Row: {
+          created_at: string | null
+          id: string
+          metric: number
+          name: string
+          site_id: string
+          source_id: string | null
+          tenant_id: string
+          total: number
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          metric: number
+          name: string
+          site_id: string
+          source_id?: string | null
+          tenant_id: string
+          total: number
+        }
+        Update: {
+          created_at?: string | null
           id?: string
           metric?: number
           name?: string
-          roc_positive?: boolean
-          route?: string | null
           site_id?: string
           source_id?: string | null
           tenant_id?: string
-          thresholds?: Json | null
           total?: number
-          unit?: string
-          visual?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
+            foreignKeyName: "source_metrics_name_fkey"
+            columns: ["name"]
             isOneToOne: false
-            referencedRelation: "sites"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "sites_view"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["site_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_site_id_fkey"
-            columns: ["site_id"]
-            isOneToOne: false
-            referencedRelation: "source_identities_view"
-            referencedColumns: ["parent_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_metrics_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
+            referencedRelation: "source_metric_definitions"
             referencedColumns: ["id"]
           },
         ]
@@ -1170,6 +1152,108 @@ export type Database = {
           },
         ]
       }
+      source_metrics_newest: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          metric: number | null
+          name: string | null
+          site_id: string | null
+          source_id: string | null
+          tenant_id: string | null
+          total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_fkey"
+            columns: ["name"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_metrics_newest_second: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          metric: number | null
+          name: string | null
+          site_id: string | null
+          source_id: string | null
+          tenant_id: string | null
+          total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_fkey"
+            columns: ["name"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_metrics_with_delta: {
+        Row: {
+          created_at: string | null
+          delta: number | null
+          metric: number | null
+          name: string | null
+          site_id: string | null
+          source_id: string | null
+          total: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_fkey"
+            columns: ["name"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       claim_sync_jobs: {
@@ -1202,9 +1286,9 @@ export type Database = {
           description: string
           route: string
           visual: string
+          icon: string
           filters: Json
           thresholds: Json
-          created_at: string
         }[]
       }
       has_access: {

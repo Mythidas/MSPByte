@@ -14,14 +14,8 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     name: 'Total Identities',
-    unit: 'identities',
     metric: identities.length,
     total: identities.length,
-    route: '/sources/microsoft-365',
-    filters: { tab: 'identities' },
-    description: 'Active Microsoft 365 users',
-    visual: null,
-    thresholds: null,
     created_at: new Date().toISOString(),
   };
 
@@ -30,14 +24,8 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     name: 'Licensed Identities',
-    unit: 'identities',
     metric: identities.filter((id) => id.license_skus.length > 0).length,
     total: identities.length,
-    route: '/sources/microsoft-365',
-    filters: { tab: 'identities' },
-    description: 'Users with active licenses',
-    visual: null,
-    thresholds: null,
     created_at: new Date().toISOString(),
   };
 
@@ -46,17 +34,8 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     name: 'MFA Enabled',
-    unit: 'identities',
     metric: identities.filter((id) => id.mfa_enforced).length,
     total: identities.length,
-    route: '/sources/microsoft-365',
-    filters: {
-      tab: 'identities',
-      filter: 'mfa_enforced+eq+true+and+enabled+eq+true+and+type+eq+member',
-    },
-    description: 'Users with MFA enforced',
-    visual: 'percentage',
-    thresholds: null,
     created_at: new Date().toISOString(),
   };
 
