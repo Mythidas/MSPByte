@@ -1289,6 +1289,7 @@ export type Database = {
           icon: string
           filters: Json
           thresholds: Json
+          created_at: string
         }[]
       }
       has_access: {
