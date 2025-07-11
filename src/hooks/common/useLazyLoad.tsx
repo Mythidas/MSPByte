@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
-type LazyLoadOptions<T> = {
+export type LazyLoadOptions<T> = {
   loader: () => Promise<T> | T;
   render: (data: T) => React.ReactNode;
   skeleton: () => React.ReactNode;

@@ -14,7 +14,7 @@ import DataTable from '@/components/common/table/DataTable';
 import { textColumn } from '@/components/common/table/DataTableColumn';
 import { DataTableHeader } from '@/components/common/table/DataTableHeader';
 import { Tables } from '@/db/schema';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { getSitesView } from '@/services/sites';
 import { getSourceTenants } from '@/services/source/tenants';
 import { DataTableColumnDef } from '@/types/data-table';

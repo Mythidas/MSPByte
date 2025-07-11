@@ -1,7 +1,7 @@
 'use client';
 
 import Loader from '@/components/common/Loader';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { getSourceIntegrationsView } from '@/services/integrations';
 
 export default function Home() {

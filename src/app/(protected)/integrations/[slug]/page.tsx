@@ -15,7 +15,7 @@ import {
 import Microsoft365 from '@/components/domains/microsoft/Microsoft365';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { Spinner } from '@/components/common/Spinner';
 import { Tables } from '@/db/schema';
 

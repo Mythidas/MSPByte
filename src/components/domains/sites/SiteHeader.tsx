@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tables } from '@/db/schema';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSitesCount } from '@/services/sites';
 import { Building2, Globe, Users } from 'lucide-react';
 

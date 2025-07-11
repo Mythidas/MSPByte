@@ -2,7 +2,7 @@ import SophosDevicesTable from '@/components/domains/sophos/SophosDevicesTable';
 import { TabsContent } from '@/components/ui/tabs';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
 import Loader from '@/components/common/Loader';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { getSites } from '@/services/sites';
 
 type Props = {

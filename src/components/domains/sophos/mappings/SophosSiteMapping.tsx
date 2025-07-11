@@ -8,7 +8,7 @@ import { Tables } from '@/db/schema';
 import { AlertCircle, CheckCircle2, Clock, Database, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TooltipTrigger, TooltipContent, Tooltip } from '@/components/ui/tooltip';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { Badge } from '@/components/ui/badge';
 import SophosDashboardTab from '@/components/domains/sophos/tabs/SophosDashboardTab';

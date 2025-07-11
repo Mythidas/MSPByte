@@ -2,7 +2,7 @@
 
 import SourcesTable from '@/components/domains/sources/SourcesTable';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { useSite } from '@/lib/providers/SiteContext';
 import { useSearchParams } from 'next/navigation';
 import { getSites } from '@/services/sites';

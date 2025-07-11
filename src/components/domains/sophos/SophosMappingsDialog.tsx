@@ -14,7 +14,7 @@ import { SubmitButton } from '@/components/common/SubmitButton';
 import DataTable from '@/components/common/table/DataTable';
 import { column, textColumn } from '@/components/common/table/DataTableColumn';
 import { Tables } from '@/db/schema';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
 import { getSourceTenants, putSourceTenant, deleteSourceTenant } from '@/services/source/tenants';
 import { DataTableColumnDef } from '@/types/data-table';

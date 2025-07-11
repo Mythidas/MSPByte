@@ -8,7 +8,7 @@ import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
 import { AlertCircle, CheckCircle2, Clock, Database, RefreshCw } from 'lucide-react';
 import { TooltipTrigger, TooltipContent, Tooltip } from '@/components/ui/tooltip';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Badge } from '@/components/ui/badge';
 import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { Skeleton } from '@/components/ui/skeleton';

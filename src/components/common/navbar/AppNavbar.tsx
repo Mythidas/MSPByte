@@ -6,7 +6,7 @@ import ModeToggle from '@/components/common/navbar/ModeToggle';
 import SearchBox from '@/components/common/SearchBox';
 import { getSites } from '@/services/sites';
 import { useRouter } from 'next/navigation';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 
 export default function AppNavbar() {
   const router = useRouter();

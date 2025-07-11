@@ -13,7 +13,7 @@ import { DataTableColumnDef } from '@/types/data-table';
 import Link from 'next/link';
 import { getSourceIdentitiesView } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
-import { useAsync } from '@/hooks/useAsync';
+import { useAsync } from '@/hooks/common/useAsync';
 import { pascalCase } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/domains/microsoft/MicrosoftIdentityDrawer';
 

@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tables } from '@/db/schema';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSite } from '@/services/sites';
 import { getSource } from '@/services/sources';
 import { useSelectedLayoutSegment } from 'next/navigation';

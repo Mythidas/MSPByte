@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import MultiSelect from '@/components/common/MultiSelect';
 import SearchBar from '@/components/common/SearchBar';
-import { useTableURLState } from '@/hooks/useTableURLState';
+import { useTableURLState } from '@/hooks/common/useTableURLState';
 import {
   DataTableColumnDef,
   FilterValue,

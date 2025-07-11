@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Database } from 'lucide-react';
+import SophosGlobalDashboardTab from '@/components/domains/sophos/tabs/SophosGlobalDashboardTab';
 
 type Props = {
   sourceId: string;
@@ -34,9 +35,7 @@ export default function SophosGlobalMapping({ sourceId, tab }: Props) {
           <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard">
-          <div className="grid gap-4"></div>
-        </TabsContent>
+        <SophosGlobalDashboardTab sourceId={sourceId} />
         <SophosDevicesTab sourceId={sourceId} />
       </Tabs>
     </>

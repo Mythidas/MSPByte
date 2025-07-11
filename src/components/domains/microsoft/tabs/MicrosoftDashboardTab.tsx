@@ -2,13 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceMetricsRollup } from '@/services/source/metrics';
 import { getSourceTenant } from '@/services/source/tenants';
 import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import { Skeleton } from '@/components/ui/skeleton';
 import Loader from '@/components/common/Loader';
 import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
+import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -156,32 +157,7 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
     },
   });
 
-  const { content: MetricsGrid } = useLazyLoad({
-    loader: async () => {
-      const metrics = await getSourceMetricsRollup('site', sourceId, siteId);
-      if (metrics.ok) {
-        return metrics.data;
-      }
-    },
-    render: (data) => {
-      if (!data) return null;
-
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.map((metric) => {
-            return (
-              <SourceMetricCard
-                key={metric.name}
-                metric={metric}
-                baseRoute={`/sites/${siteId}/microsoft-365`}
-              />
-            );
-          })}
-        </div>
-      );
-    },
-    skeleton: () => <Loader />,
-  });
+  const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'site', sourceId, siteId });
 
   return (
     <TabsContent value="dashboard" className="space-y-6">

@@ -1,7 +1,7 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
-import { useDebouncedValue } from '@/hooks/useDebouncedValue';
+import { useDebouncedValue } from '@/hooks/common/useDebouncedValue';
 import { cn } from '@/lib/utils';
 import { ClassValue } from 'clsx';
 import { useEffect, useState } from 'react';

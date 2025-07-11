@@ -4,7 +4,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card'
 import { Spinner } from '@/components/common/Spinner';
 import { getSourceIntegrationsView } from '@/services/integrations';
 import { useState } from 'react';
-import { useLazyLoad } from '@/hooks/useLazyLoad';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenants } from '@/services/source/tenants';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
