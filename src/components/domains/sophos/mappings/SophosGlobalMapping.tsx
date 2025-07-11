@@ -1,7 +1,7 @@
 'use client';
 
 import SophosDevicesTab from '@/components/domains/sophos/tabs/SophosDevicesTab';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Database } from 'lucide-react';

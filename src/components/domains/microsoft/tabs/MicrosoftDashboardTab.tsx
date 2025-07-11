@@ -3,12 +3,9 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck } from 'lucide-react';
 import { TabsContent } from '@/components/ui/tabs';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSourceMetricsRollup } from '@/services/source/metrics';
 import { getSourceTenant } from '@/services/source/tenants';
 import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import { Skeleton } from '@/components/ui/skeleton';
-import Loader from '@/components/common/Loader';
-import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 const getMfaConfig = (enforcement: string) => {

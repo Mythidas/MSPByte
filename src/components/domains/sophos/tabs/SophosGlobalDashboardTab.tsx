@@ -1,8 +1,4 @@
 import { TabsContent } from '@/components/ui/tabs';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSourceMetricsRollup } from '@/services/source/metrics';
-import Loader from '@/components/common/Loader';
-import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 type Props = {
