@@ -27,6 +27,7 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
+    console.log(tenant.source_id, 'MDR Managed');
     const mdrManagedDevices: TablesInsert<'source_metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
