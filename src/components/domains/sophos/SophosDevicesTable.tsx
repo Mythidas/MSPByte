@@ -1,7 +1,6 @@
 'use client';
 
 import { pascalCase } from '@/lib/utils';
-import Link from 'next/link';
 import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import DataTable from '@/components/common/table/DataTable';
@@ -9,6 +8,8 @@ import { DataTableHeader } from '@/components/common/table/DataTableHeader';
 import { useEffect, useState } from 'react';
 import { getSourceDevicesView } from '@/services/devices';
 import { toast } from 'sonner';
+import { textColumn } from '@/components/common/table/DataTableColumn';
+import { DataTableColumnDef } from '@/types/data-table';
 
 type Props = {
   sourceId: string;
@@ -61,142 +62,133 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
       data={devices}
       isLoading={isLoading}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
-      columns={[
-        {
-          accessorKey: 'site_name',
-          header: ({ column }) => <DataTableHeader column={column} label="Site" />,
-          cell: ({ row }) => (
-            <Link
-              href={`/sites/${row.original.site_id}/sophos-partner?tab=devices`}
-              className="hover:text-primary"
-            >
-              {row.original.site_name}
-            </Link>
-          ),
-          enableHiding: true,
-          simpleSearch: true,
-          filter: {
-            type: 'text',
-            placeholder: 'Search site',
-          },
-          meta: {
-            label: 'Site',
-          },
-        },
-        {
-          accessorKey: 'parent_name',
-          header: ({ column }) => <DataTableHeader column={column} label="Parent" />,
-          cell: ({ row }) => (
-            <Link
-              href={`/sites/${row.original.parent_id}/sophos-partner?tab=devices`}
-              className="hover:text-primary"
-            >
-              {row.original.parent_name}
-            </Link>
-          ),
-          enableHiding: true,
-          simpleSearch: true,
-          filter: {
-            type: 'text',
-            placeholder: 'Search parent',
-          },
-          meta: {
-            label: 'Parent',
-          },
-        },
-        {
-          accessorKey: 'hostname',
-          header: ({ column }) => <DataTableHeader column={column} label="Hostname" />,
-          enableHiding: false,
-          simpleSearch: true,
-          filter: {
-            type: 'text',
-            placeholder: 'Search hostname',
-          },
-          meta: {
+      columns={
+        [
+          textColumn({
+            key: 'site_name',
+            label: 'site',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          textColumn({
+            key: 'parent_name',
+            label: 'site',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          textColumn({
+            key: 'hostname',
             label: 'Hostname',
-          },
-        },
-        {
-          accessorKey: 'os',
-          header: ({ column }) => <DataTableHeader column={column} label="OS" />,
-          filter: {
-            type: 'text',
-            placeholder: 'Search os',
-          },
-          meta: {
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          textColumn({
+            key: 'os',
             label: 'OS',
+            enableHiding: false,
+            simpleSearch: true,
+          }),
+          {
+            accessorKey: 'protection',
+            header: ({ column }) => <DataTableHeader column={column} label="Protection" />,
+            cell: ({ row }) => (
+              <div>{(row.original.metadata as SPEndpoint).packages.protection?.name}</div>
+            ),
+            sortingFn: (rowA, rowB) => {
+              if (
+                !(rowB.original.metadata as SPEndpoint).packages.protection?.name ||
+                !(rowA.original.metadata as SPEndpoint).packages.protection?.name
+              ) {
+                return 1;
+              }
+              return (rowA.original.metadata as SPEndpoint).packages.protection!.name.localeCompare(
+                (rowB.original.metadata as SPEndpoint).packages.protection!.name
+              );
+            },
+            filterFn: (row, colId, value) => {
+              return (
+                (row.original.metadata as SPEndpoint).packages.protection?.name === value.value
+              );
+            },
+            filter: {
+              type: 'select',
+              options: protectionTypes(),
+              placeholder: 'Search protection',
+            },
+            meta: {
+              label: 'Protection',
+            },
           },
-        },
-        {
-          accessorKey: 'protection',
-          header: ({ column }) => <DataTableHeader column={column} label="Protection" />,
-          cell: ({ row }) => (
-            <div>{(row.original.metadata as SPEndpoint).packages.protection?.name}</div>
-          ),
-          sortingFn: (rowA, rowB) => {
-            if (
-              !(rowB.original.metadata as SPEndpoint).packages.protection?.name ||
-              !(rowA.original.metadata as SPEndpoint).packages.protection?.name
-            ) {
-              return 1;
-            }
-            return (rowA.original.metadata as SPEndpoint).packages.protection!.name.localeCompare(
-              (rowB.original.metadata as SPEndpoint).packages.protection!.name
-            );
+          {
+            accessorKey: 'status',
+            header: ({ column }) => <DataTableHeader column={column} label="Status" />,
+            cell: ({ row }) => (
+              <div>
+                {pascalCase(
+                  (row.original.metadata as SPEndpoint)?.packages?.protection?.status || ''
+                )}
+              </div>
+            ),
+            filterFn: (row, colId, value) => {
+              return (
+                (row.original.metadata as SPEndpoint).packages.protection?.status === value.value
+              );
+            },
+            sortingFn: (rowA, rowB) => {
+              if (
+                !(rowB.original.metadata as SPEndpoint).packages.protection?.status ||
+                !(rowA.original.metadata as SPEndpoint).packages.protection?.status
+              ) {
+                return 1;
+              }
+              return (
+                rowA.original.metadata as SPEndpoint
+              ).packages.protection!.status.localeCompare(
+                (rowB.original.metadata as SPEndpoint).packages.protection!.status
+              );
+            },
+            filter: {
+              type: 'select',
+              options: [
+                { label: 'Assigned', value: 'assigned' },
+                { label: 'Upgradable', value: 'upgradable' },
+                { label: 'Unassigned', value: 'unassigned' },
+              ],
+              placeholder: 'Search status',
+            },
+            meta: {
+              label: 'Status',
+            },
           },
-          filterFn: (row, colId, value) => {
-            return (row.original.metadata as SPEndpoint).packages.protection?.name === value.value;
+          {
+            accessorKey: 'tamper',
+            header: ({ column }) => <DataTableHeader column={column} label="Tamper" />,
+            cell: ({ row }) => (
+              <div>
+                {(row.original.metadata as SPEndpoint)?.tamperProtectionEnabled
+                  ? 'Enabled'
+                  : 'Disabled'}
+              </div>
+            ),
+            filterFn: (row, colId, value) => {
+              return (row.original.metadata as SPEndpoint).tamperProtectionEnabled === value.value;
+            },
+            sortingFn: (rowA, rowB) => {
+              return (
+                Number((rowB.original.metadata as SPEndpoint).tamperProtectionEnabled) -
+                Number((rowA.original.metadata as SPEndpoint).tamperProtectionEnabled)
+              );
+            },
+            filter: {
+              type: 'boolean',
+              placeholder: 'Search tamper',
+            },
+            meta: {
+              label: 'Tamper',
+            },
           },
-          filter: {
-            type: 'select',
-            options: protectionTypes(),
-            placeholder: 'Search protection',
-          },
-          meta: {
-            label: 'Protection',
-          },
-        },
-        {
-          accessorKey: 'status',
-          header: ({ column }) => <DataTableHeader column={column} label="Status" />,
-          cell: ({ row }) => (
-            <div>
-              {pascalCase(
-                (row.original.metadata as SPEndpoint)?.packages?.protection?.status || ''
-              )}
-            </div>
-          ),
-          filterFn: (row, colId, value) => {
-            return (
-              (row.original.metadata as SPEndpoint).packages.protection?.status === value.value
-            );
-          },
-          sortingFn: (rowA, rowB) => {
-            if (
-              !(rowB.original.metadata as SPEndpoint).packages.protection?.status ||
-              !(rowA.original.metadata as SPEndpoint).packages.protection?.status
-            ) {
-              return 1;
-            }
-            return (rowA.original.metadata as SPEndpoint).packages.protection!.status.localeCompare(
-              (rowB.original.metadata as SPEndpoint).packages.protection!.status
-            );
-          },
-          filter: {
-            type: 'select',
-            options: [
-              { label: 'Assigned', value: 'assigned' },
-              { label: 'Upgradable', value: 'upgradable' },
-              { label: 'Unassigned', value: 'unassigned' },
-            ],
-            placeholder: 'Search status',
-          },
-          meta: {
-            label: 'Status',
-          },
-        },
-      ]}
+        ] as DataTableColumnDef<Tables<'source_devices_view'>>[]
+      }
     />
   );
 }

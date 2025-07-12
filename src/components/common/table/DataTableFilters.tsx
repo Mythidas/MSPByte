@@ -127,7 +127,6 @@ export function DataTableFilters<TData>({
       applied.push({ id, value });
     }
 
-    table.setColumnFilters(applied);
     applyUrlState({ filters: applied, sorting });
     setDrawerOpen(false);
   };
