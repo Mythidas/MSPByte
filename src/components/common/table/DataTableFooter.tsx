@@ -19,9 +19,10 @@ import { Table } from '@tanstack/react-table';
 
 type DataTableFooterProps<TData> = {
   table: Table<TData>;
+  count: number;
 };
 
-export function DataTableFooter<TData>({ table }: DataTableFooterProps<TData>) {
+export function DataTableFooter<TData>({ table, count }: DataTableFooterProps<TData>) {
   const generateLinks = () => {
     const totalPages = table.getPageCount();
     const page = table.getState().pagination.pageIndex + 1;
@@ -68,7 +69,7 @@ export function DataTableFooter<TData>({ table }: DataTableFooterProps<TData>) {
       <div className="flex w-full gap-2 justify-center items-center">
         <span>Pages: {table.getPageCount()}</span>
         <Separator orientation="vertical" />
-        <span>Total: {table.getRowCount()}</span>
+        <span>Total: {count}</span>
         <Separator orientation="vertical" />
         <Label>
           Page Size:

@@ -1,9 +1,11 @@
 import {
+  paginatedFilters,
   tablesCountGeneric,
   tablesDeleteGeneric,
   tablesInsertGeneric,
   tablesRPCGeneric,
   tablesSelectGeneric,
+  tablesSelectPaginated,
   tablesSelectSingleGeneric,
   tablesUpdateGeneric,
   tablesUpsertGeneric,
@@ -13,6 +15,8 @@ export * as Schema from '@/db/schema';
 export const tables = {
   select: tablesSelectGeneric,
   selectSingle: tablesSelectSingleGeneric,
+  paginated: tablesSelectPaginated,
+  applyFilters: paginatedFilters,
   insert: tablesInsertGeneric,
   update: tablesUpdateGeneric,
   upsert: tablesUpsertGeneric,

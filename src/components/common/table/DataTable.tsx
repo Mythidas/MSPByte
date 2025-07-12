@@ -4,9 +4,7 @@ import {
   ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
   getPaginationRowModel,
-  getSortedRowModel,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -24,7 +22,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/common/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Download, Grid2X2 } from 'lucide-react';
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,30 +31,47 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { DataTableColumnDef } from '@/types/data-table';
+import { DataTableColumnDef, Filters, FilterValue } from '@/types/data-table';
 import { Spinner } from '@/components/common/Spinner';
 import { DataTableFilters } from '@/components/common/table/DataTableFilters';
 import { DataTableFooter } from '@/components/common/table/DataTableFooter';
 import * as XLSX from 'xlsx';
 import { ClassValue } from 'clsx';
 
+export type FetcherProps = {
+  pageIndex: number;
+  pageSize: number;
+  sorting: Record<string, 'asc' | 'desc'>;
+  filters: Filters;
+  globalFields: string[];
+  globalSearch: string;
+};
+
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
-  data: TData[];
+  data?: TData[];
   initialVisibility?: VisibilityState;
   action?: React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
+  fetcher?: (args: FetcherProps) => Promise<{ rows: TData[]; total: number }>;
 }
 
 export default function DataTable<TData>({
   columns,
-  data,
   initialVisibility = {},
   action,
   isLoading,
   height = 'max-h-[60vh]',
+  fetcher,
 }: DataTableProps<TData>) {
+  const [data, setData] = useState<TData[]>([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
+  const [isFetching, setIsFetching] = useState(false);
+  const [filtersReady, setFiltersReady] = useState(!fetcher);
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialVisibility);
@@ -66,20 +81,53 @@ export default function DataTable<TData>({
     .map((col) => col.accessorKey)
     .filter(Boolean) as string[];
 
+  useEffect(() => {
+    const load = async () => {
+      if (!fetcher || !filtersReady) return;
+
+      setIsFetching(true);
+      const { rows, total } = await fetcher({
+        pageIndex,
+        pageSize,
+        sorting: Object.fromEntries(sorting.map((sort) => [sort.id, sort.desc ? 'desc' : 'asc'])),
+        filters: Object.fromEntries(
+          columnFilters.map((filter) => [filter.id, filter.value as FilterValue])
+        ),
+        globalFields: columns.filter((col) => col.simpleSearch).map((col) => col.accessorKey!),
+        globalSearch: globalSearch,
+      });
+
+      setData(rows);
+      setRowCount(total);
+      setIsFetching(false);
+    };
+
+    load();
+  }, [pageIndex, pageSize, sorting, columnFilters, globalSearch, filtersReady]);
+
   const table = useReactTable({
     data,
     columns: columns as DataTableColumnDef<TData>[],
+    manualPagination: !!fetcher,
+    pageCount: fetcher ? Math.ceil(rowCount / pageSize) : undefined,
+    manualSorting: !!fetcher,
+    manualFiltering: !!fetcher,
     getCoreRowModel: getCoreRowModel(),
+    onPaginationChange: (updater) => {
+      const newPagination =
+        typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater;
+      setPageIndex(newPagination.pageIndex);
+      setPageSize(newPagination.pageSize);
+    },
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
+      pagination: { pageIndex, pageSize },
       globalFilter: globalSearch,
     },
     globalFilterFn: (row, columnId, filterValue) => {
@@ -95,7 +143,7 @@ export default function DataTable<TData>({
   });
 
   const renderBody = () => {
-    if (isLoading) {
+    if (isLoading || isFetching) {
       return (
         <TableRow>
           <TableCell
@@ -255,7 +303,7 @@ export default function DataTable<TData>({
     <div className="flex flex-col size-full gap-4">
       <div className="flex w-full h-fit justify-between">
         <div className="flex items-center w-full max-w-sm gap-2">
-          <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={500} />
+          <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={1000} />
           <Suspense fallback={<div>Loading...</div>}>
             <DataTableFilters
               table={table}
@@ -263,6 +311,7 @@ export default function DataTable<TData>({
               columns={columns}
               sorting={sorting}
               data={data}
+              onInit={() => setFiltersReady(true)}
             />
           </Suspense>
 
@@ -337,7 +386,7 @@ export default function DataTable<TData>({
           </Table>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
-        <DataTableFooter table={table} />
+        <DataTableFooter table={table} count={rowCount} />
       </Card>
     </div>
   );

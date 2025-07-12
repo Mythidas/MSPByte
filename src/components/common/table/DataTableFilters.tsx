@@ -33,7 +33,8 @@ import {
 } from '@/types/data-table';
 import { ColumnFiltersState, SortingState, Column, Table } from '@tanstack/react-table';
 import { FunnelPlus, Funnel, ChevronLeft, ChevronRight, Equal } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 
 type DataTableDrawerProps<TData> = {
   table: Table<TData>;
@@ -41,6 +42,7 @@ type DataTableDrawerProps<TData> = {
   columns: DataTableColumnDef<TData>[];
   sorting: SortingState;
   data: TData[];
+  onInit: () => void;
 };
 
 export function DataTableFilters<TData>({
@@ -48,25 +50,26 @@ export function DataTableFilters<TData>({
   columnFilters,
   columns,
   sorting,
-  data,
+  onInit,
 }: DataTableDrawerProps<TData>) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pendingFilters, setPendingFilters] = useState<Record<string, FilterValue>>({});
   const [activeFilters, setActiveFilters] = useState<Record<string, boolean>>({});
   const { initialFilters, initialSorting, applyUrlState } = useTableURLState();
-  const didInitFilters = useRef(false);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (
-      !didInitFilters.current &&
-      initialFilters.length > 0 &&
-      data.length > 0 // wait for your async data
-    ) {
+    const filtersChanged =
+      JSON.stringify(initialFilters) !== JSON.stringify(table.getState().columnFilters);
+    const sortingChanged =
+      JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
+
+    if (filtersChanged || sortingChanged) {
       table.setColumnFilters(initialFilters);
       table.setSorting(initialSorting);
-      didInitFilters.current = true;
+      onInit?.();
     }
-  }, [initialFilters, initialSorting, data, table]);
+  }, [searchParams.toString(), initialFilters, initialSorting, table]);
 
   useEffect(() => {
     if (!drawerOpen) return;
@@ -112,6 +115,8 @@ export function DataTableFilters<TData>({
           value = { op: 'eq', value: (rawValue.value ?? false) as FilterPrimitive | undefined };
           break;
         case 'text':
+          value = { op: 'lk', value: (rawValue.value ?? '') as FilterPrimitive | undefined };
+          break;
         case 'select':
           value = { op: 'eq', value: (rawValue.value ?? '') as FilterPrimitive | undefined };
           break;
@@ -141,7 +146,8 @@ export function DataTableFilters<TData>({
     );
     setPendingFilters(cleared);
     setActiveFilters({});
-    table.setColumnFilters([]);
+    applyUrlState({ filters: [], sorting });
+    setDrawerOpen(false);
   };
 
   const renderFilterNumberOrDate = (meta: ColumnFilterMeta, id: string) => {

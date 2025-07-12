@@ -3,11 +3,9 @@
 import { pascalCase } from '@/lib/utils';
 import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
-import DataTable from '@/components/common/table/DataTable';
+import DataTable, { FetcherProps } from '@/components/common/table/DataTable';
 import { DataTableHeader } from '@/components/common/table/DataTableHeader';
-import { useEffect, useState } from 'react';
-import { getSourceDevicesView } from '@/services/devices';
-import { toast } from 'sonner';
+import { getSourceDevicesViewPaginated } from '@/services/devices';
 import { textColumn } from '@/components/common/table/DataTableColumn';
 import { DataTableColumnDef } from '@/types/data-table';
 
@@ -19,60 +17,43 @@ type Props = {
 };
 
 export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
-  const [devices, setDevices] = useState<Tables<'source_devices_view'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-
-        const devices = await getSourceDevicesView(sourceId, siteIds);
-        if (!devices.ok) {
-          throw new Error();
-        }
-
-        setDevices(devices.data);
-      } catch {
-        toast.error('Failed to fetch data. Please refresh.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [sourceId, siteIds]);
-
-  const protectionTypes = () => {
-    const types = new Set<string>();
-    for (const device of devices) {
-      const name = (device.metadata as SPEndpoint)?.packages?.protection?.name;
-      if (name) {
-        types.add(name);
-      }
+  const fetcher = async ({ pageIndex, pageSize, ...props }: FetcherProps) => {
+    const devices = await getSourceDevicesViewPaginated(
+      {
+        page: pageIndex,
+        size: pageSize,
+        filterMap: {
+          protection: 'metadata->packages->protection->>name',
+          status: 'metadata->packages->protection->>status',
+          tamper: 'metadata->>tamperProtectionEnabled',
+        },
+        ...props,
+      },
+      sourceId,
+      siteIds
+    );
+    if (!devices.ok) {
+      return { rows: [], total: 0 };
     }
 
-    return Array.from(types).map((type) => {
-      return { label: type, value: type };
-    });
+    return devices.data;
   };
 
   return (
     <DataTable
-      data={devices}
-      isLoading={isLoading}
+      fetcher={fetcher}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
       columns={
         [
           textColumn({
             key: 'site_name',
-            label: 'site',
+            label: 'Site',
             enableHiding: false,
             simpleSearch: true,
           }),
           textColumn({
             key: 'parent_name',
-            label: 'site',
+            label: 'Parent',
             enableHiding: false,
             simpleSearch: true,
           }),
@@ -112,7 +93,11 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             },
             filter: {
               type: 'select',
-              options: protectionTypes(),
+              options: [
+                { label: 'MDR', value: 'MDR' },
+                { label: 'XDR', value: 'XDR' },
+                { label: 'Endpoint', value: 'Endpoint' },
+              ],
               placeholder: 'Search protection',
             },
             meta: {

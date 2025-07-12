@@ -2,6 +2,7 @@
 
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 import { tables } from '@/db';
+import { PaginationOptions } from '@/types/data-table';
 
 export async function getSourceDevices(sourceId?: string, siteIds?: string[]) {
   return tables.select('source_devices', (query) => {
@@ -17,6 +18,30 @@ export async function getSourceDevicesView(sourceId?: string, siteIds?: string[]
     if (sourceId) query = query.eq('source_id', sourceId);
     if (siteIds) query = query.in('site_id', siteIds);
   });
+}
+
+export async function getSourceDevicesViewPaginated(
+  pagination: PaginationOptions,
+  sourceId?: string,
+  siteIds?: string[]
+) {
+  return tables.paginated(
+    'source_devices_view',
+    {
+      ...pagination,
+      filterMap: {
+        protection: 'metadata->packages->protection->>name',
+        status: 'metadata->packages->protection->>status',
+        tamper: 'metadata->>tamperProtectionEnabled',
+      },
+    },
+    (query) => {
+      query = query.order('site_name').order('hostname');
+
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    }
+  );
 }
 
 export async function putSourceDevices(devices: TablesInsert<'source_devices'>[]) {
