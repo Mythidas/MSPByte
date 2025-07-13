@@ -5,9 +5,11 @@ import {
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
-  SortingState,
   useReactTable,
+  getSortedRowModel,
+  SortingState,
   VisibilityState,
+  getFilteredRowModel,
 } from '@tanstack/react-table';
 import {
   Table,
@@ -62,6 +64,7 @@ export type DataTableRef = {
 function DataTableInner<TData>(
   {
     columns,
+    data: initialData,
     initialVisibility = {},
     action,
     isLoading,
@@ -71,8 +74,8 @@ function DataTableInner<TData>(
   }: DataTableProps<TData>,
   ref: React.Ref<DataTableRef>
 ) {
-  const [data, setData] = useState<TData[]>([]);
-  const [rowCount, setRowCount] = useState(0);
+  const [data, setData] = useState<TData[]>(initialData ?? []);
+  const [rowCount, setRowCount] = useState(initialData?.length ?? 0);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize, setPageSize] = useState(10);
   const [isFetching, setIsFetching] = useState(false);
@@ -108,8 +111,17 @@ function DataTableInner<TData>(
   };
 
   useEffect(() => {
-    load();
+    if (fetcher) {
+      load();
+    }
   }, [pageIndex, pageSize, sorting, columnFilters, globalSearch, filtersReady]);
+
+  useEffect(() => {
+    if (!fetcher && initialData) {
+      setData(initialData);
+      setRowCount(initialData.length);
+    }
+  }, [initialData]);
 
   useImperativeHandle(ref, () => ({
     refetch: load,
@@ -118,21 +130,23 @@ function DataTableInner<TData>(
   const table = useReactTable({
     data,
     columns: columns as DataTableColumnDef<TData>[],
-    manualPagination: !!fetcher,
+    manualPagination: fetcher !== undefined,
     pageCount: fetcher ? Math.ceil(rowCount / pageSize) : undefined,
-    manualSorting: !!fetcher,
-    manualFiltering: !!fetcher,
+    manualSorting: fetcher !== undefined,
+    manualFiltering: fetcher !== undefined,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: !fetcher ? getSortedRowModel() : undefined,
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: !fetcher ? getFilteredRowModel() : undefined,
+    onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: (updater) => {
       const newPagination =
         typeof updater === 'function' ? updater({ pageIndex, pageSize }) : updater;
       setPageIndex(newPagination.pageIndex);
       setPageSize(newPagination.pageSize);
     },
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
     state: {
       sorting,
       columnFilters,
@@ -320,6 +334,7 @@ function DataTableInner<TData>(
               onInit={() => setFiltersReady(true)}
               table={table}
               sorting={sorting}
+              clientSide={!fetcher}
             />
           </Suspense>
 

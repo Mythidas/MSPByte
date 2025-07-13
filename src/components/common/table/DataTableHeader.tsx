@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { Column } from '@tanstack/react-table';
 import { MoveUp, MoveDown, ArrowUpDown } from 'lucide-react';
 
@@ -8,11 +9,16 @@ interface SortedHeaderProps<TValue> {
 }
 
 export function DataTableHeader<TValue>({ column, label }: SortedHeaderProps<TValue>) {
+  const handleSort = () => {
+    if (!column.getCanSort()) return;
+    column.toggleSorting(column.getIsSorted() === 'asc');
+  };
+
   return (
     <Button
       variant="none"
-      onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      className="px-0!"
+      onClick={handleSort}
+      className={cn('px-0!', !column.getCanSort() && 'cursor-none')}
     >
       {label}
       {column.getIsSorted() === 'asc' && <MoveUp />}

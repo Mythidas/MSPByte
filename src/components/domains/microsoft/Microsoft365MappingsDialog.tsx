@@ -51,7 +51,6 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
     const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
     newMappings.push(mapping);
     setMappings(newMappings);
-    console.log(mapping);
   };
 
   const handleClear = (mapping: Tables<'source_tenants'>) => {
@@ -121,6 +120,22 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
               },
             ] as DataTableColumnDef<Tables<'sites_view'>>[]
           }
+          filters={{
+            Tenant: {
+              name: {
+                label: 'Site',
+                type: 'text',
+                placeholder: 'Search site',
+                simpleSearch: true,
+              },
+              parent_name: {
+                label: 'Parent',
+                type: 'text',
+                placeholder: 'Search parent',
+                simpleSearch: true,
+              },
+            },
+          }}
         />
         <AlertDialogFooter>
           <AlertDialogCancel>Close</AlertDialogCancel>

@@ -56,6 +56,7 @@ type DataTableDrawerProps<TData> = {
   onInit: () => void;
   table: Table<TData>;
   sorting: SortingState;
+  clientSide?: boolean;
 };
 
 export function DataTableFilters<TData>({
@@ -63,6 +64,7 @@ export function DataTableFilters<TData>({
   onInit,
   table,
   sorting,
+  clientSide,
 }: DataTableDrawerProps<TData>) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pendingFilters, setPendingFilters] = useState<Record<string, FilterValue>>({});
@@ -84,7 +86,10 @@ export function DataTableFilters<TData>({
     const sortingChanged =
       JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
 
-    if (filtersChanged || sortingChanged || initFilters.current === false) {
+    if (
+      ((filtersChanged || sortingChanged) && initFilters.current === false) ||
+      initFilters.current === false
+    ) {
       table.setColumnFilters(initialFilters);
       table.setSorting(initialSorting);
       initFilters.current = true;
@@ -115,6 +120,15 @@ export function DataTableFilters<TData>({
     setPendingFilters(pending);
     setActiveFilters(active);
   }, [drawerOpen, table, filters, table.getState().columnFilters]);
+
+  useEffect(() => {
+    const sortingChanged =
+      JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
+
+    if (sortingChanged && !clientSide) {
+      handleFilterApply();
+    }
+  }, [sorting]);
 
   const handleFilterApply = () => {
     setDrawerOpen(false);
@@ -157,6 +171,7 @@ export function DataTableFilters<TData>({
       applied.push({ id: filterKey, value });
     }
 
+    if (clientSide) table.setColumnFilters(applied);
     applyUrlState({ filters: applied, sorting });
   };
 
@@ -174,6 +189,7 @@ export function DataTableFilters<TData>({
     setPendingFilters(cleared);
     setActiveFilters({});
     applyUrlState({ filters: [], sorting });
+    if (clientSide) table.setColumnFilters([]);
   };
 
   const toggleGroup = (groupKey: string) => {
