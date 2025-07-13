@@ -3,7 +3,7 @@ import { APIResponse } from '@/types';
 import { createClient } from 'packages/db/server';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { Database, Tables, TablesInsert, TablesUpdate } from 'packages/db/schema';
-import { Filters, PaginationOptions } from '@/types/data-table';
+import { DataResponse, Filters, PaginationOptions } from '@/types/data-table';
 
 type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 type RowType<T extends TableOrView> = T extends keyof Database['public']['Tables']
@@ -50,8 +50,11 @@ export async function tablesCountGeneric<T extends TableOrView>(
 
 export async function tablesSelectGeneric<T extends TableOrView>(
   table: T,
-  modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<Tables<T>[]>> {
+  modifyQuery?: (query: QueryBuilder<T>) => void,
+  pagination?: PaginationOptions
+): Promise<APIResponse<DataResponse<Tables<T>>>> {
+  if (pagination) return tablesSelectPaginated(table, pagination, modifyQuery);
+
   try {
     const supabase = await createClient();
     let query = supabase.from(table as any).select('*');
@@ -73,7 +76,7 @@ export async function tablesSelectGeneric<T extends TableOrView>(
 
     return {
       ok: true,
-      data: results as Tables<T>[],
+      data: { rows: results as Tables<T>[], total: results.length } as DataResponse<Tables<T>>,
     };
   } catch (err) {
     return Debug.error({
@@ -89,7 +92,7 @@ export async function tablesSelectPaginated<T extends TableOrView>(
   table: T,
   pagination: PaginationOptions,
   modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<{ rows: Tables<T>[]; total: number }>> {
+): Promise<APIResponse<DataResponse<Tables<T>>>> {
   try {
     const supabase = await createClient();
 

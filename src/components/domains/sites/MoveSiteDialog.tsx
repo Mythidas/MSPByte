@@ -40,7 +40,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
           throw new Error(sites.error.message);
         }
 
-        setParents(sites.data.filter((p) => p.id !== parentId));
+        setParents(sites.data.rows.filter((p) => p.id !== parentId));
       } catch {
       } finally {
         setIsLoading(false);

@@ -62,3 +62,8 @@ export type PaginationOptions = {
   filterMap?: Record<string, string>;
   sorting?: Record<string, 'asc' | 'desc'>;
 };
+
+export type DataResponse<T> = {
+  rows: T[];
+  total: number;
+};

@@ -22,14 +22,14 @@ export async function syncPolicies(
     const toUpdate: TablesUpdate<'source_policies'>[] = [];
 
     for (const policy of caPolicies) {
-      const existing = existingPolicies.data.find((i) => i.external_id === policy.id);
+      const existing = existingPolicies.data.rows.find((i) => i.external_id === policy.id);
 
       if (existing) toUpdate.push({ ...existing, ...policy });
       else toInsert.push({ ...policy });
     }
 
     const updateIds = new Set(toUpdate.map((u) => u.external_id));
-    const toDelete = existingPolicies.data
+    const toDelete = existingPolicies.data.rows
       .filter((item) => !updateIds.has(item.external_id))
       .map((item) => item.id);
 

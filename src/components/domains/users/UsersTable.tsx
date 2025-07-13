@@ -2,10 +2,10 @@
 
 import CreateUserDialog from '@/components/domains/users/CreateUserDialog';
 import { Tables } from '@/db/schema';
-import DataTable from '@/components/common/table/DataTable';
-import { DataTableColumnDef } from '@/types/data-table';
+import DataTable, { DataTableRef } from '@/components/common/table/DataTable';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { useUser } from '@/lib/providers/UserContext';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import { getUsers } from '@/services/users';
 import { getRoles } from '@/services/roles';
 import { pascalCase } from '@/lib/utils';
@@ -13,47 +13,46 @@ import { textColumn, dateColumn } from '@/components/common/table/DataTableColum
 import UserTableUserDrawer from '@/components/domains/users/UserTableUserDrawer';
 
 export default function UsersTable() {
-  const [users, setUsers] = useState<Tables<'users'>[]>([]);
   const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const tableRef = useRef<DataTableRef>(null);
   const { user: context } = useUser();
 
-  useEffect(() => {
-    setIsLoading(true);
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const users = await getUsers({
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        protection: 'metadata->packages->protection->>name',
+        status: 'metadata->packages->protection->>status',
+        tamper: 'metadata->>tamperProtectionEnabled',
+      },
+      ...props,
+    });
+    const roles = await getRoles();
+    if (roles.ok) {
+      setRoles(roles.data.rows);
+    }
 
-    const loadData = async () => {
-      const users = await getUsers();
-      const roles = await getRoles();
+    if (!users.ok) {
+      return { rows: [], total: 0 };
+    }
 
-      if (users.ok && roles.ok) {
-        setUsers(users.data);
-        setRoles(roles.data);
-      }
-
-      setIsLoading(false);
-    };
-
-    loadData();
-  }, []);
-
-  const handleCreate = (user: Tables<'users'>) => {
-    setUsers([...users, user]);
+    return users.data;
   };
 
-  const handleSave = (user: Tables<'users'>) => {
-    const zUsers = [...users].filter((u) => u.id !== user.id);
-    setUsers([...zUsers, user]);
+  const handleChange = () => {
+    tableRef.current?.refetch();
   };
 
   return (
     <DataTable
-      data={users}
-      isLoading={isLoading}
+      fetcher={fetcher}
+      ref={tableRef}
       action={
         <CreateUserDialog
           roles={roles}
           tenantId={context?.tenant_id || ''}
-          onCreate={handleCreate}
+          onCreate={handleChange}
         />
       }
       columns={
@@ -68,7 +67,7 @@ export default function UsersTable() {
                 user={row.original}
                 disabled={row.original.id === context?.id}
                 roles={roles}
-                onSave={handleSave}
+                onSave={handleChange}
               >
                 {row.original.name}
               </UserTableUserDrawer>
@@ -98,6 +97,40 @@ export default function UsersTable() {
           }),
         ] as DataTableColumnDef<Tables<'users'>>[]
       }
+      filters={{
+        User: {
+          name: {
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Search name',
+            simpleSearch: true,
+          },
+          email: {
+            label: 'Email',
+            type: 'text',
+            placeholder: 'Search email',
+            simpleSearch: true,
+          },
+          role: {
+            label: 'Role',
+            type: 'select',
+            placeholder: 'Select role',
+            options: roles.map((role) => {
+              return { label: role.name, value: role.id };
+            }),
+          },
+          status: {
+            label: 'Status',
+            type: 'select',
+            placeholder: 'Select status',
+            options: [
+              { label: 'Active', value: 'active' },
+              { label: 'Pending', value: 'pending' },
+              { label: 'Disabled', value: 'disabled' },
+            ],
+          },
+        },
+      }}
     />
   );
 }

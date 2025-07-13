@@ -22,14 +22,14 @@ export async function syncDevices(
     const toUpdate: TablesUpdate<'source_devices'>[] = [];
 
     for (const device of spDevices) {
-      const existing = existingDevices.data.find((i) => i.external_id === device.id);
+      const existing = existingDevices.data.rows.find((i) => i.external_id === device.id);
 
       if (existing) toUpdate.push({ ...existing, ...device });
       else toInsert.push({ ...device });
     }
 
     const updateIds = new Set(toUpdate.map((u) => u.external_id));
-    const toDelete = existingDevices.data
+    const toDelete = existingDevices.data.rows
       .filter((item) => !updateIds.has(item.external_id))
       .map((item) => item.id);
 

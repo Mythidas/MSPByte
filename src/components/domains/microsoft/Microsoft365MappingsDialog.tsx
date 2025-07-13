@@ -41,8 +41,8 @@ export default function Microsoft365MappingsDialog({ source }: Props) {
         throw new Error('Failed to fetch data');
       }
 
-      setMappings(siteMappings.data);
-      setSites(sites.data.sort((a, b) => a.name!.localeCompare(b.name!)));
+      setMappings(siteMappings.data.rows);
+      setSites(sites.data.rows.sort((a, b) => a.name!.localeCompare(b.name!)));
     },
     deps: [source],
   });

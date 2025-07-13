@@ -22,7 +22,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/common/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Download, Grid2X2 } from 'lucide-react';
-import { Suspense, useEffect, useState } from 'react';
+import { forwardRef, Suspense, useEffect, useImperativeHandle, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import {
+  DataResponse,
   DataTableColumnDef,
   DataTableFetcher,
   DataTableFilter,
@@ -50,19 +51,26 @@ interface DataTableProps<TData> {
   action?: React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
-  fetcher?: (args: DataTableFetcher) => Promise<{ rows: TData[]; total: number }>;
+  fetcher?: (args: DataTableFetcher) => Promise<DataResponse<TData>>;
   filters?: Record<string, Record<string, DataTableFilter>>;
 }
 
-export default function DataTable<TData>({
-  columns,
-  initialVisibility = {},
-  action,
-  isLoading,
-  height = 'max-h-[60vh]',
-  fetcher,
-  filters,
-}: DataTableProps<TData>) {
+export type DataTableRef = {
+  refetch: () => void;
+};
+
+function DataTableInner<TData>(
+  {
+    columns,
+    initialVisibility = {},
+    action,
+    isLoading,
+    height = 'max-h-[60vh]',
+    fetcher,
+    filters,
+  }: DataTableProps<TData>,
+  ref: React.Ref<DataTableRef>
+) {
   const [data, setData] = useState<TData[]>([]);
   const [rowCount, setRowCount] = useState(0);
   const [pageIndex, setPageIndex] = useState(0);
@@ -79,29 +87,33 @@ export default function DataTable<TData>({
     .map((col) => col.accessorKey)
     .filter(Boolean) as string[];
 
+  const load = async () => {
+    if (!fetcher || !filtersReady) return;
+
+    setIsFetching(true);
+    const { rows, total } = await fetcher({
+      pageIndex,
+      pageSize,
+      sorting: Object.fromEntries(sorting.map((sort) => [sort.id, sort.desc ? 'desc' : 'asc'])),
+      filters: Object.fromEntries(
+        columnFilters.map((filter) => [filter.id, filter.value as FilterValue])
+      ),
+      globalFields: columns.filter((col) => col.simpleSearch).map((col) => col.accessorKey!),
+      globalSearch: globalSearch,
+    });
+
+    setData(rows);
+    setRowCount(total);
+    setIsFetching(false);
+  };
+
   useEffect(() => {
-    const load = async () => {
-      if (!fetcher || !filtersReady) return;
-
-      setIsFetching(true);
-      const { rows, total } = await fetcher({
-        pageIndex,
-        pageSize,
-        sorting: Object.fromEntries(sorting.map((sort) => [sort.id, sort.desc ? 'desc' : 'asc'])),
-        filters: Object.fromEntries(
-          columnFilters.map((filter) => [filter.id, filter.value as FilterValue])
-        ),
-        globalFields: columns.filter((col) => col.simpleSearch).map((col) => col.accessorKey!),
-        globalSearch: globalSearch,
-      });
-
-      setData(rows);
-      setRowCount(total);
-      setIsFetching(false);
-    };
-
     load();
   }, [pageIndex, pageSize, sorting, columnFilters, globalSearch, filtersReady]);
+
+  useImperativeHandle(ref, () => ({
+    refetch: load,
+  }));
 
   const table = useReactTable({
     data,
@@ -387,3 +399,9 @@ export default function DataTable<TData>({
     </div>
   );
 }
+
+const DataTable = forwardRef(DataTableInner) as <TData>(
+  props: DataTableProps<TData> & { ref?: React.Ref<DataTableRef> }
+) => ReturnType<typeof DataTableInner>;
+
+export default DataTable;

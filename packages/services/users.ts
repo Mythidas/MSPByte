@@ -5,10 +5,11 @@ import { createAdminClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { sendEmail } from '@/services/email';
 import { APIResponse } from '@/types';
+import { PaginationOptions } from '@/types/data-table';
 import { tables } from 'packages/db';
 
-export async function getUsers() {
-  return tables.select('users');
+export async function getUsers(pagination?: PaginationOptions) {
+  return tables.select('users', undefined, pagination);
 }
 
 export async function getUser(id: string) {

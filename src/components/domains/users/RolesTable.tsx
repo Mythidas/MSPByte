@@ -2,38 +2,40 @@
 
 import { Tables } from '@/db/schema';
 import DataTable from '@/components/common/table/DataTable';
-import { DataTableColumnDef } from '@/types/data-table';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { numberColumn, textColumn } from '@/components/common/table/DataTableColumn';
 import { getRoles } from '@/services/roles';
 import { getUsers } from '@/services/users';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function RolesTable() {
   const [users, setUsers] = useState<Tables<'users'>[]>([]);
-  const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    setIsLoading(true);
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const roles = await getRoles({
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        protection: 'metadata->packages->protection->>name',
+        status: 'metadata->packages->protection->>status',
+        tamper: 'metadata->>tamperProtectionEnabled',
+      },
+      ...props,
+    });
+    const users = await getUsers();
+    if (users.ok) {
+      setUsers(users.data.rows);
+    }
 
-    const loadData = async () => {
-      const users = await getUsers();
-      const roles = await getRoles();
+    if (!roles.ok) {
+      return { rows: [], total: 0 };
+    }
 
-      if (users.ok && roles.ok) {
-        setUsers(users.data);
-        setRoles(roles.data);
-      }
-
-      setIsLoading(false);
-    };
-
-    loadData();
-  }, []);
+    return roles.data;
+  };
   return (
     <DataTable
-      data={roles}
-      isLoading={isLoading}
+      fetcher={fetcher}
       columns={
         [
           textColumn({
@@ -62,6 +64,22 @@ export default function RolesTable() {
           }),
         ] as DataTableColumnDef<Tables<'roles'>>[]
       }
+      filters={{
+        User: {
+          name: {
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Search name',
+            simpleSearch: true,
+          },
+          description: {
+            label: 'Description',
+            type: 'text',
+            placeholder: 'Search description',
+            simpleSearch: true,
+          },
+        },
+      }}
     />
   );
 }

@@ -31,15 +31,15 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
         const mappings = await getSourceTenants(undefined, siteIds);
         if (mappings.ok) {
           return {
-            mappings: mappings.data,
-            integrations: integrations.data,
+            mappings: mappings.data.rows,
+            integrations: integrations.data.rows,
           };
         }
       }
 
       return {
         mappings: [],
-        integrations: integrations.data,
+        integrations: integrations.data.rows,
       };
     },
     render: (data) => {

@@ -19,7 +19,7 @@ export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
       if (!sites.ok) throw 'Failed to fetch sites. Please refresh.';
 
       return {
-        sites: parent ? [parent, ...sites.data] : sites.data,
+        sites: parent ? [parent, ...sites.data.rows] : sites.data.rows,
       };
     },
     deps: [parent],

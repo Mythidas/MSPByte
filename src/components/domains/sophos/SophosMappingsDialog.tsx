@@ -61,13 +61,13 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
       }
 
       const mapBySite: Record<string, Tables<'source_tenants'>> = {};
-      for (const mapping of siteMappings.data) {
+      for (const mapping of siteMappings.data.rows) {
         mapBySite[mapping.site_id] = mapping;
       }
 
       setMappings(mapBySite);
 
-      return { external: tenants.data, sites: sites.data };
+      return { external: tenants.data, sites: sites.data.rows };
     },
     deps: [integration, source.id],
   });

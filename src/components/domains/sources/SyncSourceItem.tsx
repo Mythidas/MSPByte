@@ -25,8 +25,8 @@ export default function SyncSourceItem({ type, sourceId, site, button }: Props) 
             throw new Error(mappings.error.message);
           }
 
-          const jobs = await syncSource(sourceId, mappings.data[0].tenant_id, [
-            ...mappings.data.map((s) => s.site_id),
+          const jobs = await syncSource(sourceId, mappings.data.rows[0].tenant_id, [
+            ...mappings.data.rows.map((s) => s.site_id),
           ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
@@ -43,14 +43,14 @@ export default function SyncSourceItem({ type, sourceId, site, button }: Props) 
 
           const mappings = await getSourceTenants(sourceId, [
             site!.id,
-            ...sites.data.map((s) => s.id),
+            ...sites.data.rows.map((s) => s.id),
           ]);
           if (!mappings.ok) {
             throw new Error(mappings.error.message);
           }
 
           const jobs = await syncSource(sourceId, site!.tenant_id, [
-            ...mappings.data.map((s) => s.site_id),
+            ...mappings.data.rows.map((s) => s.site_id),
           ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);

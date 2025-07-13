@@ -1,3 +1,5 @@
+'use client';
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -7,10 +9,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import FormError from '@/components/common/FormError';
 import RouteButton from '@/components/common/routed/RouteButton';
 import { SubmitButton } from '@/components/common/SubmitButton';
 import { Tables } from '@/db/schema';
@@ -24,8 +32,8 @@ import { toast } from 'sonner';
 import z from 'zod';
 
 const formSchema = z.object({
-  name: z.string(),
-  isParent: z.string().optional(),
+  name: z.string().min(1, 'Name is required'),
+  isParent: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -38,14 +46,15 @@ type Props = {
 export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-  });
   const { user } = useUser();
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      isParent: false,
+    },
+  });
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -56,21 +65,16 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
           tenant_id: user!.tenant_id,
           parent_id: parentId,
           name: data.name,
-          is_parent: data.isParent ? data.isParent === 'on' : false,
+          is_parent: !!data.isParent,
         },
       ]);
 
-      if (!result.ok) {
-        throw result.error.message;
-      }
+      if (!result.ok) throw result.error.message;
 
       const view = await getSiteView(result.data[0].id);
+      if (!view.ok) throw view.error.message;
 
-      if (!view.ok) {
-        throw view.error.message;
-      }
-
-      if (onSuccess) onSuccess(view.data);
+      onSuccess?.(view.data);
       setIsOpen(false);
     } catch (err) {
       toast.error(`Failed to save site: ${err}`);
@@ -88,28 +92,50 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
         </RouteButton>
       </AlertDialogTrigger>
       <AlertDialogContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create Site</AlertDialogTitle>
-          </AlertDialogHeader>
+        <Form {...form}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Create Site</AlertDialogTitle>
+            </AlertDialogHeader>
 
-          <Label className="flex flex-col items-start">
-            Name
-            <Input placeholder="Enter name" {...register('name')} />
-            <FormError name="name" errors={errors} />
-          </Label>
-          {!parentId && (
-            <Label>
-              <Checkbox {...register('isParent')} />
-              Parent?
-            </Label>
-          )}
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <SubmitButton pending={isSaving}>Create Site</SubmitButton>
-          </AlertDialogFooter>
-        </form>
+            {!parentId && (
+              <FormField
+                control={form.control}
+                name="isParent"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={(checked) => field.onChange(!!checked)}
+                      />
+                    </FormControl>
+                    <FormLabel className="mb-0">Parent?</FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <SubmitButton pending={isSaving}>Create Site</SubmitButton>
+            </AlertDialogFooter>
+          </form>
+        </Form>
       </AlertDialogContent>
     </AlertDialog>
   );

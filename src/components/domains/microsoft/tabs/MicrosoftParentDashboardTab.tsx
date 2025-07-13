@@ -60,7 +60,10 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
       const sites = await getSites(siteId);
       if (!sites.ok) return undefined;
 
-      const tenant = await getSourceTenants(sourceId, [siteId, ...sites.data.map((s) => s.id)]);
+      const tenant = await getSourceTenants(sourceId, [
+        siteId,
+        ...sites.data.rows.map((s) => s.id),
+      ]);
       if (tenant.ok) {
         return tenant.data;
       }
@@ -68,14 +71,14 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
     render: (data) => {
       if (!data) return null;
       const uniformOrMixed = () => {
-        const arr = data.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
+        const arr = data.rows.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
         if (arr.length === 0) return 'mixed';
         const first = arr[0];
         return arr.every((val) => val === first) ? first : 'mixed';
       };
 
       const mfaConfig = getMfaConfig(uniformOrMixed());
-      const domains = data.flatMap(
+      const domains = data.rows.flatMap(
         (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
       );
 

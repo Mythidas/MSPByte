@@ -25,7 +25,7 @@ export default function SiteIntegrationsTab() {
         }
 
         return {
-          sites: sites.data.map((site) => site.id),
+          sites: sites.data.rows.map((site) => site.id),
         };
       }
 

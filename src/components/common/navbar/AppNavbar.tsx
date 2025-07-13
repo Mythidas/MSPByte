@@ -20,7 +20,7 @@ export default function AppNavbar() {
       if (!sites.ok) throw sites.error.message;
 
       return {
-        sites: sites.data,
+        sites: sites.data.rows,
       };
     },
     deps: [],

@@ -5,6 +5,7 @@ import { Tables } from '@/db/schema';
 import { createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
+import { PaginationOptions } from '@/types/data-table';
 
 export async function getParentSites() {
   return tables.select('sites', (query) => {
@@ -12,7 +13,7 @@ export async function getParentSites() {
   });
 }
 
-export async function getUpperSites(): Promise<APIResponse<Tables<'sites'>[]>> {
+export async function getUpperSites() {
   return tables.select('sites', (query) => {
     query = query.or(`is_parent.eq.true,parent_id.is.null`).order('name', { ascending: true });
   });
@@ -27,12 +28,20 @@ export async function getSites(parentId?: string, name?: string, isParent?: bool
   });
 }
 
-export async function getSitesView(parentId?: string, isParent?: boolean) {
-  return tables.select('sites_view', (query) => {
-    query = query.order('name', { ascending: true });
-    if (parentId) query = query.eq('parent_id', parentId);
-    if (isParent !== undefined) query = query.eq('is_parent', isParent);
-  });
+export async function getSitesView(
+  parentId?: string,
+  isParent?: boolean,
+  pagination?: PaginationOptions
+) {
+  return tables.select(
+    'sites_view',
+    (query) => {
+      query = query.order('name', { ascending: true });
+      if (parentId) query = query.eq('parent_id', parentId);
+      if (isParent !== undefined) query = query.eq('is_parent', isParent);
+    },
+    pagination
+  );
 }
 
 export async function getSite(id: string): Promise<APIResponse<Tables<'sites'>>> {

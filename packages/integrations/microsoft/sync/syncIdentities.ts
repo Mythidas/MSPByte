@@ -22,14 +22,14 @@ export async function syncIdentities(
     const toUpdate: TablesUpdate<'source_identities'>[] = [];
 
     for (const user of graphUsers) {
-      const existing = existingIdentities.data.find((i) => i.external_id === user.id);
+      const existing = existingIdentities.data.rows.find((i) => i.external_id === user.id);
 
       if (existing) toUpdate.push({ ...existing, ...user });
       else toInsert.push({ ...user });
     }
 
     const updateIds = new Set(toUpdate.map((u) => u.external_id));
-    const toDelete = existingIdentities.data
+    const toDelete = existingIdentities.data.rows
       .filter((item) => !updateIds.has(item.external_id))
       .map((item) => item.id);
 

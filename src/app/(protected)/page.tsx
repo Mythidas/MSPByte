@@ -17,7 +17,7 @@ export default function Home() {
       }
 
       return {
-        integrations: integrations.data,
+        integrations: integrations.data.rows,
       };
     },
     deps: [],

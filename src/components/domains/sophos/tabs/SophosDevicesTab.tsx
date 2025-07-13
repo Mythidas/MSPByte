@@ -18,7 +18,7 @@ export default function SophosDevicesTab({ sourceId, parentId }: Props) {
       if (!sites.ok) throw 'Failed to fetch sites. Please refresh.';
 
       return {
-        sites: sites.data,
+        sites: sites.data.rows,
       };
     },
     deps: [parentId],

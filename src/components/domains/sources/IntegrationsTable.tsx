@@ -1,43 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Tables } from '@/db/schema';
 import { getSourceIntegrations } from '@/services/integrations';
 import { getSources } from '@/services/sources';
 import DataTable from '@/components/common/table/DataTable';
-import { DataTableColumnDef } from '@/types/data-table';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/common/table/DataTableColumn';
 import Link from 'next/link';
 
 export default function IntegrationsTable() {
   const [integrations, setIntegrations] = useState<Tables<'source_integrations'>[]>([]);
-  const [sources, setSources] = useState<Tables<'sources'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    setIsLoading(true);
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const sources = await getSources({
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        protection: 'metadata->packages->protection->>name',
+        status: 'metadata->packages->protection->>status',
+        tamper: 'metadata->>tamperProtectionEnabled',
+      },
+      ...props,
+    });
+    const integrations = await getSourceIntegrations();
+    if (integrations.ok) {
+      setIntegrations(integrations.data.rows);
+    }
 
-    const loadData = async () => {
-      const integrations = await getSourceIntegrations();
-      const sources = await getSources();
+    if (!sources.ok) {
+      return { rows: [], total: 0 };
+    }
 
-      if (integrations.ok && sources.ok) {
-        setIntegrations(integrations.data);
-        setSources(sources.data);
-      }
-
-      setIsLoading(false);
-    };
-
-    loadData();
-  }, []);
+    return sources.data;
+  };
 
   return (
     <DataTable
-      data={sources}
-      isLoading={isLoading}
+      fetcher={fetcher}
       columns={
         [
           textColumn({
@@ -82,6 +84,20 @@ export default function IntegrationsTable() {
           }),
         ] as DataTableColumnDef<Tables<'sources'>>[]
       }
+      filters={{
+        Integration: {
+          name: {
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Search name',
+          },
+          description: {
+            label: 'Description',
+            type: 'text',
+            placeholder: 'Search description',
+          },
+        },
+      }}
     />
   );
 }

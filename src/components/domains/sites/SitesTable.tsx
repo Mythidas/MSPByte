@@ -7,17 +7,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useRef, useState } from 'react';
 import DropDownItem from '@/components/common/DropDownItem';
 import CreateSiteDialog from '@/components/domains/sites/CreateSiteDialog';
 import { toast } from 'sonner';
 import MoveSiteDialog from '@/components/domains/sites/MoveSiteDialog';
 import { Tables } from '@/db/schema';
-import { deleteSites, getSitesView } from '@/services/sites';
-import DataTable from '@/components/common/table/DataTable';
-import { DataTableColumnDef } from '@/types/data-table';
+import { getSitesView } from '@/services/sites';
+import DataTable, { DataTableRef } from '@/components/common/table/DataTable';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/common/table/DataTableColumn';
 import Link from 'next/link';
+import { useDelete } from '@/hooks/common/useDelete';
 
 type Props = {
   parentId?: string;
@@ -25,61 +26,51 @@ type Props = {
 
 export default function SitesTable({ parentId }: Props) {
   const [sites, setSites] = useState<Tables<'sites_view'>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const tableRef = useRef<DataTableRef>(null);
+  const { confirmAndDelete, DeleteDialog } = useDelete<Tables<'sites'>>({
+    tableName: 'sites',
+    displayKey: 'name',
+    getId: (item) => item.id,
+    refetch: () => tableRef.current?.refetch(),
+  });
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setIsLoading(true);
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const sites = await getSitesView(parentId, undefined, {
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        protection: 'metadata->packages->protection->>name',
+        status: 'metadata->packages->protection->>status',
+        tamper: 'metadata->>tamperProtectionEnabled',
+      },
+      ...props,
+    });
 
-        const sites = await getSitesView(parentId);
-        if (!sites.ok) {
-          throw new Error();
-        }
-
-        setSites(sites.data);
-      } catch {
-        toast.error('Failed to load sites. Please refresh.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    load();
-  }, [parentId]);
-
-  const handleDelete = async (e: React.MouseEvent<HTMLDivElement>, site: Tables<'sites_view'>) => {
-    e.stopPropagation();
-
-    try {
-      const result = await deleteSites([site.id!]);
-
-      if (!result.ok) {
-        throw new Error(result.error.message);
-      }
-
-      setSites([...sites.filter((s) => s.id !== site.id)]);
-      toast.info(`Deleted site ${site.name}`);
-    } catch (err) {
-      toast.error(`Failed to delete site: ${err}`);
+    if (!sites.ok) {
+      return { rows: [], total: 0 };
     }
+
+    setSites(sites.data.rows);
+    return sites.data;
   };
 
   const createCallback = (site: Tables<'sites_view'>) => {
-    setSites([...sites, site].sort((a, b) => a.name!.localeCompare(b.name!)));
+    tableRef.current?.refetch();
+    toast.info(`Created site ${site.name}`);
   };
 
   const moveCallback = (site: Tables<'sites'>, parent: string) => {
-    setSites([...sites.filter((s) => s.id !== site.id)]);
+    tableRef.current?.refetch();
     toast.info(`Moved site ${site.name} to ${parent}`);
   };
 
   return (
     <DataTable
-      data={sites}
-      isLoading={isLoading}
+      fetcher={fetcher}
+      ref={tableRef}
       action={
         <div className="flex gap-2">
+          <DeleteDialog />
           {parentId && (
             <MoveSiteDialog
               sites={sites as Tables<'sites'>[]}
@@ -129,10 +120,10 @@ export default function SitesTable({ parentId }: Props) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropDownItem
-                    onClick={(e) => handleDelete(e, row.original)}
                     variant="destructive"
                     module="Sites"
                     level="Full"
+                    onClick={() => confirmAndDelete(row.original as Tables<'sites'>)}
                   >
                     Delete
                   </DropDownItem>
@@ -142,6 +133,22 @@ export default function SitesTable({ parentId }: Props) {
           }),
         ] as DataTableColumnDef<Tables<'sites_view'>>[]
       }
+      filters={{
+        Site: {
+          name: {
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Search name',
+            simpleSearch: true,
+          },
+          parent_name: {
+            label: 'Parent',
+            type: 'text',
+            placeholder: 'Search parent',
+            simpleSearch: true,
+          },
+        },
+      }}
     />
   );
 }

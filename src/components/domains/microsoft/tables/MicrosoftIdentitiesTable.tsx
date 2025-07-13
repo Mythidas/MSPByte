@@ -70,7 +70,7 @@ export default function MicrosoftIdentitiesTable({
     const allSkus = [...new Set(identities.data.rows.flatMap((i) => i.license_skus!))];
     const licensesRes = await getSourceLicenses(sourceId, allSkus);
     if (licensesRes.ok) {
-      setLicenses(licensesRes.data);
+      setLicenses(licensesRes.data.rows);
     }
 
     return identities.data;
