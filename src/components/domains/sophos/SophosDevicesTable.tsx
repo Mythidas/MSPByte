@@ -3,11 +3,11 @@
 import { pascalCase } from '@/lib/utils';
 import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
-import DataTable, { FetcherProps } from '@/components/common/table/DataTable';
+import DataTable from '@/components/common/table/DataTable';
 import { DataTableHeader } from '@/components/common/table/DataTableHeader';
 import { getSourceDevicesViewPaginated } from '@/services/devices';
 import { textColumn } from '@/components/common/table/DataTableColumn';
-import { DataTableColumnDef } from '@/types/data-table';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 
 type Props = {
   sourceId: string;
@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
-  const fetcher = async ({ pageIndex, pageSize, ...props }: FetcherProps) => {
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const devices = await getSourceDevicesViewPaginated(
       {
         page: pageIndex,
@@ -75,31 +75,6 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             cell: ({ row }) => (
               <div>{(row.original.metadata as SPEndpoint).packages.protection?.name}</div>
             ),
-            sortingFn: (rowA, rowB) => {
-              if (
-                !(rowB.original.metadata as SPEndpoint).packages.protection?.name ||
-                !(rowA.original.metadata as SPEndpoint).packages.protection?.name
-              ) {
-                return 1;
-              }
-              return (rowA.original.metadata as SPEndpoint).packages.protection!.name.localeCompare(
-                (rowB.original.metadata as SPEndpoint).packages.protection!.name
-              );
-            },
-            filterFn: (row, colId, value) => {
-              return (
-                (row.original.metadata as SPEndpoint).packages.protection?.name === value.value
-              );
-            },
-            filter: {
-              type: 'select',
-              options: [
-                { label: 'MDR', value: 'MDR' },
-                { label: 'XDR', value: 'XDR' },
-                { label: 'Endpoint', value: 'Endpoint' },
-              ],
-              placeholder: 'Search protection',
-            },
             meta: {
               label: 'Protection',
             },
@@ -114,33 +89,6 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
                 )}
               </div>
             ),
-            filterFn: (row, colId, value) => {
-              return (
-                (row.original.metadata as SPEndpoint).packages.protection?.status === value.value
-              );
-            },
-            sortingFn: (rowA, rowB) => {
-              if (
-                !(rowB.original.metadata as SPEndpoint).packages.protection?.status ||
-                !(rowA.original.metadata as SPEndpoint).packages.protection?.status
-              ) {
-                return 1;
-              }
-              return (
-                rowA.original.metadata as SPEndpoint
-              ).packages.protection!.status.localeCompare(
-                (rowB.original.metadata as SPEndpoint).packages.protection!.status
-              );
-            },
-            filter: {
-              type: 'select',
-              options: [
-                { label: 'Assigned', value: 'assigned' },
-                { label: 'Upgradable', value: 'upgradable' },
-                { label: 'Unassigned', value: 'unassigned' },
-              ],
-              placeholder: 'Search status',
-            },
             meta: {
               label: 'Status',
             },
@@ -155,25 +103,65 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
                   : 'Disabled'}
               </div>
             ),
-            filterFn: (row, colId, value) => {
-              return (row.original.metadata as SPEndpoint).tamperProtectionEnabled === value.value;
-            },
-            sortingFn: (rowA, rowB) => {
-              return (
-                Number((rowB.original.metadata as SPEndpoint).tamperProtectionEnabled) -
-                Number((rowA.original.metadata as SPEndpoint).tamperProtectionEnabled)
-              );
-            },
-            filter: {
-              type: 'boolean',
-              placeholder: 'Search tamper',
-            },
-            meta: {
-              label: 'Tamper',
-            },
           },
         ] as DataTableColumnDef<Tables<'source_devices_view'>>[]
       }
+      filters={{
+        Tenant: {
+          site_name: {
+            label: 'Site',
+            type: 'text',
+            placeholder: 'Search site',
+            simpleSearch: true,
+          },
+          parent_name: {
+            label: 'Parent',
+            type: 'text',
+            placeholder: 'Search parent',
+            simpleSearch: true,
+          },
+        },
+        Device: {
+          hostname: {
+            label: 'Site',
+            type: 'text',
+            placeholder: 'Search hostname',
+            simpleSearch: true,
+          },
+          os: {
+            label: 'OS',
+            type: 'text',
+            placeholder: 'Search OS',
+            simpleSearch: true,
+          },
+        },
+        Security: {
+          protection: {
+            label: 'Protection',
+            type: 'select',
+            placeholder: 'Select protection',
+            options: [
+              { label: 'MDR', value: 'MDR' },
+              { label: 'XDR', value: 'XDR' },
+              { label: 'Endpoint', value: 'Endpoint' },
+            ],
+          },
+          status: {
+            label: 'Status',
+            type: 'select',
+            placeholder: 'Select status',
+            options: [
+              { label: 'Assigned', value: 'assigned' },
+              { label: 'Upgradable', value: 'upgradable' },
+              { label: 'Unassigned', value: 'unassigned' },
+            ],
+          },
+          tamper: {
+            label: 'Tamper Protection',
+            type: 'boolean',
+          },
+        },
+      }}
     />
   );
 }

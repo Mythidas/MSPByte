@@ -10,18 +10,32 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
   const parts = filterStr.split(/\s+and\s+/i);
 
   for (const part of parts) {
-    const match = part.match(/^(\w+)\s+(eq|lk|ne|gt|lt|ge|le)\s+(.+)$/i);
+    const match = part.match(/^(\w+)\s+(eq|lk|ne|gt|lt|ge|le|in)\s+(.+)$/i);
     if (!match) continue;
 
     const [, field, op, rawValue] = match;
-    const cleanValue = rawValue.replace(/^'|'$/g, ''); // strip quotes if string
-    const parsedValue = isNaN(Number(cleanValue))
-      ? cleanValue === 'true'
-        ? true
-        : cleanValue === 'false'
-          ? false
-          : cleanValue
-      : Number(cleanValue);
+
+    let parsedValue;
+
+    if (op.toLowerCase() === 'in') {
+      // Parse list: assume format ['a','b','c']
+      const arrayMatch = rawValue.match(/^\[(.*)\]$/);
+      if (arrayMatch) {
+        const items = arrayMatch[1].split(',').map((item) => item.trim().replace(/^'|'$/g, ''));
+        parsedValue = items;
+      } else {
+        parsedValue = [];
+      }
+    } else {
+      const cleanValue = rawValue.replace(/^'|'$/g, ''); // strip quotes if string
+      parsedValue = isNaN(Number(cleanValue))
+        ? cleanValue === 'true'
+          ? true
+          : cleanValue === 'false'
+            ? false
+            : cleanValue
+        : Number(cleanValue);
+    }
 
     filters.push({
       id: field,
@@ -37,8 +51,17 @@ function encodeODataFilter(filters: ColumnFiltersState): string {
     .map(({ id, value: raw }) => {
       const value = raw as FilterValue;
 
+      if (value.op === 'in' && Array.isArray(value.value)) {
+        const encodedArray = `[${value.value
+          .map((v) => `'${String(v).replace(/'/g, '')}'`)
+          .join(',')}]`;
+        return `${id} ${value.op} ${encodedArray}`;
+      }
+
       const encodedVal =
-        typeof value.value === 'string' ? `${value.value.replace(/'/g, '')}` : String(value.value);
+        typeof value.value === 'string'
+          ? `'${value.value.replace(/'/g, '')}'`
+          : String(value.value);
       return `${id} ${value.op} ${encodedVal}`;
     })
     .join(' and ');

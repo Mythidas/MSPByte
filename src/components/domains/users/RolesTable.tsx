@@ -48,7 +48,6 @@ export default function RolesTable() {
             cell: ({ row }) => (
               <div>{users.filter((u) => u.role_id === row.original.id).length}</div>
             ),
-            filter: undefined,
           }),
           textColumn({
             key: 'description',
@@ -60,7 +59,6 @@ export default function RolesTable() {
             key: 'tenant_id',
             label: 'Custom',
             cell: ({ row }) => <div>{row.original.tenant_id ? 'True' : 'False'}</div>,
-            filter: undefined,
           }),
         ] as DataTableColumnDef<Tables<'roles'>>[]
       }

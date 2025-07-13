@@ -150,6 +150,7 @@ export function paginatedFilters<T extends TableOrView>(
     if (value === undefined || value === null || value === '') continue;
 
     const column = map ? (map[key] ?? key) : key;
+    console.log(column);
 
     switch (op) {
       case 'lk':
@@ -169,7 +170,7 @@ export function paginatedFilters<T extends TableOrView>(
         break;
       case 'in':
         if (Array.isArray(value)) {
-          query = query.in(column as any, value);
+          query = query.overlaps(column as any, value);
         }
         break;
       case 'bt':

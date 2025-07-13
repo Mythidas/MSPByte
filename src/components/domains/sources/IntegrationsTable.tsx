@@ -79,18 +79,6 @@ export default function IntegrationsTable() {
                 </Badge>
               );
             },
-            filter: {
-              type: 'select',
-              placeholder: 'Select Status',
-              options: [
-                { label: 'Enabled', value: 'enabled' },
-                { label: 'Disabled', value: 'disabled' },
-              ],
-            },
-            filterFn: (row, colId, value) => {
-              const exists = integrations.find((i) => i.source_id === row.original.id);
-              return value.value === 'enabled' ? !!exists : !exists;
-            },
           }),
         ] as DataTableColumnDef<Tables<'sources'>>[]
       }

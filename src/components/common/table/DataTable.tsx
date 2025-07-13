@@ -31,21 +31,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { DataTableColumnDef, Filters, FilterValue } from '@/types/data-table';
+import {
+  DataTableColumnDef,
+  DataTableFetcher,
+  DataTableFilter,
+  FilterValue,
+} from '@/types/data-table';
 import { Spinner } from '@/components/common/Spinner';
 import { DataTableFilters } from '@/components/common/table/DataTableFilters';
 import { DataTableFooter } from '@/components/common/table/DataTableFooter';
 import * as XLSX from 'xlsx';
 import { ClassValue } from 'clsx';
-
-export type FetcherProps = {
-  pageIndex: number;
-  pageSize: number;
-  sorting: Record<string, 'asc' | 'desc'>;
-  filters: Filters;
-  globalFields: string[];
-  globalSearch: string;
-};
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
@@ -54,7 +50,8 @@ interface DataTableProps<TData> {
   action?: React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
-  fetcher?: (args: FetcherProps) => Promise<{ rows: TData[]; total: number }>;
+  fetcher?: (args: DataTableFetcher) => Promise<{ rows: TData[]; total: number }>;
+  filters?: Record<string, Record<string, DataTableFilter>>;
 }
 
 export default function DataTable<TData>({
@@ -64,6 +61,7 @@ export default function DataTable<TData>({
   isLoading,
   height = 'max-h-[60vh]',
   fetcher,
+  filters,
 }: DataTableProps<TData>) {
   const [data, setData] = useState<TData[]>([]);
   const [rowCount, setRowCount] = useState(0);
@@ -306,12 +304,10 @@ export default function DataTable<TData>({
           <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={1000} />
           <Suspense fallback={<div>Loading...</div>}>
             <DataTableFilters
-              table={table}
-              columnFilters={columnFilters}
-              columns={columns}
-              sorting={sorting}
-              data={data}
+              filters={filters || {}}
               onInit={() => setFiltersReady(true)}
+              table={table}
+              sorting={sorting}
             />
           </Suspense>
 

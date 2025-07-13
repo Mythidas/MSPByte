@@ -1,11 +1,4 @@
 import { DataTableHeader } from '@/components/common/table/DataTableHeader';
-import {
-  booleanFilter,
-  daysAgoFilter,
-  numberFilter,
-  stringFilter,
-} from '@/lib/helpers/data-table/filters';
-import { booleanSort, listLengthSort } from '@/lib/helpers/data-table/sorting';
 import { cn } from '@/lib/utils';
 import { DataTableColumnDef } from '@/types/data-table';
 
@@ -52,11 +45,6 @@ export function textColumn<TData>({
   return column({
     key,
     label,
-    filterFn: (row, colId, value) => stringFilter(row, colId as keyof TData, value),
-    filter: {
-      type: 'text',
-      placeholder: `Search ${label.toLowerCase()}`,
-    },
     ...props,
   });
 }
@@ -69,11 +57,6 @@ export function numberColumn<TData>({
   return column({
     key,
     label,
-    filterFn: (row, colId, value) => numberFilter(row, colId as keyof TData, value),
-    filter: {
-      type: 'number',
-      placeholder: `Count`,
-    },
     ...props,
   });
 }
@@ -89,12 +72,6 @@ export function listColumn<TData>({
     cell: ({ row }) => {
       if (props.cell) return props.cell;
       return <div>{Array.isArray(row.original[key]) && Array(...row.original[key]).length}</div>;
-    },
-    sortingFn: (rowA, rowB, colId) => listLengthSort(rowA, rowB, colId as keyof TData),
-    filterFn: (row, colId, value) => numberFilter(row, colId as keyof TData, value),
-    filter: {
-      type: 'number',
-      placeholder: `Count`,
     },
     ...props,
   });
@@ -113,11 +90,6 @@ export function booleanColumn<TData>({
     cell: ({ row }) => {
       if (props.cell) return props.cell;
       return <div>{row.original[key] ? valid || 'True' : invalid || 'False'}</div>;
-    },
-    filterFn: (row, colId, value) => booleanFilter(row, colId as keyof TData, value),
-    sortingFn: (rowA, rowB, colId) => booleanSort(rowA, rowB, colId as keyof TData),
-    filter: {
-      type: 'boolean',
     },
     ...props,
   });
@@ -140,11 +112,6 @@ export function dateColumn<TData>({
             : 'Unavailable'}
         </div>
       );
-    },
-    filterFn: (row, colId, value) => daysAgoFilter(row, colId as keyof TData, value),
-    filter: {
-      type: 'date',
-      placeholder: `Enter days ago`,
     },
     ...props,
   });

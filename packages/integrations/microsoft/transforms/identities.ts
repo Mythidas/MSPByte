@@ -1,5 +1,8 @@
 import { Tables, TablesInsert } from '@/db/schema';
-import { isUserRequiredToUseMFA } from '@/integrations/microsoft/helpers/conditionalAccess';
+import {
+  isUserCapableOfCA,
+  isUserRequiredToUseMFA,
+} from '@/integrations/microsoft/helpers/conditionalAccess';
 import { getAuthenticationMethods } from '@/integrations/microsoft/services/identity';
 import { getUserContext } from '@/integrations/microsoft/services/users';
 import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
@@ -59,6 +62,7 @@ export async function transformIdentities(
           ...(user as any),
           roles: userContext.data.roles,
           groups: userContext.data.groups,
+          valid_mfa_license: isUserCapableOfCA(licenseSkus, subscribedSkus),
         },
         created_at: new Date().toISOString(),
       });

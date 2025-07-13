@@ -9,13 +9,13 @@ import {
   listColumn,
   textColumn,
 } from '@/components/common/table/DataTableColumn';
-import { DataTableColumnDef } from '@/types/data-table';
+import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
-import { getSourceIdentitiesView } from '@/services/identities';
+import { getSourceIdentitiesViewPaginated } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
-import { useAsync } from '@/hooks/common/useAsync';
 import { pascalCase } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/domains/microsoft/MicrosoftIdentityDrawer';
+import { useState } from 'react';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -31,23 +31,7 @@ export default function MicrosoftIdentitiesTable({
   siteLevel,
   parentLevel,
 }: Props) {
-  const { data, isLoading } = useAsync({
-    initial: { identities: [], licenses: [] },
-    fetcher: async () => {
-      const identitiesRes = await getSourceIdentitiesView(sourceId, siteIds);
-      if (!identitiesRes.ok) throw new Error('Failed to get identities');
-
-      const allSkus = [...new Set(identitiesRes.data.flatMap((i) => i.license_skus!))];
-      const licensesRes = await getSourceLicenses(sourceId, allSkus);
-      if (!licensesRes.ok) throw new Error('Failed to get licenses');
-
-      return {
-        identities: identitiesRes.data,
-        licenses: licensesRes.data,
-      };
-    },
-    deps: [sourceId, siteIds],
-  });
+  const [licenses, setLicenses] = useState<Tables<'source_license_info'>[]>([]);
 
   const initialVisibility = {
     parent_name: !siteLevel && !parentLevel,
@@ -65,10 +49,36 @@ export default function MicrosoftIdentitiesTable({
     }
   };
 
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const identities = await getSourceIdentitiesViewPaginated(
+      {
+        page: pageIndex,
+        size: pageSize,
+        filterMap: {
+          ca_capable: 'metadata->>valid_mfa_license',
+        },
+        ...props,
+      },
+      sourceId,
+      siteIds
+    );
+
+    if (!identities.ok) {
+      return { rows: [], total: 0 };
+    }
+
+    const allSkus = [...new Set(identities.data.rows.flatMap((i) => i.license_skus!))];
+    const licensesRes = await getSourceLicenses(sourceId, allSkus);
+    if (licensesRes.ok) {
+      setLicenses(licensesRes.data);
+    }
+
+    return identities.data;
+  };
+
   return (
     <DataTable
-      data={data?.identities || []}
-      isLoading={isLoading}
+      fetcher={fetcher}
       initialVisibility={initialVisibility}
       height="max-h-[50vh]"
       columns={
@@ -110,7 +120,7 @@ export default function MicrosoftIdentitiesTable({
               <MicrosoftIdentityDrawer
                 label={row.original.name!}
                 identity={row.original}
-                licenses={data.licenses}
+                licenses={licenses}
               />
             ),
           }),
@@ -123,7 +133,7 @@ export default function MicrosoftIdentitiesTable({
               <MicrosoftIdentityDrawer
                 label={row.original.email!}
                 identity={row.original}
-                licenses={data.licenses}
+                licenses={licenses}
               />
             ),
           }),
@@ -131,14 +141,6 @@ export default function MicrosoftIdentitiesTable({
             key: 'type',
             label: 'Type',
             cell: ({ row }) => <div>{pascalCase(row.original.type || '')}</div>,
-            filter: {
-              type: 'select',
-              placeholder: 'Select Type',
-              options: [
-                { label: 'Member', value: 'member' },
-                { label: 'Guest', value: 'guest' },
-              ],
-            },
           }),
           booleanColumn({
             key: 'mfa_enforced',
@@ -148,15 +150,6 @@ export default function MicrosoftIdentitiesTable({
             key: 'enforcement_type',
             label: 'Enforcement',
             cell: ({ row }) => <div>{getEnforcement(row.getValue('enforcement_type'))}</div>,
-            filter: {
-              type: 'select',
-              placeholder: 'Select Enforcement',
-              options: [
-                { label: 'Conditional Access', value: 'conditional_access' },
-                { label: 'Security Defaults', value: 'security_defaults' },
-                { label: 'None', value: 'none' },
-              ],
-            },
           }),
           column({
             key: 'ca_capable',
@@ -168,16 +161,6 @@ export default function MicrosoftIdentitiesTable({
                   : 'No'}
               </div>
             ),
-            filter: {
-              type: 'boolean',
-              placeholder: 'Select CA Capable',
-            },
-            filterFn: (row, colId, value) => {
-              return (
-                (row.original.metadata as { valid_mfa_license: boolean }).valid_mfa_license ===
-                value.value
-              );
-            },
           }),
           listColumn({
             key: 'mfa_methods',
@@ -186,16 +169,6 @@ export default function MicrosoftIdentitiesTable({
           listColumn({
             key: 'license_skus',
             label: 'Licenses',
-            filter: {
-              type: 'multiselect',
-              options: data?.licenses.map((lic) => {
-                return { label: lic.name, value: lic.sku };
-              }),
-              placeholder: 'Select Licenses',
-            },
-            filterFn: (row, colId, value) => {
-              return row.original.license_skus!.some((sku) => value.value.includes(sku));
-            },
           }),
           dateColumn({
             key: 'last_activity',
@@ -209,6 +182,91 @@ export default function MicrosoftIdentitiesTable({
           }),
         ] as DataTableColumnDef<TData>[]
       }
+      filters={{
+        Tenant: {
+          site_name: {
+            label: 'Site',
+            type: 'text',
+            placeholder: 'Search site',
+            operations: ['lk'],
+            simpleSearch: true,
+          },
+          parent_name: {
+            label: 'Parent',
+            type: 'text',
+            placeholder: 'Search parent',
+            operations: ['lk'],
+            simpleSearch: true,
+          },
+        },
+        User: {
+          name: {
+            label: 'Name',
+            type: 'text',
+            placeholder: 'Search name',
+            operations: ['lk'],
+            simpleSearch: true,
+          },
+          email: {
+            label: 'Email',
+            type: 'text',
+            placeholder: 'Search email',
+            operations: ['lk'],
+            simpleSearch: true,
+          },
+          type: {
+            label: 'Type',
+            type: 'select',
+            placeholder: 'Select type',
+            operations: ['eq'],
+            options: [
+              { label: 'Member', value: 'member' },
+              { label: 'Guest', value: 'guest' },
+            ],
+          },
+          license_skus: {
+            label: 'Licenses',
+            type: 'multiselect',
+            placeholder: 'Select Licenses',
+            operations: ['in'],
+            options: licenses.map((lic) => {
+              return { label: lic.name, value: lic.sku };
+            }),
+          },
+        },
+        Security: {
+          mfa_enforced: {
+            label: 'MFA Enforced',
+            type: 'boolean',
+            placeholder: 'Search enforced',
+            operations: ['eq'],
+          },
+          enforcement: {
+            label: 'Enforcement',
+            type: 'select',
+            placeholder: 'Select enforcement',
+            operations: ['eq'],
+            options: [
+              { label: 'Conditional Access', value: 'conditional_access' },
+              { label: 'Security Defaults', value: 'security_defaults' },
+              { label: 'None', value: 'none' },
+            ],
+          },
+          mfa_method_count: {
+            label: 'Methods',
+            type: 'number',
+            placeholder: 'Method count',
+            operations: ['gt', 'lt'],
+          },
+          ca_capable: {
+            label: 'CA Capable',
+            type: 'boolean',
+            placeholder: 'Search enforced',
+            operations: ['eq'],
+            serverKey: 'metadata->>valid_mfa_license',
+          },
+        },
+      }}
     />
   );
 }

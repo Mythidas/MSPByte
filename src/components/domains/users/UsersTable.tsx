@@ -90,17 +90,6 @@ export default function UsersTable() {
             cell: ({ row }) => (
               <div>{roles.find((role) => role.id === row.original.role_id)?.name}</div>
             ),
-            filter: {
-              type: 'select',
-              options: roles.map((role) => {
-                return { label: role.name, value: role.name };
-              }),
-              placeholder: 'Select role',
-            },
-            filterFn: (row, colId, value) => {
-              const role = roles.find((role) => role.id === row.original.role_id)?.name;
-              return role ? role === value.value : false;
-            },
           }),
           textColumn({
             key: 'status',

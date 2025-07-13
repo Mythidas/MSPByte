@@ -15,7 +15,7 @@ export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
   const { data, isLoading } = useAsync({
     initial: { sites: [] },
     fetcher: async () => {
-      const sites = await getSites(parent?.id);
+      const sites = await getSites(parent?.id || '');
       if (!sites.ok) throw 'Failed to fetch sites. Please refresh.';
 
       return {
