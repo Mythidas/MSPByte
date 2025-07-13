@@ -2,7 +2,7 @@
 
 import MicrosoftIdentitiesTable from '@/components/domains/microsoft/tables/MicrosoftIdentitiesTable';
 import MicrosoftDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftDashboardTab';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
@@ -12,6 +12,7 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Badge } from '@/components/ui/badge';
 import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
 
 const getStatusConfig = (status: string) => {
   switch (status) {
@@ -119,10 +120,12 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
 
-        <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
-        <TabsContent value="identities">
+        <LazyTabContent value="dashboard">
+          <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
+        </LazyTabContent>
+        <LazyTabContent value="identities">
           <MicrosoftIdentitiesTable sourceId={sourceId} siteIds={[site!.id]} siteLevel />
-        </TabsContent>
+        </LazyTabContent>
       </Tabs>
     </>
   );

@@ -73,7 +73,7 @@ export function DataTableFilters<TData>({
     Object.fromEntries(Object.keys(filters).map((key) => [key, true]))
   );
   const [searchTerm, setSearchTerm] = useState('');
-  const { initialFilters, initialSorting, applyUrlState } = useTableURLState();
+  const { initialFilters, initialSorting, applyUrlState, isReady } = useTableURLState();
   const initFilters = useRef(false);
   const searchParams = useSearchParams();
 
@@ -81,21 +81,25 @@ export function DataTableFilters<TData>({
   const activeFilterCount = Object.values(activeFilters).filter(Boolean).length;
 
   useEffect(() => {
+    if (!isReady || initFilters.current) return;
+
+    table.setColumnFilters(initialFilters);
+    table.setSorting(initialSorting);
+    initFilters.current = true;
+    onInit?.();
+  }, [isReady, initialFilters, initialSorting]);
+
+  useEffect(() => {
+    if (!clientSide || !initFilters.current) return;
+
     const filtersChanged =
       JSON.stringify(initialFilters) !== JSON.stringify(table.getState().columnFilters);
     const sortingChanged =
       JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
 
-    if (
-      ((filtersChanged || sortingChanged) && initFilters.current === false) ||
-      initFilters.current === false
-    ) {
-      table.setColumnFilters(initialFilters);
-      table.setSorting(initialSorting);
-      initFilters.current = true;
-      onInit?.();
-    }
-  }, [searchParams.toString(), initialFilters, initialSorting, table, onInit]);
+    if (filtersChanged) table.setColumnFilters(initialFilters);
+    if (sortingChanged) table.setSorting(initialSorting);
+  }, [searchParams.toString()]);
 
   useEffect(() => {
     const currentFilters = table.getState().columnFilters;

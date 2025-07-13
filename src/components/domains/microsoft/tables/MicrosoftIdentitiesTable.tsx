@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { getSourceIdentitiesViewPaginated } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
 import { pascalCase } from '@/lib/utils';
-import MicrosoftIdentityDrawer from '@/components/domains/microsoft/MicrosoftIdentityDrawer';
+import MicrosoftIdentityDrawer from '@/components/domains/microsoft/drawers/MicrosoftIdentityDrawer';
 import { useState } from 'react';
 
 type TData = Tables<'source_identities_view'>;
@@ -50,6 +50,8 @@ export default function MicrosoftIdentitiesTable({
   };
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    console.log('test');
+
     const identities = await getSourceIdentitiesViewPaginated(
       {
         page: pageIndex,

@@ -6,6 +6,8 @@ import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Database } from 'lucide-react';
 import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/MicrosoftIdentitiesTab';
 import MicrosoftGlobalDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftGlobalDashboardTab';
+import MicrosoftTenantsTab from '@/components/domains/microsoft/tabs/MicrosoftTenantsTab';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
 
 type Props = {
   sourceId: string;
@@ -32,11 +34,19 @@ export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
+          <RouteTabsTrigger value="tenants">Tenants</RouteTabsTrigger>
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
 
-        <MicrosoftGlobalDashboardTab sourceId={sourceId} />
-        <MicrosoftIdentitiesTab sourceId={sourceId} />
+        <LazyTabContent value="dashboard" className="space-y-6">
+          <MicrosoftGlobalDashboardTab sourceId={sourceId} />
+        </LazyTabContent>
+        <LazyTabContent value="tenants" className="space-y-6">
+          <MicrosoftTenantsTab sourceId={sourceId} />
+        </LazyTabContent>
+        <LazyTabContent value="identities" className="space-y-6">
+          <MicrosoftIdentitiesTab sourceId={sourceId} />
+        </LazyTabContent>
       </Tabs>
     </>
   );

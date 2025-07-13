@@ -1,5 +1,4 @@
 import SophosDevicesTable from '@/components/domains/sophos/SophosDevicesTable';
-import { TabsContent } from '@/components/ui/tabs';
 import ErrorDisplay from '@/components/common/ErrorDisplay';
 import Loader from '@/components/common/Loader';
 import { useAsync } from '@/hooks/common/useAsync';
@@ -25,28 +24,18 @@ export default function SophosDevicesTab({ sourceId, parentId }: Props) {
   });
 
   if (isLoading) {
-    return (
-      <TabsContent value="identities">
-        <Loader />
-      </TabsContent>
-    );
+    return <Loader />;
   }
 
   if (!data) {
-    return (
-      <TabsContent value="identities">
-        <ErrorDisplay message="Failed to fetch data. Please refresh." />
-      </TabsContent>
-    );
+    return <ErrorDisplay message="Failed to fetch data. Please refresh." />;
   }
 
   return (
-    <TabsContent value="devices">
-      <SophosDevicesTable
-        sourceId={sourceId}
-        siteIds={data.sites.map((s) => s.id)}
-        parentLevel={!!parentId}
-      />
-    </TabsContent>
+    <SophosDevicesTable
+      sourceId={sourceId}
+      siteIds={data.sites.map((s) => s.id)}
+      parentLevel={!!parentId}
+    />
   );
 }

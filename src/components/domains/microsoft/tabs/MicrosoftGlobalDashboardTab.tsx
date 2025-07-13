@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck, Layers2 } from 'lucide-react';
-import { TabsContent } from '@/components/ui/tabs';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenants } from '@/services/source/tenants';
 import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
@@ -79,6 +78,7 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
         (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
       );
 
+      console.log('dashboard');
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Domains Card */}
@@ -180,7 +180,7 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
   const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'global', sourceId });
 
   return (
-    <TabsContent value="dashboard" className="space-y-6">
+    <>
       {content}
 
       {/* Metrics Grid */}
@@ -191,6 +191,6 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
 
         {MetricsGrid}
       </div>
-    </TabsContent>
+    </>
   );
 }

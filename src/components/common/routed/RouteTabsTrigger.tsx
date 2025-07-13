@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { TabsTrigger } from '@/components/ui/tabs';
 
 type Props = {} & React.ComponentProps<typeof TabsTrigger>; // inherit all Button props
@@ -9,11 +9,10 @@ type Props = {} & React.ComponentProps<typeof TabsTrigger>; // inherit all Butto
 export default function RouteTabsTrigger({ value, children, ...props }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.stopPropagation();
-    const sParams = new URLSearchParams(searchParams);
+    const sParams = new URLSearchParams();
     sParams.set('tab', value as string);
     router.replace(`${pathname}?${sParams}`);
   };

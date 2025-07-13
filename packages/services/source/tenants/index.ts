@@ -1,5 +1,6 @@
 'use server';
 
+import { PaginationOptions } from '@/types/data-table';
 import { tables } from 'packages/db';
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 
@@ -9,11 +10,34 @@ export async function getSourceTenant(sourceId: string, siteId: string) {
   });
 }
 
-export async function getSourceTenants(sourceId?: string, siteIds?: string[]) {
-  return tables.select('source_tenants', (query) => {
-    if (sourceId) query = query.eq('source_id', sourceId);
-    if (siteIds) query = query.in('site_id', siteIds);
-  });
+export async function getSourceTenants(
+  sourceId?: string,
+  siteIds?: string[],
+  pagination?: PaginationOptions
+) {
+  return tables.select(
+    'source_tenants',
+    (query) => {
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    },
+    pagination
+  );
+}
+
+export async function getSourceTenantsView(
+  sourceId?: string,
+  siteIds?: string[],
+  pagination?: PaginationOptions
+) {
+  return tables.select(
+    'source_tenants_view',
+    (query) => {
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    },
+    pagination
+  );
 }
 
 export async function putSourceTenant(mapping: TablesInsert<'source_tenants'>[]) {

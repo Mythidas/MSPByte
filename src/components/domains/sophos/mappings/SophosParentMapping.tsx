@@ -1,11 +1,13 @@
 'use client';
 
 import SophosDevicesTab from '@/components/domains/sophos/tabs/SophosDevicesTab';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
 import { Database } from 'lucide-react';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
+import SophosParentashboardTab from '@/components/domains/sophos/tabs/SophosParentDashboardTab';
 
 type Props = {
   sourceId: string;
@@ -36,10 +38,12 @@ export default function SophosParentMapping({ sourceId, site, tab }: Props) {
           <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
         </TabsList>
 
-        <TabsContent value="dashboard">
-          <div className="grid gap-4"></div>
-        </TabsContent>
-        <SophosDevicesTab sourceId={sourceId} parentId={site.id} />
+        <LazyTabContent value="dashboard">
+          <SophosParentashboardTab sourceId={sourceId} siteId={site.id} />
+        </LazyTabContent>
+        <LazyTabContent value="devices">
+          <SophosDevicesTab sourceId={sourceId} parentId={site.id} />
+        </LazyTabContent>
       </Tabs>
     </>
   );

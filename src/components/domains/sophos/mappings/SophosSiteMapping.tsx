@@ -1,7 +1,7 @@
 'use client';
 
 import SophosDevicesTable from '@/components/domains/sophos/SophosDevicesTable';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
+import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
@@ -12,6 +12,7 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { Badge } from '@/components/ui/badge';
 import SophosDashboardTab from '@/components/domains/sophos/tabs/SophosDashboardTab';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
 
 const getStatusConfig = (status: string) => {
   switch (status) {
@@ -119,10 +120,12 @@ export default function SophosSiteMapping({ sourceId, site, tab }: Props) {
           <RouteTabsTrigger value="devices">Devices</RouteTabsTrigger>
         </TabsList>
 
-        <SophosDashboardTab sourceId={sourceId} siteId={site.id} />
-        <TabsContent value="devices">
+        <LazyTabContent value="dashboard">
+          <SophosDashboardTab sourceId={sourceId} siteId={site.id} />
+        </LazyTabContent>
+        <LazyTabContent value="devices">
           <SophosDevicesTable sourceId={sourceId} siteIds={[site.id]} siteLevel />
-        </TabsContent>
+        </LazyTabContent>
       </Tabs>
     </>
   );

@@ -113,10 +113,18 @@ export function useTableURLState() {
     router.replace(`?${params.toString()}`);
   };
 
+  const filtersParam = searchParams.get('filter');
+  const sortingParam = searchParams.get('orderby');
+  const tabParam = searchParams.get('tab');
+
   return {
     initialFilters,
     initialSorting,
     applyUrlState,
-    isReady: initialFilters.length > 0 || searchParams.toString() === '',
+    isReady:
+      initialFilters.length > 0 ||
+      filtersParam !== null ||
+      sortingParam !== null ||
+      tabParam !== null,
   };
 }

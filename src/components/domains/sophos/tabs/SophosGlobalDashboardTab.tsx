@@ -1,4 +1,3 @@
-import { TabsContent } from '@/components/ui/tabs';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 type Props = {
@@ -9,7 +8,7 @@ export default function SophosGlobalDashboardTab({ sourceId }: Props) {
   const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'global', sourceId });
 
   return (
-    <TabsContent value="dashboard" className="space-y-6">
+    <>
       {/* Metrics Grid */}
       <div>
         <div className="flex items-center justify-between mb-4">
@@ -18,6 +17,6 @@ export default function SophosGlobalDashboardTab({ sourceId }: Props) {
 
         {MetricsGrid}
       </div>
-    </TabsContent>
+    </>
   );
 }

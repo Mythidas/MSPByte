@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck, Layers2 } from 'lucide-react';
-import { TabsContent } from '@/components/ui/tabs';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenants } from '@/services/source/tenants';
 import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSites } from '@/services/sites';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -177,7 +177,7 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
   const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'parent', sourceId, siteId });
 
   return (
-    <TabsContent value="dashboard" className="space-y-6">
+    <LazyTabContent value="dashboard" className="space-y-6">
       {content}
 
       {/* Metrics Grid */}
@@ -188,6 +188,6 @@ export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props)
 
         {MetricsGrid}
       </div>
-    </TabsContent>
+    </LazyTabContent>
   );
 }

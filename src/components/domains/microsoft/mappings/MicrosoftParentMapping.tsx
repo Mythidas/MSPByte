@@ -7,6 +7,8 @@ import { Tables } from '@/db/schema';
 import { Database } from 'lucide-react';
 import MicrosoftParentDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftParentDashboardTab';
 import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/MicrosoftIdentitiesTab';
+import MicrosoftTenantsTab from '@/components/domains/microsoft/tabs/MicrosoftTenantsTab';
+import { LazyTabContent } from '@/components/common/LazyTabsContent';
 
 type Props = {
   sourceId: string;
@@ -34,11 +36,19 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
+          <RouteTabsTrigger value="tenants">Tenants</RouteTabsTrigger>
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
 
-        <MicrosoftParentDashboardTab sourceId={sourceId} siteId={site!.id} />
-        <MicrosoftIdentitiesTab sourceId={sourceId} parent={site} />
+        <LazyTabContent value="dashboard" className="space-y-6">
+          <MicrosoftParentDashboardTab sourceId={sourceId} siteId={site.id} />
+        </LazyTabContent>
+        <LazyTabContent value="tenants" className="space-y-6">
+          <MicrosoftTenantsTab sourceId={sourceId} parent={site} />
+        </LazyTabContent>
+        <LazyTabContent value="identities" className="space-y-6">
+          <MicrosoftIdentitiesTab sourceId={sourceId} parent={site} />
+        </LazyTabContent>
       </Tabs>
     </>
   );
