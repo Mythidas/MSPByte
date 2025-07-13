@@ -15,11 +15,6 @@ export default function RolesTable() {
     const roles = await getRoles({
       page: pageIndex,
       size: pageSize,
-      filterMap: {
-        protection: 'metadata->packages->protection->>name',
-        status: 'metadata->packages->protection->>status',
-        tamper: 'metadata->>tamperProtectionEnabled',
-      },
       ...props,
     });
     const users = await getUsers();
@@ -65,7 +60,7 @@ export default function RolesTable() {
         ] as DataTableColumnDef<Tables<'roles'>>[]
       }
       filters={{
-        User: {
+        Role: {
           name: {
             label: 'Name',
             type: 'text',

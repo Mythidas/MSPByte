@@ -21,11 +21,6 @@ export default function UsersTable() {
     const users = await getUsers({
       page: pageIndex,
       size: pageSize,
-      filterMap: {
-        protection: 'metadata->packages->protection->>name',
-        status: 'metadata->packages->protection->>status',
-        tamper: 'metadata->>tamperProtectionEnabled',
-      },
       ...props,
     });
     const roles = await getRoles();

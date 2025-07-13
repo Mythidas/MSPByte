@@ -44,6 +44,19 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
     }
   };
 
+  const color =
+    metric.delta === 0 ||
+    (metric.visual === 'percentage' &&
+      Number(((metric.delta / metric.total) * 100).toFixed(0)) === 0)
+      ? 'text-slate-500'
+      : metric.roc_positive
+        ? metric.delta > 0
+          ? 'text-green-600'
+          : 'text-red-600'
+        : metric.delta < 0
+          ? 'text-green-600'
+          : 'text-red-600';
+
   return (
     <Card className="bg-linear-to-t from-primary/5 to-card">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -64,16 +77,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
         <div className="space-y-1">
           <div className="text-2xl font-bold">{valueDisplay()}</div>
           <div className="flex items-center gap-1">
-            <TrendingUp
-              className={`h-3 w-3 ${metric.roc_positive ? 'text-green-600' : 'text-red-600'}`}
-            />
-            <span
-              className={`text-xs font-medium ${
-                metric.roc_positive ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {deltaDisplay()}
-            </span>
+            <TrendingUp className={`h-3 w-3 ${color}`} />
+            <span className={`text-xs font-medium ${color}`}>{deltaDisplay()}</span>
             <span className="text-xs text-muted-foreground">vs last sync</span>
           </div>
           <p className="text-xs text-muted-foreground">{metric.description}</p>
