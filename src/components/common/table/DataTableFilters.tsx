@@ -136,6 +136,7 @@ export function DataTableFilters<TData>({
 
   const handleFilterApply = () => {
     setDrawerOpen(false);
+    initFilters.current = false;
     const applied: ColumnFiltersState = [];
 
     for (const [fullKey, rawValue] of Object.entries(pendingFilters)) {

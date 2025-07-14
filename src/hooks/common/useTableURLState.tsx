@@ -71,8 +71,8 @@ export function useTableURLState() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const [initialFilters, setInitialFilters] = useState<ColumnFiltersState>([]);
-  const [initialSorting, setInitialSorting] = useState<SortingState>([]);
+  const [initialFilters, setInitialFilters] = useState<ColumnFiltersState | undefined>(undefined);
+  const [initialSorting, setInitialSorting] = useState<SortingState | undefined>(undefined);
 
   useEffect(() => {
     const filtersParam = searchParams.get('filter');
@@ -113,18 +113,10 @@ export function useTableURLState() {
     router.replace(`?${params.toString()}`);
   };
 
-  const filtersParam = searchParams.get('filter');
-  const sortingParam = searchParams.get('orderby');
-  const tabParam = searchParams.get('tab');
-
   return {
-    initialFilters,
-    initialSorting,
+    initialFilters: initialFilters || [],
+    initialSorting: initialSorting || [],
     applyUrlState,
-    isReady:
-      initialFilters.length > 0 ||
-      filtersParam !== null ||
-      sortingParam !== null ||
-      tabParam !== null,
+    isReady: !!initialFilters,
   };
 }

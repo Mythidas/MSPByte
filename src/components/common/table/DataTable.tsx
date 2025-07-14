@@ -77,7 +77,7 @@ function DataTableInner<TData>(
   const [data, setData] = useState<TData[]>(initialData ?? []);
   const [rowCount, setRowCount] = useState(initialData?.length ?? 0);
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(25);
   const [isFetching, setIsFetching] = useState(false);
   const [filtersReady, setFiltersReady] = useState(!fetcher);
 

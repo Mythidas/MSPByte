@@ -21,7 +21,8 @@ export async function getUsers(
       .select(fields.join(','))
       .header('ConsistencyLevel', 'eventual')
       .orderby('userPrincipalName');
-    if (mapping.external_name) query = query.filter(`endswith(mail,\'${mapping.external_name}\')`);
+    if (mapping.external_name)
+      query = query.filter(`endswith(userPrincipalName,\'${mapping.external_name}\')`);
 
     const users = await query.get();
 
@@ -127,6 +128,7 @@ export function getSupportedUserFields(licenses: MSGraphSubscribedSku[]): string
     'assignedLicenses',
     'assignedPlans',
     'userType',
+    'proxyAddresses',
   ];
 
   const licenseCapabilities = {

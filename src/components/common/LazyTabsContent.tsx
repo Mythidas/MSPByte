@@ -9,7 +9,7 @@ export function LazyTabContent({ value, children, ...props }: Props) {
   const searchParams = useSearchParams();
   const activeValue = searchParams.get('tab');
 
-  if (value !== activeValue) return null;
+  if (value !== activeValue && !activeValue && value !== 'dashboard') return null;
 
   return (
     <TabsContent value={value} {...props} className="space-y-6">

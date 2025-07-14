@@ -153,7 +153,6 @@ export function paginatedFilters<T extends TableOrView>(
     if (value === undefined || value === null || value === '') continue;
 
     const column = map ? (map[key] ?? key) : key;
-    console.log(column);
 
     switch (op) {
       case 'lk':

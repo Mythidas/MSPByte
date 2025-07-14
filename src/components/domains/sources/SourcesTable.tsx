@@ -63,7 +63,7 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
                   <CardHeader>
                     {integration?.source_name}
                     <CardAction>
-                      <Link href={`${route}/${integration?.source_id}?sub=${sub}`}>
+                      <Link href={`${route}/${integration?.source_id}?sub=${sub}&tab=dashboard`}>
                         <Settings className="w-4 h-4" />
                       </Link>
                     </CardAction>
