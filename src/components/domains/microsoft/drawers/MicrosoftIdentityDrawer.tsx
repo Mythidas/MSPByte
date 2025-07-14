@@ -12,17 +12,9 @@ import { Separator } from '@/components/ui/separator';
 import { Tables } from '@/db/schema';
 import { pascalCase, prettyText } from '@/lib/utils';
 import { useState } from 'react';
-import {
-  Clock,
-  User,
-  Mail,
-  Key,
-  AlertCircle,
-  FileCheck2,
-  CircleCheck,
-  CircleX,
-} from 'lucide-react';
+import { User, Mail, Key, AlertCircle, FileCheck2, CircleCheck, CircleX } from 'lucide-react';
 import Display from '@/components/common/Display';
+import { MicrosoftIdentityMetadata } from '@/integrations/microsoft/types';
 
 type Props = {
   label: string;
@@ -33,16 +25,7 @@ type Props = {
 export default function SourceIdentityDrawer({ label, identity, licenses = [] }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const metadata = identity.metadata as {
-    displayName?: string;
-    userType?: string;
-    accountEnabled?: boolean;
-    roles?: string[];
-    groups?: string[];
-    assignedPlans?: string[];
-    assignedLicenses?: string[];
-    userPrincipalName?: string;
-  } | null;
+  const metadata = identity.metadata as MicrosoftIdentityMetadata | null;
 
   const mfaMethods = identity.mfa_methods as
     | { id: string; type: string; displayName?: string }[]
@@ -87,12 +70,26 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
         <Separator />
 
         <div className="flex flex-col gap-4 p-4 overflow-y-auto">
-          {/* Activity Section */}
+          {/* Info Section */}
           <div className="space-y-2">
             <h3 className="font-semibold text-base flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Activity
+              <User className="h-4 w-4" />
+              Info
             </h3>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-muted-foreground">Aliases</Label>
+              {metadata?.proxyAddresses.map((address) => {
+                if (address.includes('SMTP:')) return;
+
+                return (
+                  <Display key={address}>
+                    <span className="select-text text-sm font-medium">
+                      {address.split('smtp:')[1]}
+                    </span>
+                  </Display>
+                );
+              })}
+            </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">Last Active</Label>
               <Display>

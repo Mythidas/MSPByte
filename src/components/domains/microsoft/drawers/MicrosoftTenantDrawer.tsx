@@ -23,10 +23,10 @@ import {
   CircleCheck,
   CircleX,
 } from 'lucide-react';
-import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import Display from '@/components/common/Display';
 import { differenceInHours, parseISO } from 'date-fns';
 import Link from 'next/link';
+import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 
 type Props = {
   label: string;

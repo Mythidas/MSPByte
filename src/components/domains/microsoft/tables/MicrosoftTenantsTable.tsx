@@ -7,8 +7,8 @@ import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { prettyText } from '@/lib/utils';
 import { getSourceTenantsView } from '@/services/source/tenants';
-import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import MicrosoftTenantDrawer from '@/components/domains/microsoft/drawers/MicrosoftTenantDrawer';
+import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 
 type TData = Tables<'source_tenants_view'>;
 type Props = {

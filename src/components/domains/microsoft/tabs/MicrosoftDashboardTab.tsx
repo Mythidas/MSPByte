@@ -3,9 +3,9 @@ import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck } from 'lucide-react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant } from '@/services/source/tenants';
-import { MicrosoftTenantMetadata } from '@/types/MicrosoftTenant';
 import { Skeleton } from '@/components/ui/skeleton';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
+import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
