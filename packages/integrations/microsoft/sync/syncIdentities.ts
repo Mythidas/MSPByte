@@ -37,6 +37,10 @@ export async function syncIdentities(
     if (!inserted.ok) {
       throw new Error('Failed to insert source identities');
     }
+
+    console.log(toInsert.length);
+    console.log(toUpdate.length);
+    console.log(toDelete.length);
     const deleted = await deleteSourceIdentities(toDelete);
     if (!deleted.ok) {
       Debug.warn({
