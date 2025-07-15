@@ -49,7 +49,7 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
           <MicrosoftParentDashboardTab sourceId={sourceId} siteId={site.id} />
         </LazyTabContent>
         <LazyTabContent value="tenants" className="space-y-6">
-          <MicrosoftTenantsTab sourceId={sourceId} parent={site} />
+          <MicrosoftTenantsTab sourceId={sourceId} parentId={site.id} />
         </LazyTabContent>
         <LazyTabContent value="identities" className="space-y-6">
           <MicrosoftIdentitiesTab sourceId={sourceId} parent={site} />

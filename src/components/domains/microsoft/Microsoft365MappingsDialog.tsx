@@ -39,10 +39,11 @@ type CredentialsData = z.infer<typeof credentialsSchema>;
 
 type Props = {
   sourceId: string;
+  parentId?: string;
   onSave?: () => void;
 };
 
-export default function Microsoft365MappingsDialog({ sourceId, onSave }: Props) {
+export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isValidating, setIsValidating] = useState(false);
@@ -55,7 +56,7 @@ export default function Microsoft365MappingsDialog({ sourceId, onSave }: Props) 
   const { data: sites } = useAsync({
     initial: [],
     fetcher: async () => {
-      const sites = await getSitesView();
+      const sites = await getSitesView(parentId);
       const tenants = await getSourceTenants(sourceId);
       if (sites.ok && tenants.ok) {
         return sites.data.rows.filter(
@@ -363,8 +364,12 @@ export default function Microsoft365MappingsDialog({ sourceId, onSave }: Props) 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogTrigger asChild>
-        <Button disabled={!hasAccess(user, 'Sources', 'Write')}>
-          <Plus /> New Tenant Mapping
+        <Button
+          className="flex justify-start"
+          disabled={!hasAccess(user, 'Sources', 'Write')}
+          variant="secondary"
+        >
+          <Plus /> New Site Mapping
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">

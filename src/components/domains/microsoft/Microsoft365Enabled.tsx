@@ -1,5 +1,7 @@
 'use client';
 
+import Microsoft365MappingsDialog from '@/components/domains/microsoft/Microsoft365MappingsDialog';
+import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
@@ -34,7 +36,7 @@ export default function Microsoft365Enabled({ source, integration }: Props) {
   return (
     <div className="grid gap-2">
       {/* Top Metrics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <ConnectedSitesCard sourceId={source.id} />
         <MonthlyUsageCard sourceId={source.id} />
         <TotalIdentitiesCard sourceId={source.id} />
@@ -97,7 +99,7 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
   );
 }
 
-function QuickActionsCard({}: Props) {
+function QuickActionsCard({ source, integration }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -107,18 +109,20 @@ function QuickActionsCard({}: Props) {
         </span>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-2">
-        <Button className="justify-start" variant="secondary">
-          <Plus />
-          Configure New Site Mapping
-        </Button>
+        <Microsoft365MappingsDialog sourceId={source.id} onSave={() => window.location.reload()} />
         <Button className="justify-start" variant="secondary" disabled>
           <ExternalLink />
           Documentation
         </Button>
-        <Button className="justify-start" variant="secondary">
+        <SyncSourceItem
+          type="global"
+          sourceId={source.id}
+          tenantId={integration.tenant_id}
+          className="justify-start"
+        >
           <Database />
           Sync All Sites
-        </Button>
+        </SyncSourceItem>
       </CardContent>
     </Card>
   );
@@ -250,7 +254,7 @@ function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
   return (
     <Card>
       <CardHeader>
-        Total Users
+        Total Identities
         <CardAction>
           <Users className="w-6 h-6 text-muted-foreground" />
         </CardAction>

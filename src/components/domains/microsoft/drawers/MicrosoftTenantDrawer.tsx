@@ -230,6 +230,12 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
         </div>
 
         <div className="flex w-full mt-auto p-4 gap-2">
+          <SyncSourceItem
+            type="site"
+            sourceId={tenant.source_id!}
+            tenantId={tenant.tenant_id!}
+            siteId={tenant.site_id!}
+          />
           <SubmitButton
             variant="destructive"
             onClick={() => confirmAndDelete(tenant as Tables<'source_tenants'>)}
@@ -238,12 +244,6 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
           >
             Delete
           </SubmitButton>
-          <SyncSourceItem
-            type="site"
-            sourceId={tenant.source_id!}
-            tenantId={tenant.tenant_id!}
-            siteId={tenant.site_id!}
-          />
         </div>
       </DrawerContent>
     </Drawer>

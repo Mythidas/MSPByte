@@ -38,12 +38,15 @@ export default function SearchBox({
     setSelected(defaultValue);
   }, [defaultValue]);
 
-  const handleSelect = (option: Option) => {
-    setSelected(option.value);
+  useEffect(() => {
     setSearch('');
-    setIsOpen(false);
-    onSelect?.(option.value);
     if (inputRef.current) inputRef.current.value = '';
+  }, [isOpen]);
+
+  const handleSelect = (option: Option) => {
+    setIsOpen(false);
+    setSelected(option.value);
+    onSelect?.(option.value);
   };
 
   const handleSearch = useCallback(

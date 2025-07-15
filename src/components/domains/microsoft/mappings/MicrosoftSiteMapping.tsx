@@ -8,6 +8,7 @@ import { Tables } from '@/db/schema';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
 import { Database } from 'lucide-react';
 import SourceSyncStatus from '@/components/domains/sources/SourceSyncStatus';
+import MicrosoftTenantsTab from '@/components/domains/microsoft/tabs/MicrosoftTenantsTab';
 
 type Props = {
   sourceId: string;
@@ -35,11 +36,15 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>
         <TabsList>
           <RouteTabsTrigger value="dashboard">Dashboard</RouteTabsTrigger>
+          <RouteTabsTrigger value="tenants">Tenants</RouteTabsTrigger>
           <RouteTabsTrigger value="identities">Identities</RouteTabsTrigger>
         </TabsList>
 
         <LazyTabContent value="dashboard">
           <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
+        </LazyTabContent>
+        <LazyTabContent value="tenants" className="space-y-6">
+          <MicrosoftTenantsTab sourceId={sourceId} siteId={site.id} />
         </LazyTabContent>
         <LazyTabContent value="identities">
           <MicrosoftIdentitiesTable sourceId={sourceId} siteIds={[site!.id]} siteLevel />

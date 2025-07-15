@@ -6,16 +6,23 @@ import MicrosoftTenantsTable from '@/components/domains/microsoft/tables/Microso
 
 type Props = {
   sourceId: string;
-  parent?: Tables<'sites'>;
+  parentId?: string;
+  siteId?: string;
 };
 
-export default function MicrosoftTenantsTab({ sourceId, parent }: Props) {
+export default function MicrosoftTenantsTab({ sourceId, parentId, siteId }: Props) {
   const { content } = useLazyLoad({
     loader: async () => {
-      const sites = await getSites(parent?.id);
+      if (siteId) {
+        return [siteId];
+      }
+
+      const sites = await getSites(parentId);
       if (!sites.ok) return;
 
-      return parent ? [parent, ...sites.data.rows] : sites.data.rows;
+      return parentId
+        ? [parentId, ...sites.data.rows.map((s) => s.id)]
+        : sites.data.rows.map((s) => s.id);
     },
     render: (data) => {
       if (!data) return <strong>Failed to fetch data.</strong>;
@@ -23,8 +30,9 @@ export default function MicrosoftTenantsTab({ sourceId, parent }: Props) {
       return (
         <MicrosoftTenantsTable
           sourceId={sourceId}
-          siteIds={data.map((s) => s.id)}
+          siteIds={data}
           parentLevel={!!parent}
+          siteLevel={!!siteId}
         />
       );
     },

@@ -27,10 +27,6 @@ export default function MicrosoftTenantsTable({
   parentLevel,
 }: Props) {
   const ref = useRef<DataTableRef>(null);
-  const initialVisibility = {
-    parent_name: !siteLevel && !parentLevel,
-    site_name: !siteLevel,
-  };
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const tenants = await getSourceTenantsView(sourceId, siteIds, {
@@ -52,10 +48,15 @@ export default function MicrosoftTenantsTable({
   return (
     <DataTable
       fetcher={fetcher}
-      initialVisibility={initialVisibility}
       height="max-h-[50vh]"
       action={
-        <Microsoft365MappingsDialog sourceId={sourceId} onSave={() => ref.current?.refetch()} />
+        !siteLevel && (
+          <Microsoft365MappingsDialog
+            sourceId={sourceId}
+            onSave={() => ref.current?.refetch()}
+            parentId={siteIds && siteIds[0]}
+          />
+        )
       }
       ref={ref}
       columns={

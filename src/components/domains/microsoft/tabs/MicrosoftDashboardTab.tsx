@@ -153,7 +153,12 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
     },
   });
 
-  const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'site', sourceId, siteId });
+  const { content: MetricsGrid } = useSourceMetricGrid({
+    scope: 'site',
+    sourceId,
+    siteId,
+    route: `/sites/${siteId}/${sourceId}`,
+  });
 
   return (
     <>
