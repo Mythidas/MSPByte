@@ -33,8 +33,6 @@ export async function getUsers(
     const filter = domains.map((domain) => `endswith(userPrincipalName,'@${domain}')`).join(' or ');
     query = query.filter(filter);
 
-    console.log(filter);
-
     const users = await query.get();
 
     return {

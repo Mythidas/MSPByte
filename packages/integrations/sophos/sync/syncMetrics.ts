@@ -30,14 +30,13 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
-    console.log(tenant.source_id, 'MDR Managed');
     const mdrManagedDevices: TablesInsert<'source_metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
       source_id: tenant.source_id,
       source_tenant_id: tenant.id,
       name: 'MDR Managed',
-      metric: mdrManaged,
+      metric: (mdrManaged / devices.length) * 100,
       total: devices.length,
       created_at: new Date().toISOString(),
     };

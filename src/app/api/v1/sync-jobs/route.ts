@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs'; // Important!
 export const dynamic = 'force-dynamic'; // Avoid caching
-const MAX_DURATION = 250; // seconds
+const MAX_DURATION = 60 * 7; // seconds
 
 export async function GET() {
   return await setBearerToken(process.env.NEXT_SUPABASE_SERVICE_KEY!, async () => {

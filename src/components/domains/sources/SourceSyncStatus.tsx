@@ -63,7 +63,10 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
     loader: async () => {
       const syncJob = await getSourceSyncJobLatest(sourceId, siteId);
       if (syncJob.ok) {
-        if (syncJob.data.status === 'completed' && !isSyncing) setIsSyncing(false);
+        if (syncJob.data.status === 'completed' && isSyncing) {
+          setIsSyncing(false);
+          window.location.reload();
+        }
       }
       return syncJob.ok ? syncJob.data : null;
     },
