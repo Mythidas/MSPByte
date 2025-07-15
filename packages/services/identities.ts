@@ -11,25 +11,27 @@ export async function getSourceIdentities(sourceId: string, siteIds?: string[]) 
   });
 }
 
-export async function getSourceIdentitiesView(sourceId?: string, siteIds?: string[]) {
-  return await tables.select('source_identities_view', (query) => {
-    query = query.order('site_id').order('name');
-    if (sourceId) query = query.eq('source_id', sourceId);
+export async function getSourceIdentitiesCount(sourceId: string, siteIds?: string[]) {
+  return await tables.count('source_identities', (query) => {
+    query = query.order('name').eq('source_id', sourceId);
     if (siteIds) query = query.in('site_id', siteIds);
   });
 }
 
-export async function getSourceIdentitiesViewPaginated(
-  pagination: PaginationOptions,
+export async function getSourceIdentitiesView(
   sourceId?: string,
-  siteIds?: string[]
+  siteIds?: string[],
+  pagination?: PaginationOptions
 ) {
-  return tables.paginated('source_identities_view', pagination, (query) => {
-    query = query.order('site_name').order('name');
-
-    if (sourceId) query = query.eq('source_id', sourceId);
-    if (siteIds) query = query.in('site_id', siteIds);
-  });
+  return await tables.select(
+    'source_identities_view',
+    (query) => {
+      query = query.order('site_id').order('name');
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    },
+    pagination
+  );
 }
 
 export async function putSourceIdentities(identities: TablesInsert<'source_identities'>[]) {

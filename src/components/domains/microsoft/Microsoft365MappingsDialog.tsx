@@ -1,146 +1,387 @@
-import Microsoft365InfoPopover from '@/components/domains/microsoft/Microsoft365InfoPopover';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckCircle, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
+import z from 'zod';
+
 import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import DataTable from '@/components/common/table/DataTable';
-import { textColumn } from '@/components/common/table/DataTableColumn';
-import { DataTableHeader } from '@/components/common/table/DataTableHeader';
-import { Tables } from '@/db/schema';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getSitesView } from '@/services/sites';
-import { getSourceTenants } from '@/services/source/tenants';
-import { DataTableColumnDef } from '@/types/data-table';
-import { useState } from 'react';
+import SearchBox from '@/components/common/SearchBox';
+import { getSourceTenants, putSourceTenant } from '@/services/source/tenants';
+import { getDomains } from '@/integrations/microsoft/services/domains';
+import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
+import { TablesInsert } from '@/db/schema';
+import { toast } from 'sonner';
+import { hasAccess, useUser } from '@/lib/providers/UserContext';
+import { SubmitButton } from '@/components/common/SubmitButton';
+
+const credentialsSchema = z.object({
+  tenant_id: z.string().min(1, 'Tenant ID is required'),
+  client_id: z.string().min(1, 'Client ID is required'),
+  client_secret: z.string().min(1, 'Client Secret is required'),
+});
+
+type CredentialsData = z.infer<typeof credentialsSchema>;
 
 type Props = {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  sourceId: string;
+  onSave?: () => void;
 };
 
-export default function Microsoft365MappingsDialog({ source }: Props) {
-  const [mappings, setMappings] = useState<(Tables<'source_tenants'> & { changed?: boolean })[]>(
-    []
-  );
-  const [sites, setSites] = useState<Tables<'sites_view'>[]>([]);
+export default function Microsoft365MappingsDialog({ sourceId, onSave }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isValidating, setIsValidating] = useState(false);
+  const [domains, setDomains] = useState<MSGraphDomain[]>([]);
+  const [selectedDomains, setSelectedDomains] = useState<Set<string>>(new Set());
+  const [selectedSite, setSelectedSite] = useState<string>('');
+  const [credentials, setCredentials] = useState<CredentialsData | null>(null);
+  const { user } = useUser();
 
-  const { isLoading } = useAsync({
-    initial: undefined,
+  const { data: sites } = useAsync({
+    initial: [],
     fetcher: async () => {
-      const siteMappings = await getSourceTenants(source.id);
       const sites = await getSitesView();
-
-      if (!siteMappings.ok || !sites.ok) {
-        throw new Error('Failed to fetch data');
+      const tenants = await getSourceTenants(sourceId);
+      if (sites.ok && tenants.ok) {
+        return sites.data.rows.filter(
+          (site) => !tenants.data.rows.some((tenant) => tenant.site_id === site.id)
+        );
       }
 
-      setMappings(siteMappings.data.rows);
-      setSites(sites.data.rows.sort((a, b) => a.name!.localeCompare(b.name!)));
+      return [];
     },
-    deps: [source],
+    deps: [],
   });
 
-  const handleSave = (mapping: Tables<'source_tenants'>) => {
-    const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
-    newMappings.push(mapping);
-    setMappings(newMappings);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<CredentialsData>({
+    resolver: zodResolver(credentialsSchema),
+  });
+
+  const handleClose = (open?: boolean) => {
+    if (open) {
+      setIsOpen(true);
+      return;
+    }
+
+    setIsOpen(false);
+    setCurrentStep(1);
+    setDomains([]);
+    setSelectedDomains(new Set());
+    setSelectedSite('');
+    setCredentials(null);
+    reset();
+    setIsValidating(false);
   };
 
-  const handleClear = (mapping: Tables<'source_tenants'>) => {
-    const newMappings = [...mappings].filter((m) => m.site_id !== mapping.site_id);
-    newMappings.push({
-      ...mapping,
-      id: '',
-      metadata: {},
-      external_id: '',
-      external_name: '',
+  const handleCredentialsSubmit = async (data: CredentialsData) => {
+    setIsValidating(true);
+    setCredentials(data);
+
+    // Simulate API call to validate credentials and fetch domains
+
+    const domains = await getDomains({
+      external_id: data.tenant_id,
+      metadata: {
+        client_id: data.client_id,
+        client_secret: data.client_secret,
+      },
     });
-    setMappings(newMappings);
+    if (domains.ok) {
+      setDomains(domains.data);
+    }
+
+    setIsValidating(false);
+    setCurrentStep(2);
   };
+
+  const handleDomainToggle = (domainId: string) => {
+    const newSelected = new Set(selectedDomains);
+    if (newSelected.has(domainId)) {
+      newSelected.delete(domainId);
+    } else {
+      newSelected.add(domainId);
+    }
+    setSelectedDomains(newSelected);
+  };
+
+  const handleFinish = async () => {
+    setIsValidating(true);
+    if (!credentials || !selectedSite) return;
+
+    const selectedDomainNames = domains.filter((d) => selectedDomains.has(d.id)).map((d) => d.id);
+
+    const mapping: TablesInsert<'source_tenants'> = {
+      source_id: sourceId,
+      tenant_id: user?.tenant_id || '',
+      site_id: selectedSite,
+      external_id: credentials.tenant_id,
+      external_name: selectedDomainNames.join(','),
+      metadata: {
+        client_id: credentials.client_id,
+        client_secret: credentials.client_secret,
+        domains: selectedDomainNames,
+        mfa_enforcement: 'none',
+      },
+    };
+
+    const result = await putSourceTenant([mapping]);
+    if (result.ok) {
+      console.log(result);
+      toast.info(`Created source tenant mapping!`);
+      onSave?.();
+    }
+
+    handleClose();
+    setIsValidating(false);
+  };
+
+  const renderStepIndicator = () => (
+    <div className="flex items-center justify-center space-x-4">
+      <div className="flex items-center">
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            currentStep >= 1
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground'
+          }`}
+        >
+          {currentStep > 1 ? <CheckCircle className="w-5 h-5" /> : '1'}
+        </div>
+        <span className="ml-2 text-sm font-medium">Credentials</span>
+      </div>
+      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      <div className="flex items-center">
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            currentStep >= 2
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground'
+          }`}
+        >
+          {currentStep > 2 ? <CheckCircle className="w-5 h-5" /> : '2'}
+        </div>
+        <span className="ml-2 text-sm font-medium">Select Domains</span>
+      </div>
+      <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      <div className="flex items-center">
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            currentStep >= 3
+              ? 'bg-primary text-primary-foreground'
+              : 'bg-muted text-muted-foreground'
+          }`}
+        >
+          {currentStep > 3 ? <CheckCircle className="w-5 h-5" /> : '3'}
+        </div>
+        <span className="ml-2 text-sm font-medium">Assign Site</span>
+      </div>
+    </div>
+  );
+
+  const renderCredentialsStep = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium">Microsoft Graph Credentials</h3>
+        <p className="text-sm text-muted-foreground">
+          Enter your Microsoft Graph application credentials to connect to your tenant.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="tenant_id">Tenant ID</Label>
+          <Input
+            id="tenant_id"
+            placeholder="Directory (tenant) ID"
+            {...register('tenant_id')}
+            className={errors.tenant_id ? 'border-destructive' : ''}
+          />
+          {errors.tenant_id && (
+            <p className="text-sm text-destructive">{errors.tenant_id.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="client_id">Client ID</Label>
+          <Input
+            id="client_id"
+            placeholder="Application (client) ID"
+            {...register('client_id')}
+            className={errors.client_id ? 'border-destructive' : ''}
+          />
+          {errors.client_id && (
+            <p className="text-sm text-destructive">{errors.client_id.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="client_secret">Client Secret</Label>
+          <Input
+            id="client_secret"
+            type="password"
+            placeholder="Client secret value"
+            {...register('client_secret')}
+            className={errors.client_secret ? 'border-destructive' : ''}
+          />
+          {errors.client_secret && (
+            <p className="text-sm text-destructive">{errors.client_secret.message}</p>
+          )}
+        </div>
+      </div>
+
+      <Separator />
+      <div className="flex justify-end">
+        <Button onClick={handleSubmit(handleCredentialsSubmit)} disabled={isValidating}>
+          {isValidating ? 'Validating...' : 'Next'}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderDomainsStep = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium">Select Domains</h3>
+        <p className="text-sm text-muted-foreground">
+          Choose which domains from your tenant you want to track. You can select multiple domains.
+        </p>
+      </div>
+
+      <div className="space-y-3 max-h-80 overflow-y-auto">
+        {domains.map((domain) => (
+          <div
+            key={domain.id}
+            className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 cursor-pointer"
+            onClick={() => handleDomainToggle(domain.id)}
+          >
+            <Checkbox
+              checked={selectedDomains.has(domain.id)}
+              onChange={() => handleDomainToggle(domain.id)}
+            />
+            <div className="flex-1 space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="font-medium">{domain.id}</span>
+                {domain.isVerified ? (
+                  <Badge variant="secondary" className="text-xs">
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-xs">
+                    Unverified
+                  </Badge>
+                )}
+              </div>
+              {/* <p className="text-sm text-muted-foreground">
+                {domain.userCount.toLocaleString()} users
+              </p> */}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <Separator />
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={() => setCurrentStep(1)}>
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <Button onClick={() => setCurrentStep(3)} disabled={selectedDomains.size === 0}>
+          Next ({selectedDomains.size} selected)
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderSiteStep = () => (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium">Assign to Site</h3>
+        <p className="text-sm text-muted-foreground">
+          Choose which site this tenant mapping should be associated with.
+        </p>
+      </div>
+
+      <SearchBox
+        options={sites.map((site) => {
+          return { label: site.name!, value: site.id! };
+        })}
+        onSelect={setSelectedSite}
+      />
+
+      <div className="bg-muted/50 p-4 rounded-lg">
+        <h4 className="font-medium mb-2">Summary</h4>
+        <div className="space-y-1 text-sm">
+          <p>
+            <strong>Tenant ID:</strong> {credentials?.tenant_id}
+          </p>
+          <p>
+            <strong>Selected Domains:</strong>{' '}
+            {Array.from(selectedDomains)
+              .map((id) => domains.find((d) => d.id === id)?.id)
+              .join(', ')}
+          </p>
+          <p>
+            <strong>Site:</strong>{' '}
+            {sites.find((s) => s.id === selectedSite)?.name || 'None selected'}
+          </p>
+        </div>
+      </div>
+
+      <Separator />
+      <div className="flex justify-between">
+        <Button variant="outline" onClick={() => setCurrentStep(2)}>
+          <ChevronLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <SubmitButton onClick={handleFinish} disabled={!selectedSite} pending={isValidating}>
+          Create Mapping
+        </SubmitButton>
+      </div>
+    </div>
+  );
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost">Edit Mappings</Button>
-      </AlertDialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
+      <DialogTrigger asChild>
+        <Button disabled={!hasAccess(user, 'Sources', 'Write')}>
+          <Plus /> New Tenant Mapping
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Create New Tenant Mapping</DialogTitle>
+          <DialogDescription>Set up a new Microsoft 365 tenant mapping.</DialogDescription>
+        </DialogHeader>
 
-      <AlertDialogContent className="!max-w-[100vw] w-[80vw] h-fit">
-        <AlertDialogHeader>
-          <AlertDialogTitle>Edit Mappings</AlertDialogTitle>
-        </AlertDialogHeader>
-        <AlertDialogDescription>
-          Table of Microsoft 365 site mappings with Graph API info
-        </AlertDialogDescription>
-        <DataTable
-          data={sites}
-          isLoading={isLoading}
-          columns={
-            [
-              textColumn({
-                key: 'name',
-                label: 'Name',
-                enableHiding: false,
-                simpleSearch: true,
-              }),
-              textColumn({
-                key: 'parent_name',
-                label: 'Parent',
-                enableHiding: false,
-                simpleSearch: true,
-              }),
-              {
-                accessorKey: 'MicrosoftInfo',
-                header: ({ column }) => <DataTableHeader column={column} label="Microsoft Info" />,
-                headerClass: 'text-right',
-                cell: ({ row }) => (
-                  <Microsoft365InfoPopover
-                    site={row.original}
-                    mapping={mappings.find((m) => m.site_id === row.original.id)}
-                    onSave={handleSave}
-                    onClear={handleClear}
-                  />
-                ),
-                cellClass: 'text-right',
-                enableHiding: false,
-                sortingFn: (rowA, rowB) => {
-                  const mappingA = mappings.find((m) => m.site_id === rowA.original.id);
-                  const mappingB = mappings.find((m) => m.site_id === rowB.original.id);
-                  const a = mappingA ? 1 : 0;
-                  const b = mappingB ? 1 : 0;
+        {renderStepIndicator()}
 
-                  return b - a;
-                },
-              },
-            ] as DataTableColumnDef<Tables<'sites_view'>>[]
-          }
-          filters={{
-            Tenant: {
-              name: {
-                label: 'Site',
-                type: 'text',
-                placeholder: 'Search site',
-                simpleSearch: true,
-              },
-              parent_name: {
-                label: 'Parent',
-                type: 'text',
-                placeholder: 'Search parent',
-                simpleSearch: true,
-              },
-            },
-          }}
-        />
-        <AlertDialogFooter>
-          <AlertDialogCancel>Close</AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        <Separator />
+        <div>
+          {currentStep === 1 && renderCredentialsStep()}
+          {currentStep === 2 && renderDomainsStep()}
+          {currentStep === 3 && renderSiteStep()}
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

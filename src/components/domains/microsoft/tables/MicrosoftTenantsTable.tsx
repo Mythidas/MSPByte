@@ -1,6 +1,6 @@
 'use client';
 
-import DataTable from '@/components/common/table/DataTable';
+import DataTable, { DataTableRef } from '@/components/common/table/DataTable';
 import { Tables } from '@/db/schema';
 import { column, dateColumn, textColumn } from '@/components/common/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
@@ -9,6 +9,8 @@ import { prettyText } from '@/lib/utils';
 import { getSourceTenantsView } from '@/services/source/tenants';
 import MicrosoftTenantDrawer from '@/components/domains/microsoft/drawers/MicrosoftTenantDrawer';
 import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
+import Microsoft365MappingsDialog from '@/components/domains/microsoft/Microsoft365MappingsDialog';
+import { useRef } from 'react';
 
 type TData = Tables<'source_tenants_view'>;
 type Props = {
@@ -24,6 +26,7 @@ export default function MicrosoftTenantsTable({
   siteLevel,
   parentLevel,
 }: Props) {
+  const ref = useRef<DataTableRef>(null);
   const initialVisibility = {
     parent_name: !siteLevel && !parentLevel,
     site_name: !siteLevel,
@@ -51,6 +54,10 @@ export default function MicrosoftTenantsTable({
       fetcher={fetcher}
       initialVisibility={initialVisibility}
       height="max-h-[50vh]"
+      action={
+        <Microsoft365MappingsDialog sourceId={sourceId} onSave={() => ref.current?.refetch()} />
+      }
+      ref={ref}
       columns={
         [
           textColumn({
@@ -59,7 +66,11 @@ export default function MicrosoftTenantsTable({
             enableHiding: true,
             simpleSearch: true,
             cell: ({ row }) => (
-              <MicrosoftTenantDrawer tenant={row.original} label={row.original.site_name || ''} />
+              <MicrosoftTenantDrawer
+                tenant={row.original}
+                label={row.original.site_name || ''}
+                onDelete={() => ref.current?.refetch()}
+              />
             ),
           }),
           textColumn({
@@ -81,7 +92,7 @@ export default function MicrosoftTenantsTable({
             label: 'Domains',
             enableHiding: false,
             cell: ({ row }) => (
-              <div>{(row.original.metadata as MicrosoftTenantMetadata).domains.length}</div>
+              <div>{(row.original.metadata as MicrosoftTenantMetadata).domains?.length || 0}</div>
             ),
           }),
           column({

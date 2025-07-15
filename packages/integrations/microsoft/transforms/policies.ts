@@ -9,6 +9,7 @@ export function transformPolicies(
     tenant_id: mapping.tenant_id,
     source_id: mapping.source_id,
     site_id: mapping.site_id,
+    source_tenant_id: mapping.id,
 
     external_id: policy.id,
     name: policy.displayName,

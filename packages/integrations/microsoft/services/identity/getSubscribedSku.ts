@@ -8,7 +8,12 @@ export async function getSubscribedSku(
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<MSGraphSubscribedSku[]>> {
   try {
-    const client = await getGraphClient(mapping.source_id, mapping.site_id);
+    const metadata = mapping.metadata as any;
+    const client = await getGraphClient(
+      mapping.external_id,
+      metadata.client_id,
+      metadata.client_secret
+    );
     if (!client.ok) {
       throw new Error(client.error.message);
     }

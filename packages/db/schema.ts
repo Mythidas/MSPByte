@@ -237,6 +237,7 @@ export type Database = {
           serial: string
           site_id: string
           source_id: string | null
+          source_tenant_id: string
           tenant_id: string
         }
         Insert: {
@@ -248,6 +249,7 @@ export type Database = {
           serial: string
           site_id: string
           source_id?: string | null
+          source_tenant_id: string
           tenant_id: string
         }
         Update: {
@@ -259,6 +261,7 @@ export type Database = {
           serial?: string
           site_id?: string
           source_id?: string | null
+          source_tenant_id?: string
           tenant_id?: string
         }
         Relationships: [
@@ -309,6 +312,20 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_devices_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_devices_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
             referencedColumns: ["id"]
           },
           {
@@ -336,6 +353,7 @@ export type Database = {
           name: string
           site_id: string
           source_id: string
+          source_tenant_id: string | null
           tenant_id: string
           type: string | null
           updated_at: string | null
@@ -355,6 +373,7 @@ export type Database = {
           name: string
           site_id: string
           source_id: string
+          source_tenant_id?: string | null
           tenant_id: string
           type?: string | null
           updated_at?: string | null
@@ -374,6 +393,7 @@ export type Database = {
           name?: string
           site_id?: string
           source_id?: string
+          source_tenant_id?: string | null
           tenant_id?: string
           type?: string | null
           updated_at?: string | null
@@ -426,6 +446,20 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
             referencedColumns: ["id"]
           },
           {
@@ -605,6 +639,7 @@ export type Database = {
           name: string
           site_id: string
           source_id: string | null
+          source_tenant_id: string
           tenant_id: string
           total: number
         }
@@ -615,6 +650,7 @@ export type Database = {
           name: string
           site_id: string
           source_id?: string | null
+          source_tenant_id: string
           tenant_id: string
           total: number
         }
@@ -625,6 +661,7 @@ export type Database = {
           name?: string
           site_id?: string
           source_id?: string | null
+          source_tenant_id?: string
           tenant_id?: string
           total?: number
         }
@@ -672,6 +709,20 @@ export type Database = {
             referencedColumns: ["parent_id"]
           },
           {
+            foreignKeyName: "source_metrics_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_metrics_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "source_metrics_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -689,6 +740,7 @@ export type Database = {
           name: string
           site_id: string
           source_id: string | null
+          source_tenant_id: string
           status: string
           tenant_id: string
           type: string
@@ -701,6 +753,7 @@ export type Database = {
           name: string
           site_id: string
           source_id?: string | null
+          source_tenant_id: string
           status: string
           tenant_id: string
           type: string
@@ -713,6 +766,7 @@ export type Database = {
           name?: string
           site_id?: string
           source_id?: string | null
+          source_tenant_id?: string
           status?: string
           tenant_id?: string
           type?: string
@@ -768,6 +822,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "source_policies_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_policies_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "source_policies_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
@@ -787,6 +855,7 @@ export type Database = {
           retry_count: number
           site_id: string
           source_id: string | null
+          source_tenant_id: string
           started_at: string | null
           status: string
           tenant_id: string
@@ -801,6 +870,7 @@ export type Database = {
           retry_count?: number
           site_id: string
           source_id?: string | null
+          source_tenant_id: string
           started_at?: string | null
           status?: string
           tenant_id: string
@@ -815,6 +885,7 @@ export type Database = {
           retry_count?: number
           site_id?: string
           source_id?: string | null
+          source_tenant_id?: string
           started_at?: string | null
           status?: string
           tenant_id?: string
@@ -867,6 +938,20 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
             referencedColumns: ["id"]
           },
           {
@@ -1577,6 +1662,7 @@ export type Database = {
           retry_count: number
           site_id: string
           source_id: string | null
+          source_tenant_id: string
           started_at: string | null
           status: string
           tenant_id: string

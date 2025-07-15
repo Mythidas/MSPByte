@@ -70,13 +70,13 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
                 Domains
               </CardTitle>
               <CardDescription>
-                {data.metadata.domains.length} domain{data.metadata.domains.length !== 1 ? 's' : ''}{' '}
-                configured
+                {data.metadata.domains?.length} domain
+                {data.metadata.domains?.length !== 1 ? 's' : ''} configured
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {data.metadata.domains.map((domain) => (
+                {data.metadata.domains?.map((domain) => (
                   <Badge key={domain} variant="secondary" className="flex items-center gap-1">
                     <Globe className="h-3 w-3" />
                     {domain}

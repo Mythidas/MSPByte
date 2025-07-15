@@ -1,68 +1,35 @@
-'use client';
+'use server';
 
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import SophosPartner from '@/components/domains/sophos/SophosPartner';
 import { Badge } from '@/components/ui/badge';
 import { getSource } from 'packages/services/sources';
-import { getSourceIntegration } from 'packages/services/integrations';
-import {
-  Breadcrumb,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import Microsoft365 from '@/components/domains/microsoft/Microsoft365';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { useAsync } from '@/hooks/common/useAsync';
-import { Spinner } from '@/components/common/Spinner';
-import { Tables } from '@/db/schema';
+import { Power } from 'lucide-react';
+import { getSourceIntegration } from '@/services/integrations';
+import { SourceBreadcrumb } from '@/components/domains/sources/SourceBreadcrumbs';
+import { Button } from '@/components/ui/button';
+import SophosPartner from '@/components/domains/sophos/SophosPartner';
+import Microsoft365Enabled from '@/components/domains/microsoft/Microsoft365Enabled';
+import Microsoft365Disabled from '@/components/domains/microsoft/Microsoft365Disabled';
 
-export default function Page() {
-  const params = useParams();
-  const { data, isLoading } = useAsync<{
-    source: Tables<'sources'> | undefined;
-    integration: Tables<'source_integrations'> | undefined;
-  }>({
-    initial: { source: undefined, integration: undefined },
-    fetcher: async () => {
-      const source = await getSource(params['slug'] as string);
-      if (!source.ok) {
-        throw 'Failed to fetch source. Please refresh.';
-      }
+type Props = {
+  params: Promise<{ slug: string }>;
+};
 
-      const integration = await getSourceIntegration(undefined, source.data.id);
+export default async function Page({ ...props }: Props) {
+  const params = await props.params;
+  const sourceFetch = await getSource(params.slug);
+  const integrationFetch = await getSourceIntegration(undefined, params.slug);
+  if (!sourceFetch.ok) return <strong>Failed to find source. Please refresh.</strong>;
+  const source = sourceFetch.data;
+  const integration = integrationFetch.ok ? integrationFetch.data : undefined;
 
-      return {
-        source: source.data,
-        integration: integration.ok ? integration.data : undefined,
-      };
-    },
-    deps: [],
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-col size-full justify-center items-center">
-        <Spinner size={48} />
-      </div>
-    );
-  }
-
-  if (!data || !data.source) {
-    return null;
-  }
-
-  const renderBody = () => {
-    if (!data || !data.source) {
-      return null;
-    }
-    switch (params.slug) {
+  const getBody = () => {
+    switch (source.id) {
       case 'sophos-partner':
-        return <SophosPartner source={data.source} integration={data.integration} />;
+        return <SophosPartner source={source} integration={integration} />;
       case 'microsoft-365':
-        return <Microsoft365 source={data.source} integration={data.integration} />;
+        if (integration) return <Microsoft365Enabled source={source} integration={integration} />;
+        return <Microsoft365Disabled source={source} />;
       default:
         return null;
     }
@@ -71,50 +38,43 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-4 size-full">
       {/* Back button */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbLink href="/integrations">Integrations</BreadcrumbLink>
-          <BreadcrumbSeparator />
-          <BreadcrumbPage>{data.source.name}</BreadcrumbPage>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <SourceBreadcrumb slug={params.slug} sourceName={source.name} />
 
-      {/* Logo header */}
-      <div className="flex flex-col size-full">
-        <section
-          className={`flex w-full h-40 items-center justify-center rounded-t-lg overflow-hidden shadow-md`}
-          style={{ backgroundColor: data.source.color || '' }}
-        >
-          <Image
-            width={2048}
-            height={1080}
-            src={data.source.logo_url || ''}
-            alt={`${data.source.name} Logo`}
-            className="w-1/3 h-fit max-h-14 object-contain"
-          />
-        </section>
-
-        {/* Main content */}
-        <Card className="rounded-t-none size-full">
-          <CardHeader>
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-bold">{data.source.name}</h1>
-                <p className="text-muted-foreground">{data.source.description}</p>
-              </div>
-
-              {data.integration ? (
-                <Badge className="text-base">Active</Badge>
-              ) : (
-                <Badge className="text-base" variant="destructive">
-                  Inactive
-                </Badge>
-              )}
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col size-full">{renderBody()}</CardContent>
-        </Card>
+      {/* Header */}
+      <div className="flex w-full justify-between">
+        <div className="flex gap-2">
+          <div className="p-1 bg-white size-fit rounded-md">
+            <Image src={source.icon_url || ''} alt={source.name} width={48} height={48} />
+          </div>
+          <div className="flex flex-col justify-between">
+            <h1 className="font-bold text-2xl">{source.name}</h1>
+            <span className="text-sm text-muted-foreground">{source.description}</span>
+          </div>
+        </div>
+        <div className="flex h-8">
+          <Badge className="text-base space-x-1 rounded-r-none" variant="secondary">
+            {integration ? (
+              <>
+                <div className=" rounded-full w-2 h-2 bg-green-500" />
+                <span>Enabled</span>
+              </>
+            ) : (
+              <>
+                <div className=" rounded-full w-2 h-2 bg-red-500" />
+                <span>Disabled</span>
+              </>
+            )}
+          </Badge>
+          <Button
+            variant={!integration ? 'default' : 'destructive'}
+            className="rounded-l-none py-1! h-full!"
+          >
+            <Power />
+          </Button>
+        </div>
       </div>
+
+      {getBody()}
     </div>
   );
 }

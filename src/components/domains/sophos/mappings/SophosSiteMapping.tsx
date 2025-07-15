@@ -111,7 +111,13 @@ export default function SophosSiteMapping({ sourceId, site, tab }: Props) {
         </div>
         <div className="flex items-center gap-3">
           {content}
-          <SyncSourceItem type="site" sourceId={sourceId} site={site} button />
+          <SyncSourceItem
+            type="site"
+            sourceId={sourceId}
+            tenantId={site.tenant_id}
+            siteId={site.id}
+            button
+          />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

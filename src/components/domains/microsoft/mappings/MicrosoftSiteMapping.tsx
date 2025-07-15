@@ -69,7 +69,7 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
       }
     },
     render: (data) => {
-      if (!data) return null;
+      if (!data) return <strong>No Sync</strong>;
       const config = getStatusConfig(data.status);
 
       return (
@@ -111,7 +111,13 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
         </div>
         <div className="flex items-center gap-3">
           {content}
-          <SyncSourceItem type="site" sourceId={sourceId} site={site} button />
+          <SyncSourceItem
+            type="site"
+            sourceId={sourceId}
+            tenantId={site.tenant_id}
+            siteId={site.id}
+            button
+          />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

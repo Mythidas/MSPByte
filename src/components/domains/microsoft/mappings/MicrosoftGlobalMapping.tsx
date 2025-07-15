@@ -8,6 +8,7 @@ import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/Microsof
 import MicrosoftGlobalDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftGlobalDashboardTab';
 import MicrosoftTenantsTab from '@/components/domains/microsoft/tabs/MicrosoftTenantsTab';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
+import { useUser } from '@/lib/providers/UserContext';
 
 type Props = {
   sourceId: string;
@@ -15,6 +16,8 @@ type Props = {
 };
 
 export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
+  const { user } = useUser();
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -28,7 +31,12 @@ export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <SyncSourceItem type="global" sourceId={sourceId} button />
+          <SyncSourceItem
+            type="global"
+            sourceId={sourceId}
+            tenantId={user?.tenant_id || ''}
+            button
+          />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

@@ -6,7 +6,7 @@ import { APIResponse } from '@/types';
 export async function syncSource(
   sourceId: string,
   tenantId: string,
-  siteIds: string[]
+  siteIds: { siteId: string; sourceTenantId: string }[]
 ): Promise<APIResponse<Tables<'source_sync_jobs'>[]>> {
   const getEstDuration = () => {
     switch (sourceId) {
@@ -25,8 +25,9 @@ export async function syncSource(
         return {
           source_id: sourceId,
           tenant_id: tenantId,
+          source_tenant_id: s.sourceTenantId,
           est_duration: getEstDuration(),
-          site_id: s,
+          site_id: s.siteId,
           created_at: new Date().toISOString(),
         };
       })

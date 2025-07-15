@@ -12,6 +12,7 @@ import {
 import { SubmitButton } from '@/components/common/SubmitButton';
 import { Database } from '@/db/schema';
 import { deleteRows } from '@/services/general';
+import { prettyText } from '@/lib/utils';
 
 type UseDeleteOptions<T> = {
   tableName: keyof Database['public']['Tables'];
@@ -57,7 +58,7 @@ export function useDelete<T>({
       <AlertDialog open={!!itemToDelete} onOpenChange={(v) => !v && setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {tableName as string}?</AlertDialogTitle>
+            <AlertDialogTitle>Delete {prettyText(tableName as string)}?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{' '}
               <span className="font-medium">

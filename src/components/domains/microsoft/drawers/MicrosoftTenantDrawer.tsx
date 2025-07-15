@@ -27,15 +27,27 @@ import Display from '@/components/common/Display';
 import { differenceInHours, parseISO } from 'date-fns';
 import Link from 'next/link';
 import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
+import { useDelete } from '@/hooks/common/useDelete';
+import { SubmitButton } from '@/components/common/SubmitButton';
+import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 
 type Props = {
   label: string;
   tenant: Tables<'source_tenants_view'>;
+  onDelete?: () => void;
 };
 
-export default function MicrosoftTenantDrawer({ label, tenant }: Props) {
+export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const { confirmAndDelete, DeleteDialog } = useDelete<Tables<'source_tenants'>>({
+    tableName: 'source_tenants',
+    getId: (item) => item.id,
+    onDeleted: () => {
+      setIsOpen(false);
+      onDelete?.();
+    },
+  });
   const metadata = tenant.metadata as MicrosoftTenantMetadata | null;
   const lastSyncWithin24Hours = tenant.last_sync
     ? differenceInHours(new Date(), parseISO(tenant.last_sync)) <= 24
@@ -67,6 +79,7 @@ export default function MicrosoftTenantDrawer({ label, tenant }: Props) {
         data-vaul-no-drag
         className="h-full w-[500px] fixed right-0 top-0 mt-0 rounded-none"
       >
+        <DeleteDialog />
         <DrawerHeader className="pb-4">
           <DrawerTitle className="flex justify-between items-start gap-4">
             <div className="flex-1 min-w-0">
@@ -82,14 +95,6 @@ export default function MicrosoftTenantDrawer({ label, tenant }: Props) {
                   <ExternalLink className="w-4 h-4" />
                 </Link>
               </div>
-              {tenant.external_name && (
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <span className="select-text text-sm text-muted-foreground truncate">
-                    {tenant.external_name}
-                  </span>
-                </div>
-              )}
             </div>
           </DrawerTitle>
           <DrawerDescription className="flex text-sm text-muted-foreground space-x-2">
@@ -169,37 +174,6 @@ export default function MicrosoftTenantDrawer({ label, tenant }: Props) {
                   </Display>
                 </div>
               )}
-
-              {/* {metadata?.security_defaults_enabled !== undefined && (
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium text-muted-foreground">
-                    Security Defaults
-                  </Label>
-                  <div
-                    className={`px-3 py-2 rounded-lg text-sm font-medium border ${
-                      metadata.security_defaults_enabled
-                        ? 'bg-green-100 text-green-800 border-green-200'
-                        : 'bg-red-100 text-red-800 border-red-200'
-                    }`}
-                  >
-                    {metadata.security_defaults_enabled ? 'Enabled' : 'Disabled'}
-                  </div>
-                </div>
-              )}
-
-              {metadata?.conditional_access_policies &&
-                metadata.conditional_access_policies.length > 0 && (
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">
-                      Conditional Access Policies ({metadata.conditional_access_policies.length})
-                    </Label>
-                    <div className="p-2 bg-blue-50 rounded border border-blue-200">
-                      <span className="text-sm text-blue-800">
-                        {metadata.conditional_access_policies.length} policy(ies) configured
-                      </span>
-                    </div>
-                  </div>
-                )} */}
             </div>
           </div>
 
@@ -253,6 +227,24 @@ export default function MicrosoftTenantDrawer({ label, tenant }: Props) {
               </Display>
             </div>
           </div>
+        </div>
+
+        <div className="flex w-full mt-auto p-4 gap-2">
+          <SubmitButton
+            variant="destructive"
+            onClick={() => confirmAndDelete(tenant as Tables<'source_tenants'>)}
+            module="Sources"
+            level="Full"
+          >
+            Delete
+          </SubmitButton>
+          <SyncSourceItem
+            type="site"
+            sourceId={tenant.source_id!}
+            tenantId={tenant.tenant_id!}
+            siteId={tenant.site_id!}
+            button
+          />
         </div>
       </DrawerContent>
     </Drawer>

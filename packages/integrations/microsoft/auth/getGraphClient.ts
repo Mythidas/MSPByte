@@ -1,24 +1,15 @@
 import { Debug } from '@/lib/utils';
-import { getSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 import { ClientSecretCredential } from '@azure/identity';
 import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getGraphClient(
-  sourceId: string,
-  siteId: string
+  tenantId: string,
+  clientId: string,
+  clientSecret: string
 ): Promise<APIResponse<Client>> {
   try {
-    const mapping = await getSourceTenant(sourceId, siteId);
-    if (!mapping.ok) {
-      throw new Error(mapping.error.message);
-    }
-
-    const credential = new ClientSecretCredential(
-      mapping.data.external_id,
-      (mapping.data.metadata as any).client_id,
-      (mapping.data.metadata as any).client_secret
-    );
+    const credential = new ClientSecretCredential(tenantId, clientId, clientSecret);
 
     const client = Client.initWithMiddleware({
       authProvider: {

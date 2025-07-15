@@ -30,7 +30,13 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <SyncSourceItem type="parent" sourceId={sourceId} site={site} button />
+          <SyncSourceItem
+            type="parent"
+            sourceId={sourceId}
+            tenantId={site.tenant_id}
+            siteId={site.id}
+            button
+          />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

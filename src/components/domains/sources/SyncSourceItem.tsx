@@ -3,19 +3,19 @@
 import { Button } from '@/components/ui/button';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { syncSource } from '@/core/syncSource';
-import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
-import { getSourceTenants } from '@/services/source/tenants';
+import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { toast } from 'sonner';
 
 type Props = {
   type: 'global' | 'parent' | 'site';
   sourceId: string;
-  site?: Tables<'sites'>;
+  tenantId: string;
+  siteId?: string;
   button?: boolean;
 };
 
-export default function SyncSourceItem({ type, sourceId, site, button }: Props) {
+export default function SyncSourceItem({ type, sourceId, tenantId, siteId, button }: Props) {
   const handleSync = async () => {
     try {
       switch (type) {
@@ -25,8 +25,10 @@ export default function SyncSourceItem({ type, sourceId, site, button }: Props) 
             throw new Error(mappings.error.message);
           }
 
-          const jobs = await syncSource(sourceId, mappings.data.rows[0].tenant_id, [
-            ...mappings.data.rows.map((s) => s.site_id),
+          const jobs = await syncSource(sourceId, tenantId, [
+            ...mappings.data.rows.map((s) => {
+              return { siteId: s.site_id, sourceTenantId: s.id };
+            }),
           ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
@@ -36,21 +38,25 @@ export default function SyncSourceItem({ type, sourceId, site, button }: Props) 
           break;
         }
         case 'parent': {
-          const sites = await getSites(site!.id);
+          if (!siteId) return;
+
+          const sites = await getSites(siteId);
           if (!sites.ok) {
             throw new Error(sites.error.message);
           }
 
           const mappings = await getSourceTenants(sourceId, [
-            site!.id,
+            siteId!,
             ...sites.data.rows.map((s) => s.id),
           ]);
           if (!mappings.ok) {
             throw new Error(mappings.error.message);
           }
 
-          const jobs = await syncSource(sourceId, site!.tenant_id, [
-            ...mappings.data.rows.map((s) => s.site_id),
+          const jobs = await syncSource(sourceId, tenantId, [
+            ...mappings.data.rows.map((s) => {
+              return { siteId: s.site_id, sourceTenantId: s.id };
+            }),
           ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
@@ -60,7 +66,16 @@ export default function SyncSourceItem({ type, sourceId, site, button }: Props) 
           break;
         }
         case 'site': {
-          const jobs = await syncSource(sourceId, site!.tenant_id, [site!.id]);
+          if (!siteId) return;
+
+          const mappings = await getSourceTenant(sourceId, siteId);
+          if (!mappings.ok) {
+            throw new Error(mappings.error.message);
+          }
+
+          const jobs = await syncSource(sourceId, tenantId, [
+            { siteId, sourceTenantId: mappings.data.id },
+          ]);
           if (!jobs.ok) {
             throw new Error(jobs.error.message);
           }

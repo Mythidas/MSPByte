@@ -43,6 +43,7 @@ export async function transformIdentities(
         tenant_id: mapping.tenant_id,
         source_id: mapping.source_id,
         site_id: mapping.site_id,
+        source_tenant_id: mapping.id,
 
         external_id: user.id,
         enabled: user.accountEnabled!,

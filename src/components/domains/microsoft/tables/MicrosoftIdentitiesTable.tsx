@@ -11,11 +11,11 @@ import {
 } from '@/components/common/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
-import { getSourceIdentitiesViewPaginated } from '@/services/identities';
 import { getSourceLicenses } from '@/services/licenses';
 import { pascalCase } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/domains/microsoft/drawers/MicrosoftIdentityDrawer';
 import { useState } from 'react';
+import { getSourceIdentitiesView } from '@/services/identities';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -52,18 +52,14 @@ export default function MicrosoftIdentitiesTable({
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     console.log('test');
 
-    const identities = await getSourceIdentitiesViewPaginated(
-      {
-        page: pageIndex,
-        size: pageSize,
-        filterMap: {
-          ca_capable: 'metadata->>valid_mfa_license',
-        },
-        ...props,
+    const identities = await getSourceIdentitiesView(sourceId, siteIds, {
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        ca_capable: 'metadata->>valid_mfa_license',
       },
-      sourceId,
-      siteIds
-    );
+      ...props,
+    });
 
     if (!identities.ok) {
       return { rows: [], total: 0 };

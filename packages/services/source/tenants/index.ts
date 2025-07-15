@@ -25,6 +25,13 @@ export async function getSourceTenants(
   );
 }
 
+export async function getSourceTenantsCount(sourceId?: string, siteIds?: string[]) {
+  return tables.count('source_tenants', (query) => {
+    if (sourceId) query = query.eq('source_id', sourceId);
+    if (siteIds) query = query.in('site_id', siteIds);
+  });
+}
+
 export async function getSourceTenantsView(
   sourceId?: string,
   siteIds?: string[],

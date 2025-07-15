@@ -75,7 +75,7 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
 
       const mfaConfig = getMfaConfig(uniformOrMixed());
       const domains = data.rows.flatMap(
-        (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
+        (tenant) => (tenant.metadata as MicrosoftTenantMetadata)?.domains
       );
 
       console.log('dashboard');
@@ -95,16 +95,20 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
             <CardContent>
               <ScrollArea className="max-h-16 overflow-auto">
                 <div className="flex flex-wrap gap-2">
-                  {domains.map((domain, idx) => (
-                    <Badge
-                      key={domain + idx}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      <Globe className="h-3 w-3" />
-                      {domain}
-                    </Badge>
-                  ))}
+                  {domains.map((domain, idx) => {
+                    if (!domain) return;
+
+                    return (
+                      <Badge
+                        key={domain! + idx}
+                        variant="secondary"
+                        className="flex items-center gap-1"
+                      >
+                        <Globe className="h-3 w-3" />
+                        {domain}
+                      </Badge>
+                    );
+                  })}
                 </div>
               </ScrollArea>
             </CardContent>
