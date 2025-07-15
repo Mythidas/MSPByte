@@ -26,17 +26,14 @@ export async function getUsers(
       .select(fields.join(','))
       .header('ConsistencyLevel', 'eventual')
       .orderby('userPrincipalName');
-    if (mapping.external_name) {
-      const domains = (mapping.metadata as { domains: string[] }).domains.map((domain) =>
-        domain.trim()
-      );
+    const domains = (mapping.metadata as { domains: string[] }).domains.map((domain) =>
+      domain.trim()
+    );
 
-      const filter = domains
-        .map((domain) => `endswith(userPrincipalName,'@${domain}')`)
-        .join(' or ');
+    const filter = domains.map((domain) => `endswith(userPrincipalName,'@${domain}')`).join(' or ');
+    query = query.filter(filter);
 
-      query = query.filter(filter);
-    }
+    console.log(filter);
 
     const users = await query.get();
 
