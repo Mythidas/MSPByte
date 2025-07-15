@@ -78,7 +78,6 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
         (tenant) => (tenant.metadata as MicrosoftTenantMetadata)?.domains
       );
 
-      console.log('dashboard');
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Domains Card */}

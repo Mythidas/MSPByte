@@ -60,17 +60,11 @@ export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIR
     }
     timer.end('syncMetrics');
 
-    const domains = [
-      ...new Set(
-        identities.data.map((identity) => identity.email.split('@')[1]?.toLowerCase() || '')
-      ),
-    ].filter(Boolean);
     await updateSourceTenant(tenant.id, {
       ...tenant,
       last_sync: new Date().toISOString(),
       metadata: {
         ...(tenant.metadata as any),
-        domains,
         mfa_enforcement: securityDefaults.data
           ? 'security_defaults'
           : caPolicies.data.length > 0
