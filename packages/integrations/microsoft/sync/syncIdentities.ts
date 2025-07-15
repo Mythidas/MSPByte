@@ -22,7 +22,7 @@ export async function syncIdentities(
     const toUpdate: TablesUpdate<'source_identities'>[] = [];
 
     for (const user of graphUsers) {
-      const existing = existingIdentities.data.rows.find((i) => i.external_id === user.id);
+      const existing = existingIdentities.data.rows.find((i) => i.external_id === user.external_id);
 
       if (existing) toUpdate.push({ ...existing, ...user });
       else toInsert.push({ ...user });
@@ -38,9 +38,10 @@ export async function syncIdentities(
       throw new Error('Failed to insert source identities');
     }
 
-    console.log(toInsert.length);
-    console.log(toUpdate.length);
-    console.log(toDelete.length);
+    console.log(existingIdentities.data.rows.length, 'existing');
+    console.log(toInsert.length, 'insert');
+    console.log(toUpdate.length, 'update');
+    console.log(toDelete.length, 'delete');
     const deleted = await deleteSourceIdentities(toDelete);
     if (!deleted.ok) {
       Debug.warn({
