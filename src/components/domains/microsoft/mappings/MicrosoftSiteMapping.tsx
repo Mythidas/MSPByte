@@ -4,55 +4,10 @@ import MicrosoftIdentitiesTable from '@/components/domains/microsoft/tables/Micr
 import MicrosoftDashboardTab from '@/components/domains/microsoft/tabs/MicrosoftDashboardTab';
 import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
-import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
-import { AlertCircle, CheckCircle2, Clock, Database, RefreshCw } from 'lucide-react';
-import { TooltipTrigger, TooltipContent, Tooltip } from '@/components/ui/tooltip';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { Badge } from '@/components/ui/badge';
-import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
-import { Skeleton } from '@/components/ui/skeleton';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
-
-const getStatusConfig = (status: string) => {
-  switch (status) {
-    case 'completed':
-      return {
-        variant: 'default',
-        icon: CheckCircle2,
-        label: 'Synced',
-        color: 'text-green-600',
-      };
-    case 'running':
-      return {
-        variant: 'secondary',
-        icon: RefreshCw,
-        label: 'Syncing',
-        color: 'text-blue-600',
-      };
-    case 'failed':
-      return {
-        variant: 'destructive',
-        icon: AlertCircle,
-        label: 'Failed',
-        color: 'text-red-600',
-      };
-    case 'pending':
-      return {
-        variant: 'secondary',
-        icon: Clock,
-        label: 'Pending',
-        color: 'text-yellow-600',
-      };
-    default:
-      return {
-        variant: 'destructive',
-        icon: AlertCircle,
-        label: 'Unknown',
-        color: 'text-gray-600',
-      };
-  }
-};
+import { Database } from 'lucide-react';
+import SourceSyncStatus from '@/components/domains/sources/SourceSyncStatus';
 
 type Props = {
   sourceId: string;
@@ -61,42 +16,6 @@ type Props = {
 };
 
 export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
-  const { content } = useLazyLoad({
-    loader: async () => {
-      const syncJob = await getSourceSyncJobLatest(sourceId, site.id);
-      if (syncJob.ok) {
-        return syncJob.data;
-      }
-    },
-    render: (data) => {
-      if (!data) return <strong>No Sync</strong>;
-      const config = getStatusConfig(data.status);
-
-      return (
-        <Tooltip>
-          <TooltipTrigger>
-            <Badge
-              variant={config.variant as 'default' | 'secondary' | 'destructive' | 'outline' | null}
-              className="flex items-center gap-1 text-sm"
-            >
-              <config.icon className="h-3 w-3" />
-              {config.label}
-            </Badge>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p className="font-medium">
-              Last sync:{' '}
-              {new Date(
-                data.completed_at || data.started_at || data.created_at || ''
-              ).toLocaleString()}
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      );
-    },
-    skeleton: () => <Skeleton className="w-24 h-6" />,
-  });
-
   return (
     <>
       <div className="flex items-center justify-between">
@@ -110,14 +29,7 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {content}
-          <SyncSourceItem
-            type="site"
-            sourceId={sourceId}
-            tenantId={site.tenant_id}
-            siteId={site.id}
-            button
-          />
+          <SourceSyncStatus sourceId={sourceId} siteId={site.id} tenantId={site.tenant_id} />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

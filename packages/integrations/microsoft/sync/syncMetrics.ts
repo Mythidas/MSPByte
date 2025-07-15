@@ -37,7 +37,7 @@ export async function syncMetrics(
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
     name: 'MFA Enabled',
-    metric: identities.filter((id) => id.mfa_enforced).length,
+    metric: identities.filter((id) => id.mfa_enforced).length / identities.length,
     total: identities.length,
     created_at: new Date().toISOString(),
   };

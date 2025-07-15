@@ -1,38 +1,53 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { syncSource } from '@/core/syncSource';
 import { getSites } from '@/services/sites';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { toast } from 'sonner';
+import { RotateCw } from 'lucide-react';
 
 type Props = {
   type: 'global' | 'parent' | 'site';
   sourceId: string;
   tenantId: string;
   siteId?: string;
-  button?: boolean;
-};
+  children?: React.ReactNode;
+  syncing?: boolean;
+  onStart?: () => void;
+} & Omit<React.ComponentProps<typeof Button>, 'type' | 'onClick' | 'children'>;
 
-export default function SyncSourceItem({ type, sourceId, tenantId, siteId, button }: Props) {
+export default function SyncSourceItem({
+  type,
+  sourceId,
+  tenantId,
+  siteId,
+  children,
+  onStart,
+  ...props
+}: Props) {
+  const [isSyncing, setIsSyncing] = useState(props.syncing);
+
   const handleSync = async () => {
+    setIsSyncing(true);
+    onStart?.();
+
     try {
       switch (type) {
         case 'global': {
           const mappings = await getSourceTenants(sourceId);
-          if (!mappings.ok) {
-            throw new Error(mappings.error.message);
-          }
+          if (!mappings.ok) throw new Error(mappings.error.message);
 
-          const jobs = await syncSource(sourceId, tenantId, [
-            ...mappings.data.rows.map((s) => {
-              return { siteId: s.site_id, sourceTenantId: s.id };
-            }),
-          ]);
-          if (!jobs.ok) {
-            throw new Error(jobs.error.message);
-          }
+          const jobs = await syncSource(
+            sourceId,
+            tenantId,
+            mappings.data.rows.map((s) => ({
+              siteId: s.site_id,
+              sourceTenantId: s.id,
+            }))
+          );
+          if (!jobs.ok) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} jobs...`);
           break;
@@ -41,26 +56,21 @@ export default function SyncSourceItem({ type, sourceId, tenantId, siteId, butto
           if (!siteId) return;
 
           const sites = await getSites(siteId);
-          if (!sites.ok) {
-            throw new Error(sites.error.message);
-          }
+          if (!sites.ok) throw new Error(sites.error.message);
 
-          const mappings = await getSourceTenants(sourceId, [
-            siteId!,
-            ...sites.data.rows.map((s) => s.id),
-          ]);
-          if (!mappings.ok) {
-            throw new Error(mappings.error.message);
-          }
+          const siteIds = [siteId, ...sites.data.rows.map((s) => s.id)];
+          const mappings = await getSourceTenants(sourceId, siteIds);
+          if (!mappings.ok) throw new Error(mappings.error.message);
 
-          const jobs = await syncSource(sourceId, tenantId, [
-            ...mappings.data.rows.map((s) => {
-              return { siteId: s.site_id, sourceTenantId: s.id };
-            }),
-          ]);
-          if (!jobs.ok) {
-            throw new Error(jobs.error.message);
-          }
+          const jobs = await syncSource(
+            sourceId,
+            tenantId,
+            mappings.data.rows.map((s) => ({
+              siteId: s.site_id,
+              sourceTenantId: s.id,
+            }))
+          );
+          if (!jobs.ok) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} jobs...`);
           break;
@@ -68,32 +78,35 @@ export default function SyncSourceItem({ type, sourceId, tenantId, siteId, butto
         case 'site': {
           if (!siteId) return;
 
-          const mappings = await getSourceTenant(sourceId, siteId);
-          if (!mappings.ok) {
-            throw new Error(mappings.error.message);
-          }
+          const mapping = await getSourceTenant(sourceId, siteId);
+          if (!mapping.ok) throw new Error(mapping.error.message);
 
           const jobs = await syncSource(sourceId, tenantId, [
-            { siteId, sourceTenantId: mappings.data.id },
+            {
+              siteId,
+              sourceTenantId: mapping.data.id,
+            },
           ]);
-          if (!jobs.ok) {
-            throw new Error(jobs.error.message);
-          }
+          if (!jobs.ok) throw new Error(jobs.error.message);
 
-          toast.info(`Syncing ${jobs.data.length} jobs...`);
+          toast.info(`Syncing ${jobs.data.length} job...`);
           break;
         }
       }
     } catch (err) {
-      toast.error(`Failed to sync: ${err}`);
+      toast.error(`Failed to sync: ${String(err)}`);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
-  if (button)
-    return (
-      <Button variant="secondary" onClick={handleSync}>
-        Sync Now
-      </Button>
-    );
-  return <DropdownMenuItem onClick={handleSync}>Sync Now</DropdownMenuItem>;
+  return (
+    <Button onClick={handleSync} disabled={isSyncing} variant="secondary" {...props}>
+      {children || (
+        <>
+          <RotateCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} /> Sync Now
+        </>
+      )}
+    </Button>
+  );
 }

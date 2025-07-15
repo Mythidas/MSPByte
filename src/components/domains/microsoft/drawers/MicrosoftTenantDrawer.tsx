@@ -243,7 +243,6 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
             sourceId={tenant.source_id!}
             tenantId={tenant.tenant_id!}
             siteId={tenant.site_id!}
-            button
           />
         </div>
       </DrawerContent>

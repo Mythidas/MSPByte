@@ -31,12 +31,7 @@ export default function MicrosoftGlobalMapping({ sourceId, tab }: Props) {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <SyncSourceItem
-            type="global"
-            sourceId={sourceId}
-            tenantId={user?.tenant_id || ''}
-            button
-          />
+          <SyncSourceItem type="global" sourceId={sourceId} tenantId={user?.tenant_id || ''} />
         </div>
       </div>
       <Tabs defaultValue={tab || 'dashboard'} value={tab || 'dashboard'}>

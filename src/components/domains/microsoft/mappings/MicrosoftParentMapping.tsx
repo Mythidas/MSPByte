@@ -35,7 +35,6 @@ export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
             sourceId={sourceId}
             tenantId={site.tenant_id}
             siteId={site.id}
-            button
           />
         </div>
       </div>

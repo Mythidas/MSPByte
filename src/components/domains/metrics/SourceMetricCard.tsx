@@ -25,8 +25,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const valueDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        const percent = (metric.value / metric.total) * 100;
-        return `${percent.toFixed(0)}%`;
+        return `${metric.value.toFixed(0)}%`;
       }
       default:
         return metric.value;
@@ -36,8 +35,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const deltaDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        const percent = (metric.delta / metric.total) * 100;
-        return `${percent.toFixed(0)}%`;
+        return `${metric.delta.toFixed(0)}%`;
       }
       default:
         return metric.delta;
@@ -45,9 +43,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   };
 
   const color =
-    metric.delta === 0 ||
-    (metric.visual === 'percentage' &&
-      Number(((metric.delta / metric.total) * 100).toFixed(0)) === 0)
+    metric.delta === 0 || (metric.visual === 'percentage' && metric.delta === 0)
       ? 'text-slate-500'
       : metric.roc_positive
         ? metric.delta > 0
