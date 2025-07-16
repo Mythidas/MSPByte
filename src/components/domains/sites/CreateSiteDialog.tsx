@@ -63,7 +63,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
 
       const result = await putSite([
         {
-          tenant_id: user!.tenant_id,
+          tenant_id: user?.tenant_id || '',
           parent_id: parentId,
           name: data.name,
           is_parent: !!data.isParent,

@@ -29,14 +29,14 @@ export function SourceProvider({
       if (source && user) {
         await updateUser(user.id!, {
           metadata: {
-            ...(user.metadata as any),
+            ...(user.metadata as object),
             selected_source: source.source_id,
           },
         });
       } else if (user) {
         await updateUser(user.id!, {
           metadata: {
-            ...(user.metadata as any),
+            ...(user.metadata as object),
             selected_source: '',
           },
         });

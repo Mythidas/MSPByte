@@ -2,11 +2,8 @@
 
 import { ReactNode, useEffect, useState } from 'react';
 import UserContext from '@/lib/providers/UserContext';
-import { createClient } from '@/db/client';
 import { Tables } from '@/db/schema';
 import { getCurrentUserView } from '@/services/users';
-
-const supabase = createClient();
 
 const fetchUserContext = async (): Promise<Tables<'user_view'> | null> => {
   const user = await getCurrentUserView();
