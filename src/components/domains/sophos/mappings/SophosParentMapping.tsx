@@ -5,12 +5,13 @@ import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
-import { Database, Loader } from 'lucide-react';
+import { Database } from 'lucide-react';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
 import SophosParentDashboardTab from '@/components/domains/sophos/tabs/SophosParentDashboardTab';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getSites } from '@/services/sites';
 import { getSourceTenants } from '@/services/source/tenants';
+import Loader from '@/components/common/Loader';
 
 type Props = {
   sourceId: string;

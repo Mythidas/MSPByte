@@ -4,6 +4,8 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Tables } from '@/db/schema';
+import { updateUser } from '@/services/users';
+import { useUser } from '@/lib/providers/UserContext';
 
 type SourceContextType = {
   source?: Tables<'source_integrations_view'>;
@@ -19,20 +21,29 @@ export function SourceProvider({
   value?: Tables<'source_integrations_view'>;
   children: React.ReactNode;
 }) {
-  const [source, setSource] = useState<Tables<'source_integrations_view'>>(() => {
-    if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem('source_context');
-      return cached ? JSON.parse(cached) : value;
-    }
-    return value;
-  });
+  const [source, setSource] = useState<Tables<'source_integrations_view'> | undefined>(value);
+  const { user } = useUser();
 
   useEffect(() => {
-    if (source) {
-      localStorage.setItem('source_context', JSON.stringify(source));
-    } else {
-      localStorage.removeItem('source_context');
-    }
+    const update = async () => {
+      if (source && user) {
+        await updateUser(user.id!, {
+          metadata: {
+            ...(user.metadata as any),
+            selected_source: source.source_id,
+          },
+        });
+      } else if (user) {
+        await updateUser(user.id!, {
+          metadata: {
+            ...(user.metadata as any),
+            selected_source: '',
+          },
+        });
+      }
+    };
+
+    update();
   }, [source]);
 
   useEffect(() => {

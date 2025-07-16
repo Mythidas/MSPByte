@@ -19,7 +19,7 @@ type Props = {
 export default function AppNavbar({ sites, integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { source, setSource } = useSource();
+  const { source } = useSource();
 
   const handleSelect = (value: string) => {
     router.push(`${source && `/${source.source_id}`}/sites/${value}`);
@@ -29,8 +29,6 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
     const newSource = integrations.find((int) => int.source_id === value);
     if (!newSource) return;
     if (value === source?.source_id) return;
-
-    setSource(newSource);
 
     const segments = pathname.split('?')[0].split('/').filter(Boolean); // remove empty strings
 
@@ -43,7 +41,6 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
     }
   };
 
-  console.log(source);
   return (
     <div className="flex flex-col size-full overflow-hidden">
       <header className="flex h-14 z-50 w-full border-b border-border shadow">

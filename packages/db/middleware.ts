@@ -1,5 +1,7 @@
-import { createServerClient } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
+import { getCurrentUserView } from '@/services/users';
+import { UserMetadata } from '@/types/users';
+import { createServerClient } from '@supabase/ssr';
+import { type NextRequest, NextResponse } from 'next/server';
 
 export const updateSession = async (request: NextRequest) => {
   // This `try/catch` block is only here for the interactive tutorial.
@@ -21,39 +23,52 @@ export const updateSession = async (request: NextRequest) => {
             return request.cookies.getAll();
           },
           setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value }) =>
-              request.cookies.set(name, value),
-            );
+            cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
             response = NextResponse.next({
               request,
             });
             cookiesToSet.forEach(({ name, value, options }) =>
-              response.cookies.set(name, value, options),
+              response.cookies.set(name, value, options)
             );
           },
         },
-      },
+      }
     );
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const user = await supabase.auth.getUser();
+    const auth = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('user_view')
+      .select()
+      .eq('id', auth.data.user?.id)
+      .single();
 
     // re-write landing page
-    if (user.error && request.nextUrl.pathname === "/") {
+    if (error && request.nextUrl.pathname === '/') {
       const url = request.nextUrl.clone();
-      url.pathname = "/landing-page";
+      url.pathname = '/landing-page';
       return NextResponse.rewrite(url);
     }
 
     // auth routes
-    if (user.error && !request.nextUrl.pathname.startsWith("/auth")) {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (error && !request.nextUrl.pathname.startsWith('/auth')) {
+      return NextResponse.redirect(new URL('/', request.url));
     }
 
     // redirect authed users
-    if (request.nextUrl.pathname.includes("/auth") && !user.error) {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (request.nextUrl.pathname.includes('/auth') && !error) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+
+    if (
+      !error &&
+      request.nextUrl.pathname === '/' &&
+      (data.metadata as UserMetadata).selected_source
+    ) {
+      return NextResponse.redirect(
+        new URL(`/${(data.metadata as UserMetadata).selected_source}`, request.url)
+      );
     }
 
     return response;

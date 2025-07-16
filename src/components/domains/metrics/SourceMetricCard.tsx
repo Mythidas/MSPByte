@@ -4,7 +4,7 @@ import { TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import Icon from '@/components/common/Icon';
 
-type RollupMetric = Database['public']['Functions']['get_rollup_metrics']['Returns'][number];
+type RollupMetric = Database['public']['Views']['rollup_metrics_site']['Row'];
 
 type Props = {
   metric: RollupMetric;
@@ -25,7 +25,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const valueDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        const percentage = (metric.value / metric.total) * 100;
+        const percentage = (metric.value! / metric.total!) * 100;
         return `${percentage.toFixed(0)}%`;
       }
       default:
@@ -36,7 +36,7 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const deltaDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        const percentage = (metric.delta / metric.total) * 100;
+        const percentage = (metric.delta! / metric.total!) * 100;
         return `${percentage.toFixed(0)}%`;
       }
       default:
@@ -48,10 +48,10 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
     metric.delta === 0 || (metric.visual === 'percentage' && metric.delta === 0)
       ? 'text-slate-500'
       : metric.roc_positive
-        ? metric.delta > 0
+        ? metric.delta! > 0
           ? 'text-green-600'
           : 'text-red-600'
-        : metric.delta < 0
+        : metric.delta! < 0
           ? 'text-green-600'
           : 'text-red-600';
 
@@ -63,13 +63,13 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
             href={
               baseRoute
                 ? `${baseRoute}?${filtersFormatted()}`
-                : `${metric.route}?${filtersFormatted()}`
+                : `/${metric.source_id}?${filtersFormatted()}`
             }
           >
             {metric.name}
           </Link>
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" iconName={metric.icon} />
+        <Icon className="h-4 w-4 text-muted-foreground" iconName={metric.icon!} />
       </CardHeader>
       <CardContent>
         <div className="space-y-1">

@@ -1,7 +1,12 @@
 import Loader from '@/components/common/Loader';
 import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
+import { Database } from '@/db/schema';
 import { LazyLoadOptions, useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSourceMetricsRollup } from '@/services/source/metrics';
+import {
+  getSourceMetricsRollupGlobal,
+  getSourceMetricsRollupParent,
+  getSourceMetricsRollupSite,
+} from '@/services/source/metrics';
 
 type Props<T> = {
   scope: 'site' | 'parent' | 'global';
@@ -19,9 +24,31 @@ export default function useSourceMetricGrid<T>({
 }: Props<T>) {
   return useLazyLoad({
     loader: async () => {
-      const metrics = await getSourceMetricsRollup(scope, sourceId, siteId);
-      if (metrics.ok) {
-        return metrics.data;
+      switch (scope) {
+        case 'site': {
+          const metrics = await getSourceMetricsRollupSite(sourceId, siteId!);
+          if (metrics.ok) {
+            return metrics.data.rows;
+          }
+
+          return undefined;
+        }
+        case 'parent': {
+          const metrics = await getSourceMetricsRollupParent(sourceId, siteId!);
+          if (metrics.ok) {
+            return metrics.data.rows;
+          }
+
+          return undefined;
+        }
+        case 'global': {
+          const metrics = await getSourceMetricsRollupGlobal(sourceId);
+          if (metrics.ok) {
+            return metrics.data.rows;
+          }
+
+          return undefined;
+        }
       }
     },
     render: (data) => {
@@ -38,7 +65,15 @@ export default function useSourceMetricGrid<T>({
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.map((metric) => {
-            return <SourceMetricCard key={metric.name} metric={metric} baseRoute={route} />;
+            return (
+              <SourceMetricCard
+                key={metric.name}
+                metric={
+                  metric as unknown as Database['public']['Views']['rollup_metrics_site']['Row']
+                }
+                baseRoute={route}
+              />
+            );
           })}
         </div>
       );

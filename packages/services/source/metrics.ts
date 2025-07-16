@@ -11,15 +11,21 @@ export async function getSourceMetrics(sourceId: string, siteIds?: string[]) {
   });
 }
 
-export async function getSourceMetricsRollup(
-  scope: 'site' | 'parent' | 'global',
-  sourceId: string,
-  siteId?: string
-) {
-  return tables.rpc('get_rollup_metrics', {
-    _scope: scope,
-    _source_id: sourceId,
-    _id: siteId || '00000000-0000-0000-0000-000000000000',
+export async function getSourceMetricsRollupSite(sourceId: string, siteId: string) {
+  return tables.select('rollup_metrics_site', (query) => {
+    query = query.eq('source_id', sourceId).eq('site_id', siteId);
+  });
+}
+
+export async function getSourceMetricsRollupParent(sourceId: string, parentId: string) {
+  return tables.select('rollup_metrics_parent', (query) => {
+    query = query.eq('source_id', sourceId).eq('parent_id', parentId);
+  });
+}
+
+export async function getSourceMetricsRollupGlobal(sourceId: string) {
+  return tables.select('rollup_metrics_global', (query) => {
+    query = query.eq('source_id', sourceId);
   });
 }
 

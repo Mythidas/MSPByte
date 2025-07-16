@@ -435,7 +435,6 @@ export type Database = {
           id: string
           order: number | null
           roc_positive: boolean | null
-          route: string
           source_id: string
           thresholds: Json
           unit: string
@@ -450,7 +449,6 @@ export type Database = {
           id: string
           order?: number | null
           roc_positive?: boolean | null
-          route: string
           source_id: string
           thresholds: Json
           unit: string
@@ -465,7 +463,6 @@ export type Database = {
           id?: string
           order?: number | null
           roc_positive?: boolean | null
-          route?: string
           source_id?: string
           thresholds?: Json
           unit?: string
@@ -854,6 +851,7 @@ export type Database = {
           email: string
           id: string
           last_login: string | null
+          metadata: Json
           name: string
           role_id: string
           status: string | null
@@ -863,6 +861,7 @@ export type Database = {
           email: string
           id?: string
           last_login?: string | null
+          metadata?: Json
           name: string
           role_id: string
           status?: string | null
@@ -872,6 +871,7 @@ export type Database = {
           email?: string
           id?: string
           last_login?: string | null
+          metadata?: Json
           name?: string
           role_id?: string
           status?: string | null
@@ -896,6 +896,86 @@ export type Database = {
       }
     }
     Views: {
+      rollup_metrics_global: {
+        Row: {
+          created_at: string | null
+          delta: number | null
+          description: string | null
+          filters: Json | null
+          icon: string | null
+          name: string | null
+          roc_positive: boolean | null
+          source_id: string | null
+          thresholds: Json | null
+          total: number | null
+          unit: string | null
+          value: number | null
+          visual: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_source_id_fkey"
+            columns: ["name", "source_id"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id", "source_id"]
+          },
+        ]
+      }
+      rollup_metrics_parent: {
+        Row: {
+          created_at: string | null
+          delta: number | null
+          description: string | null
+          filters: Json | null
+          icon: string | null
+          name: string | null
+          parent_id: string | null
+          roc_positive: boolean | null
+          source_id: string | null
+          thresholds: Json | null
+          total: number | null
+          unit: string | null
+          value: number | null
+          visual: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_source_id_fkey"
+            columns: ["name", "source_id"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id", "source_id"]
+          },
+        ]
+      }
+      rollup_metrics_site: {
+        Row: {
+          created_at: string | null
+          delta: number | null
+          description: string | null
+          filters: Json | null
+          icon: string | null
+          name: string | null
+          roc_positive: boolean | null
+          site_id: string | null
+          source_id: string | null
+          thresholds: Json | null
+          total: number | null
+          unit: string | null
+          value: number | null
+          visual: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_metrics_name_source_id_fkey"
+            columns: ["name", "source_id"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id", "source_id"]
+          },
+        ]
+      }
       sites_view: {
         Row: {
           id: string | null
@@ -1174,6 +1254,27 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_tenants_view"
             referencedColumns: ["parent_id"]
+          },
+        ]
+      }
+      user_view: {
+        Row: {
+          email: string | null
+          id: string | null
+          last_login: string | null
+          metadata: Json | null
+          name: string | null
+          rights: Json | null
+          status: string | null
+          tenant_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }

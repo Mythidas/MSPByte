@@ -2,19 +2,10 @@
 
 import { createContext, useContext } from 'react';
 import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
-
-export type UserContextView = {
-  id: string;
-  tenant_id: string;
-  name: string;
-  email: string;
-  roles: {
-    rights: Record<RoleAccessModule, RoleAccessLevel>;
-  };
-};
+import { Tables } from '@/db/schema';
 
 type UserContextValue = {
-  user: UserContextView | null;
+  user: Tables<'user_view'> | null;
   isLoading: boolean;
 };
 
@@ -23,13 +14,13 @@ const UserContext = createContext<UserContextValue>({ user: null, isLoading: fal
 export const useUser = () => useContext(UserContext);
 
 export function hasAccess(
-  context: UserContextView | null,
+  context: Tables<'user_view'> | null,
   module: RoleAccessModule,
   access: RoleAccessLevel
 ): boolean {
-  if (!context || !context.roles || !context.roles.rights) return false;
+  if (!context || !context.rights) return false;
 
-  const current = context.roles.rights[module];
+  const current = (context.rights as Record<RoleAccessModule, RoleAccessLevel>)[module];
   if (!current || current === 'None') return false;
 
   const levels = ['None', 'Read', 'Write', 'Full'] as const;

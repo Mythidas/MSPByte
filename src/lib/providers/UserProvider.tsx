@@ -1,39 +1,21 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import UserContext, { UserContextView } from '@/lib/providers/UserContext';
+import UserContext from '@/lib/providers/UserContext';
 import { createClient } from '@/db/client';
+import { Tables } from '@/db/schema';
+import { getCurrentUserView } from '@/services/users';
 
 const supabase = createClient();
 
-const fetchUserContext = async (): Promise<UserContextView | null> => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+const fetchUserContext = async (): Promise<Tables<'user_view'> | null> => {
+  const user = await getCurrentUserView();
 
-  if (!user?.id) return null;
-
-  const { data, error } = await supabase
-    .from('users')
-    .select(
-      `
-      id,
-      tenant_id,
-      name,
-      email,
-      roles (
-        rights
-      )
-    `
-    )
-    .eq('id', user.id)
-    .single();
-
-  return error ? null : (data as UserContextView);
+  return !user.ok ? null : user.data;
 };
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<UserContextView | null>(null);
+  const [user, setUser] = useState<Tables<'user_view'> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

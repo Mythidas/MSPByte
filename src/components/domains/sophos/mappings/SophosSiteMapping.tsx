@@ -7,9 +7,10 @@ import { Tables } from '@/db/schema';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
 import SourceSyncStatus from '@/components/domains/sources/SourceSyncStatus';
 import SophosDashboardTab from '@/components/domains/sophos/tabs/SophosDashboardTab';
-import { Database, Loader } from 'lucide-react';
+import { Database } from 'lucide-react';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getSourceTenant } from '@/services/source/tenants';
+import Loader from '@/components/common/Loader';
 
 type Props = {
   sourceId: string;

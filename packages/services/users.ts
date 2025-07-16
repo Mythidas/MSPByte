@@ -1,7 +1,7 @@
 'use server';
 
 import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
-import { createAdminClient } from '@/db/server';
+import { createAdminClient, createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { sendEmail } from '@/services/email';
 import { APIResponse } from '@/types';
@@ -16,6 +16,28 @@ export async function getUser(id: string) {
   return tables.selectSingle('users', (query) => {
     query = query.eq('id', id);
   });
+}
+
+export async function getCurrentUserView() {
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      throw error.message;
+    }
+
+    return tables.selectSingle('user_view', (query) => {
+      query = query.eq('id', data.user.id);
+    });
+  } catch (err) {
+    return Debug.error({
+      module: 'supabase',
+      context: `select_current_user`,
+      message: String(err),
+      time: new Date(),
+    });
+  }
 }
 
 export async function updateUser(id: string, row: TablesUpdate<'users'>) {
