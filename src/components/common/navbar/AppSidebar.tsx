@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, Database, LucideProps, ShieldUser } from 'lucide-react';
+import { Building2, Cable, ChartArea, LucideProps, ShieldUser } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -15,6 +15,7 @@ import {
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
+import { useSource } from '@/lib/providers/SourceContext';
 
 type Item = {
   title: string;
@@ -34,11 +35,6 @@ const applicationItems: Item[] = [
     url: '/sites',
     icon: Building2,
   },
-  {
-    title: 'Sources',
-    url: '/sources',
-    icon: Database,
-  },
 ];
 
 const adminItems: Item[] = [
@@ -56,15 +52,18 @@ const adminItems: Item[] = [
 
 export default function AppSidebar() {
   const pathname = usePathname(); // always safe
+  const { source } = useSource();
 
-  const renderItem = (item: Item) => {
+  const renderItem = (item: Item, admin?: boolean) => {
+    const isActive =
+      item.url === '/'
+        ? pathname === '/' || pathname.split('?')[0] === `/${source?.source_id}`
+        : pathname.includes(item.url);
+
     return (
       <SidebarMenuItem key={item.title}>
-        <SidebarMenuButton
-          asChild
-          isActive={item.url === '/' ? pathname === '/' : pathname.includes(item.url)}
-        >
-          <Link href={item.url}>
+        <SidebarMenuButton asChild isActive={isActive}>
+          <Link href={`${source && !admin ? `/${source.source_id}` : ''}${item.url}`}>
             <item.icon />
             <span>{item.title}</span>
           </Link>
@@ -88,7 +87,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Backend</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{adminItems.map((item) => renderItem(item))}</SidebarMenu>
+            <SidebarMenu>{adminItems.map((item) => renderItem(item, true))}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

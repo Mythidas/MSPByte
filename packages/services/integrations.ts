@@ -12,6 +12,12 @@ export async function getSourceIntegrationsView() {
   return tables.select('source_integrations_view');
 }
 
+export async function getSourceIntegrationView(sourceId: string) {
+  return tables.selectSingle('source_integrations_view', (query) => {
+    query = query.eq('source_id', sourceId);
+  });
+}
+
 export async function getSourceIntegration(id?: string, sourceId?: string) {
   if (!id && !sourceId) {
     return Debug.error({

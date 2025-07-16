@@ -1,12 +1,12 @@
 'use client';
 
 import { getSite } from 'packages/services/sites';
-import MicrosoftSiteMapping from '@/components/domains/microsoft/mappings/MicrosoftSiteMapping';
-import SophosSiteMapping from '@/components/domains/sophos/mappings/SophosSiteMapping';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/providers/SourceContext';
 import Loader from '@/components/common/Loader';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import SophosParentMapping from '@/components/domains/sophos/mappings/SophosParentMapping';
+import MicrosoftParentMapping from '@/components/domains/microsoft/mappings/MicrosoftParentMapping';
 
 export default function Page() {
   const params = useParams();
@@ -24,9 +24,9 @@ export default function Page() {
 
       switch (source?.source_id) {
         case 'sophos-partner':
-          return <SophosSiteMapping sourceId={source.source_id} site={site} tab={tab} />;
+          return <SophosParentMapping sourceId={source.source_id} site={site} tab={tab} />;
         case 'microsoft-365':
-          return <MicrosoftSiteMapping sourceId={source.source_id} site={site} tab={tab} />;
+          return <MicrosoftParentMapping sourceId={source.source_id} site={site} tab={tab} />;
         default:
           return <strong>No source mapping created.</strong>;
       }

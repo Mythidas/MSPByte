@@ -9,6 +9,10 @@ import MicrosoftParentDashboardTab from '@/components/domains/microsoft/tabs/Mic
 import MicrosoftIdentitiesTab from '@/components/domains/microsoft/tabs/MicrosoftIdentitiesTab';
 import MicrosoftTenantsTab from '@/components/domains/microsoft/tabs/MicrosoftTenantsTab';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
+import { getSourceTenants } from '@/services/source/tenants';
+import Loader from '@/components/common/Loader';
+import { useAsync } from '@/hooks/common/useAsync';
+import { getSites } from '@/services/sites';
 
 type Props = {
   sourceId: string;
@@ -17,6 +21,27 @@ type Props = {
 };
 
 export default function MicrosoftParentMapping({ sourceId, site, tab }: Props) {
+  const { data, isLoading } = useAsync({
+    initial: [],
+    fetcher: async () => {
+      const sites = await getSites(site.id);
+      if (!sites.ok) throw sites.error.message;
+
+      const tenants = await getSourceTenants(sourceId, [
+        site.id,
+        ...sites.data.rows.map((s) => s.id),
+      ]);
+      if (!tenants.ok) throw tenants.error.message;
+
+      return tenants.data.rows;
+    },
+    deps: [sourceId, site.id],
+  });
+
+  if (isLoading) return <Loader />;
+  if (!data.length)
+    return <strong>Children and Parent do not have a Tenant Mapping for this source.</strong>;
+
   return (
     <>
       <div className="flex items-center justify-between">

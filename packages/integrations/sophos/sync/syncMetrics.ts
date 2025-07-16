@@ -36,7 +36,7 @@ export async function syncMetrics(
       source_id: tenant.source_id,
       source_tenant_id: tenant.id,
       name: 'MDR Managed',
-      metric: (mdrManaged / devices.length) * 100,
+      metric: mdrManaged,
       total: devices.length,
       created_at: new Date().toISOString(),
     };

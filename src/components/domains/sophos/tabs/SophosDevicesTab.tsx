@@ -1,8 +1,7 @@
 import SophosDevicesTable from '@/components/domains/sophos/SophosDevicesTable';
-import ErrorDisplay from '@/components/common/ErrorDisplay';
 import Loader from '@/components/common/Loader';
-import { useAsync } from '@/hooks/common/useAsync';
 import { getSites } from '@/services/sites';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 
 type Props = {
   sourceId: string;
@@ -10,32 +9,26 @@ type Props = {
 };
 
 export default function SophosDevicesTab({ sourceId, parentId }: Props) {
-  const { data, isLoading } = useAsync({
-    initial: { sites: [] },
-    fetcher: async () => {
+  const { content } = useLazyLoad({
+    loader: async () => {
       const sites = await getSites(parentId);
-      if (!sites.ok) throw 'Failed to fetch sites. Please refresh.';
-
-      return {
-        sites: sites.data.rows,
-      };
+      if (sites.ok) {
+        return sites.data.rows;
+      }
     },
-    deps: [parentId],
+    render: (data) => {
+      if (!data) return <strong>Failed to fetch children. Please refresh.</strong>;
+
+      return (
+        <SophosDevicesTable
+          sourceId={sourceId}
+          siteIds={data.map((s) => s.id)}
+          parentLevel={!!parentId}
+        />
+      );
+    },
+    skeleton: () => <Loader />,
   });
 
-  if (isLoading) {
-    return <Loader />;
-  }
-
-  if (!data) {
-    return <ErrorDisplay message="Failed to fetch data. Please refresh." />;
-  }
-
-  return (
-    <SophosDevicesTable
-      sourceId={sourceId}
-      siteIds={data.sites.map((s) => s.id)}
-      parentLevel={!!parentId}
-    />
-  );
+  return content;
 }

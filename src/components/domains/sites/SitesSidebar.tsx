@@ -11,17 +11,9 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { Tables } from '@/db/schema';
+import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
-import {
-  BarChart3,
-  Building2,
-  Puzzle,
-  Settings,
-  LucideProps,
-  Eye,
-  EyeOff,
-  Logs,
-} from 'lucide-react';
+import { BarChart3, Building2, Puzzle, Settings, LucideProps, Logs } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
@@ -35,72 +27,53 @@ type NavItem = {
   siteOnly?: boolean;
 };
 
+const navItems: NavItem[] = [
+  {
+    label: 'Dashboard',
+    icon: BarChart3,
+    href: ``,
+  },
+  {
+    label: 'Sites',
+    icon: Building2,
+    href: `/children`,
+    parentOnly: true,
+  },
+  {
+    label: 'Grouped',
+    icon: Puzzle,
+    href: `/grouped`,
+    parentOnly: true,
+  },
+  {
+    label: 'Activity',
+    icon: Logs,
+    href: `/activity`,
+  },
+  {
+    label: 'Settings',
+    icon: Settings,
+    href: `/settings`,
+  },
+];
+
 type Props = {
   site: Tables<'sites'>;
   children: React.ReactNode;
 };
 
 export default function SitesSidebar({ site, children }: Props) {
-  const navItems: NavItem[] = [
-    {
-      label: 'Dashboard',
-      icon: BarChart3,
-      href: ``,
-    },
-    {
-      label: 'Sites',
-      icon: Building2,
-      href: `/children`,
-      parentOnly: true,
-    },
-    {
-      label: 'Integrations',
-      icon: Puzzle,
-      href: `/integrations`,
-      parentOnly: true,
-      children: [
-        {
-          label: 'Individual',
-          icon: EyeOff,
-          href: '?sub=individual',
-        },
-        {
-          label: 'All Sites',
-          icon: Eye,
-          href: '?sub=aggregated',
-        },
-      ],
-    },
-    {
-      label: 'Integrations',
-      icon: Puzzle,
-      href: `/integrations`,
-      siteOnly: true,
-    },
-    {
-      label: 'Activity',
-      icon: Logs,
-      href: `/activity`,
-    },
-    {
-      label: 'Settings',
-      icon: Settings,
-      href: `/settings`,
-    },
-  ];
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const sub = searchParams.get('sub');
   const segments = pathname.split('/').filter(Boolean);
+  const { source } = useSource();
 
   const isOnSettings = segments.includes('settings');
-  const isIntegrationPage =
-    segments[0] === 'sites' &&
-    segments.length >= 3 &&
-    !['settings', 'children', 'activity'].includes(segments[2]);
-  const isDashboard = segments.length === 2; // /sites/[id]
+  const isGroupedPage = segments.includes('grouped');
   const isOnChildren = segments.includes('children');
   const isOnActivity = segments.includes('activity');
+  const isDashboard = !isOnSettings && !isGroupedPage && !isOnChildren && !isOnActivity;
 
   return (
     <div className="flex size-full">
@@ -112,13 +85,17 @@ export default function SitesSidebar({ site, children }: Props) {
                 if (item.parentOnly && !site.is_parent) return null;
                 if (item.siteOnly && site.is_parent) return null;
 
+                const baseHref =
+                  source && (item.href === '' || item.href === '/grouped')
+                    ? `/${source.source_id}/sites/${site.id}`
+                    : `/sites/${site.id}`;
+
                 const isActive =
                   (item.href === '' && isDashboard) ||
                   (item.href === '/settings' && isOnSettings) ||
-                  (item.href === '/integrations' && isIntegrationPage) ||
+                  (item.href === '/grouped' && isGroupedPage) ||
                   (item.href === '/children' && isOnChildren) ||
                   (item.href === '/activity' && isOnActivity);
-                pathname.includes(item.href);
 
                 const Icon = item.icon;
 
@@ -126,7 +103,7 @@ export default function SitesSidebar({ site, children }: Props) {
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton asChild>
                       <Link
-                        href={`/sites/${site.id}${item.href}`}
+                        href={`${baseHref}${item.href}`}
                         className={cn(isActive && 'bg-primary text-primary-foreground')}
                       >
                         <Icon className="h-4 w-4" />
@@ -134,7 +111,6 @@ export default function SitesSidebar({ site, children }: Props) {
                       </Link>
                     </SidebarMenuButton>
 
-                    {/* Sub-navigation for integrations */}
                     {item.children &&
                       isActive &&
                       site.is_parent &&
@@ -148,7 +124,7 @@ export default function SitesSidebar({ site, children }: Props) {
                             <SidebarMenuSubItem>
                               <SidebarMenuButton asChild>
                                 <Link
-                                  href={child.href}
+                                  href={`${baseHref}${child.href}`}
                                   className={cn(
                                     'text-xs transition-colors',
                                     subIsActive

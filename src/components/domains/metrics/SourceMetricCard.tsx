@@ -25,7 +25,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const valueDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        return `${metric.value.toFixed(0)}%`;
+        const percentage = (metric.value / metric.total) * 100;
+        return `${percentage.toFixed(0)}%`;
       }
       default:
         return metric.value;
@@ -35,7 +36,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const deltaDisplay = () => {
     switch (metric.visual) {
       case 'percentage': {
-        return `${metric.delta.toFixed(0)}%`;
+        const percentage = (metric.delta / metric.total) * 100;
+        return `${percentage.toFixed(0)}%`;
       }
       default:
         return metric.delta;

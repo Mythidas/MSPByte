@@ -90,14 +90,17 @@ function DataTableInner<TData>(
     .map((col) => col.accessorKey)
     .filter(Boolean) as string[];
 
-  const load = async () => {
+  const load = async (overrideSorting?: SortingState) => {
     if (!fetcher || !filtersReady) return;
+    const activeSorting = overrideSorting ?? sorting;
 
     setIsFetching(true);
     const { rows, total } = await fetcher({
       pageIndex,
       pageSize,
-      sorting: Object.fromEntries(sorting.map((sort) => [sort.id, sort.desc ? 'desc' : 'asc'])),
+      sorting: Object.fromEntries(
+        activeSorting.map((sort) => [sort.id, sort.desc ? 'desc' : 'asc'])
+      ),
       filters: Object.fromEntries(
         columnFilters.map((filter) => [filter.id, filter.value as FilterValue])
       ),
@@ -111,7 +114,7 @@ function DataTableInner<TData>(
   };
 
   useEffect(() => {
-    if (fetcher) {
+    if (fetcher && filtersReady) {
       load();
     }
   }, [pageIndex, pageSize, sorting, columnFilters, globalSearch, filtersReady]);
@@ -136,7 +139,14 @@ function DataTableInner<TData>(
     manualFiltering: fetcher !== undefined,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
+    onSortingChange: !fetcher
+      ? setSorting
+      : async (updater) => {
+          const nextSorting = typeof updater === 'function' ? updater(sorting) : updater;
+
+          //load(nextSorting);
+          setSorting(nextSorting);
+        },
     getSortedRowModel: !fetcher ? getSortedRowModel() : undefined,
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: !fetcher ? getFilteredRowModel() : undefined,

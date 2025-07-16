@@ -4,6 +4,7 @@ import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -96,6 +97,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
           <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
             <AlertDialogHeader>
               <AlertDialogTitle>Create Site</AlertDialogTitle>
+              <AlertDialogDescription>Enter a name to create a site</AlertDialogDescription>
             </AlertDialogHeader>
 
             <FormField

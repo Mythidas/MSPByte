@@ -50,8 +50,6 @@ export default function MicrosoftIdentitiesTable({
   };
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    console.log('test');
-
     const identities = await getSourceIdentitiesView(sourceId, siteIds, {
       page: pageIndex,
       size: pageSize,

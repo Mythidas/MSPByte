@@ -5,7 +5,7 @@ type Props = {
   siteId: string;
 };
 
-export default function SophosParentashboardTab({ sourceId, siteId }: Props) {
+export default function SophosParentDashboardTab({ sourceId, siteId }: Props) {
   const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'parent', sourceId, siteId });
 
   return (

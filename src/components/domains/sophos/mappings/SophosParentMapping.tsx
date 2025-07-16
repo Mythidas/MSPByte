@@ -5,9 +5,12 @@ import { Tabs, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/common/routed/RouteTabsTrigger';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
 import { Tables } from '@/db/schema';
-import { Database } from 'lucide-react';
+import { Database, Loader } from 'lucide-react';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
-import SophosParentashboardTab from '@/components/domains/sophos/tabs/SophosParentDashboardTab';
+import SophosParentDashboardTab from '@/components/domains/sophos/tabs/SophosParentDashboardTab';
+import { useAsync } from '@/hooks/common/useAsync';
+import { getSites } from '@/services/sites';
+import { getSourceTenants } from '@/services/source/tenants';
 
 type Props = {
   sourceId: string;
@@ -16,6 +19,27 @@ type Props = {
 };
 
 export default function SophosParentMapping({ sourceId, site, tab }: Props) {
+  const { data, isLoading } = useAsync({
+    initial: [],
+    fetcher: async () => {
+      const sites = await getSites(site.id);
+      if (!sites.ok) throw sites.error.message;
+
+      const tenants = await getSourceTenants(sourceId, [
+        site.id,
+        ...sites.data.rows.map((s) => s.id),
+      ]);
+      if (!tenants.ok) throw tenants.error.message;
+
+      return tenants.data.rows;
+    },
+    deps: [sourceId, site.id],
+  });
+
+  if (isLoading) return <Loader />;
+  if (!data.length)
+    return <strong>Children and Parent do not have a Tenant Mapping for this source.</strong>;
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -44,7 +68,7 @@ export default function SophosParentMapping({ sourceId, site, tab }: Props) {
         </TabsList>
 
         <LazyTabContent value="dashboard">
-          <SophosParentashboardTab sourceId={sourceId} siteId={site.id} />
+          <SophosParentDashboardTab sourceId={sourceId} siteId={site.id} />
         </LazyTabContent>
         <LazyTabContent value="devices">
           <SophosDevicesTab sourceId={sourceId} parentId={site.id} />

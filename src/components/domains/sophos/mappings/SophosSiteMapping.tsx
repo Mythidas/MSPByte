@@ -7,7 +7,9 @@ import { Tables } from '@/db/schema';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
 import SourceSyncStatus from '@/components/domains/sources/SourceSyncStatus';
 import SophosDashboardTab from '@/components/domains/sophos/tabs/SophosDashboardTab';
-import { Database } from 'lucide-react';
+import { Database, Loader } from 'lucide-react';
+import { useAsync } from '@/hooks/common/useAsync';
+import { getSourceTenant } from '@/services/source/tenants';
 
 type Props = {
   sourceId: string;
@@ -16,6 +18,20 @@ type Props = {
 };
 
 export default function SophosSiteMapping({ sourceId, site, tab }: Props) {
+  const { data, isLoading } = useAsync({
+    initial: null,
+    fetcher: async () => {
+      const tenant = await getSourceTenant(sourceId, site.id);
+      if (!tenant.ok) throw tenant.error.message;
+
+      return tenant.data;
+    },
+    deps: [sourceId, site.id],
+  });
+
+  if (isLoading) return <Loader />;
+  if (!data) return <strong>Site does not have a Tenant Mapping for this source.</strong>;
+
   return (
     <>
       <div className="flex items-center justify-between">

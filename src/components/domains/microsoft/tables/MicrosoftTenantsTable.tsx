@@ -20,12 +20,7 @@ type Props = {
   parentLevel?: boolean;
 };
 
-export default function MicrosoftTenantsTable({
-  sourceId,
-  siteIds,
-  siteLevel,
-  parentLevel,
-}: Props) {
+export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: Props) {
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
@@ -33,6 +28,7 @@ export default function MicrosoftTenantsTable({
       page: pageIndex,
       size: pageSize,
       ...props,
+      sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
       filterMap: {
         mfa_enforcement: 'metadata->>mfa_enforcement',
       },

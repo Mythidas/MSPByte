@@ -82,7 +82,6 @@ export function DataTableFilters<TData>({
 
   useEffect(() => {
     if (!isReady || initFilters.current) return;
-
     table.setColumnFilters(initialFilters);
     table.setSorting(initialSorting);
     initFilters.current = true;
@@ -90,7 +89,7 @@ export function DataTableFilters<TData>({
   }, [isReady, initialFilters, initialSorting]);
 
   useEffect(() => {
-    if (!clientSide || !initFilters.current) return;
+    if (clientSide || !initFilters.current) return;
 
     const filtersChanged =
       JSON.stringify(initialFilters) !== JSON.stringify(table.getState().columnFilters);
@@ -124,15 +123,6 @@ export function DataTableFilters<TData>({
     setPendingFilters(pending);
     setActiveFilters(active);
   }, [drawerOpen, table, filters, table.getState().columnFilters]);
-
-  useEffect(() => {
-    const sortingChanged =
-      JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
-
-    if (sortingChanged && !clientSide) {
-      handleFilterApply();
-    }
-  }, [sorting]);
 
   const handleFilterApply = () => {
     setDrawerOpen(false);

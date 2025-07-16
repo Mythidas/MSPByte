@@ -1,6 +1,5 @@
 import Loader from '@/components/common/Loader';
 import { getSites } from '@/services/sites';
-import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import MicrosoftTenantsTable from '@/components/domains/microsoft/tables/MicrosoftTenantsTable';
 
