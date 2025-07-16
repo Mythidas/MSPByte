@@ -18,7 +18,7 @@ export default function RouteTabsTrigger({ value, children, ...props }: Props) {
   };
 
   return (
-    <TabsTrigger onClick={handleClick} value={value} {...props}>
+    <TabsTrigger onClick={handleClick} value={value} {...props} className="hover:cursor-pointer">
       {children}
     </TabsTrigger>
   );

@@ -23,7 +23,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/common/SearchBar';
 import { Button } from '@/components/ui/button';
-import { Download, Grid2X2 } from 'lucide-react';
+import { Download, Grid2X2, RotateCw } from 'lucide-react';
 import { forwardRef, Suspense, useEffect, useImperativeHandle, useState } from 'react';
 import {
   DropdownMenu,
@@ -177,7 +177,7 @@ function DataTableInner<TData>(
   });
 
   const renderBody = () => {
-    if (isLoading || isFetching) {
+    if (data.length === 0 && (isLoading || isFetching)) {
       return (
         <TableRow>
           <TableCell
@@ -387,6 +387,12 @@ function DataTableInner<TData>(
               <DropdownMenuItem onClick={downloadXLSX}>.xlsx</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {!!fetcher && (
+            <Button variant="ghost" onClick={() => load()} disabled={isLoading || isFetching}>
+              <RotateCw className={cn(isLoading || (isFetching && 'animate-spin'))} />
+            </Button>
+          )}
         </div>
         <div>{action}</div>
       </div>

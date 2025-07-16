@@ -4,64 +4,46 @@ import { SidebarTrigger } from '@/components/ui/sidebar';
 import HeaderAuth from '@/components/common/navbar/HeaderAuth';
 import ModeToggle from '@/components/common/navbar/ModeToggle';
 import SearchBox from '@/components/common/SearchBox';
-import { getSites } from '@/services/sites';
 import { usePathname, useRouter } from 'next/navigation';
-import { useAsync } from '@/hooks/common/useAsync';
-import { getSources } from '@/services/sources';
 import { cn } from '@/lib/utils';
-import { getSourceIntegrationView } from '@/services/integrations';
 import { useSource } from '@/lib/providers/SourceContext';
+import { SitesProvider } from '@/lib/providers/SitesContext';
+import { Tables } from '@/db/schema';
 
 type Props = {
+  sites: Tables<'sites'>[];
+  integrations: Tables<'source_integrations_view'>[];
   children: React.ReactNode;
 };
 
-export default function AppNavbar({ children }: Props) {
+export default function AppNavbar({ sites, integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { source, setSource } = useSource();
-
-  const {
-    data: { sites, sources },
-  } = useAsync({
-    initial: { sites: [], sources: [] },
-    fetcher: async () => {
-      const sites = await getSites();
-      if (!sites.ok) throw sites.error.message;
-
-      const sources = await getSources();
-      if (!sources.ok) throw sources.error.message;
-
-      return {
-        sites: sites.data.rows,
-        sources: sources.data.rows,
-      };
-    },
-    deps: [],
-  });
 
   const handleSelect = (value: string) => {
     router.push(`${source && `/${source.source_id}`}/sites/${value}`);
   };
 
   const handleSource = async (value: string) => {
-    const newSource = await getSourceIntegrationView(value);
-    if (!newSource.ok) return;
-    if (newSource.data.id === source?.id) return;
+    const newSource = integrations.find((int) => int.source_id === value);
+    if (!newSource) return;
+    if (value === source?.source_id) return;
 
-    setSource(newSource.data);
+    setSource(newSource);
 
     const segments = pathname.split('?')[0].split('/').filter(Boolean); // remove empty strings
 
-    const knownSlugs = sources.map((s) => s.id);
+    const knownSlugs = integrations.map((s) => s.source_id);
     const currentSlug = segments[0];
 
     if (knownSlugs.includes(currentSlug)) {
-      const newPath = `/${[newSource.data.source_id, ...segments.slice(1)].join('/')}`;
+      const newPath = `/${[newSource.source_id, ...segments.slice(1)].join('/')}`;
       router.replace(newPath);
     }
   };
 
+  console.log(source);
   return (
     <div className="flex flex-col size-full overflow-hidden">
       <header className="flex h-14 z-50 w-full border-b border-border shadow">
@@ -74,24 +56,22 @@ export default function AppNavbar({ children }: Props) {
               onSelect={handleSelect}
               delay={0}
               options={sites.map((s) => {
-                return { label: s.name, value: s.id };
+                return { label: s.name, value: s.slug };
               })}
             />
-            {sources.length > 0 && (
-              <div className="w-80">
-                <SearchBox
-                  placeholder={source?.source_name || 'Select Source'}
-                  defaultValue={source?.id || undefined}
-                  lead={<span>Source</span>}
-                  onSelect={handleSource}
-                  delay={0}
-                  options={sources.map((s) => ({
-                    label: s.name,
-                    value: s.id,
-                  }))}
-                />
-              </div>
-            )}
+            <div className="w-80">
+              <SearchBox
+                placeholder={source?.source_name || 'Select Source'}
+                defaultValue={source?.source_id || undefined}
+                lead={<span>Source</span>}
+                onSelect={handleSource}
+                delay={0}
+                options={integrations.map((s) => ({
+                  label: s.source_name!,
+                  value: s.source_id!,
+                }))}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
@@ -106,7 +86,7 @@ export default function AppNavbar({ children }: Props) {
           pathname.includes('/sites/') && 'p-0!'
         )}
       >
-        {children}
+        <SitesProvider value={sites}>{children}</SitesProvider>
       </div>
     </div>
   );

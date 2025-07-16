@@ -89,7 +89,7 @@ export default function SitesTable({ parentId }: Props) {
             enableHiding: false,
             simpleSearch: true,
             cell: ({ row }) => (
-              <Link href={`/sites/${row.original.id}`} className="hover:text-primary">
+              <Link href={`/sites/${row.original.slug}`} className="hover:text-primary">
                 {row.original.name} {row.original.is_parent && '(Parent)'}
               </Link>
             ),
@@ -100,7 +100,7 @@ export default function SitesTable({ parentId }: Props) {
             enableHiding: false,
             simpleSearch: true,
             cell: ({ row }) => (
-              <Link href={`/sites/${row.original.parent_id}`} className="hover:text-primary">
+              <Link href={`/sites/${row.original.parent_slug}`} className="hover:text-primary">
                 {row.original.parent_name}
               </Link>
             ),

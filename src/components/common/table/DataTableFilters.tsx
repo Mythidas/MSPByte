@@ -129,12 +129,14 @@ export function DataTableFilters<TData>({
     initFilters.current = false;
     const applied: ColumnFiltersState = [];
 
+    console.log(pendingFilters, activeFilters);
     for (const [fullKey, rawValue] of Object.entries(pendingFilters)) {
       if (!activeFilters[fullKey]) continue;
 
       const [groupKey, filterKey] = fullKey.split('.');
       const filterMeta = filters[groupKey]?.[filterKey];
 
+      console.log(filterMeta);
       if (!filterMeta) continue;
 
       let value = rawValue;
@@ -287,6 +289,15 @@ export function DataTableFilters<TData>({
       }
     };
 
+    const getDefaultValue = (type: FilterType) => {
+      switch (type) {
+        case 'boolean':
+          return false;
+        default:
+          return undefined;
+      }
+    };
+
     return (
       <div key={fullKey} className="space-y-3 p-3 border rounded-lg bg-card">
         <div className="flex items-center justify-between">
@@ -300,6 +311,11 @@ export function DataTableFilters<TData>({
                   setPendingFilters((prev) => ({
                     ...prev,
                     [fullKey]: { op: 'eq', value: undefined },
+                  }));
+                } else {
+                  setPendingFilters((prev) => ({
+                    ...prev,
+                    [fullKey]: { op: 'eq', value: getDefaultValue(filterConfig.type) },
                   }));
                 }
               }}
