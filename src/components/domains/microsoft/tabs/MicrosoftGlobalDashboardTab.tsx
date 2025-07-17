@@ -178,6 +178,7 @@ export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
         </div>
       );
     },
+    deps: [],
   });
 
   const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'global', sourceId });

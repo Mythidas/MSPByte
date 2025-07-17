@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { Check, ChevronDown, X } from 'lucide-react';
 import { useState } from 'react';
@@ -62,11 +61,6 @@ export default function MultiSelect({
     const newSelected = selected.filter((item) => item !== value);
     setSelected(newSelected);
     onChange?.(newSelected);
-  };
-
-  const handleClear = () => {
-    setSelected([]);
-    onChange?.([]);
   };
 
   const selectedOptions = options.filter((option) => selected.includes(option.value));
@@ -174,24 +168,6 @@ export default function MultiSelect({
                   })}
                 </ScrollArea>
               </CommandGroup>
-
-              {selected.length > 0 && (
-                <>
-                  <Separator />
-                  <CommandGroup>
-                    <div className="p-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={handleClear}
-                        className="w-full text-xs"
-                      >
-                        Clear All ({selected.length})
-                      </Button>
-                    </div>
-                  </CommandGroup>
-                </>
-              )}
             </CommandList>
           </Command>
         </PopoverContent>
