@@ -152,8 +152,8 @@ export default function MultiSelect({
                     const isSelected = selected.includes(option.value);
                     return (
                       <CommandItem
-                        key={option.value}
-                        value={option.value}
+                        key={option.label}
+                        value={option.label}
                         onSelect={() => handleSelect(option.value)}
                         className="cursor-pointer"
                         disabled={loading}

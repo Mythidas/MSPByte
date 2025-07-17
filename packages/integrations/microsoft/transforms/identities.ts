@@ -59,6 +59,8 @@ export async function transformIdentities(
         mfa_methods: transformedMethods,
         last_activity: user.signInActivity?.lastSignInDateTime ?? null,
         license_skus: licenseSkus,
+        role_ids: userContext.data.roles.map((role) => role.displayName),
+        group_ids: userContext.data.groups.map((group) => group.displayName),
         metadata: {
           ...(user as any),
           roles: userContext.data.roles,

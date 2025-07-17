@@ -237,6 +237,7 @@ export type Database = {
           enabled: boolean
           enforcement_type: string
           external_id: string
+          group_ids: string[]
           id: string
           last_activity: string | null
           license_skus: string[]
@@ -244,6 +245,7 @@ export type Database = {
           mfa_enforced: boolean
           mfa_methods: Json | null
           name: string
+          role_ids: string[]
           site_id: string
           source_id: string
           source_tenant_id: string | null
@@ -257,6 +259,7 @@ export type Database = {
           enabled: boolean
           enforcement_type: string
           external_id: string
+          group_ids?: string[]
           id?: string
           last_activity?: string | null
           license_skus: string[]
@@ -264,6 +267,7 @@ export type Database = {
           mfa_enforced: boolean
           mfa_methods?: Json | null
           name: string
+          role_ids?: string[]
           site_id: string
           source_id: string
           source_tenant_id?: string | null
@@ -277,6 +281,7 @@ export type Database = {
           enabled?: boolean
           enforcement_type?: string
           external_id?: string
+          group_ids?: string[]
           id?: string
           last_activity?: string | null
           license_skus?: string[]
@@ -284,6 +289,7 @@ export type Database = {
           mfa_enforced?: boolean
           mfa_methods?: Json | null
           name?: string
+          role_ids?: string[]
           site_id?: string
           source_id?: string
           source_tenant_id?: string | null
@@ -1014,6 +1020,7 @@ export type Database = {
           enabled: boolean | null
           enforcement_type: string | null
           external_id: string | null
+          group_ids: string[] | null
           id: string | null
           last_activity: string | null
           license_skus: string[] | null
@@ -1024,6 +1031,7 @@ export type Database = {
           name: string | null
           parent_id: string | null
           parent_name: string | null
+          role_ids: string[] | null
           site_id: string | null
           site_name: string | null
           source_id: string | null

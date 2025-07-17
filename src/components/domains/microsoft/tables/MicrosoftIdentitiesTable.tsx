@@ -14,7 +14,10 @@ import Link from 'next/link';
 import { getSourceLicenses } from '@/services/licenses';
 import { pascalCase } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/domains/microsoft/drawers/MicrosoftIdentityDrawer';
-import { getSourceIdentitiesView } from '@/services/identities';
+import {
+  getSourceIdentitiesUniqueRolesAndGroups,
+  getSourceIdentitiesView,
+} from '@/services/identities';
 import { useAsync } from '@/hooks/common/useAsync';
 
 type TData = Tables<'source_identities_view'>;
@@ -31,16 +34,42 @@ export default function MicrosoftIdentitiesTable({
   siteLevel,
   parentLevel,
 }: Props) {
-  const { data: licenses } = useAsync({
-    initial: [],
+  const {
+    data: { licenses },
+  } = useAsync({
+    initial: { licenses: [], roles: [], groups: [] },
     fetcher: async () => {
       const licenses = await getSourceLicenses(sourceId);
       if (!licenses.ok) throw licenses.error.message;
 
-      return licenses.data.rows;
+      const rolesAndGroups = await getSourceIdentitiesUniqueRolesAndGroups(sourceId, siteIds);
+      if (!rolesAndGroups.ok) throw rolesAndGroups.error.message;
+
+      return {
+        licenses: licenses.data.rows,
+        roles: rolesAndGroups.data.roles,
+        groups: rolesAndGroups.data.groups,
+      };
     },
     deps: [],
   });
+
+  const {
+    data: { roles, groups },
+  } = useAsync({
+    initial: { roles: [], groups: [] },
+    fetcher: async () => {
+      const rolesAndGroups = await getSourceIdentitiesUniqueRolesAndGroups(sourceId, siteIds);
+      if (!rolesAndGroups.ok) throw rolesAndGroups.error.message;
+
+      return {
+        roles: rolesAndGroups.data.roles,
+        groups: rolesAndGroups.data.groups,
+      };
+    },
+    deps: [],
+  });
+
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const identities = await getSourceIdentitiesView(sourceId, siteIds, {
       page: pageIndex,
@@ -168,6 +197,14 @@ export default function MicrosoftIdentitiesTable({
             key: 'license_skus',
             label: 'Licenses',
           }),
+          listColumn({
+            key: 'role_ids',
+            label: 'Roles',
+          }),
+          listColumn({
+            key: 'group_ids',
+            label: 'Groups',
+          }),
           dateColumn({
             key: 'last_activity',
             label: 'Last Activity',
@@ -229,10 +266,28 @@ export default function MicrosoftIdentitiesTable({
           license_skus: {
             label: 'Licenses',
             type: 'multiselect',
-            placeholder: 'Select Licenses',
+            placeholder: 'Select licenses',
             operations: ['in'],
             options: licenses.map((lic) => {
               return { label: lic.name, value: lic.sku };
+            }),
+          },
+          role_ids: {
+            label: 'Roles',
+            type: 'multiselect',
+            placeholder: 'Select roles',
+            operations: ['in'],
+            options: roles.map((role) => {
+              return { label: role, value: role };
+            }),
+          },
+          group_ids: {
+            label: 'Groups',
+            type: 'multiselect',
+            placeholder: 'Select groups',
+            operations: ['in'],
+            options: groups.map((group) => {
+              return { label: group, value: group };
             }),
           },
         },
