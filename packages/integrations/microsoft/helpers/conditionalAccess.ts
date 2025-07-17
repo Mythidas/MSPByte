@@ -64,13 +64,19 @@ export function isUserCapableOfCA(
   assignedLicenses: string[],
   subscribedSkus: MSGraphSubscribedSku[]
 ): boolean {
-  const CONDITIONAL_ACCESS_SERVICE_PLANS = ['AAD_PREMIUM', 'AAD_PREMIUM_P2'];
+  const CONDITIONAL_ACCESS_SERVICE_PLANS = [
+    'AAD_PREMIUM',
+    'AAD_PREMIUM_P1',
+    'AAD_PREMIUM_P2',
+    'ENTRA_ID_PREMIUM_P1',
+    'ENTRA_ID_PREMIUM_P2',
+  ];
 
   return assignedLicenses.some((skuId) => {
     const matchingSku = subscribedSkus.find((sku) => sku.skuPartNumber === skuId);
     if (!matchingSku) return false;
 
-    return matchingSku.servicePlans.some((plan) =>
+    return matchingSku.servicePlans?.some((plan) =>
       CONDITIONAL_ACCESS_SERVICE_PLANS.includes(plan.servicePlanName)
     );
   });

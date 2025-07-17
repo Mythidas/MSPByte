@@ -142,11 +142,11 @@ export default function MultiSelect({
               <CommandEmpty>{loading ? 'Loading...' : 'No options found.'}</CommandEmpty>
               <CommandGroup>
                 <ScrollArea className="h-72">
-                  {options.map((option) => {
+                  {options.map((option, index) => {
                     const isSelected = selected.includes(option.value);
                     return (
                       <CommandItem
-                        key={option.label}
+                        key={index}
                         value={option.label}
                         onSelect={() => handleSelect(option.value)}
                         className="cursor-pointer"

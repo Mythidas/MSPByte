@@ -37,18 +37,13 @@ export default function MicrosoftIdentitiesTable({
   const {
     data: { licenses },
   } = useAsync({
-    initial: { licenses: [], roles: [], groups: [] },
+    initial: { licenses: [] },
     fetcher: async () => {
-      const licenses = await getSourceLicenses(sourceId);
+      const licenses = await getSourceLicenses(sourceId, undefined, siteIds);
       if (!licenses.ok) throw licenses.error.message;
-
-      const rolesAndGroups = await getSourceIdentitiesUniqueRolesAndGroups(sourceId, siteIds);
-      if (!rolesAndGroups.ok) throw rolesAndGroups.error.message;
 
       return {
         licenses: licenses.data.rows,
-        roles: rolesAndGroups.data.roles,
-        groups: rolesAndGroups.data.groups,
       };
     },
     deps: [],
