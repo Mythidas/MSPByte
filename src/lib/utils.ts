@@ -38,6 +38,17 @@ export class Debug {
       error,
     } as { ok: false; error: APIError };
   }
+
+  static info(error: APIError) {
+    // write to db later
+    console.info(
+      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+    );
+    return {
+      ok: false,
+      error,
+    } as { ok: false; error: APIError };
+  }
 }
 
 export class Timer {

@@ -35,6 +35,12 @@ export async function GET() {
         });
       }
 
+      Debug.info({
+        module: '/api/v1/sync-jobs',
+        context: 'GET',
+        message: `Starting ${jobs.length} sync jobs`,
+        time: new Date(),
+      });
       for (const job of jobs) {
         await syncJob(job, supabase); // supabase context flows implicitly
       }

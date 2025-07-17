@@ -222,6 +222,10 @@ export default function MicrosoftIdentitiesTable({
               { label: 'Guest', value: 'guest' },
             ],
           },
+          enabled: {
+            label: 'Status',
+            type: 'boolean',
+          },
           license_skus: {
             label: 'Licenses',
             type: 'multiselect',

@@ -6,6 +6,7 @@ import { getSourceTenant } from '@/services/source/tenants';
 import { Skeleton } from '@/components/ui/skeleton';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
+import { Tables } from '@/db/schema';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -42,13 +43,13 @@ const getMfaConfig = (enforcement: string) => {
 
 type Props = {
   sourceId: string;
-  siteId: string;
+  site: Tables<'sites'>;
 };
 
-export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
+export default function MicrosoftDashboardTab({ sourceId, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const tenant = await getSourceTenant(sourceId, siteId);
+      const tenant = await getSourceTenant(sourceId, site.id);
       if (tenant.ok) {
         return {
           ...tenant.data,
@@ -156,8 +157,8 @@ export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
   const { content: MetricsGrid } = useSourceMetricGrid({
     scope: 'site',
     sourceId,
-    siteId,
-    route: `/sites/${siteId}/${sourceId}`,
+    siteId: site.id,
+    route: `/${sourceId}/sites/${site.slug}`,
   });
 
   return (

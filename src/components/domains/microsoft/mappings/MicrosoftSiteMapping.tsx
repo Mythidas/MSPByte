@@ -58,7 +58,7 @@ export default function MicrosoftSiteMapping({ sourceId, site, tab }: Props) {
         </TabsList>
 
         <LazyTabContent value="dashboard">
-          <MicrosoftDashboardTab sourceId={sourceId} siteId={site!.id} />
+          <MicrosoftDashboardTab sourceId={sourceId} site={site!} />
         </LazyTabContent>
         <LazyTabContent value="tenants" className="space-y-6">
           <MicrosoftTenantsTab sourceId={sourceId} siteId={site.id} />
