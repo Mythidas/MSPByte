@@ -5,7 +5,7 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant } from '@/services/source/tenants';
 import { Skeleton } from '@/components/ui/skeleton';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -47,7 +47,7 @@ type Props = {
 
 export default function MicrosoftDashboardTab({ sourceId, siteId }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const tenant = await getSourceTenant(sourceId, siteId);
       if (tenant.ok) {
         return {

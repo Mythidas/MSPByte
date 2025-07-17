@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getSites } from '@/services/sites';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 import { LazyTabContent } from '@/components/common/LazyTabsContent';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -56,7 +56,7 @@ type Props = {
 
 export default function MicrosoftParentDashboardTab({ sourceId, siteId }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const sites = await getSites(siteId);
       if (!sites.ok) return undefined;
 

@@ -15,7 +15,7 @@ export default function Page() {
   const tab = searchParams.get('tab') || undefined;
 
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const site = await getSite(params['id'] as string);
       if (site.ok) return site.data;
     },

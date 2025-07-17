@@ -14,8 +14,8 @@ import Link from 'next/link';
 import { getSourceLicenses } from '@/services/licenses';
 import { pascalCase } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/domains/microsoft/drawers/MicrosoftIdentityDrawer';
-import { useState } from 'react';
 import { getSourceIdentitiesView } from '@/services/identities';
+import { useAsync } from '@/hooks/common/useAsync';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -31,7 +31,32 @@ export default function MicrosoftIdentitiesTable({
   siteLevel,
   parentLevel,
 }: Props) {
-  const [licenses, setLicenses] = useState<Tables<'source_license_info'>[]>([]);
+  const { data: licenses } = useAsync({
+    initial: [],
+    fetcher: async () => {
+      const licenses = await getSourceLicenses(sourceId);
+      if (!licenses.ok) throw licenses.error.message;
+
+      return licenses.data.rows;
+    },
+    deps: [],
+  });
+  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    const identities = await getSourceIdentitiesView(sourceId, siteIds, {
+      page: pageIndex,
+      size: pageSize,
+      filterMap: {
+        ca_capable: 'metadata->>valid_mfa_license',
+      },
+      ...props,
+    });
+
+    if (!identities.ok) {
+      return { rows: [], total: 0 };
+    }
+
+    return identities.data;
+  };
 
   const initialVisibility = {
     parent_name: !siteLevel && !parentLevel,
@@ -47,29 +72,6 @@ export default function MicrosoftIdentitiesTable({
       default:
         return 'None';
     }
-  };
-
-  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const identities = await getSourceIdentitiesView(sourceId, siteIds, {
-      page: pageIndex,
-      size: pageSize,
-      filterMap: {
-        ca_capable: 'metadata->>valid_mfa_license',
-      },
-      ...props,
-    });
-
-    if (!identities.ok) {
-      return { rows: [], total: 0 };
-    }
-
-    const allSkus = [...new Set(identities.data.rows.flatMap((i) => i.license_skus!))];
-    const licensesRes = await getSourceLicenses(sourceId, allSkus);
-    if (licensesRes.ok) {
-      setLicenses(licensesRes.data.rows);
-    }
-
-    return identities.data;
   };
 
   return (

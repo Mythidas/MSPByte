@@ -13,7 +13,7 @@ type Props<T> = {
   sourceId: string;
   siteId?: string;
   route?: string;
-} & Omit<LazyLoadOptions<T>, 'skeleton' | 'loader' | 'render'>;
+} & Omit<LazyLoadOptions<T>, 'skeleton' | 'fetcher' | 'render'>;
 
 export default function useSourceMetricGrid<T>({
   scope,
@@ -23,7 +23,7 @@ export default function useSourceMetricGrid<T>({
   ...props
 }: Props<T>) {
   return useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       switch (scope) {
         case 'site': {
           const metrics = await getSourceMetricsRollupSite(sourceId, siteId!);

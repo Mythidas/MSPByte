@@ -26,10 +26,10 @@ import {
 import Display from '@/components/common/Display';
 import { differenceInHours, parseISO } from 'date-fns';
 import Link from 'next/link';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 import { useDelete } from '@/hooks/common/useDelete';
 import { SubmitButton } from '@/components/common/SubmitButton';
 import SyncSourceItem from '@/components/domains/sources/SyncSourceItem';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 type Props = {
   label: string;

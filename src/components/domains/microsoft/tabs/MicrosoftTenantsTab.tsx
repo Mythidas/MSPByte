@@ -11,7 +11,7 @@ type Props = {
 
 export default function MicrosoftTenantsTab({ sourceId, parentId, siteId }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       if (siteId) {
         return [siteId];
       }

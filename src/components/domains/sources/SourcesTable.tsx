@@ -19,7 +19,7 @@ type Props = {
 export default function SourcesTable({ siteIds, route, sub = 'individual' }: Props) {
   const [search, setSearch] = useState('');
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const integrations = await getSourceIntegrationsView();
       if (!integrations.ok) {
         return {
@@ -43,6 +43,8 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
       };
     },
     render: (data) => {
+      if (!data) return <strong>Failed to fetch data. Please refresh.</strong>;
+
       return (
         <div className="grid grid-cols-4 gap-4">
           {data.integrations

@@ -7,7 +7,7 @@ import { APIResponse } from '@/types';
 import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getUsers(
-  mapping: Tables<'source_tenants'>,
+  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
   licenses: MSGraphSubscribedSku[]
 ): Promise<APIResponse<MSGraphUser[]>> {
   try {
@@ -20,24 +20,31 @@ export async function getUsers(
     if (!client.ok) throw new Error(client.error.message);
 
     const fields = getSupportedUserFields(licenses);
+    const domains = (mapping.metadata as { domains: string[] }).domains.map((domain) =>
+      domain.trim()
+    );
+    const filter = domains.map((domain) => `endswith(userPrincipalName,'@${domain}')`).join(' or ');
 
     let query = client.data
       .api('/users')
       .select(fields.join(','))
       .header('ConsistencyLevel', 'eventual')
-      .orderby('userPrincipalName');
-    const domains = (mapping.metadata as { domains: string[] }).domains.map((domain) =>
-      domain.trim()
-    );
+      .orderby('userPrincipalName')
+      .filter(filter);
 
-    const filter = domains.map((domain) => `endswith(userPrincipalName,'@${domain}')`).join(' or ');
-    query = query.filter(filter);
+    let allUsers: MSGraphUser[] = [];
+    let response = await query.get();
 
-    const users = await query.get();
+    allUsers = allUsers.concat(response.value);
+
+    while (response['@odata.nextLink']) {
+      response = await client.data.api(response['@odata.nextLink']).get();
+      allUsers = allUsers.concat(response.value);
+    }
 
     return {
       ok: true,
-      data: users.value,
+      data: allUsers,
     };
   } catch (err) {
     return Debug.error({
@@ -51,7 +58,7 @@ export async function getUsers(
 
 export async function getUserContext(
   user: MSGraphUser,
-  mapping: Tables<'source_tenants'>
+  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<MSGraphUserContext>> {
   try {
     const metadata = mapping.metadata as any;
@@ -86,9 +93,13 @@ export async function getUserContext(
   }
 }
 
+type UserMembership = {
+  id: string;
+  displayName: string;
+};
 type UserMemberships = {
-  groups: string[];
-  roles: string[];
+  groups: UserMembership[];
+  roles: UserMembership[];
 };
 
 async function getUserMemberships(
@@ -96,8 +107,8 @@ async function getUserMemberships(
   id: string
 ): Promise<APIResponse<UserMemberships>> {
   try {
-    const groups: string[] = [];
-    const roles: string[] = [];
+    const groups: UserMembership[] = [];
+    const roles: UserMembership[] = [];
 
     let response = await client.api(`/users/${id}/transitiveMemberOf`).get();
 
@@ -105,9 +116,9 @@ async function getUserMemberships(
       for (const item of response.value || []) {
         const type = item['@odata.type'];
         if (type === '#microsoft.graph.group') {
-          groups.push(item.id);
+          groups.push({ id: item.id, displayName: item.displayName });
         } else if (type === '#microsoft.graph.directoryRole') {
-          roles.push(item.id);
+          roles.push({ id: item.id, displayName: item.displayName });
         }
       }
 

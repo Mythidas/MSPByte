@@ -11,7 +11,7 @@ type Props = {
 
 export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const sites = await getSites(parent?.id || undefined);
       if (!sites.ok) return;
 

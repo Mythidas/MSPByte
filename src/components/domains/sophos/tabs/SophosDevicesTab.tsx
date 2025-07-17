@@ -10,7 +10,7 @@ type Props = {
 
 export default function SophosDevicesTab({ sourceId, parentId }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const sites = await getSites(parentId);
       if (sites.ok) {
         return sites.data.rows;

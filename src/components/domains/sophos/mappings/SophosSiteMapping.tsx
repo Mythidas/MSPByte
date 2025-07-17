@@ -56,7 +56,7 @@ export default function SophosSiteMapping({ sourceId, site, tab }: Props) {
         </TabsList>
 
         <LazyTabContent value="dashboard">
-          <SophosDashboardTab sourceId={sourceId} siteId={site.id} />
+          <SophosDashboardTab sourceId={sourceId} site={site} />
         </LazyTabContent>
         <LazyTabContent value="devices">
           <SophosDevicesTable sourceId={sourceId} siteIds={[site.id]} siteLevel />

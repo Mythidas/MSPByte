@@ -22,8 +22,8 @@ export function doesPolicyApplyToUser(
 
   // Check exclusions first
   if (excludeUsers.includes(user.id)) return false;
-  if (user.groups?.some((id) => excludeGroups.includes(id))) return false;
-  if (user.roles?.some((id) => excludeRoles.includes(id))) return false;
+  if (user.groups?.some((group) => excludeGroups.includes(group.id))) return false;
+  if (user.roles?.some((role) => excludeRoles.includes(role.id))) return false;
 
   // If includes are empty, policy might be global (apply to all users)
   const hasIncludes =
@@ -34,8 +34,8 @@ export function doesPolicyApplyToUser(
   return (
     includeUsers.includes('All') ||
     includeUsers.includes(user.id) ||
-    user.groups?.some((id) => includeGroups.includes(id)) ||
-    user.roles?.some((id) => includeRoles.includes(id))
+    user.groups?.some((group) => includeGroups.includes(group.id)) ||
+    user.roles?.some((role) => includeRoles.includes(role.id))
   );
 }
 

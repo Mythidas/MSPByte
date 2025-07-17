@@ -44,7 +44,7 @@ const getStatusConfig = (status: string) => {
       return {
         variant: 'destructive',
         icon: AlertCircle,
-        label: 'Unknown',
+        label: 'Never',
         color: 'text-gray-600',
       };
   }
@@ -60,22 +60,27 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
   const [isSyncing, setIsSyncing] = useState(false);
 
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const syncJob = await getSourceSyncJobLatest(sourceId, siteId);
       if (syncJob.ok) {
         if (syncJob.data.status === 'completed' && isSyncing) {
           setIsSyncing(false);
           window.location.reload();
         }
+
+        return syncJob.data;
       }
-      return syncJob.ok ? syncJob.data : null;
+
+      return undefined;
     },
     render: (data) => {
-      if (!data) return <strong>No Sync</strong>;
-
-      const status = data.status === 'completed' && isSyncing ? 'pending' : data.status;
+      const status = !data
+        ? 'never'
+        : data.status === 'completed' && isSyncing
+          ? 'pending'
+          : data.status;
       const config = getStatusConfig(status);
-      const isRunning = data.status === 'running' || data.status === 'pending';
+      const isRunning = status === 'running' || status === 'pending';
 
       return (
         <Tooltip>
@@ -112,9 +117,11 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
           <TooltipContent>
             <p className="font-medium">
               Last sync:{' '}
-              {new Date(
-                data.completed_at || data.started_at || data.created_at || ''
-              ).toLocaleString()}
+              {!data
+                ? 'Never'
+                : new Date(
+                    data.completed_at || data.started_at || data.created_at || ''
+                  ).toLocaleString()}
             </p>
           </TooltipContent>
         </Tooltip>

@@ -23,7 +23,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
   const slug = useSelectedLayoutSegment();
 
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       let source: Tables<'sources'> | undefined;
       let parent: Tables<'sites'> | undefined;
 
@@ -48,6 +48,14 @@ export default function SiteBreadcrumbs({ site }: Props) {
       };
     },
     render: (data) => {
+      if (!data) {
+        return (
+          <BreadcrumbLink key="sites" href="/sites">
+            Sites
+          </BreadcrumbLink>
+        );
+      }
+
       const crumbs: React.ReactNode[] = [];
       crumbs.push(
         <BreadcrumbLink key="sites" href="/sites">

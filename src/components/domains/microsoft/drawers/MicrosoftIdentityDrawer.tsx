@@ -14,7 +14,7 @@ import { pascalCase, prettyText } from '@/lib/utils';
 import { useState } from 'react';
 import { User, Mail, Key, AlertCircle, FileCheck2, CircleCheck, CircleX } from 'lucide-react';
 import Display from '@/components/common/Display';
-import { MicrosoftIdentityMetadata } from '@/integrations/microsoft/types';
+import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 
 type Props = {
   label: string;
@@ -79,13 +79,12 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">Aliases</Label>
               {metadata?.proxyAddresses.map((address) => {
-                if (address.includes('SMTP:')) return;
+                const segments = address.split('smtp:');
+                if (address.includes('SMTP:') || !segments[1]) return;
 
                 return (
                   <Display key={address}>
-                    <span className="select-text text-sm font-medium">
-                      {address.split('smtp:')[1]}
-                    </span>
+                    <span className="select-text text-sm font-medium">{segments[1]}</span>
                   </Display>
                 );
               })}
@@ -185,7 +184,7 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
                     <div className="flex flex-wrap gap-1">
                       {metadata.roles.map((role, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
-                          {role}
+                          {role.displayName || (role as unknown as string)}
                         </Badge>
                       ))}
                     </div>
@@ -200,7 +199,7 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
                     <div className="flex flex-wrap gap-1">
                       {metadata.groups.map((group, index) => (
                         <Badge key={index} variant="outline" className="text-xs">
-                          {group}
+                          {group.displayName || (group as unknown as string)}
                         </Badge>
                       ))}
                     </div>

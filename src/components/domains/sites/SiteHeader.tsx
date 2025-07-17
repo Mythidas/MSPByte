@@ -13,7 +13,7 @@ type Props = {
 
 export default function SiteHeader({ site }: Props) {
   const { content: ChildBadge } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       if (!site.is_parent) return undefined;
       const children = await getSitesCount(site.id);
       if (children.ok) {

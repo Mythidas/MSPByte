@@ -1,12 +1,18 @@
+import { Tables } from '@/db/schema';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 type Props = {
   sourceId: string;
-  siteId: string;
+  site: Tables<'sites'>;
 };
 
-export default function SophosDashboardTab({ sourceId, siteId }: Props) {
-  const { content: MetricsGrid } = useSourceMetricGrid({ scope: 'site', sourceId, siteId });
+export default function SophosDashboardTab({ sourceId, site }: Props) {
+  const { content: MetricsGrid } = useSourceMetricGrid({
+    scope: 'site',
+    sourceId,
+    siteId: site.id,
+    route: `/${sourceId}/sites/${site.slug}`,
+  });
 
   return (
     <>

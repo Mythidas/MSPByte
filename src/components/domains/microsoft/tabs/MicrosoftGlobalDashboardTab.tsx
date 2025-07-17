@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getSites } from '@/services/sites';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -55,7 +55,7 @@ type Props = {
 
 export default function MicrosoftGlobalDashboardTab({ sourceId }: Props) {
   const { content } = useLazyLoad({
-    loader: async () => {
+    fetcher: async () => {
       const sites = await getSites();
       if (!sites.ok) return undefined;
 

@@ -8,9 +8,9 @@ import Link from 'next/link';
 import { prettyText } from '@/lib/utils';
 import { getSourceTenantsView } from '@/services/source/tenants';
 import MicrosoftTenantDrawer from '@/components/domains/microsoft/drawers/MicrosoftTenantDrawer';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 import Microsoft365MappingsDialog from '@/components/domains/microsoft/Microsoft365MappingsDialog';
 import { useRef } from 'react';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 type TData = Tables<'source_tenants_view'>;
 type Props = {

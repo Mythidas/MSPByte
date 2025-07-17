@@ -38,11 +38,6 @@ export async function syncIdentities(
       throw new Error('Failed to insert source identities');
     }
 
-    console.log(graphUsers.length, 'graph');
-    console.log(existingIdentities.data.rows.length, 'existing');
-    console.log(toInsert.length, 'insert');
-    console.log(toUpdate.length, 'update');
-    console.log(toDelete.length, 'delete');
     const deleted = await deleteSourceIdentities(toDelete);
     if (!deleted.ok) {
       Debug.warn({

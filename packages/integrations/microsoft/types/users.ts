@@ -91,6 +91,6 @@ export type MSGraphUser = {
 
 export type MSGraphUserContext = {
   id: string;
-  groups: string[];
-  roles: string[];
+  groups: { id: string; displayName: string }[];
+  roles: { id: string; displayName: string }[];
 };

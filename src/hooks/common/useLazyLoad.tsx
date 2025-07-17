@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 
 export type LazyLoadOptions<T> = {
-  loader: () => Promise<T> | T;
-  render: (data: T) => React.ReactNode;
+  fetcher: () => Promise<T> | T;
+  render: (data: T | null | undefined) => React.ReactNode;
   skeleton: () => React.ReactNode;
   error?: () => React.ReactNode;
   deps?: unknown[];
@@ -12,7 +12,7 @@ export type LazyLoadOptions<T> = {
 };
 
 export function useLazyLoad<T>({
-  loader,
+  fetcher,
   render,
   skeleton,
   error,
@@ -25,19 +25,22 @@ export function useLazyLoad<T>({
   const [isError, setIsError] = useState<unknown>(null);
   const triggered = useRef(lazy);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoaded = useRef(false);
 
   const load = useCallback(async () => {
     if (!enabled) return;
     setIsError(null);
 
     try {
-      const result = await loader();
+      const result = await fetcher();
       setData(result);
     } catch (err) {
       console.error('Lazy load failed:', err);
       setIsError(err);
+    } finally {
+      isLoaded.current = true;
     }
-  }, [enabled, loader]);
+  }, [enabled, fetcher]);
 
   // Auto-trigger on mount if lazy = false
   useEffect(() => {
@@ -75,6 +78,6 @@ export function useLazyLoad<T>({
 
   if (isError)
     return { content: error ? error() : <div>Error loading data.</div>, trigger } as const;
-  if (data) return { content: render(data), trigger } as const;
+  if (data || isLoaded.current) return { content: render(data), trigger } as const;
   return { content: skeleton(), trigger } as const;
 }
