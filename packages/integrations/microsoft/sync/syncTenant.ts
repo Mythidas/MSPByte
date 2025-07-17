@@ -15,7 +15,7 @@ import { updateSourceTenant } from '@/services/source/tenants';
 import { APIResponse } from '@/types';
 
 export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIResponse<null>> {
-  const timer = new Timer('MicrosoftSyncMapping', false);
+  const timer = new Timer('MicrosoftSyncMapping', true);
   try {
     timer.begin('fetchExternal');
     const subscribedSkus = await getSubscribedSku(tenant);
