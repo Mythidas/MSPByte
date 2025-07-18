@@ -59,11 +59,12 @@ export default function AppSidebar() {
       item.url === '/'
         ? pathname === '/' || pathname.split('?')[0] === `/${source?.source_id}`
         : pathname.includes(item.url);
+    const baseRoute = source && !admin && item.url !== '/sites' ? `/${source.source_id}` : '';
 
     return (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton asChild isActive={isActive}>
-          <Link href={`${source && !admin ? `/${source.source_id}` : ''}${item.url}`}>
+          <Link href={`${baseRoute}${item.url}`}>
             <item.icon />
             <span>{item.title}</span>
           </Link>

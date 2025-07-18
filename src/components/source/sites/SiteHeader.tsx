@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSitesCount } from '@/services/sites';
+import { useSites } from '@/lib/providers/SitesContext';
 import { Building2, Globe, Users } from 'lucide-react';
 
 type Props = {
@@ -12,13 +12,13 @@ type Props = {
 };
 
 export default function SiteHeader({ site }: Props) {
+  const sites = useSites();
+
   const { content: ChildBadge } = useLazyLoad({
     fetcher: async () => {
-      if (!site.is_parent) return undefined;
-      const children = await getSitesCount(site.id);
-      if (children.ok) {
-        return children.data;
-      }
+      if (!site.is_parent) return 0;
+
+      return sites.filter((s) => s.parent_id === site.id).length;
     },
     render: (data) => {
       if (!site.is_parent) return null;
@@ -26,7 +26,7 @@ export default function SiteHeader({ site }: Props) {
       return (
         <Badge variant="outline">
           <Users className="h-3 w-3 mr-1" />
-          {data || 0} Child Sites
+          {data} Child Sites
         </Badge>
       );
     },

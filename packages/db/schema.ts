@@ -495,6 +495,7 @@ export type Database = {
       source_metrics: {
         Row: {
           created_at: string | null
+          delta: number | null
           id: string
           metric: number
           name: string
@@ -506,6 +507,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          delta?: number | null
           id?: string
           metric: number
           name: string
@@ -517,6 +519,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          delta?: number | null
           id?: string
           metric?: number
           name?: string
@@ -682,6 +685,41 @@ export type Database = {
           tenant_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "source_sync_jobs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
+          },
           {
             foreignKeyName: "source_sync_jobs_source_id_fkey"
             columns: ["source_id"]
@@ -851,6 +889,56 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      user_options: {
+        Row: {
+          created_at: string
+          id: string
+          selected_source: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          selected_source?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          selected_source?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_options_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_options_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_options_selected_source_fkey"
+            columns: ["selected_source"]
+            isOneToOne: false
+            referencedRelation: "source_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_options_selected_source_fkey"
+            columns: ["selected_source"]
+            isOneToOne: false
+            referencedRelation: "source_integrations_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
@@ -1093,108 +1181,36 @@ export type Database = {
       source_metrics_newest: {
         Row: {
           created_at: string | null
-          id: string | null
-          metric: number | null
-          name: string | null
-          site_id: string | null
-          source_id: string | null
-          tenant_id: string | null
-          total: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
-            isOneToOne: false
-            referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      source_metrics_newest_second: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          metric: number | null
-          name: string | null
-          site_id: string | null
-          source_id: string | null
-          tenant_id: string | null
-          total: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
-            isOneToOne: false
-            referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
-          },
-          {
-            foreignKeyName: "source_metrics_tenant_id_fkey"
-            columns: ["tenant_id"]
-            isOneToOne: false
-            referencedRelation: "tenants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      source_metrics_with_delta: {
-        Row: {
-          created_at: string | null
           delta: number | null
+          id: string | null
           metric: number | null
           name: string | null
           site_id: string | null
           source_id: string | null
+          tenant_id: string | null
           total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          delta?: number | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          delta?: number | null
+          id?: string | null
+          metric?: number | null
+          name?: string | null
+          site_id?: string | null
+          source_id?: string | null
+          tenant_id?: string | null
+          total?: number | null
         }
         Relationships: [
           {
@@ -1203,6 +1219,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
             referencedColumns: ["id", "source_id"]
+          },
+          {
+            foreignKeyName: "source_metrics_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1273,10 +1296,25 @@ export type Database = {
           metadata: Json | null
           name: string | null
           rights: Json | null
+          selected_source: string | null
           status: string | null
           tenant_id: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "user_options_selected_source_fkey"
+            columns: ["selected_source"]
+            isOneToOne: false
+            referencedRelation: "source_integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_options_selected_source_fkey"
+            columns: ["selected_source"]
+            isOneToOne: false
+            referencedRelation: "source_integrations_view"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "users_tenant_id_fkey"
             columns: ["tenant_id"]

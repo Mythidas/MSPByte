@@ -8,6 +8,7 @@ import { DataTableHeader } from '@/components/shared/table/DataTableHeader';
 import { getSourceDevicesViewPaginated } from '@/services/devices';
 import { textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
+import Link from 'next/link';
 
 type Props = {
   sourceId: string;
@@ -51,12 +52,34 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             label: 'Site',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => {
+              return (
+                <Link
+                  href={`/sites/${row.original.site_id}/${sourceId}`}
+                  className="hover:text-primary"
+                  target="_blank"
+                >
+                  {row.original.site_name}
+                </Link>
+              );
+            },
           }),
           textColumn({
             key: 'parent_name',
             label: 'Parent',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => {
+              return (
+                <Link
+                  href={`/sites/${row.original.parent_id}/${sourceId}`}
+                  className="hover:text-primary"
+                  target="_blank"
+                >
+                  {row.original.parent_name}
+                </Link>
+              );
+            },
           }),
           textColumn({
             key: 'hostname',

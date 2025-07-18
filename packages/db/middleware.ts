@@ -43,6 +43,7 @@ export const updateSession = async (request: NextRequest) => {
       .select()
       .eq('id', auth.data.user?.id)
       .single();
+    const metadata = data.metadata as UserMetadata;
 
     // re-write landing page
     if (error && request.nextUrl.pathname === '/') {
@@ -61,14 +62,19 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    if (
-      !error &&
-      request.nextUrl.pathname === '/' &&
-      (data.metadata as UserMetadata).selected_source
-    ) {
-      return NextResponse.redirect(
-        new URL(`/${(data.metadata as UserMetadata).selected_source}`, request.url)
-      );
+    if (!error && request.nextUrl.pathname === '/' && metadata.selected_source) {
+      return NextResponse.redirect(new URL(`/${metadata.selected_source}`, request.url));
+    }
+
+    const siteMatch = request.nextUrl.pathname.match(/^\/sites\/([^/]+)$/);
+    if (siteMatch) {
+      const siteId = siteMatch[1];
+
+      if (metadata?.selected_source) {
+        return NextResponse.redirect(
+          new URL(`/sites/${siteId}/${metadata.selected_source}`, request.url)
+        );
+      }
     }
 
     return response;

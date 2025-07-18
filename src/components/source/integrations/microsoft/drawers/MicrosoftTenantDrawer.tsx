@@ -89,7 +89,7 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
                   {tenant.site_name || 'Unknown Tenant'}
                 </span>
                 <Link
-                  href={`/${tenant.source_id}/sites/${tenant.site_id}?tab=dashboard`}
+                  href={`/sites/${tenant.site_id}/${tenant.source_id}?tab=dashboard`}
                   target="_blank"
                 >
                   <ExternalLink className="w-4 h-4" />

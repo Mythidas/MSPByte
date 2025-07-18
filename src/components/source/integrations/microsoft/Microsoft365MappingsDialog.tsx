@@ -26,7 +26,7 @@ import { getDomains } from '@/integrations/microsoft/services/domains';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
 import { TablesInsert } from '@/db/schema';
 import { toast } from 'sonner';
-import { hasAccess, useUser } from '@/lib/providers/UserContext';
+import { useUser } from '@/lib/providers/UserContext';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 
 const credentialsSchema = z.object({
@@ -51,7 +51,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
   const [selectedDomains, setSelectedDomains] = useState<Set<string>>(new Set());
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [credentials, setCredentials] = useState<CredentialsData | null>(null);
-  const { user } = useUser();
+  const { user, hasAccess } = useUser();
 
   const { data: sites } = useAsync({
     initial: [],
@@ -366,7 +366,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
       <DialogTrigger asChild>
         <Button
           className="flex justify-start"
-          disabled={!hasAccess(user, 'Sources', 'Write')}
+          disabled={!hasAccess('Sources', 'Write')}
           variant="secondary"
         >
           <Plus /> New Site Mapping

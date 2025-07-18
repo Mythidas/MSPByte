@@ -7,11 +7,16 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 type Props = {
   sourceId: string;
   parent?: Tables<'sites'>;
+  site?: Tables<'sites'>;
 };
 
-export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
+export default function MicrosoftIdentitiesTab({ sourceId, parent, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
+      if (site) {
+        return [site];
+      }
+
       const sites = await getSites(parent?.id || undefined);
       if (!sites.ok) return;
 
@@ -25,6 +30,7 @@ export default function MicrosoftIdentitiesTab({ sourceId, parent }: Props) {
           sourceId={sourceId}
           siteIds={data.map((s) => s.id)}
           parentLevel={!!parent}
+          siteLevel={!!site}
         />
       );
     },

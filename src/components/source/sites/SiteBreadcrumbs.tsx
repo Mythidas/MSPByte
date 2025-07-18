@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSite } from '@/services/sites';
-import { getSource } from '@/services/sources';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import React from 'react';
 
@@ -24,7 +23,6 @@ export default function SiteBreadcrumbs({ site }: Props) {
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      let source: Tables<'sources'> | undefined;
       let parent: Tables<'sites'> | undefined;
 
       if (site.parent_id) {
@@ -34,16 +32,8 @@ export default function SiteBreadcrumbs({ site }: Props) {
         }
       }
 
-      if (slug) {
-        const result = await getSource(slug as string);
-        if (result.ok) {
-          source = result.data;
-        }
-      }
-
       return {
         site,
-        source,
         parent,
       };
     },
@@ -70,16 +60,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
         );
       }
 
-      if (data.source) {
-        crumbs.push(
-          <BreadcrumbLink key={data.site.id} href={`/sites/${data.site.id}`}>
-            {data.site.name}
-          </BreadcrumbLink>
-        );
-        crumbs.push(<BreadcrumbPage key={data.source.id}>{data.source.name}</BreadcrumbPage>);
-      } else {
-        crumbs.push(<BreadcrumbPage key={data.site.id}>{data.site.name}</BreadcrumbPage>);
-      }
+      crumbs.push(<BreadcrumbPage key={data.site.id}>{data.site.name}</BreadcrumbPage>);
 
       return (
         <Breadcrumb>

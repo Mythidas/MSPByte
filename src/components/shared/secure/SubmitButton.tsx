@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/shared/Spinner';
 import { type ComponentProps } from 'react';
 import { useFormStatus } from 'react-dom';
-import { hasAccess, useUser } from '@/lib/providers/UserContext';
+import { useUser } from '@/lib/providers/UserContext';
 import { RoleAccessLevel, RoleAccessModule } from '@/types/rights';
 
 type Props = ComponentProps<typeof Button> & {
@@ -16,10 +16,10 @@ type Props = ComponentProps<typeof Button> & {
 
 export function SubmitButton({ children, disabled, pending, module, level, ...props }: Props) {
   const { pending: status } = useFormStatus();
-  const { user } = useUser();
+  const { hasAccess } = useUser();
 
   const isDisabled =
-    disabled || status || pending || (module && level && !hasAccess(user, module, level));
+    disabled || status || pending || (module && level && !hasAccess(module, level));
 
   return (
     <Button type="submit" aria-disabled={isDisabled} disabled={isDisabled} {...props}>

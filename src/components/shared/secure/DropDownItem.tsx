@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
-import { hasAccess, useUser } from '@/lib/providers/UserContext';
+import { useUser } from '@/lib/providers/UserContext';
 import { cn } from '@/lib/utils';
 import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
 import { useRouter } from 'next/navigation';
@@ -36,20 +36,20 @@ export default function DropDownItem({
   ...props
 }: Props) {
   const router = useRouter();
-  const { user } = useUser();
+  const { hasAccess } = useUser();
 
   if (type === 'submit') {
     return (
       <DropdownMenuItem
         className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
         inset={inset}
-        disabled={disabled || !hasAccess(user, module, level)}
+        disabled={disabled || !hasAccess(module, level)}
         onClick={(e) => {
           e.stopPropagation();
           if (onClick) {
             onClick(e);
           }
-          if (route && hasAccess(user, module, level)) {
+          if (route && hasAccess(module, level)) {
             router.push(route);
           }
         }}
@@ -72,13 +72,13 @@ export default function DropDownItem({
     <DropdownMenuItem
       className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
       inset={inset}
-      disabled={disabled || !hasAccess(user, module, level)}
+      disabled={disabled || !hasAccess(module, level)}
       onClick={(e) => {
         e.stopPropagation();
         if (onClick) {
           onClick(e);
         }
-        if (route && hasAccess(user, module, level)) {
+        if (route && hasAccess(module, level)) {
           router.push(route);
         }
       }}

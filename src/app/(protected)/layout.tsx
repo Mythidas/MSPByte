@@ -6,7 +6,6 @@ import { UserProvider } from '@/lib/providers/UserProvider';
 import { getSourceIntegrationsView } from '@/services/integrations';
 import { getSites } from '@/services/sites';
 import { getCurrentUserView } from '@/services/users';
-import { UserMetadata } from '@/types/users';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const sites = await getSites();
@@ -20,11 +19,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
           value={
             integrations.ok && current_user.ok
               ? integrations.data.rows.find(
-                  (int) =>
-                    int.source_id === (current_user.data.metadata as UserMetadata).selected_source
+                  (int) => int.source_id === current_user.data.selected_source
                 )
               : undefined
           }
+          integrations={integrations.ok ? integrations.data.rows : undefined}
         >
           <div className="flex size-full">
             <div className="w-48">

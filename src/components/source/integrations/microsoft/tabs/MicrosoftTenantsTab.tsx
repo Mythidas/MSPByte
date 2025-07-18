@@ -2,25 +2,26 @@ import Loader from '@/components/shared/Loader';
 import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import MicrosoftTenantsTable from '@/components/source/integrations/microsoft/tables/MicrosoftTenantsTable';
+import { Tables } from '@/db/schema';
 
 type Props = {
   sourceId: string;
-  parentId?: string;
-  siteId?: string;
+  site?: Tables<'sites'>;
+  parent?: Tables<'sites'>;
 };
 
-export default function MicrosoftTenantsTab({ sourceId, parentId, siteId }: Props) {
+export default function MicrosoftTenantsTab({ sourceId, parent, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
-      if (siteId) {
-        return [siteId];
+      if (site) {
+        return [site.id];
       }
 
-      const sites = await getSites(parentId);
+      const sites = await getSites(parent?.id);
       if (!sites.ok) return;
 
-      return parentId
-        ? [parentId, ...sites.data.rows.map((s) => s.id)]
+      return parent
+        ? [parent.id, ...sites.data.rows.map((s) => s.id)]
         : sites.data.rows.map((s) => s.id);
     },
     render: (data) => {
@@ -31,7 +32,7 @@ export default function MicrosoftTenantsTab({ sourceId, parentId, siteId }: Prop
           sourceId={sourceId}
           siteIds={data}
           parentLevel={!!parent}
-          siteLevel={!!siteId}
+          siteLevel={!!site}
         />
       );
     },

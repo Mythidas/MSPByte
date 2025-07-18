@@ -9,6 +9,9 @@ import { cn } from '@/lib/utils';
 import { useSource } from '@/lib/providers/SourceContext';
 import { SitesProvider } from '@/lib/providers/SitesContext';
 import { Tables } from '@/db/schema';
+import { updateUserOptions } from '@/services/users';
+import { useUser } from '@/lib/providers/UserContext';
+import { useEffect } from 'react';
 
 type Props = {
   sites: Tables<'sites'>[];
@@ -19,26 +22,42 @@ type Props = {
 export default function AppNavbar({ sites, integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
-  const { source } = useSource();
+  const { source, setSource } = useSource();
+  const { user, isLoading, refresh } = useUser();
+
+  useEffect(() => {
+    if (source?.id !== user?.selected_source && !isLoading) {
+      const newSource = integrations.find((i) => i.id === user?.selected_source);
+      if (newSource) setSource(newSource);
+    }
+  }, [user, source]);
 
   const handleSelect = (value: string) => {
-    router.push(`${source && `/${source.source_id}`}/sites/${value}`);
+    router.push(`/sites/${value}${source && `/${source.source_id}`}`);
   };
 
   const handleSource = async (value: string) => {
     const newSource = integrations.find((int) => int.source_id === value);
-    if (!newSource) return;
-    if (value === source?.source_id) return;
+    if (!newSource || value === source?.source_id) return;
 
-    const segments = pathname.split('?')[0].split('/').filter(Boolean); // remove empty strings
+    if (user) await updateUserOptions(user.id!, { selected_source: newSource.id });
+    refresh();
 
+    const segments = pathname.split('?')[0].split('/').filter(Boolean);
     const knownSlugs = integrations.map((s) => s.source_id);
-    const currentSlug = segments[0];
 
-    if (knownSlugs.includes(currentSlug)) {
-      const newPath = `/${[newSource.source_id, ...segments.slice(1)].join('/')}`;
-      router.replace(newPath);
+    // Replace the first occurrence of a known source slug
+    const updatedSegments = [...segments];
+
+    for (let i = 0; i < updatedSegments.length; i++) {
+      if (knownSlugs.includes(updatedSegments[i])) {
+        updatedSegments[i] = newSource.source_id!;
+        break;
+      }
     }
+
+    const newPath = `/${updatedSegments.join('/')}`;
+    router.replace(newPath);
   };
 
   return (

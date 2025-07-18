@@ -112,8 +112,9 @@ export default function MicrosoftIdentitiesTable({
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/${sourceId}/sites/${row.original.site_id}?tab=identities`}
+                href={`/sites/${row.original.site_id}/${sourceId}?tab=identities`}
                 className="hover:text-primary"
+                target="_blank"
               >
                 {row.original.site_name}
               </Link>
@@ -126,8 +127,9 @@ export default function MicrosoftIdentitiesTable({
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/${sourceId}/sites/${row.original.parent_id}?tab=identities`}
+                href={`/sites/${row.original.parent_id}/${sourceId}?tab=identities`}
                 className="hover:text-primary"
+                target="_blank"
               >
                 {row.original.parent_name}
               </Link>

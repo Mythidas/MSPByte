@@ -2,18 +2,21 @@ import SophosDevicesTable from '@/components/source/integrations/sophos/SophosDe
 import Loader from '@/components/shared/Loader';
 import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import { Tables } from '@/db/schema';
 
 type Props = {
   sourceId: string;
-  parentId?: string;
+  site?: Tables<'sites'>;
+  parent?: Tables<'sites'>;
 };
 
-export default function SophosDevicesTab({ sourceId, parentId }: Props) {
+export default function SophosDevicesTab({ sourceId, parent, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const sites = await getSites(parentId);
+      if (site) return [site];
+      const sites = await getSites(parent?.id);
       if (sites.ok) {
-        return sites.data.rows;
+        return parent ? [parent!, ...sites.data.rows] : sites.data.rows;
       }
     },
     render: (data) => {
@@ -23,7 +26,8 @@ export default function SophosDevicesTab({ sourceId, parentId }: Props) {
         <SophosDevicesTable
           sourceId={sourceId}
           siteIds={data.map((s) => s.id)}
-          parentLevel={!!parentId}
+          parentLevel={!!parent}
+          siteLevel={!!site}
         />
       );
     },

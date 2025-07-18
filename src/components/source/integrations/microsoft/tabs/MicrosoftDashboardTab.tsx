@@ -2,11 +2,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Shield, Globe, Lock, Unlock, ShieldCheck } from 'lucide-react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSourceTenant } from '@/services/source/tenants';
+import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { Skeleton } from '@/components/ui/skeleton';
 import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import { Tables } from '@/db/schema';
+import { getSites } from '@/services/sites';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -43,23 +44,45 @@ const getMfaConfig = (enforcement: string) => {
 
 type Props = {
   sourceId: string;
-  site: Tables<'sites'>;
+  site?: Tables<'sites'>;
+  parent?: Tables<'sites'>;
 };
 
-export default function MicrosoftDashboardTab({ sourceId, site }: Props) {
+export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const tenant = await getSourceTenant(sourceId, site.id);
+      if (site) {
+        const tenant = await getSourceTenant(sourceId, site.id);
+        if (tenant.ok) {
+          return { rows: [tenant.data], total: 1 };
+        }
+      }
+
+      //parent
+      const sites = await getSites(parent?.id);
+      if (!sites.ok) return undefined;
+
+      const tenant = await getSourceTenants(sourceId, [
+        parent?.id || '',
+        ...sites.data.rows.map((s) => s.id),
+      ]);
       if (tenant.ok) {
-        return {
-          ...tenant.data,
-          metadata: tenant.data.metadata as MicrosoftTenantMetadata,
-        };
+        return tenant.data;
       }
     },
     render: (data) => {
       if (!data) return null;
-      const mfaConfig = getMfaConfig(data.metadata.mfa_enforcement);
+      const uniformOrMixed = () => {
+        const arr = data.rows.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
+        if (arr.length === 0) return 'mixed';
+        const first = arr[0];
+        return arr.every((val) => val === first) ? first : 'mixed';
+      };
+
+      const mfaConfig = getMfaConfig(uniformOrMixed());
+      const domains = data.rows.flatMap(
+        (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
+      );
 
       return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -71,13 +94,12 @@ export default function MicrosoftDashboardTab({ sourceId, site }: Props) {
                 Domains
               </CardTitle>
               <CardDescription>
-                {data.metadata.domains?.length} domain
-                {data.metadata.domains?.length !== 1 ? 's' : ''} configured
+                {domains.length} domain{domains.length !== 1 ? 's' : ''} configured
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {data.metadata.domains?.map((domain) => (
+                {domains.map((domain) => (
                   <Badge key={domain} variant="secondary" className="flex items-center gap-1">
                     <Globe className="h-3 w-3" />
                     {domain}
@@ -154,11 +176,12 @@ export default function MicrosoftDashboardTab({ sourceId, site }: Props) {
     },
   });
 
+  const route = site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
   const { content: MetricsGrid } = useSourceMetricGrid({
-    scope: 'site',
+    scope: site ? 'site' : parent ? 'parent' : 'global',
     sourceId,
-    siteId: site.id,
-    route: `/${sourceId}/sites/${site.slug}`,
+    siteId: parent?.id || site?.id,
+    route,
   });
 
   return (

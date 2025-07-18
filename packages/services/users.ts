@@ -18,6 +18,12 @@ export async function getUser(id: string) {
   });
 }
 
+export async function getUserOptions(id: string) {
+  return tables.selectSingle('user_options', (query) => {
+    query = query.eq('id', id);
+  });
+}
+
 export async function getCurrentUserView() {
   try {
     const supabase = await createClient();
@@ -42,6 +48,10 @@ export async function getCurrentUserView() {
 
 export async function updateUser(id: string, row: TablesUpdate<'users'>) {
   return tables.update('users', id, row);
+}
+
+export async function updateUserOptions(id: string, row: TablesUpdate<'user_options'>) {
+  return tables.update('user_options', id, row);
 }
 
 export async function putUser(

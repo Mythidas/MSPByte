@@ -77,8 +77,9 @@ export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: 
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/${row.original.source_id}/sites/${row.original.parent_id}?tab=dashboard`}
+                href={`/sites/${row.original.parent_id}/${row.original.source_id}?tab=dashboard`}
                 className="hover:text-primary"
+                target="_blank"
               >
                 {row.original.parent_name}
               </Link>

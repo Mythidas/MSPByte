@@ -87,7 +87,7 @@ export default function SitesSidebar({ site, children }: Props) {
 
                 const baseHref =
                   source && (item.href === '' || item.href === '/grouped')
-                    ? `/${source.source_id}/sites/${site.slug}`
+                    ? `/sites/${site.slug}/${source.source_id}`
                     : `/sites/${site.slug}`;
 
                 const isActive =

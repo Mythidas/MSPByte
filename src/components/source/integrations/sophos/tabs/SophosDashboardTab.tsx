@@ -3,15 +3,17 @@ import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 
 type Props = {
   sourceId: string;
-  site: Tables<'sites'>;
+  site?: Tables<'sites'>;
+  parent?: Tables<'sites'>;
 };
 
-export default function SophosDashboardTab({ sourceId, site }: Props) {
+export default function SophosDashboardTab({ sourceId, site, parent }: Props) {
+  const route = site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
   const { content: MetricsGrid } = useSourceMetricGrid({
-    scope: 'site',
+    scope: site ? 'site' : parent ? 'parent' : 'global',
     sourceId,
-    siteId: site.id,
-    route: `/${sourceId}/sites/${site.slug}`,
+    siteId: parent?.id || site?.id,
+    route,
   });
 
   return (

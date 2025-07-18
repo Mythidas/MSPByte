@@ -1,3 +1,5 @@
+import { Tables } from '@/db/schema';
+
 export type FormState<Schema> = {
   success?: boolean;
   errors?: Record<string, string[]>;
@@ -8,6 +10,12 @@ export type FormState<Schema> = {
 export type Option = {
   label: string;
   value: string;
+};
+
+export type TabProps = {
+  label: string;
+  icon?: string;
+  content: (source: string, parent?: Tables<'sites'>, site?: Tables<'sites'>) => React.ReactNode;
 };
 
 export type APIError = {
