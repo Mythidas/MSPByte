@@ -1,12 +1,12 @@
 'use server';
 
 import { getSite } from 'packages/services/sites';
-import ErrorDisplay from '@/components/common/ErrorDisplay';
-import SitesSidebar from '@/components/domains/sites/SitesSidebar';
-import SiteHeader from '@/components/domains/sites/SiteHeader';
+import ErrorDisplay from '@/components/shared/ErrorDisplay';
+import SitesSidebar from '@/components/layout/SitesSidebar';
+import SiteHeader from '@/components/source/sites/SiteHeader';
 import SiteProvider from '@/lib/providers/SiteProvider';
 import React from 'react';
-import SiteBreadcrumbs from '@/components/domains/sites/SiteBreadcrumbs';
+import SiteBreadcrumbs from '@/components/source/sites/SiteBreadcrumbs';
 
 type Props = {
   params: Promise<{ id: string; slug: string }>;

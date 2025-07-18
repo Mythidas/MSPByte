@@ -1,11 +1,11 @@
 'use client';
 
 import { getSite } from 'packages/services/sites';
-import MicrosoftSiteMapping from '@/components/domains/microsoft/mappings/MicrosoftSiteMapping';
-import SophosSiteMapping from '@/components/domains/sophos/mappings/SophosSiteMapping';
+import MicrosoftSiteMapping from '@/components/source/integrations/microsoft/mappings/MicrosoftSiteMapping';
+import SophosSiteMapping from '@/components/source/integrations/sophos/mappings/SophosSiteMapping';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/providers/SourceContext';
-import Loader from '@/components/common/Loader';
+import Loader from '@/components/shared/Loader';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 
 export default function Page() {

@@ -1,7 +1,7 @@
 'use client';
 
-import MicrosoftGlobalMapping from '@/components/domains/microsoft/mappings/MicrosoftGlobalMapping';
-import SophosGlobalMapping from '@/components/domains/sophos/mappings/SophosGlobalMapping';
+import MicrosoftGlobalMapping from '@/components/source/integrations/microsoft/mappings/MicrosoftGlobalMapping';
+import SophosGlobalMapping from '@/components/source/integrations/sophos/mappings/SophosGlobalMapping';
 import { useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/providers/SourceContext';
 

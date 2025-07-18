@@ -1,5 +1,5 @@
-import Loader from '@/components/common/Loader';
-import SourceMetricCard from '@/components/domains/metrics/SourceMetricCard';
+import Loader from '@/components/shared/Loader';
+import SourceMetricCard from '@/components/source/metrics/SourceMetricCard';
 import { Database } from '@/db/schema';
 import { LazyLoadOptions, useLazyLoad } from '@/hooks/common/useLazyLoad';
 import {

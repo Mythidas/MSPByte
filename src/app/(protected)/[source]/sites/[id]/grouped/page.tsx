@@ -3,10 +3,10 @@
 import { getSite } from 'packages/services/sites';
 import { useParams, useSearchParams } from 'next/navigation';
 import { useSource } from '@/lib/providers/SourceContext';
-import Loader from '@/components/common/Loader';
+import Loader from '@/components/shared/Loader';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import SophosParentMapping from '@/components/domains/sophos/mappings/SophosParentMapping';
-import MicrosoftParentMapping from '@/components/domains/microsoft/mappings/MicrosoftParentMapping';
+import SophosParentMapping from '@/components/source/integrations/sophos/mappings/SophosParentMapping';
+import MicrosoftParentMapping from '@/components/source/integrations/microsoft/mappings/MicrosoftParentMapping';
 
 export default function Page() {
   const params = useParams();

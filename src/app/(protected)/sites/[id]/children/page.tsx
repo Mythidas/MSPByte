@@ -1,6 +1,6 @@
 'use client';
 
-import SitesTable from '@/components/domains/sites/SitesTable';
+import SitesTable from '@/components/source/sites/SitesTable';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSite } from '@/lib/providers/SiteContext';
 

@@ -1,5 +1,5 @@
-import AppNavbar from '@/components/common/navbar/AppNavbar';
-import AppSidebar from '@/components/common/navbar/AppSidebar';
+import AppNavbar from '@/components/layout/AppNavbar';
+import AppSidebar from '@/components/layout/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { SourceProvider } from '@/lib/providers/SourceContext';
 import { UserProvider } from '@/lib/providers/UserProvider';

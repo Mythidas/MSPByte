@@ -5,11 +5,11 @@ import { getSource } from 'packages/services/sources';
 import Image from 'next/image';
 import { Power } from 'lucide-react';
 import { getSourceIntegration } from '@/services/integrations';
-import { SourceBreadcrumb } from '@/components/domains/sources/SourceBreadcrumbs';
+import { SourceBreadcrumb } from '@/components/source/sources/SourceBreadcrumbs';
 import { Button } from '@/components/ui/button';
-import SophosPartner from '@/components/domains/sophos/SophosPartner';
-import Microsoft365Enabled from '@/components/domains/microsoft/Microsoft365Enabled';
-import Microsoft365Disabled from '@/components/domains/microsoft/Microsoft365Disabled';
+import SophosPartner from '@/components/source/integrations/sophos/SophosPartner';
+import Microsoft365Enabled from '@/components/source/integrations/microsoft/Microsoft365Enabled';
+import Microsoft365Disabled from '@/components/source/integrations/microsoft/Microsoft365Disabled';
 
 type Props = {
   params: Promise<{ slug: string }>;

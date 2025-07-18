@@ -1,6 +1,6 @@
 'use client';
 
-import SitesTable from '@/components/domains/sites/SitesTable';
+import SitesTable from '@/components/source/sites/SitesTable';
 
 export default function Page() {
   return (

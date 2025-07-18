@@ -9,7 +9,7 @@ import {
   AlertDialogDescription,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { SubmitButton } from '@/components/common/SubmitButton';
+import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { Database } from '@/db/schema';
 import { deleteRows } from '@/services/general';
 import { prettyText } from '@/lib/utils';
