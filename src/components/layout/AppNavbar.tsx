@@ -47,12 +47,14 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
     const knownSlugs = integrations.map((s) => s.source_id);
 
     // Replace the first occurrence of a known source slug
-    const updatedSegments = [...segments];
+    const updatedSegments: string[] = [];
 
-    for (let i = 0; i < updatedSegments.length; i++) {
-      if (knownSlugs.includes(updatedSegments[i])) {
-        updatedSegments[i] = newSource.source_id!;
+    for (const segment of segments) {
+      if (knownSlugs.includes(segment)) {
+        updatedSegments.push(value);
         break;
+      } else {
+        updatedSegments.push(segment);
       }
     }
 
