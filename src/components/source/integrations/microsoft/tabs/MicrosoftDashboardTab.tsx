@@ -1,6 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Globe, Lock, Unlock, ShieldCheck } from 'lucide-react';
+import {
+  Shield,
+  Globe,
+  Lock,
+  Unlock,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+  ShieldQuestion,
+} from 'lucide-react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -8,6 +17,7 @@ import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
+import { useState } from 'react';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -31,6 +41,13 @@ const getMfaConfig = (enforcement: string) => {
         icon: Unlock,
         color: 'bg-red-100 text-red-800',
         description: 'No tenant-wide MFA enforcement configured',
+      };
+    case 'mixed':
+      return {
+        label: 'Mixed',
+        icon: ShieldQuestion,
+        color: 'bg-yellow-500 text-white',
+        description: 'Tenant MFA enforcement varies',
       };
     default:
       return {
@@ -58,14 +75,13 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
         }
       }
 
-      //parent
       const sites = await getSites(parent?.id);
       if (!sites.ok) return undefined;
 
-      const tenant = await getSourceTenants(sourceId, [
-        parent?.id || '',
-        ...sites.data.rows.map((s) => s.id),
-      ]);
+      const siteIds = parent
+        ? [parent.id, ...sites.data.rows.map((s) => s.id)]
+        : [...sites.data.rows.map((s) => s.id)];
+      const tenant = await getSourceTenants(sourceId, siteIds);
       if (tenant.ok) {
         return tenant.data;
       }
@@ -79,35 +95,34 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
         return arr.every((val) => val === first) ? first : 'mixed';
       };
 
+      const mfaTypes = data.rows.map(
+        (d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement || 'unknown'
+      );
+
+      const counts = {
+        conditional_access: 0,
+        security_defaults: 0,
+        none: 0,
+        unknown: 0,
+      };
+
+      for (const type of mfaTypes) {
+        if (type in counts) counts[type as keyof typeof counts]++;
+        else counts.unknown++;
+      }
+
       const mfaConfig = getMfaConfig(uniformOrMixed());
+
       const domains = data.rows.flatMap(
-        (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains
+        (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains || []
       );
 
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Domains Card */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Globe className="h-5 w-5" />
-                Domains
-              </CardTitle>
-              <CardDescription>
-                {domains.length} domain{domains.length !== 1 ? 's' : ''} configured
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {domains.map((domain) => (
-                  <Badge key={domain} variant="secondary" className="flex items-center gap-1">
-                    <Globe className="h-3 w-3" />
-                    {domain}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          {/* Domains Card - Takes up 2 columns on xl screens */}
+          <div className="xl:col-span-2">
+            <DomainsCard domains={domains} />
+          </div>
 
           {/* MFA Enforcement Card */}
           <Card>
@@ -119,15 +134,47 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
               <CardDescription>Tenant-wide multi-factor authentication policy</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${mfaConfig.color}`}>
+              <div className="flex items-start gap-3 mb-4">
+                <div className={`p-3 rounded-lg ${mfaConfig.color} flex-shrink-0`}>
                   <mfaConfig.icon className="h-5 w-5" />
                 </div>
-                <div>
+                <div className="space-y-1">
                   <p className="font-medium">{mfaConfig.label}</p>
-                  <p className="text-sm text-muted-foreground">{mfaConfig.description}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {mfaConfig.description}
+                  </p>
                 </div>
               </div>
+
+              {!site && (
+                <div className="text-sm text-muted-foreground space-y-1">
+                  <p className="font-medium text-foreground mb-1">Enforcement Breakdown:</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                    <div>
+                      <span className="font-medium text-foreground">
+                        {counts.conditional_access}
+                      </span>{' '}
+                      <span className="font-medium">Conditional Access</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">
+                        {counts.security_defaults}
+                      </span>{' '}
+                      <span className="font-medium">Security Defaults</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-foreground">{counts.none}</span>{' '}
+                      <span className="font-medium">No Enforcement</span>
+                    </div>
+                    {counts.unknown > 0 && (
+                      <div>
+                        <span className="font-medium text-foreground">{counts.unknown}</span> with{' '}
+                        <span className="font-medium">Unknown</span> status
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -135,24 +182,33 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
     },
     skeleton: () => {
       return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Domains Card */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Globe className="h-5 w-5" />
-                Domains
-              </CardTitle>
-              <CardDescription>
-                <Skeleton className="w-28 h-4" />
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="w-28 h-4" />
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+          {/* Domains Card Skeleton */}
+          <div className="xl:col-span-2">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between text-lg">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Domains
+                  </div>
+                  <Skeleton className="w-8 h-5 rounded-full" />
+                </CardTitle>
+                <CardDescription>
+                  <Skeleton className="w-28 h-4" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-auto">
+                  {[...Array(8)].map((_, i) => (
+                    <Skeleton key={i} className="h-7 w-full" />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* MFA Enforcement Card */}
+          {/* MFA Enforcement Card Skeleton */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -162,10 +218,10 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
               <CardDescription>Tenant-wide multi-factor authentication policy</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3">
-                <Skeleton className="h-12 w-12 rounded" />
-                <div className="flex flex-col gap-2">
-                  <Skeleton className="w-32 h-6" />
+              <div className="flex items-start gap-3">
+                <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
+                <div className="space-y-2">
+                  <Skeleton className="w-32 h-5" />
                   <Skeleton className="w-48 h-4" />
                 </div>
               </div>
@@ -199,3 +255,64 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
     </>
   );
 }
+
+const DomainsCard = ({ domains }: { domains: string[] }) => {
+  const [showAll, setShowAll] = useState(false);
+  const INITIAL_DISPLAY = 8;
+  const hasMany = domains.length > INITIAL_DISPLAY;
+
+  const displayedDomains = showAll ? domains : domains.slice(0, INITIAL_DISPLAY);
+  const remainingCount = domains.length - INITIAL_DISPLAY;
+
+  return (
+    <Card className="h-fit">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center justify-between text-lg">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Domains
+          </div>
+          <Badge variant="outline" className="ml-2">
+            {domains.length}
+          </Badge>
+        </CardTitle>
+        <CardDescription>
+          {domains.length} domain{domains.length !== 1 ? 's' : ''} configured
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-h-48 overflow-auto">
+          {displayedDomains.map((domain) => (
+            <Badge
+              key={domain}
+              variant="secondary"
+              className="flex items-center gap-1 justify-start px-2 py-1 text-xs"
+            >
+              <Globe className="h-3 w-3 flex-shrink-0" />
+              <span className="truncate">{domain}</span>
+            </Badge>
+          ))}
+        </div>
+
+        {hasMany && (
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full justify-center py-2 border border-dashed rounded-md hover:bg-muted/50"
+          >
+            {showAll ? (
+              <>
+                <ChevronUp className="h-4 w-4" />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="h-4 w-4" />
+                Show {remainingCount} More Domain{remainingCount !== 1 ? 's' : ''}
+              </>
+            )}
+          </button>
+        )}
+      </CardContent>
+    </Card>
+  );
+};

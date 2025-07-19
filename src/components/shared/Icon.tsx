@@ -1,6 +1,7 @@
 import {
   Activity,
   CheckCircle2,
+  Database,
   HelpCircle,
   LucideProps,
   Shield,
@@ -15,6 +16,7 @@ const iconMap = {
   CheckCircle2: CheckCircle2,
   Shield: Shield,
   Users: Users,
+  Database: Database,
 } as const;
 
 const iconNames = Object.entries(iconMap).map((icon) => icon[0]);

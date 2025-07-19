@@ -1,10 +1,10 @@
 'use server';
 
-import { Schema } from 'packages/db';
 import { createServerClient } from '@supabase/ssr';
 import { createClient as _createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { getBearerToken } from '@/db/context';
+import { Database } from '@/db/schema';
 
 export const createClient = async (bearer?: string) => {
   const cookieStore = await cookies();
@@ -17,7 +17,7 @@ export const createClient = async (bearer?: string) => {
         },
       };
 
-  return createServerClient<Schema.Database>(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -43,7 +43,7 @@ export const createClient = async (bearer?: string) => {
 };
 
 export const createAdminClient = async () => {
-  return _createClient<Schema.Database>(
+  return _createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_SUPABASE_SERVICE_KEY!
   );

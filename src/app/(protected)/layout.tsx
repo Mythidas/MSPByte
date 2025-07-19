@@ -1,14 +1,14 @@
 import AppNavbar from '@/components/layout/AppNavbar';
 import AppSidebar from '@/components/layout/AppSidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { tables } from '@/db';
 import { SourceProvider } from '@/lib/providers/SourceContext';
 import { UserProvider } from '@/lib/providers/UserProvider';
 import { getSourceIntegrationsView } from '@/services/integrations';
-import { getSites } from '@/services/sites';
 import { getCurrentUserView } from '@/services/users';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const sites = await getSites();
+  const sites = await tables.select('sites');
   const integrations = await getSourceIntegrationsView();
   const current_user = await getCurrentUserView();
 

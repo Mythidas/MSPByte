@@ -11,7 +11,6 @@ import {
   tablesUpsertGeneric,
 } from '@/db/generics';
 
-export * as Schema from '@/db/schema';
 export const tables = {
   select: tablesSelectGeneric,
   selectSingle: tablesSelectSingleGeneric,
