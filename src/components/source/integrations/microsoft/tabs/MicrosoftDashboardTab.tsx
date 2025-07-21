@@ -13,11 +13,12 @@ import {
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { Skeleton } from '@/components/ui/skeleton';
-import useSourceMetricGrid from '@/hooks/domains/metrics/useSourceMetricGrid';
+import SourceMetricsGrid from '@/components/source/sources/SourceMetricsGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
 import { useState } from 'react';
+import Loader from '@/components/shared/Loader';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -73,6 +74,8 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
         if (tenant.ok) {
           return { rows: [tenant.data], total: 1 };
         }
+
+        return undefined;
       }
 
       const sites = await getSites(parent?.id);
@@ -87,7 +90,7 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
       }
     },
     render: (data) => {
-      if (!data) return null;
+      if (!data) return <strong>No Tenant(s) found</strong>;
       const uniformOrMixed = () => {
         const arr = data.rows.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
         if (arr.length === 0) return 'mixed';
@@ -117,143 +120,91 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
         (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains || []
       );
 
-      return (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          {/* Domains Card - Takes up 2 columns on xl screens */}
-          <div className="xl:col-span-2">
-            <DomainsCard domains={domains} />
-          </div>
+      const route =
+        site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
 
-          {/* MFA Enforcement Card */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Shield className="h-5 w-5" />
-                MFA Enforcement
-              </CardTitle>
-              <CardDescription>Tenant-wide multi-factor authentication policy</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start gap-3 mb-4">
-                <div className={`p-3 rounded-lg ${mfaConfig.color} flex-shrink-0`}>
-                  <mfaConfig.icon className="h-5 w-5" />
-                </div>
-                <div className="space-y-1">
-                  <p className="font-medium">{mfaConfig.label}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {mfaConfig.description}
-                  </p>
-                </div>
-              </div>
-
-              {!site && (
-                <div className="text-sm text-muted-foreground space-y-1">
-                  <p className="font-medium text-foreground mb-1">Enforcement Breakdown:</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
-                    <div>
-                      <span className="font-medium text-foreground">
-                        {counts.conditional_access}
-                      </span>{' '}
-                      <span className="font-medium">Conditional Access</span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-foreground">
-                        {counts.security_defaults}
-                      </span>{' '}
-                      <span className="font-medium">Security Defaults</span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-foreground">{counts.none}</span>{' '}
-                      <span className="font-medium">No Enforcement</span>
-                    </div>
-                    {counts.unknown > 0 && (
-                      <div>
-                        <span className="font-medium text-foreground">{counts.unknown}</span> with{' '}
-                        <span className="font-medium">Unknown</span> status
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      );
-    },
-    skeleton: () => {
       return (
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          {/* Domains Card Skeleton */}
-          <div className="xl:col-span-2">
+        <>
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            {/* Domains Card - Takes up 2 columns on xl screens */}
+            <div className="xl:col-span-2">
+              <DomainsCard domains={domains} />
+            </div>
+
+            {/* MFA Enforcement Card */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="flex items-center justify-between text-lg">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-5 w-5" />
-                    Domains
-                  </div>
-                  <Skeleton className="w-8 h-5 rounded-full" />
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Shield className="h-5 w-5" />
+                  MFA Enforcement
                 </CardTitle>
-                <CardDescription>
-                  <Skeleton className="w-28 h-4" />
-                </CardDescription>
+                <CardDescription>Tenant-wide multi-factor authentication policy</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-auto">
-                  {[...Array(8)].map((_, i) => (
-                    <Skeleton key={i} className="h-7 w-full" />
-                  ))}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`p-3 rounded-lg ${mfaConfig.color} flex-shrink-0`}>
+                    <mfaConfig.icon className="h-5 w-5" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium">{mfaConfig.label}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {mfaConfig.description}
+                    </p>
+                  </div>
                 </div>
+
+                {!site && (
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p className="font-medium text-foreground mb-1">Enforcement Breakdown:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4">
+                      <div>
+                        <span className="font-medium text-foreground">
+                          {counts.conditional_access}
+                        </span>{' '}
+                        <span className="font-medium">Conditional Access</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-foreground">
+                          {counts.security_defaults}
+                        </span>{' '}
+                        <span className="font-medium">Security Defaults</span>
+                      </div>
+                      <div>
+                        <span className="font-medium text-foreground">{counts.none}</span>{' '}
+                        <span className="font-medium">No Enforcement</span>
+                      </div>
+                      {counts.unknown > 0 && (
+                        <div>
+                          <span className="font-medium text-foreground">{counts.unknown}</span> with{' '}
+                          <span className="font-medium">Unknown</span> status
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
+          {/* Metrics Grid */}
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">Quick Metrics</h2>
+            </div>
 
-          {/* MFA Enforcement Card Skeleton */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Shield className="h-5 w-5" />
-                MFA Enforcement
-              </CardTitle>
-              <CardDescription>Tenant-wide multi-factor authentication policy</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-start gap-3">
-                <Skeleton className="h-12 w-12 rounded-lg flex-shrink-0" />
-                <div className="space-y-2">
-                  <Skeleton className="w-32 h-5" />
-                  <Skeleton className="w-48 h-4" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            <SourceMetricsGrid
+              scope={site ? 'site' : parent ? 'parent' : 'global'}
+              sourceId={sourceId}
+              siteId={parent?.id || site?.id}
+              route={route}
+            />
+          </div>
+        </>
       );
     },
+    skeleton: () => <Loader />,
   });
 
-  const route = site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
-  const { content: MetricsGrid } = useSourceMetricGrid({
-    scope: site ? 'site' : parent ? 'parent' : 'global',
-    sourceId,
-    siteId: parent?.id || site?.id,
-    route,
-  });
-
-  return (
-    <>
-      {content}
-
-      {/* Metrics Grid */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Quick Metrics</h2>
-        </div>
-
-        {MetricsGrid}
-      </div>
-    </>
-  );
+  return content;
 }
 
 const DomainsCard = ({ domains }: { domains: string[] }) => {
@@ -281,7 +232,7 @@ const DomainsCard = ({ domains }: { domains: string[] }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-h-48 overflow-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-h-28 overflow-auto">
           {displayedDomains.map((domain) => (
             <Badge
               key={domain}

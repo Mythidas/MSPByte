@@ -15,14 +15,14 @@ type Props<T> = {
   route?: string;
 } & Omit<LazyLoadOptions<T>, 'skeleton' | 'fetcher' | 'render'>;
 
-export default function useSourceMetricGrid<T>({
+export default function SourceMetricsGrid<T>({
   scope,
   sourceId,
   siteId,
   route,
   ...props
 }: Props<T>) {
-  return useLazyLoad({
+  const { content } = useLazyLoad({
     fetcher: async () => {
       switch (scope) {
         case 'site': {
@@ -82,4 +82,6 @@ export default function useSourceMetricGrid<T>({
     deps: [],
     ...props,
   });
+
+  return content;
 }

@@ -46,6 +46,88 @@ export type Database = {
           },
         ]
       }
+      site_group_memberships: {
+        Row: {
+          group_id: string
+          site_id: string
+        }
+        Insert: {
+          group_id: string
+          site_id: string
+        }
+        Update: {
+          group_id?: string
+          site_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "site_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+        ]
+      }
+      site_groups: {
+        Row: {
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          tenant_id: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          name: string
+          slug?: string
+          tenant_id: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           id: string
