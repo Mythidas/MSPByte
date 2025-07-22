@@ -89,7 +89,7 @@ export async function transformIdentities(
           return null; // Skip this user
         }
       },
-      { concurrency: 10 } // Adjust as needed based on throttling/responsiveness
+      { concurrency: Math.ceil((100 / users.length) * 10) } // Adjust as needed based on throttling/responsiveness
     );
 
     return { ok: true, data: identities.filter(Boolean) as TablesInsert<'source_identities'>[] };
