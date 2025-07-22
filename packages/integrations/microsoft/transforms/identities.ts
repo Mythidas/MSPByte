@@ -1,3 +1,4 @@
+import pMap from 'p-map';
 import { Tables, TablesInsert } from '@/db/schema';
 import {
   isUserCapableOfCA,
@@ -23,64 +24,75 @@ export async function transformIdentities(
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
   const timer = new Timer('TransformIdentities', true);
+
   try {
-    const identities: TablesInsert<'source_identities'>[] = [];
-    for await (const user of users) {
-      timer.begin(user.userPrincipalName);
+    const identities = await pMap(
+      users,
+      async (user): Promise<TablesInsert<'source_identities'> | null> => {
+        try {
+          timer.begin(user.userPrincipalName);
 
-      timer.begin('fetchExternalUserData');
-      const mfaMethods = await getAuthenticationMethods(user.id, mapping);
-      const userContext = await getUserContext(user, mapping);
-      if (!mfaMethods.ok || !userContext.ok) {
-        throw new Error('Failed to fetch data');
-      }
-      timer.end('fetchExternalUserData');
+          const [mfaMethods, userContext] = await Promise.all([
+            getAuthenticationMethods(user.id, mapping),
+            getUserContext(user, mapping),
+          ]);
 
-      timer.begin('parseUserData');
-      const licenseSkus =
-        user.assignedLicenses?.map(
-          (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
-        ) || [];
-      const mfaEnforced =
-        securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
-      const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
+          if (!mfaMethods.ok || !userContext.ok) {
+            throw new Error('Failed to fetch data');
+          }
 
-      identities.push({
-        tenant_id: mapping.tenant_id,
-        source_id: mapping.source_id,
-        site_id: mapping.site_id,
-        source_tenant_id: mapping.id,
+          const licenseSkus =
+            user.assignedLicenses?.map(
+              (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
+            ) || [];
 
-        external_id: user.id,
-        enabled: user.accountEnabled!,
-        email: user.userPrincipalName!,
-        name: user.displayName!,
-        type: user.userType ? user.userType.toLowerCase() : 'member',
-        mfa_enforced: mfaEnforced,
-        enforcement_type: mfaEnforced
-          ? securityDefaultsEnabled
-            ? 'security_defaults'
-            : 'conditional_access'
-          : 'none',
-        mfa_methods: transformedMethods,
-        last_activity: user.signInActivity?.lastSignInDateTime ?? null,
-        license_skus: licenseSkus,
-        role_ids: userContext.data.roles.map((role) => role.displayName),
-        group_ids: userContext.data.groups.map((group) => group.displayName),
-        metadata: {
-          ...(user as any),
-          roles: userContext.data.roles,
-          groups: userContext.data.groups,
-          valid_mfa_license: isUserCapableOfCA(licenseSkus, subscribedSkus),
-        },
-        created_at: new Date().toISOString(),
-      });
-      timer.end('parseUserData');
+          const mfaEnforced =
+            securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
 
-      timer.end(user.userPrincipalName);
-    }
+          const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
-    return { ok: true, data: identities };
+          const identity: TablesInsert<'source_identities'> = {
+            tenant_id: mapping.tenant_id,
+            source_id: mapping.source_id,
+            site_id: mapping.site_id,
+            source_tenant_id: mapping.id,
+
+            external_id: user.id,
+            enabled: user.accountEnabled!,
+            email: user.userPrincipalName!,
+            name: user.displayName!,
+            type: user.userType ? user.userType.toLowerCase() : 'member',
+            mfa_enforced: mfaEnforced,
+            enforcement_type: mfaEnforced
+              ? securityDefaultsEnabled
+                ? 'security_defaults'
+                : 'conditional_access'
+              : 'none',
+            mfa_methods: transformedMethods,
+            last_activity: user.signInActivity?.lastSignInDateTime ?? null,
+            license_skus: licenseSkus,
+            role_ids: userContext.data.roles.map((role) => role.displayName),
+            group_ids: userContext.data.groups.map((group) => group.displayName),
+            metadata: {
+              ...(user as any),
+              roles: userContext.data.roles,
+              groups: userContext.data.groups,
+              valid_mfa_license: isUserCapableOfCA(licenseSkus, subscribedSkus),
+            },
+            created_at: new Date().toISOString(),
+          };
+
+          timer.end(user.userPrincipalName);
+          return identity;
+        } catch (err) {
+          console.warn(`Failed to transform user ${user.userPrincipalName}: ${err}`);
+          return null; // Skip this user
+        }
+      },
+      { concurrency: 10 } // Adjust as needed based on throttling/responsiveness
+    );
+
+    return { ok: true, data: identities.filter(Boolean) as TablesInsert<'source_identities'>[] };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft365',
