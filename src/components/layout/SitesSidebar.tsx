@@ -116,7 +116,7 @@ export default function SitesSidebar({ site, children }: Props) {
                     {Object.entries(tabs).length > 0 && (
                       <SidebarMenuSub>
                         {Object.entries(tabs).map(([key, value], index) => {
-                          const tabHref = `/sites/${site.slug}/${source?.source_id}${index === 0 ? '' : `/${key}`}`;
+                          const tabHref = `/sites/${site.slug}/${source?.source_id}${isGroupedPage ? '/grouped' : ''}${index === 0 ? '' : `/${key}`}`;
                           const isActive = pathname === tabHref;
 
                           return (
