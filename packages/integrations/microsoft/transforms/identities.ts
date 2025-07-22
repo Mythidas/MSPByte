@@ -88,6 +88,8 @@ export async function transformIdentities(
       message: String(err),
       time: new Date(),
     });
+  } finally {
+    timer.summary();
   }
 }
 
