@@ -1,7 +1,6 @@
 'use client';
 
 import IntegrationHeader from '@/components/source/integrations/IntegrationHeader';
-import IntegrationTabs from '@/components/source/integrations/IntegrationTabs';
 import { useSite } from '@/lib/providers/SiteContext';
 import { useParams } from 'next/navigation';
 

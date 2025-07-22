@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
-import { Skeleton } from '@/components/ui/skeleton';
 import SourceMetricsGrid from '@/components/source/sources/SourceMetricsGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import { Tables } from '@/db/schema';

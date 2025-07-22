@@ -15,8 +15,17 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
   const filtersFormatted = () => {
     let parsed = '';
     for (const [key, value] of Object.entries(metric.filters as Record<string, string>)) {
+      if (key === 'tab') {
+        continue;
+      }
+
       if (parsed.length > 0) parsed += '&';
+      else parsed += '?';
       parsed += `${key}=${value}`;
+    }
+
+    if ((metric.filters as Record<string, string>)['tab']) {
+      parsed = `/${(metric.filters as Record<string, string>)['tab']}` + parsed;
     }
 
     return parsed;
@@ -62,8 +71,8 @@ export default function SourceMetricCard({ metric, baseRoute }: Props) {
           <Link
             href={
               baseRoute
-                ? `${baseRoute}?${filtersFormatted()}`
-                : `/${metric.source_id}?${filtersFormatted()}`
+                ? `${baseRoute}${filtersFormatted()}`
+                : `/${metric.source_id}${filtersFormatted()}`
             }
           >
             {metric.name}

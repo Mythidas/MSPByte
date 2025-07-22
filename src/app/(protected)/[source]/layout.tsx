@@ -2,7 +2,6 @@
 
 import Loader from '@/components/shared/Loader';
 import IntegrationHeader from '@/components/source/integrations/IntegrationHeader';
-import IntegrationTabs from '@/components/source/integrations/IntegrationTabs';
 import { useUser } from '@/lib/providers/UserContext';
 import { useParams } from 'next/navigation';
 

@@ -17,7 +17,7 @@ import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
 import { BarChart3, Building2, Puzzle, Settings, LucideProps, Logs } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 type NavItem = {
