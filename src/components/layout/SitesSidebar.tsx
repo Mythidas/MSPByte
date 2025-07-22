@@ -8,8 +8,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import { SOURCE_TABS } from '@/config/sourceTabs';
 import { Tables } from '@/db/schema';
 import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
@@ -64,8 +66,6 @@ type Props = {
 
 export default function SitesSidebar({ site, children }: Props) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const sub = searchParams.get('sub');
   const segments = pathname.split('/').filter(Boolean);
   const { source } = useSource();
 
@@ -96,8 +96,11 @@ export default function SitesSidebar({ site, children }: Props) {
                   (item.href === '/grouped' && isGroupedPage) ||
                   (item.href === '/children' && isOnChildren) ||
                   (item.href === '/activity' && isOnActivity);
-
                 const Icon = item.icon;
+                const tabs =
+                  (isDashboard || isGroupedPage) && isActive && source
+                    ? SOURCE_TABS[source.source_id!]
+                    : {};
 
                 return (
                   <SidebarMenuItem key={item.href}>
@@ -110,36 +113,22 @@ export default function SitesSidebar({ site, children }: Props) {
                         {item.label}
                       </Link>
                     </SidebarMenuButton>
+                    {Object.entries(tabs).length > 0 && (
+                      <SidebarMenuSub>
+                        {Object.entries(tabs).map(([key, value], index) => {
+                          const tabHref = `/sites/${site.slug}/${source?.source_id}${index === 0 ? '' : `/${key}`}`;
+                          const isActive = pathname === tabHref;
 
-                    {item.children &&
-                      isActive &&
-                      site.is_parent &&
-                      item.children.map((child) => {
-                        const subIsActive =
-                          (sub && child.href.includes(sub)) ||
-                          (!sub && item.children && child.href === item.children[0].href);
-
-                        return (
-                          <SidebarMenuSub key={child.href}>
-                            <SidebarMenuSubItem>
-                              <SidebarMenuButton asChild>
-                                <Link
-                                  href={`${baseHref}${child.href}`}
-                                  className={cn(
-                                    'text-xs transition-colors',
-                                    subIsActive
-                                      ? 'text-primary font-medium'
-                                      : 'text-muted-foreground hover:text-foreground'
-                                  )}
-                                >
-                                  <child.icon className="h-3 w-3" />
-                                  {child.label}
-                                </Link>
-                              </SidebarMenuButton>
+                          return (
+                            <SidebarMenuSubItem key={key}>
+                              <SidebarMenuSubButton asChild isActive={isActive}>
+                                <Link href={tabHref}>{value.label}</Link>
+                              </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
-                          </SidebarMenuSub>
-                        );
-                      })}
+                          );
+                        })}
+                      </SidebarMenuSub>
+                    )}
                   </SidebarMenuItem>
                 );
               })}

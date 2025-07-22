@@ -44,7 +44,6 @@ export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: 
   return (
     <DataTable
       fetcher={fetcher}
-      height="max-h-[50vh]"
       action={
         !siteLevel && (
           <Microsoft365MappingsDialog

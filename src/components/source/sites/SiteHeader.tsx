@@ -43,7 +43,7 @@ export default function SiteHeader({ site }: Props) {
         <div className="p-2 bg-primary/10 rounded-lg">
           {site.is_parent ? <Globe className="h-5 w-5" /> : <Building2 className="h-5 w-5" />}
         </div>
-        <div>
+        <div className="flex gap-2">
           <h1 className="text-2xl font-bold">{site.name}</h1>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant={site.is_parent ? 'default' : 'secondary'}>

@@ -11,11 +11,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useSource } from '@/lib/providers/SourceContext';
+import { SOURCE_TABS } from '@/config/sourceTabs';
 
 type Item = {
   title: string;
@@ -55,11 +59,45 @@ export default function AppSidebar() {
   const { source } = useSource();
 
   const renderItem = (item: Item, admin?: boolean) => {
+    const isSites = pathname.includes('/sites');
+    const isIntegrations = pathname.includes('/integrations');
+    const isUsers = pathname.includes('/users');
+    const isHome = !isSites && !isIntegrations && !isUsers;
+
     const isActive =
-      item.url === '/'
-        ? pathname === '/' || pathname.split('?')[0] === `/${source?.source_id}`
-        : pathname.includes(item.url);
+      (item.url === '/' && isHome) ||
+      (item.url === '/users' && isUsers) ||
+      (item.url === '/integrations' && isIntegrations) ||
+      (item.url === '/sites' && isSites);
     const baseRoute = source && !admin && item.url !== '/sites' ? `/${source.source_id}` : '';
+    const tabs = isHome && item.url === '/' && source ? SOURCE_TABS[source.source_id!] : {};
+
+    if (Object.entries(tabs).length > 0) {
+      return (
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild isActive={isActive}>
+            <Link href={`${baseRoute}${item.url}`}>
+              <item.icon />
+              <span>{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+          <SidebarMenuSub>
+            {Object.entries(tabs).map(([key, value], index) => {
+              const tabHref = `/${source?.source_id}${index === 0 ? '' : `/${key}`}`;
+              const isActive = pathname === tabHref;
+
+              return (
+                <SidebarMenuSubItem key={key}>
+                  <SidebarMenuSubButton asChild isActive={isActive}>
+                    <Link href={tabHref}>{value.label}</Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      );
+    }
 
     return (
       <SidebarMenuItem key={item.title}>

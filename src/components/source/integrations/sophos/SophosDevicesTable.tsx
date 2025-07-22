@@ -44,7 +44,6 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
     <DataTable
       fetcher={fetcher}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
-      height="max-h-[40vh]"
       columns={
         [
           textColumn({

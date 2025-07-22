@@ -20,7 +20,6 @@ export default function Layout({ children }: Props) {
   return (
     <div className="flex flex-col size-full gap-4">
       <IntegrationHeader sourceId={source as string} siteId={site.id} tenantId={site.tenant_id} />
-      <IntegrationTabs sourceId={source as string} siteId={site.slug} />
       {children}
     </div>
   );

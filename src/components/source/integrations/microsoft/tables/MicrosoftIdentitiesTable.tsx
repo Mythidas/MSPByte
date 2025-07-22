@@ -102,7 +102,6 @@ export default function MicrosoftIdentitiesTable({
     <DataTable
       fetcher={fetcher}
       initialVisibility={initialVisibility}
-      height="max-h-[50vh]"
       columns={
         [
           textColumn({
