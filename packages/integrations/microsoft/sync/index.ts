@@ -118,6 +118,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       if (!policies.ok || !identities.ok) return;
 
       await syncMetrics(tenant, policies.data.rows, [], identities.data.rows);
-    })
-    .run();
+    });
+
+  return await sync.run();
 }
