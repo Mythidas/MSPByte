@@ -24,7 +24,7 @@ export async function transformIdentities(
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
   const timer = new Timer('TransformIdentities', true);
-  const amount = Math.ceil((100 / users.length) * 10);
+  const amount = Math.ceil((150 / users.length) * 10);
   console.log(`Concurrency Amount: ${amount}`);
 
   try {
