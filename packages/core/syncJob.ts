@@ -1,6 +1,5 @@
 import { Tables } from '@/db/schema';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
-import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -8,10 +7,10 @@ export async function syncJob(job: Tables<'source_sync_jobs'>, supabase: Supabas
   try {
     switch (job.source_id) {
       case 'sophos-partner': {
-        // await syncSophosPartner(integration.data, job.site_id);
+        // return await syncSophosPartner(integration.data, job.site_id);
       }
       case 'microsoft-365': {
-        await syncMicrosoft365(job);
+        return await syncMicrosoft365(job);
       }
       default:
         throw new Error('No sync defined for this source');
