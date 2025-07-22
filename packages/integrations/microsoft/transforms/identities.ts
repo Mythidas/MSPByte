@@ -30,8 +30,6 @@ export async function transformIdentities(
       users,
       async (user): Promise<TablesInsert<'source_identities'> | null> => {
         try {
-          timer.begin(user.userPrincipalName);
-
           const [mfaMethods, userContext] = await Promise.all([
             getAuthenticationMethods(user.id, mapping),
             getUserContext(user, mapping),
@@ -82,7 +80,6 @@ export async function transformIdentities(
             created_at: new Date().toISOString(),
           };
 
-          timer.end(user.userPrincipalName);
           return identity;
         } catch (err) {
           console.warn(`Failed to transform user ${user.userPrincipalName}: ${err}`);
