@@ -12,7 +12,7 @@ import {
 } from '@/integrations/microsoft/types/identity';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';
-import { Debug } from '@/lib/utils';
+import { Debug, Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function transformIdentities(
@@ -22,15 +22,21 @@ export async function transformIdentities(
   securityDefaultsEnabled: boolean,
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
+  const timer = new Timer('TransformIdentities', true);
   try {
     const identities: TablesInsert<'source_identities'>[] = [];
     for await (const user of users) {
+      timer.begin(user.userPrincipalName);
+
+      timer.begin('fetchExternalUserData');
       const mfaMethods = await getAuthenticationMethods(user.id, mapping);
       const userContext = await getUserContext(user, mapping);
       if (!mfaMethods.ok || !userContext.ok) {
         throw new Error('Failed to fetch data');
       }
+      timer.end('fetchExternalUserData');
 
+      timer.begin('parseUserData');
       const licenseSkus =
         user.assignedLicenses?.map(
           (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
@@ -69,6 +75,9 @@ export async function transformIdentities(
         },
         created_at: new Date().toISOString(),
       });
+      timer.end('parseUserData');
+
+      timer.end(user.userPrincipalName);
     }
 
     return { ok: true, data: identities };

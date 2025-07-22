@@ -60,6 +60,7 @@ export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIR
     }
     timer.end('syncMetrics');
 
+    timer.begin('updateTenant');
     await updateSourceTenant(tenant.id, {
       ...tenant,
       last_sync: new Date().toISOString(),
@@ -72,6 +73,7 @@ export async function syncTenant(tenant: Tables<'source_tenants'>): Promise<APIR
             : 'none',
       },
     });
+    timer.end('updateTenant');
 
     return {
       ok: true,
