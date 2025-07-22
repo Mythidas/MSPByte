@@ -8,8 +8,9 @@ import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getUsers(
   mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
-  licenses: MSGraphSubscribedSku[]
-): Promise<APIResponse<MSGraphUser[]>> {
+  licenses: MSGraphSubscribedSku[],
+  cursor?: string
+): Promise<APIResponse<{ users: MSGraphUser[]; next?: string }>> {
   try {
     const metadata = mapping.metadata as any;
     const client = await getGraphClient(
@@ -19,32 +20,39 @@ export async function getUsers(
     );
     if (!client.ok) throw new Error(client.error.message);
 
+    if (cursor) {
+      const response = await client.data.api(cursor).get();
+
+      return {
+        ok: true,
+        data: {
+          users: response.value,
+          next: response['@odata.nextLink'],
+        },
+      };
+    }
+
     const fields = getSupportedUserFields(licenses);
     const domains = (mapping.metadata as { domains: string[] }).domains.map((domain) =>
       domain.trim()
     );
     const filter = domains.map((domain) => `endswith(userPrincipalName,'@${domain}')`).join(' or ');
 
-    let query = client.data
+    const query = client.data
       .api('/users')
       .select(fields.join(','))
       .header('ConsistencyLevel', 'eventual')
       .orderby('userPrincipalName')
       .filter(filter);
 
-    let allUsers: MSGraphUser[] = [];
-    let response = await query.get();
-
-    allUsers = allUsers.concat(response.value);
-
-    while (response['@odata.nextLink']) {
-      response = await client.data.api(response['@odata.nextLink']).get();
-      allUsers = allUsers.concat(response.value);
-    }
+    const response = await query.get();
 
     return {
       ok: true,
-      data: allUsers,
+      data: {
+        users: response.value,
+        next: response['@odata.nextLink'],
+      },
     };
   } catch (err) {
     return Debug.error({

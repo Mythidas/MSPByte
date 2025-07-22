@@ -11,12 +11,16 @@ import { MSGraphUser } from '@/integrations/microsoft/types/users';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
-export default async function fetchExternal(tenant: Tables<'source_tenants'>): Promise<
+export default async function fetchExternal(
+  tenant: Tables<'source_tenants'>,
+  cursor?: string
+): Promise<
   APIResponse<{
     subscribedSkus: MSGraphSubscribedSku[];
     caPolicies: MSGraphConditionalAccessPolicy[];
     securityDefaults: boolean;
     users: MSGraphUser[];
+    cursor?: string;
   }>
 > {
   const [subscribedSkus, caPolicies, securityDefaults] = await Promise.all([
@@ -34,7 +38,7 @@ export default async function fetchExternal(tenant: Tables<'source_tenants'>): P
     });
   }
 
-  const users = await getUsers(tenant, subscribedSkus.data);
+  const users = await getUsers(tenant, subscribedSkus.data, cursor);
   if (!users.ok) {
     return Debug.error({
       module: 'Microsoft365',
@@ -50,7 +54,8 @@ export default async function fetchExternal(tenant: Tables<'source_tenants'>): P
       subscribedSkus: subscribedSkus.data,
       caPolicies: caPolicies.data,
       securityDefaults: securityDefaults.data,
-      users: users.data,
+      users: users.data.users,
+      cursor: users.data.next,
     },
   };
 }

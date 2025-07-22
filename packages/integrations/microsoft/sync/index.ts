@@ -2,54 +2,16 @@
 
 import SyncChain from '@/core/SyncChain';
 import { Tables } from '@/db/schema';
-import {
-  getSubscribedSku,
-  getConditionalAccessPolicies,
-  getSecurityDefaultsEnabled,
-} from '@/integrations/microsoft/services/identity';
-import { getUsers } from '@/integrations/microsoft/services/users';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
 import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
 import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
-import { syncTenant } from '@/integrations/microsoft/sync/syncTenant';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
-import { Debug, Timer } from '@/lib/utils';
+import { Debug } from '@/lib/utils';
 import { getSourceIdentities } from '@/services/identities';
 import { getSourcePolicies } from '@/services/policies';
 import { getSourceTenant } from '@/services/source/tenants';
-import { APIResponse } from '@/types';
-
-export async function _syncMicrosoft365(
-  integration: Tables<'source_integrations'>,
-  siteId: string
-): Promise<APIResponse<null>> {
-  try {
-    const timer = new Timer('Microsoft365Sync');
-    const tenant = await getSourceTenant(integration.source_id!, siteId);
-    if (!tenant.ok) {
-      throw new Error(tenant.error.message);
-    }
-
-    const result = await syncTenant(tenant.data);
-    if (!result.ok) throw result.error.message;
-
-    timer.summary();
-
-    return {
-      ok: true,
-      data: null,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'integrations',
-      context: 'syncMicrosoft365',
-      message: String(err),
-      time: new Date(),
-    });
-  }
-}
 
 export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
   const tenantResult = await getSourceTenant(job.source_id, job.site_id);
@@ -63,8 +25,10 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     source_id: job.source_id,
     site_id: job.site_id,
   })
-    .step('Fetch External', async () => {
-      return await fetchExternal(tenant);
+    .step('Fetch External', async (ctx) => {
+      const result = await fetchExternal(tenant);
+      if (result.ok) ctx.setState?.('users', result.data.cursor);
+      return result;
     })
     .step(
       'Transform External',

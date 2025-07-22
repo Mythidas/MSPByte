@@ -10,7 +10,7 @@ type SyncContext = {
   source_id: string;
   site_id: string;
   getState?: (name: string) => string | undefined;
-  setState?: (name: string, value: string) => string | undefined;
+  setState?: (name: string, value: string | undefined) => string | undefined;
 };
 
 type SyncStep<TInput = any, TOutput = any> = (
@@ -28,7 +28,8 @@ export default class SyncChain<TInput = null> {
     this.ctx = {
       ...ctx,
       getState: (name) => (this.ctx.state as Record<string, string>)[name],
-      setState: (name, value) => ((this.ctx.state as Record<string, string>)[name] = value),
+      setState: (name, value) =>
+        ((this.ctx.state as Record<string, string | undefined>)[name] = value),
     };
   }
 

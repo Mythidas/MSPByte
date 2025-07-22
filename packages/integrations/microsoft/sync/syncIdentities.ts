@@ -3,7 +3,6 @@ import { Debug } from '@/lib/utils';
 import {
   getSourceIdentities,
   putSourceIdentities,
-  deleteSourceIdentities,
   updateSourceIdentity,
 } from '@/services/identities';
 import { APIResponse } from '@/types';
@@ -38,15 +37,15 @@ export async function syncIdentities(
       throw new Error('Failed to insert source identities');
     }
 
-    const deleted = await deleteSourceIdentities(toDelete);
-    if (!deleted.ok) {
-      Debug.warn({
-        module: 'Microsoft365',
-        context: 'syncIdentities',
-        message: 'Failed to delete source identities',
-        time: new Date(),
-      });
-    }
+    // const deleted = await deleteSourceIdentities(toDelete);
+    // if (!deleted.ok) {
+    //   Debug.warn({
+    //     module: 'Microsoft365',
+    //     context: 'syncIdentities',
+    //     message: 'Failed to delete source identities',
+    //     time: new Date(),
+    //   });
+    // }
 
     const identities = [...inserted.data];
     for await (const update of toUpdate) {
