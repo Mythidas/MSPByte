@@ -41,11 +41,9 @@ export async function GET() {
         message: `Starting ${jobs.length} sync jobs`,
         time: new Date(),
       });
-      for (const job of jobs) {
-        await syncJob(job, supabase); // supabase context flows implicitly
-      }
+      await Promise.all(jobs.map((job) => syncJob(job, supabase)));
 
-      return NextResponse.json({ status: 'started' });
+      return NextResponse.json({ status: 'finished' });
     } catch (err) {
       Debug.error({
         module: '/api/v1/sync-jobs',
