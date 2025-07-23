@@ -9,8 +9,8 @@ import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
 import { Debug } from '@/lib/utils';
-import { getSourceIdentities } from '@/services/identities';
-import { getSourcePolicies } from '@/services/policies';
+import { deleteSourceIdentities, getSourceIdentities } from '@/services/identities';
+import { deleteSourcePolicies, getSourcePolicies } from '@/services/policies';
 import { getSourceTenant, updateSourceTenant } from '@/services/source/tenants';
 
 export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
@@ -65,9 +65,9 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     )
     .step(
       'Sync Data',
-      async (_ctx, { transformedUsers, transformedPolicies, securityDefaults, caPolicies }) => {
-        const policies = await syncPolicies(tenant, transformedPolicies);
-        const identities = await syncIdentities(tenant, transformedUsers);
+      async (ctx, { transformedUsers, transformedPolicies, securityDefaults, caPolicies }) => {
+        const policies = await syncPolicies(tenant, transformedPolicies, ctx.sync_id);
+        const identities = await syncIdentities(tenant, transformedUsers, ctx.sync_id);
         if (!policies.ok || !identities.ok) {
           return Debug.error({
             module: 'Microsoft365',
@@ -79,7 +79,10 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
 
         return {
           ok: true,
-          data: { securityDefaults, caPolicies },
+          data: {
+            securityDefaults,
+            caPolicies,
+          },
         };
       }
     )
@@ -103,7 +106,19 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
 
       if (!policies.ok || !identities.ok) return;
 
-      await syncMetrics(tenant, policies.data.rows, [], identities.data.rows);
+      const identitiesToDelete = identities.data.rows
+        .filter((id) => id.sync_id && id.sync_id !== ctx.sync_id)
+        .map((id) => id.id);
+      const policicesToDelete = policies.data.rows
+        .filter((pol) => pol.sync_id && pol.sync_id !== ctx.sync_id)
+        .map((pol) => pol.id);
+
+      await deleteSourceIdentities(identitiesToDelete);
+      await deleteSourcePolicies(policicesToDelete);
+
+      const _identities = identities.data.rows.filter((id) => !identitiesToDelete.includes(id.id));
+      const _policies = policies.data.rows.filter((pol) => !policicesToDelete.includes(pol.id));
+      await syncMetrics(tenant, _policies, [], _identities);
     });
 
   return await sync.run();

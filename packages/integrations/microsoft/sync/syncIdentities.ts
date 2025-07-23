@@ -9,7 +9,8 @@ import { APIResponse } from '@/types';
 
 export async function syncIdentities(
   tenant: Tables<'source_tenants'>,
-  graphUsers: TablesInsert<'source_identities'>[]
+  graphUsers: TablesInsert<'source_identities'>[],
+  sync_id: string
 ): Promise<APIResponse<Tables<'source_identities'>[]>> {
   try {
     const existingIdentities = await getSourceIdentities(tenant.source_id!, [tenant.site_id!]);
@@ -23,29 +24,14 @@ export async function syncIdentities(
     for (const user of graphUsers) {
       const existing = existingIdentities.data.rows.find((i) => i.external_id === user.external_id);
 
-      if (existing) toUpdate.push({ ...existing, ...user });
-      else toInsert.push({ ...user });
+      if (existing) toUpdate.push({ ...existing, ...user, sync_id });
+      else toInsert.push({ ...user, sync_id });
     }
-
-    const updateIds = new Set(toUpdate.map((u) => u.external_id));
-    const toDelete = existingIdentities.data.rows
-      .filter((item) => !updateIds.has(item.external_id))
-      .map((item) => item.id);
 
     const inserted = await putSourceIdentities(toInsert);
     if (!inserted.ok) {
       throw new Error('Failed to insert source identities');
     }
-
-    // const deleted = await deleteSourceIdentities(toDelete);
-    // if (!deleted.ok) {
-    //   Debug.warn({
-    //     module: 'Microsoft365',
-    //     context: 'syncIdentities',
-    //     message: 'Failed to delete source identities',
-    //     time: new Date(),
-    //   });
-    // }
 
     const identities = [...inserted.data];
     for await (const update of toUpdate) {

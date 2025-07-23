@@ -10,7 +10,8 @@ import { APIResponse } from '@/types';
 
 export async function syncPolicies(
   tenant: Tables<'source_tenants'>,
-  caPolicies: TablesInsert<'source_policies'>[]
+  caPolicies: TablesInsert<'source_policies'>[],
+  sync_id: string
 ): Promise<APIResponse<Tables<'source_policies'>[]>> {
   try {
     const existingPolicies = await getSourcePolicies(tenant.source_id, [tenant.site_id]);
@@ -24,8 +25,8 @@ export async function syncPolicies(
     for (const policy of caPolicies) {
       const existing = existingPolicies.data.rows.find((i) => i.external_id === policy.id);
 
-      if (existing) toUpdate.push({ ...existing, ...policy });
-      else toInsert.push({ ...policy });
+      if (existing) toUpdate.push({ ...existing, ...policy, sync_id });
+      else toInsert.push({ ...policy, sync_id });
     }
 
     const updateIds = new Set(toUpdate.map((u) => u.external_id));

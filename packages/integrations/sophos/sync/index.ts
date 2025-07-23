@@ -8,7 +8,7 @@ import { syncDevices } from '@/integrations/sophos/sync/syncDevices';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
 import { Debug } from '@/lib/utils';
-import { getSourceDevices } from '@/services/devices';
+import { deleteSourceDevices, getSourceDevices } from '@/services/devices';
 import { getSourceIntegration } from '@/services/integrations';
 import { getSourceTenant } from '@/services/source/tenants';
 
@@ -71,14 +71,21 @@ export async function syncSophosPartner(job: Tables<'source_sync_jobs'>) {
 
       return {
         ok: true,
-        data: null,
+        data: { devices: devices.data },
       };
     })
     .final(async (ctx) => {
       const devices = await getSourceDevices(ctx.source_id, [ctx.site_id]);
       if (!devices.ok) return;
 
-      await syncMetrics(tenant, devices.data.rows);
+      const devicesToDelete = devices.data.rows
+        .filter((d) => d.sync_id && d.sync_id !== ctx.sync_id)
+        .map((d) => d.id);
+
+      await deleteSourceDevices(devicesToDelete);
+
+      const _devices = devices.data.rows.filter((dev) => !devicesToDelete.includes(dev.id));
+      await syncMetrics(tenant, _devices);
     });
 
   return await sync.run();
