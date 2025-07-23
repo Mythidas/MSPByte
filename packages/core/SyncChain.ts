@@ -9,8 +9,8 @@ type SyncContext = {
   tenant_id: string;
   source_id: string;
   site_id: string;
-  getState?: (name: string) => string | undefined;
-  setState?: (name: string, value: string | undefined) => string | undefined;
+  getState: (name: string) => string | undefined;
+  setState: (name: string, value: string | undefined) => void;
 };
 
 type SyncStep<TInput = any, TOutput = any> = (

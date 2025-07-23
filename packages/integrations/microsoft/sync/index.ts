@@ -24,10 +24,12 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     sync_id: job.id,
     source_id: job.source_id,
     site_id: job.site_id,
+    getState: () => '',
+    setState: () => {},
   })
     .step('Fetch External', async (ctx) => {
-      const result = await fetchExternal(tenant);
-      if (result.ok) ctx.setState?.('users', result.data.cursor);
+      const result = await fetchExternal(tenant, ctx.getState('users'));
+      if (result.ok) ctx.setState('users', result.data.cursor);
       return result;
     })
     .step(
