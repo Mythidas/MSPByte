@@ -82,7 +82,7 @@ export default class SyncChain<TInput = null> {
       .update({
         completed_at: completed,
         state: this.ctx.state,
-        status: finished ? 'complete' : 'pending',
+        status: finished ? 'completed' : 'pending',
       })
       .eq('id', this.ctx.sync_id);
 

@@ -1,5 +1,6 @@
 import { Tables } from '@/db/schema';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
+import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 import { SupabaseClient } from '@supabase/supabase-js';
 
@@ -7,7 +8,7 @@ export async function syncJob(job: Tables<'source_sync_jobs'>, supabase: Supabas
   try {
     switch (job.source_id) {
       case 'sophos-partner': {
-        // return await syncSophosPartner(integration.data, job.site_id);
+        return await syncSophosPartner(job);
       }
       case 'microsoft-365': {
         return await syncMicrosoft365(job);
