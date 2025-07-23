@@ -80,4 +80,6 @@ export async function syncSophosPartner(job: Tables<'source_sync_jobs'>) {
 
       await syncMetrics(tenant, devices.data.rows);
     });
+
+  return await sync.run();
 }
