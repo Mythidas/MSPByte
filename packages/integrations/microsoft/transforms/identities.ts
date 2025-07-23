@@ -1,6 +1,7 @@
 import pMap from 'p-map';
 import { Tables, TablesInsert } from '@/db/schema';
 import {
+  doesPolicyApplyToUser,
   isUserCapableOfCA,
   isUserRequiredToUseMFA,
 } from '@/integrations/microsoft/helpers/conditionalAccess';
@@ -76,6 +77,9 @@ export async function transformIdentities(
               roles: userContext.data.roles,
               groups: userContext.data.groups,
               valid_mfa_license: isUserCapableOfCA(licenseSkus, subscribedSkus),
+              appliedCaPolicies: caPolicies
+                .filter((pol) => doesPolicyApplyToUser(pol, userContext.data))
+                .map((pol) => pol.displayName),
             },
             created_at: new Date().toISOString(),
           };

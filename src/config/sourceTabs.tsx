@@ -1,5 +1,6 @@
 import MicrosoftDashboardTab from '@/components/source/integrations/microsoft/tabs/MicrosoftDashboardTab';
 import MicrosoftIdentitiesTab from '@/components/source/integrations/microsoft/tabs/MicrosoftIdentitiesTab';
+import MicrosoftPoliciesTab from '@/components/source/integrations/microsoft/tabs/MicrosoftPoliciesTab';
 import MicrosoftTenantsTab from '@/components/source/integrations/microsoft/tabs/MicrosoftTenantsTab';
 import SophosDashboardTab from '@/components/source/integrations/sophos/tabs/SophosDashboardTab';
 import SophosDevicesTab from '@/components/source/integrations/sophos/tabs/SophosDevicesTab';
@@ -37,6 +38,12 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
       label: 'Identities',
       content: (source, parent, site) => (
         <MicrosoftIdentitiesTab sourceId={source} parent={parent} site={site} />
+      ),
+    },
+    policies: {
+      label: 'Policies',
+      content: (source, parent, site) => (
+        <MicrosoftPoliciesTab sourceId={source} parent={parent} site={site} />
       ),
     },
   },

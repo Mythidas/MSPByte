@@ -14,7 +14,7 @@ export function transformPolicies(
     external_id: policy.id,
     name: policy.displayName,
     type: 'conditional_access',
-    status: policy.state,
+    status: policy.state === 'enabledForReportingButNotEnforced' ? 'report_only' : policy.state,
     metadata: policy,
     created_at: policy.createdDateTime,
   }));

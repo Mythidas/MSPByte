@@ -1,14 +1,39 @@
 'use server';
 
+import { PaginationOptions } from '@/types/data-table';
 import { tables } from 'packages/db';
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 
-export async function getSourcePolicies(sourceId?: string, siteIds?: string[]) {
-  return tables.select('source_policies', (query) => {
-    query = query.order('name');
-    if (sourceId) query = query.eq('source_id', sourceId);
-    if (siteIds) query = query.in('site_id', siteIds);
-  });
+export async function getSourcePolicies(
+  sourceId?: string,
+  siteIds?: string[],
+  pagination?: PaginationOptions
+) {
+  return tables.select(
+    'source_policies',
+    (query) => {
+      query = query.order('name');
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    },
+    pagination
+  );
+}
+
+export async function getSourcePoliciesView(
+  sourceId?: string,
+  siteIds?: string[],
+  pagination?: PaginationOptions
+) {
+  return tables.select(
+    'source_policies_view',
+    (query) => {
+      query = query.order('name');
+      if (sourceId) query = query.eq('source_id', sourceId);
+      if (siteIds) query = query.in('site_id', siteIds);
+    },
+    pagination
+  );
 }
 
 export async function putSourcePolicies(policies: TablesInsert<'source_policies'>[]) {
