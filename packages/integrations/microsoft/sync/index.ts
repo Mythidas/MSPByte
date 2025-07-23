@@ -11,7 +11,7 @@ import { transformPolicies } from '@/integrations/microsoft/transforms/policies'
 import { Debug } from '@/lib/utils';
 import { getSourceIdentities } from '@/services/identities';
 import { getSourcePolicies } from '@/services/policies';
-import { getSourceTenant } from '@/services/source/tenants';
+import { getSourceTenant, updateSourceTenant } from '@/services/source/tenants';
 
 export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
   const tenantResult = await getSourceTenant(job.source_id, job.site_id);
@@ -54,26 +54,46 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
 
         return {
           ok: true,
-          data: { transformedUsers: transformedUsers.data, transformedPolicies },
+          data: {
+            transformedUsers: transformedUsers.data,
+            transformedPolicies,
+            securityDefaults,
+            caPolicies,
+          },
         };
       }
     )
-    .step('Sync Data', async (_ctx, { transformedUsers, transformedPolicies }) => {
-      const policies = await syncPolicies(tenant, transformedPolicies);
-      const identities = await syncIdentities(tenant, transformedUsers);
-      if (!policies.ok || !identities.ok) {
-        return Debug.error({
-          module: 'Microsoft365',
-          context: 'Sync Data',
-          message: 'Failed to sync data',
-          time: new Date(),
-        });
-      }
+    .step(
+      'Sync Data',
+      async (_ctx, { transformedUsers, transformedPolicies, securityDefaults, caPolicies }) => {
+        const policies = await syncPolicies(tenant, transformedPolicies);
+        const identities = await syncIdentities(tenant, transformedUsers);
+        if (!policies.ok || !identities.ok) {
+          return Debug.error({
+            module: 'Microsoft365',
+            context: 'Sync Data',
+            message: 'Failed to sync data',
+            time: new Date(),
+          });
+        }
 
-      return {
-        ok: true,
-        data: null,
-      };
+        return {
+          ok: true,
+          data: { securityDefaults, caPolicies },
+        };
+      }
+    )
+    .step('Update Tenant', async (ctx, { securityDefaults, caPolicies }) => {
+      return await updateSourceTenant(ctx.tenant_id, {
+        metadata: {
+          ...(tenant.metadata as any),
+          mfa_enforcement: securityDefaults
+            ? 'security_defaults'
+            : caPolicies.length > 0
+              ? 'conditional_access'
+              : 'none',
+        },
+      });
     })
     .final(async (ctx) => {
       const [policies, identities] = await Promise.all([
