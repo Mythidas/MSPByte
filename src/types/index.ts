@@ -18,6 +18,13 @@ export type TabProps = {
   content: (source: string, parent?: Tables<'sites'>, site?: Tables<'sites'>) => React.ReactNode;
 };
 
+export type ActionProps = {
+  label: string;
+  icon?: string;
+  description: string;
+  content: (source: string) => React.ReactNode;
+};
+
 export type APIError = {
   module: string;
   context: string;

@@ -337,7 +337,11 @@ function DataTableInner<TData>(
     <div className="flex flex-col size-full gap-4">
       <div className="flex w-full h-fit justify-between">
         <div className="flex items-center w-full max-w-sm gap-2">
-          <SearchBar placeholder="Search..." onSearch={setGlobalSearch} delay={1000} />
+          <SearchBar
+            placeholder="Search..."
+            onSearch={setGlobalSearch}
+            delay={initialData ? 0 : 1000}
+          />
           <Suspense fallback={<div>Loading...</div>}>
             <DataTableFilters
               filters={filters || {}}

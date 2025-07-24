@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, LucideProps, ShieldUser } from 'lucide-react';
+import { Building2, Cable, ChartArea, LucideProps, ScanText, ShieldUser } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -31,13 +31,18 @@ type Item = {
 const applicationItems: Item[] = [
   {
     title: 'Home',
-    url: '/',
+    url: '',
     icon: ChartArea,
   },
   {
     title: 'Sites',
     url: '/sites',
     icon: Building2,
+  },
+  {
+    title: 'Actions',
+    url: '/actions',
+    icon: ScanText,
   },
 ];
 
@@ -62,21 +67,23 @@ export default function AppSidebar() {
     const isSites = pathname.includes('/sites');
     const isIntegrations = pathname.includes('/integrations');
     const isUsers = pathname.includes('/users');
-    const isHome = !isSites && !isIntegrations && !isUsers;
+    const isActions = pathname.includes('/actions');
+    const isHome = !isSites && !isIntegrations && !isUsers && !isActions;
 
     const isActive =
-      (item.url === '/' && isHome) ||
+      (item.url === '' && isHome) ||
       (item.url === '/users' && isUsers) ||
       (item.url === '/integrations' && isIntegrations) ||
-      (item.url === '/sites' && isSites);
-    const baseRoute = source && !admin && item.url !== '/sites' ? `/${source.source_id}` : '';
-    const tabs = isHome && item.url === '/' && source ? SOURCE_TABS[source.source_id!] : {};
+      (item.url === '/sites' && isSites) ||
+      (item.url === '/actions' && isActions);
+    const endRoute = item.url !== '/sites' && !admin ? `/${source?.source_id}` : '';
+    const tabs = isHome && item.url === '' && source ? SOURCE_TABS[source.source_id!] : {};
 
     if (Object.entries(tabs).length > 0) {
       return (
         <SidebarMenuItem key={item.title}>
           <SidebarMenuButton asChild isActive={isActive}>
-            <Link href={`${baseRoute}${item.url}`}>
+            <Link href={`${item.url}${endRoute}`}>
               <item.icon />
               <span>{item.title}</span>
             </Link>
@@ -102,7 +109,7 @@ export default function AppSidebar() {
     return (
       <SidebarMenuItem key={item.title}>
         <SidebarMenuButton asChild isActive={isActive}>
-          <Link href={`${baseRoute}${item.url}`}>
+          <Link href={`${item.url}${endRoute}`}>
             <item.icon />
             <span>{item.title}</span>
           </Link>
