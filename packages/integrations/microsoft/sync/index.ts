@@ -41,7 +41,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
         const skus = subscribedSkus.map((sku) => sku.skuPartNumber);
         console.log(skus);
         const licenseInfo = await getRows('source_license_info', {
-          filters: [['sku', 'in', skus.join(',')]],
+          filters: [['sku', 'in', skus]],
         });
         console.log(licenseInfo.ok ? licenseInfo.data.rows : []);
 
