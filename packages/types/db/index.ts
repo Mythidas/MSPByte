@@ -7,7 +7,7 @@ export type TableOrView = keyof Database['public']['Tables'] | keyof Database['p
 
 export type RowFilter<T extends TableOrView> = [
   column: keyof Tables<T>,
-  operator: 'eq' | 'neq',
+  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'is' | 'not' | 'in',
   value: any,
 ];
 

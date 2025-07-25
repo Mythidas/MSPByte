@@ -1,6 +1,7 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
+import { getRows } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
@@ -37,8 +38,16 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     .step(
       'Transform External',
       async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users }) => {
+        const licenseInfo = await getRows('source_license_info', {
+          filters: [['sku', 'in', subscribedSkus.map((sku) => sku.skuPartNumber)]],
+        });
+
         const transformedPolicies = transformPolicies(caPolicies, tenant);
-        const transformedLicenses = transformLicenses(subscribedSkus, tenant);
+        const transformedLicenses = transformLicenses(
+          subscribedSkus,
+          tenant,
+          licenseInfo.ok ? licenseInfo.data.rows : []
+        );
         const transformedUsers = await transformIdentities(
           users,
           subscribedSkus,
