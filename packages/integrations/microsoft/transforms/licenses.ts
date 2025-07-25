@@ -15,8 +15,9 @@ export function transformLicenses(
     external_id: license.id || '',
     name: license.skuPartNumber,
     sku: license.skuId,
-    status: 'active',
-    units: license.consumedUnits,
+    status: license.capabilityStatus,
+    units: license.prepaidUnits.enabled,
+    used_units: license.consumedUnits,
 
     metadata: license as any,
   }));

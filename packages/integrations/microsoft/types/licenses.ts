@@ -16,6 +16,7 @@ export interface MSGraphLicenseUnitsDetail {
   enabled: number;
   suspended: number;
   warning: number;
+  lockedOut: number;
 }
 
 export interface MSGraphServicePlanInfo {

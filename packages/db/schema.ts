@@ -634,8 +634,9 @@ export type Database = {
           status: string
           sync_id: string
           tenant_id: string
-          units: number | null
+          units: number
           updated_at: string
+          used_units: number | null
         }
         Insert: {
           created_at?: string
@@ -650,8 +651,9 @@ export type Database = {
           status: string
           sync_id: string
           tenant_id: string
-          units?: number | null
+          units: number
           updated_at?: string
+          used_units?: number | null
         }
         Update: {
           created_at?: string
@@ -666,8 +668,9 @@ export type Database = {
           status?: string
           sync_id?: string
           tenant_id?: string
-          units?: number | null
+          units?: number
           updated_at?: string
+          used_units?: number | null
         }
         Relationships: [
           {
