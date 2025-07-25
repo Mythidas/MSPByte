@@ -39,9 +39,11 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       'Transform External',
       async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users }) => {
         const skus = subscribedSkus.map((sku) => sku.skuPartNumber);
+        console.log(skus);
         const licenseInfo = await getRows('source_license_info', {
-          filters: [['sku', 'in', skus]],
+          filters: [['sku', 'in', skus.join(',')]],
         });
+        console.log(licenseInfo.ok ? licenseInfo.data.rows : []);
 
         const transformedPolicies = transformPolicies(caPolicies, tenant);
         const transformedLicenses = transformLicenses(

@@ -21,10 +21,6 @@ export async function getRows<T extends TableOrView>(table: T, config: GetRowCon
     (query) => {
       if (config.filters) {
         for (let [col, op, val] of config.filters) {
-          if (op === 'in' && Array.isArray(val)) {
-            val = val.join(',');
-          }
-
           query = query.filter(col as string, op, val);
         }
       }
