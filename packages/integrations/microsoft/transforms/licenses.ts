@@ -12,7 +12,7 @@ export function transformLicenses(
     source_tenant_id: mapping.id,
     sync_id: '',
 
-    external_id: license.id,
+    external_id: license.id || '',
     name: license.skuPartNumber,
     sku: license.skuId,
     status: 'active',
