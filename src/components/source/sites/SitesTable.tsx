@@ -73,7 +73,7 @@ export default function SitesTable({ parentId }: Props) {
           <DeleteDialog />
           {parentId && (
             <MoveSiteDialog
-              sites={sites as Tables<'sites'>[]}
+              sites={sites as unknown as Tables<'sites'>[]}
               parentId={parentId}
               onSuccess={moveCallback}
             />
@@ -123,7 +123,7 @@ export default function SitesTable({ parentId }: Props) {
                     variant="destructive"
                     module="Sites"
                     level="Full"
-                    onClick={() => confirmAndDelete(row.original as Tables<'sites'>)}
+                    onClick={() => confirmAndDelete(row.original as unknown as Tables<'sites'>)}
                   >
                     Delete
                   </DropDownItem>

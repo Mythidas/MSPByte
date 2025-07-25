@@ -128,25 +128,31 @@ export type Database = {
       }
       roles: {
         Row: {
+          created_at: string
           description: string
           id: string
           name: string
           rights: Json
           tenant_id: string | null
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           description: string
           id?: string
           name: string
           rights?: Json
           tenant_id?: string | null
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           description?: string
           id?: string
           name?: string
           rights?: Json
           tenant_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -160,16 +166,25 @@ export type Database = {
       }
       site_group_memberships: {
         Row: {
+          created_at: string
           group_id: string
           site_id: string
+          tenant_id: string | null
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           group_id: string
           site_id: string
+          tenant_id?: string | null
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           group_id?: string
           site_id?: string
+          tenant_id?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -221,134 +236,8 @@ export type Database = {
             referencedRelation: "source_tenants_view"
             referencedColumns: ["parent_id"]
           },
-        ]
-      }
-      site_groups: {
-        Row: {
-          description: string | null
-          id: string
-          name: string
-          slug: string
-          tenant_id: string
-        }
-        Insert: {
-          description?: string | null
-          id?: string
-          name: string
-          slug?: string
-          tenant_id: string
-        }
-        Update: {
-          description?: string | null
-          id?: string
-          name?: string
-          slug?: string
-          tenant_id?: string
-        }
-        Relationships: []
-      }
-      sites: {
-        Row: {
-          id: string
-          is_parent: boolean
-          name: string
-          parent_id: string | null
-          parent_slug: string | null
-          slug: string
-          tenant_id: string
-        }
-        Insert: {
-          id?: string
-          is_parent?: boolean
-          name: string
-          parent_id?: string | null
-          parent_slug?: string | null
-          slug?: string
-          tenant_id: string
-        }
-        Update: {
-          id?: string
-          is_parent?: boolean
-          name?: string
-          parent_id?: string | null
-          parent_slug?: string | null
-          slug?: string
-          tenant_id?: string
-        }
-        Relationships: []
-      }
-      source_billings: {
-        Row: {
-          billing_type: string
-          created_at: string | null
-          currency: string
-          end_date: string | null
-          id: string
-          metadata: Json | null
-          quantity: number
-          reference_code: string | null
-          site_id: string
-          sku: string
-          source_id: string | null
-          start_date: string
-          tenant_id: string
-          total_price: number | null
-          unit_price: number
-          updated_at: string | null
-        }
-        Insert: {
-          billing_type: string
-          created_at?: string | null
-          currency: string
-          end_date?: string | null
-          id?: string
-          metadata?: Json | null
-          quantity: number
-          reference_code?: string | null
-          site_id: string
-          sku: string
-          source_id?: string | null
-          start_date: string
-          tenant_id: string
-          total_price?: number | null
-          unit_price: number
-          updated_at?: string | null
-        }
-        Update: {
-          billing_type?: string
-          created_at?: string | null
-          currency?: string
-          end_date?: string | null
-          id?: string
-          metadata?: Json | null
-          quantity?: number
-          reference_code?: string | null
-          site_id?: string
-          sku?: string
-          source_id?: string | null
-          start_date?: string
-          tenant_id?: string
-          total_price?: number | null
-          unit_price?: number
-          updated_at?: string | null
-        }
-        Relationships: [
           {
-            foreignKeyName: "source_billings_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "source_devices_view"
-            referencedColumns: ["source_id"]
-          },
-          {
-            foreignKeyName: "source_billings_source_id_fkey"
-            columns: ["source_id"]
-            isOneToOne: false
-            referencedRelation: "sources"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "source_billings_tenant_id_fkey"
+            foreignKeyName: "site_group_memberships_tenant_id_fkey"
             columns: ["tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants"
@@ -356,8 +245,75 @@ export type Database = {
           },
         ]
       }
+      site_groups: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sites: {
+        Row: {
+          created_at: string
+          id: string
+          is_parent: boolean
+          name: string
+          parent_id: string | null
+          parent_slug: string | null
+          slug: string
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_parent?: boolean
+          name: string
+          parent_id?: string | null
+          parent_slug?: string | null
+          slug?: string
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_parent?: boolean
+          name?: string
+          parent_id?: string | null
+          parent_slug?: string | null
+          slug?: string
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       source_devices: {
         Row: {
+          created_at: string
           external_id: string
           hostname: string
           id: string
@@ -369,8 +325,10 @@ export type Database = {
           source_tenant_id: string
           sync_id: string | null
           tenant_id: string
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           external_id: string
           hostname: string
           id?: string
@@ -382,8 +340,10 @@ export type Database = {
           source_tenant_id: string
           sync_id?: string | null
           tenant_id: string
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           external_id?: string
           hostname?: string
           id?: string
@@ -395,6 +355,7 @@ export type Database = {
           source_tenant_id?: string
           sync_id?: string | null
           tenant_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -565,6 +526,7 @@ export type Database = {
           tenant_id: string
           token: string | null
           token_expiration: string | null
+          updated_at: string
         }
         Insert: {
           config: Json
@@ -574,6 +536,7 @@ export type Database = {
           tenant_id: string
           token?: string | null
           token_expiration?: string | null
+          updated_at?: string
         }
         Update: {
           config?: Json
@@ -583,6 +546,7 @@ export type Database = {
           tenant_id?: string
           token?: string | null
           token_expiration?: string | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -617,6 +581,7 @@ export type Database = {
           services: string[]
           sku: string
           source_id: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
@@ -626,6 +591,7 @@ export type Database = {
           services: string[]
           sku: string
           source_id?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
@@ -635,6 +601,7 @@ export type Database = {
           services?: string[]
           sku?: string
           source_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -649,6 +616,142 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_licenses: {
+        Row: {
+          created_at: string
+          external_id: string
+          id: string
+          metadata: Json | null
+          name: string
+          site_id: string
+          sku: string
+          source_id: string
+          source_tenant_id: string
+          status: string
+          sync_id: string
+          tenant_id: string
+          units: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          site_id: string
+          sku: string
+          source_id: string
+          source_tenant_id: string
+          status: string
+          sync_id: string
+          tenant_id: string
+          units?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          site_id?: string
+          sku?: string
+          source_id?: string
+          source_tenant_id?: string
+          status?: string
+          sync_id?: string
+          tenant_id?: string
+          units?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "source_sync_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]
@@ -726,6 +829,7 @@ export type Database = {
           sync_id: string | null
           tenant_id: string
           total: number
+          updated_at: string
         }
         Insert: {
           created_at?: string | null
@@ -739,6 +843,7 @@ export type Database = {
           sync_id?: string | null
           tenant_id: string
           total: number
+          updated_at?: string
         }
         Update: {
           created_at?: string | null
@@ -752,6 +857,7 @@ export type Database = {
           sync_id?: string | null
           tenant_id?: string
           total?: number
+          updated_at?: string
         }
         Relationships: [
           {
@@ -805,6 +911,7 @@ export type Database = {
           sync_id: string | null
           tenant_id: string
           type: string
+          updated_at: string
         }
         Insert: {
           created_at?: string | null
@@ -819,6 +926,7 @@ export type Database = {
           sync_id?: string | null
           tenant_id: string
           type: string
+          updated_at?: string
         }
         Update: {
           created_at?: string | null
@@ -833,6 +941,7 @@ export type Database = {
           sync_id?: string | null
           tenant_id?: string
           type?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -937,6 +1046,7 @@ export type Database = {
           state: Json
           status: string
           tenant_id: string
+          updated_at: string
         }
         Insert: {
           completed_at?: string | null
@@ -953,6 +1063,7 @@ export type Database = {
           state?: Json
           status?: string
           tenant_id: string
+          updated_at?: string
         }
         Update: {
           completed_at?: string | null
@@ -969,6 +1080,7 @@ export type Database = {
           state?: Json
           status?: string
           tenant_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1052,6 +1164,7 @@ export type Database = {
       }
       source_tenants: {
         Row: {
+          created_at: string
           external_id: string
           external_name: string
           id: string
@@ -1060,8 +1173,10 @@ export type Database = {
           site_id: string
           source_id: string
           tenant_id: string
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           external_id: string
           external_name: string
           id?: string
@@ -1070,8 +1185,10 @@ export type Database = {
           site_id: string
           source_id?: string
           tenant_id: string
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           external_id?: string
           external_name?: string
           id?: string
@@ -1080,6 +1197,7 @@ export type Database = {
           site_id?: string
           source_id?: string
           tenant_id?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -1138,6 +1256,7 @@ export type Database = {
           category: string | null
           color: string | null
           config_schema: Json | null
+          created_at: string
           description: string
           documentation_url: string | null
           icon_url: string | null
@@ -1146,11 +1265,13 @@ export type Database = {
           logo_url: string | null
           name: string
           product_url: string | null
+          updated_at: string
         }
         Insert: {
           category?: string | null
           color?: string | null
           config_schema?: Json | null
+          created_at?: string
           description: string
           documentation_url?: string | null
           icon_url?: string | null
@@ -1159,11 +1280,13 @@ export type Database = {
           logo_url?: string | null
           name: string
           product_url?: string | null
+          updated_at?: string
         }
         Update: {
           category?: string | null
           color?: string | null
           config_schema?: Json | null
+          created_at?: string
           description?: string
           documentation_url?: string | null
           icon_url?: string | null
@@ -1172,21 +1295,28 @@ export type Database = {
           logo_url?: string | null
           name?: string
           product_url?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
       tenants: {
         Row: {
+          created_at: string | null
           id: string
           name: string
+          updated_at: string | null
         }
         Insert: {
+          created_at?: string | null
           id?: string
           name: string
+          updated_at?: string | null
         }
         Update: {
+          created_at?: string | null
           id?: string
           name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -1242,6 +1372,7 @@ export type Database = {
       }
       users: {
         Row: {
+          created_at: string | null
           email: string
           id: string
           last_login: string | null
@@ -1250,8 +1381,10 @@ export type Database = {
           role_id: string
           status: string | null
           tenant_id: string
+          updated_at: string | null
         }
         Insert: {
+          created_at?: string | null
           email: string
           id?: string
           last_login?: string | null
@@ -1260,8 +1393,10 @@ export type Database = {
           role_id: string
           status?: string | null
           tenant_id: string
+          updated_at?: string | null
         }
         Update: {
+          created_at?: string | null
           email?: string
           id?: string
           last_login?: string | null
@@ -1270,6 +1405,7 @@ export type Database = {
           role_id?: string
           status?: string | null
           tenant_id?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1823,30 +1959,12 @@ export type Database = {
           state: Json
           status: string
           tenant_id: string
+          updated_at: string
         }[]
       }
       gen_random_suuid: {
         Args: { length?: number }
         Returns: string
-      }
-      get_rollup_metrics: {
-        Args: { _scope: string; _id: string; _source_id: string }
-        Returns: {
-          name: string
-          value: number
-          delta: number
-          unit: string
-          total: number
-          source_id: string
-          roc_positive: boolean
-          description: string
-          route: string
-          visual: string
-          icon: string
-          filters: Json
-          thresholds: Json
-          created_at: string
-        }[]
       }
       has_access: {
         Args: { module: string; access: string }

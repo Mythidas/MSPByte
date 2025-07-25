@@ -351,9 +351,9 @@ function DataTableInner<TData>(
   return (
     <div className="flex flex-col size-full gap-4">
       {/* Header Section with improved styling */}
-      <div className="flex w-full h-fit justify-between items-start gap-4">
-        <div className="flex items-center w-full max-w-4xl gap-3">
-          <div className="relative">
+      <div className="flex w-full h-fit justify-between items-start">
+        <div className="flex items-center w-full max-w-4xl gap-2">
+          <div className="relative w-72">
             <SearchBar
               placeholder="Search..."
               onSearch={setGlobalSearch}
@@ -366,17 +366,16 @@ function DataTableInner<TData>(
             )}
           </div>
 
-          <Suspense fallback={<div className="w-8 h-8 rounded bg-muted animate-pulse" />}>
-            <DataTableFilters
-              filters={filters || {}}
-              onInit={() => setFiltersReady(true)}
-              table={table}
-              sorting={sorting}
-              clientSide={!fetcher}
-            />
-          </Suspense>
-
           <div className="flex items-center gap-1">
+            <Suspense fallback={<div className="w-8 h-8 rounded bg-muted animate-pulse" />}>
+              <DataTableFilters
+                filters={filters || {}}
+                onInit={() => setFiltersReady(true)}
+                table={table}
+                sorting={sorting}
+                clientSide={!fetcher}
+              />
+            </Suspense>
             {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -453,7 +452,7 @@ function DataTableInner<TData>(
       </div>
 
       {/* Modern Table Card */}
-      <Card className="py-0 rounded-none">
+      <Card className="py-0 rounded-none gap-2">
         <ScrollArea className={cn(height, 'max-w-full')}>
           <Table>
             <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border/60 z-10">

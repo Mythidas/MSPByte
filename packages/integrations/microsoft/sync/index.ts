@@ -4,9 +4,11 @@ import SyncChain from '@/core/SyncChain';
 import { Tables } from '@/db/schema';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
+import { syncLicenses } from '@/integrations/microsoft/sync/syncLicenses';
 import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
 import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
+import { transformLicenses } from '@/integrations/microsoft/transforms/licenses';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
 import { Debug } from '@/lib/utils';
 import { deleteSourceIdentities, getSourceIdentities } from '@/services/identities';
@@ -36,6 +38,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       'Transform External',
       async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users }) => {
         const transformedPolicies = transformPolicies(caPolicies, tenant);
+        const transformedLicenses = transformLicenses(subscribedSkus, tenant);
         const transformedUsers = await transformIdentities(
           users,
           subscribedSkus,
@@ -56,6 +59,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
           ok: true,
           data: {
             transformedUsers: transformedUsers.data,
+            transformedLicenses,
             transformedPolicies,
             securityDefaults,
             caPolicies,
@@ -65,10 +69,14 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     )
     .step(
       'Sync Data',
-      async (ctx, { transformedUsers, transformedPolicies, securityDefaults, caPolicies }) => {
+      async (
+        ctx,
+        { transformedUsers, transformedPolicies, transformedLicenses, securityDefaults, caPolicies }
+      ) => {
         const policies = await syncPolicies(tenant, transformedPolicies, ctx.sync_id);
+        const licenses = await syncLicenses(tenant, transformedLicenses, ctx.sync_id);
         const identities = await syncIdentities(tenant, transformedUsers, ctx.sync_id);
-        if (!policies.ok || !identities.ok) {
+        if (!policies.ok || !identities.ok || !licenses.ok) {
           return Debug.error({
             module: 'Microsoft365',
             context: 'Sync Data',

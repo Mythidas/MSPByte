@@ -25,6 +25,9 @@ export async function getSubscribedSku(
       'prepaidUnits',
       'consumedUnits',
       'appliesTo',
+      'accountId',
+      'accountName',
+      'capabilityStatus',
     ];
 
     const licenses = await client.data.api('/subscribedSkus').select(fields.join(',')).get();
