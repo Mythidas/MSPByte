@@ -8,12 +8,12 @@ import {
   resetUserPassword,
   revokeUserSessions,
 } from '@/integrations/microsoft/services/security';
-import { generatePassword } from '@/lib/utils';
 import { getSourceTenant } from '@/services/source/tenants';
 
 export default async function microsoft365EmailBreachResponse(
   feed: Tables<'activity_feeds'>,
-  identities: Tables<'source_identities'>[]
+  identities: Tables<'source_identities'>[],
+  password: string
 ) {
   if (!feed.site_id) return;
   const tenant = await getSourceTenant('microsoft-365', feed.site_id);
@@ -30,6 +30,7 @@ export default async function microsoft365EmailBreachResponse(
         ...feed,
         updated_at: new Date().toISOString(),
         metadata: {
+          ...(feed.metadata as any),
           steps: {
             ...(feed.metadata as any).steps,
             revoke_sessions: {
@@ -46,9 +47,8 @@ export default async function microsoft365EmailBreachResponse(
   }
 
   // Reset Passwords
-  const newPassword = generatePassword();
   const resetPasswords = await Promise.all(
-    identities.map(async (id) => await resetUserPassword(tenant.data, id.external_id, newPassword))
+    identities.map(async (id) => await resetUserPassword(tenant.data, id.external_id, password))
   );
   if (resetPasswords.every((session) => session.ok)) {
     const update = await updateRow('activity_feeds', {
@@ -57,11 +57,11 @@ export default async function microsoft365EmailBreachResponse(
         ...feed,
         updated_at: new Date().toISOString(),
         metadata: {
+          ...(feed.metadata as any),
           steps: {
             ...(feed.metadata as any).steps,
             reset_password: {
               status: 'completed',
-              data: newPassword,
             },
             reset_mfa: {
               status: 'in_progress',
@@ -84,6 +84,7 @@ export default async function microsoft365EmailBreachResponse(
         ...feed,
         updated_at: new Date().toISOString(),
         metadata: {
+          ...(feed.metadata as any),
           steps: {
             ...(feed.metadata as any).steps,
             reset_mfa: {
@@ -111,6 +112,7 @@ export default async function microsoft365EmailBreachResponse(
         updated_at: new Date().toISOString(),
         status: 'completed',
         metadata: {
+          ...(feed.metadata as any),
           steps: {
             ...(feed.metadata as any).steps,
             check_inbox_rules: {

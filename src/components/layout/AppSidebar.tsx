@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Cable, ChartArea, LucideProps, ScanText, ShieldUser } from 'lucide-react';
+import { Building2, Cable, ChartArea, Logs, LucideProps, ScanText, ShieldUser } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -44,6 +44,11 @@ const applicationItems: Item[] = [
     url: '/actions',
     icon: ScanText,
   },
+  {
+    title: 'Activity',
+    url: '/activity',
+    icon: Logs,
+  },
 ];
 
 const adminItems: Item[] = [
@@ -68,15 +73,18 @@ export default function AppSidebar() {
     const isIntegrations = pathname.includes('/integrations');
     const isUsers = pathname.includes('/users');
     const isActions = pathname.includes('/actions');
-    const isHome = !isSites && !isIntegrations && !isUsers && !isActions;
+    const isActivity = pathname.includes('/activity');
+    const isHome = !isSites && !isIntegrations && !isUsers && !isActions && !isActivity;
 
     const isActive =
       (item.url === '' && isHome) ||
       (item.url === '/users' && isUsers) ||
       (item.url === '/integrations' && isIntegrations) ||
       (item.url === '/sites' && isSites) ||
-      (item.url === '/actions' && isActions);
-    const endRoute = item.url !== '/sites' && !admin ? `/${source?.source_id}` : '';
+      (item.url === '/actions' && isActions) ||
+      (item.url === '/activity' && isActivity);
+    const endRoute =
+      item.url !== '/sites' && item.url !== '/activity' && !admin ? `/${source?.source_id}` : '';
     const tabs = isHome && item.url === '' && source ? SOURCE_TABS[source.source_id!] : {};
 
     if (Object.entries(tabs).length > 0) {

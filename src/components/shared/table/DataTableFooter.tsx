@@ -14,7 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
 import { Table } from '@tanstack/react-table';
 
 type DataTableFooterProps<TData> = {
@@ -49,33 +48,35 @@ export function DataTableFooter<TData>({ table, count }: DataTableFooterProps<TD
     });
   };
 
+  const currentPage = table.getState().pagination.pageIndex + 1;
+  const totalPages = table.getPageCount();
+  const pageSize = table.getState().pagination.pageSize;
+  const startItem = table.getState().pagination.pageIndex * pageSize + 1;
+  const endItem = Math.min(startItem + pageSize - 1, count);
+
   return (
-    <div className="space-y-2 pb-2 rounded">
-      <Separator />
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => table.getCanPreviousPage() && table.previousPage()}
-            />
-          </PaginationItem>
-          {generateLinks()}
-          <PaginationItem>
-            <PaginationNext onClick={() => table.getCanNextPage() && table.nextPage()} />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
-      <Separator />
-      <div className="flex w-full gap-2 justify-center items-center">
-        <span>Pages: {table.getPageCount()}</span>
-        <Separator orientation="vertical" />
-        <span>Total: {count}</span>
-        <Separator orientation="vertical" />
-        <Label>
-          Page Size:
-          <Select onValueChange={(v) => table.setPageSize(Number(v))}>
-            <SelectTrigger>
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
+    <div className="p-2 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Stats and Controls Row */}
+      <div className="flex flex-row items-center justify-between">
+        {/* Left side - Results info */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <span className="font-medium">
+            Showing {startItem.toLocaleString()}-{endItem.toLocaleString()} of{' '}
+            {count.toLocaleString()} results
+          </span>
+          <span className="text-muted-foreground text-sm">
+            {currentPage} of {totalPages}
+          </span>
+        </div>
+
+        {/* Right side - Page size selector */}
+        <div className="flex items-center gap-2">
+          <Label htmlFor="page-size" className="text-sm font-medium whitespace-nowrap">
+            Rows per page:
+          </Label>
+          <Select value={pageSize.toString()} onValueChange={(v) => table.setPageSize(Number(v))}>
+            <SelectTrigger id="page-size" className="w-24 h-8">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="25">25</SelectItem>
@@ -84,7 +85,36 @@ export function DataTableFooter<TData>({ table, count }: DataTableFooterProps<TD
               <SelectItem value="1000">1000</SelectItem>
             </SelectContent>
           </Select>
-        </Label>
+        </div>
+      </div>
+
+      {/* Pagination Row */}
+      <div className="flex justify-center">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => table.getCanPreviousPage() && table.previousPage()}
+                className={
+                  !table.getCanPreviousPage()
+                    ? 'pointer-events-none opacity-50'
+                    : 'hover:cursor-pointer'
+                }
+              />
+            </PaginationItem>
+            {generateLinks()}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => table.getCanNextPage() && table.nextPage()}
+                className={
+                  !table.getCanNextPage()
+                    ? 'pointer-events-none opacity-50'
+                    : 'hover:cursor-pointer'
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );

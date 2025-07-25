@@ -25,7 +25,7 @@ import { textColumn } from '@/components/shared/table/DataTableColumn';
 import { getSourceIdentities } from '@/services/identities';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { cn, generateUUID, prettyText } from '@/lib/utils';
+import { cn, generatePassword, generateUUID, prettyText } from '@/lib/utils';
 import SearchBar from '@/components/shared/SearchBar';
 import { resolveSearch } from '@/lib/helpers/search';
 import { Input } from '@/components/ui/input';
@@ -65,6 +65,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
   const [selectedIdentities, setSelectedIdentities] = useState<Tables<'source_identities'>[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [feedId, setFeedId] = useState('');
+  const newPassword = useRef(generatePassword());
 
   const { data: feed, isLoading } = useAsync({
     initial: undefined,
@@ -136,18 +137,17 @@ export default function MicrosoftEmailBreachAction({}: Props) {
 
               return (
                 <div key={index} className="flex gap-2 items-center">
-                  <button
+                  <Button
                     className={cn(
-                      'rounded-full px-4 py-2 bg-accent',
-                      !disabled && 'hover:cursor-pointer',
-                      disabled && 'text-muted-foreground bg-accent/50',
+                      disabled && 'text-muted-foreground bg-accent/50 hover:cursor-none',
                       key === currentPhase && 'text-primary'
                     )}
                     onClick={() => setCurrentPhase(key)}
                     disabled={disabled}
+                    variant="secondary"
                   >
                     {index + 1}
-                  </button>
+                  </Button>
                   {key === currentPhase && <span className="text-primary">{value}</span>}
                 </div>
               );
@@ -166,6 +166,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
       {currentPhase === 'processing' && (
         <ProcessingStep
           identities={selectedIdentities}
+          password={newPassword.current}
           onComplete={(id) => {
             setCurrentPhase('results');
             setFeedId(id);
@@ -211,7 +212,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                                     {inboxRules.length}
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent>
+                                <DialogContent className="!max-w-[50vw] !w-[50vw]">
                                   <DialogHeader>
                                     <DialogTitle>{id.name}</DialogTitle>
                                     <DialogDescription>
@@ -220,7 +221,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                                   </DialogHeader>
 
                                   <ScrollArea className="max-h-[40vh]">
-                                    <div className="grid gap-2 grid-cols-2">
+                                    <div className="grid gap-2">
                                       {inboxRules.map((rule) => {
                                         return (
                                           <Display key={rule.name}>
@@ -264,11 +265,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                 <div className="flex items-center space-x-2">
                   <Input
                     type={showPassword ? 'text' : 'password'}
-                    value={
-                      feed
-                        ? (feed?.metadata as MicrosoftEmailBreachMetadata).steps.reset_password.data
-                        : ''
-                    }
+                    value={newPassword.current}
                     readOnly
                   />
                   <button
@@ -447,9 +444,11 @@ const UsersStep = ({
 
 const ProcessingStep = ({
   identities,
+  password,
   onComplete,
 }: {
   identities: Tables<'source_identities'>[];
+  password: string;
   onComplete: (feedId: string) => void;
 }) => {
   const steps: Step[] = [
@@ -500,22 +499,19 @@ const ProcessingStep = ({
               status: 'in_progress',
               summary: `Started breach response for ${identities.length} users`,
               metadata: {
+                identities: identities.map((id) => id.email),
                 steps: {
                   revoke_sessions: {
                     status: 'in_progress',
-                    data: undefined,
                   },
                   reset_password: {
                     status: 'pending',
-                    data: undefined,
                   },
                   reset_mfa: {
                     status: 'pending',
-                    data: undefined,
                   },
                   check_inbox_rules: {
                     status: 'pending',
-                    data: undefined,
                   },
                 },
               },
@@ -525,7 +521,7 @@ const ProcessingStep = ({
         });
 
         if (feed.ok) {
-          microsoft365EmailBreachResponse(feed.data[0], identities);
+          microsoft365EmailBreachResponse(feed.data[0], identities, password);
           setStepStatuses((prev) =>
             prev.map((step, i) => (i === 0 ? { ...step, status: 'running' } : step))
           );

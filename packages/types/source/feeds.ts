@@ -8,7 +8,7 @@ export type MicrosoftEmailBreachMetadata = {
     };
     reset_password: {
       status: string;
-      data: string;
+      password: string;
     };
     check_inbox_rules: {
       status: string;

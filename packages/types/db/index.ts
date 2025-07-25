@@ -1,16 +1,19 @@
 import { Database, Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { PaginationOptions } from '@/types/data-table';
 
 // types.ts
 export type Table = keyof Database['public']['Tables'];
+export type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 
-export type RowFilter<T extends Table> = [
+export type RowFilter<T extends TableOrView> = [
   column: keyof Tables<T>,
   operator: 'eq' | 'neq',
   value: any,
 ];
 
-export type GetRowConfig<T extends Table> = {
+export type GetRowConfig<T extends TableOrView> = {
   filters?: RowFilter<T>[];
+  pagination?: PaginationOptions;
 };
 
 export type InsertRowConfig<T extends Table> = {

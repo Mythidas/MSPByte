@@ -144,7 +144,6 @@ function DataTableInner<TData>(
       : async (updater) => {
           const nextSorting = typeof updater === 'function' ? updater(sorting) : updater;
 
-          //load(nextSorting);
           setSorting(nextSorting);
         },
     getSortedRowModel: !fetcher ? getSortedRowModel() : undefined,
@@ -182,10 +181,11 @@ function DataTableInner<TData>(
         <TableRow>
           <TableCell
             colSpan={columns.length}
-            className="h-24 text-center justify-center items-center"
+            className="h-32 text-center justify-center items-center border-0"
           >
-            <div className="flex w-full justify-center items-center">
+            <div className="flex flex-col w-full justify-center items-center gap-3">
               <Spinner />
+              <p className="text-sm text-muted-foreground">Loading data...</p>
             </div>
           </TableCell>
         </TableRow>
@@ -195,8 +195,18 @@ function DataTableInner<TData>(
     if (!table.getRowModel().rows?.length) {
       return (
         <TableRow>
-          <TableCell colSpan={columns.length} className="h-24 text-center">
-            No results.
+          <TableCell colSpan={columns.length} className="h-32 text-center border-0">
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                <Grid2X2 className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">No results found</p>
+                <p className="text-xs text-muted-foreground">
+                  Try adjusting your search or filter criteria
+                </p>
+              </div>
+            </div>
           </TableCell>
         </TableRow>
       );
@@ -204,15 +214,20 @@ function DataTableInner<TData>(
 
     return (
       <>
-        {table.getRowModel().rows.map((row) => (
-          <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+        {table.getRowModel().rows.map((row, index) => (
+          <TableRow
+            key={row.id}
+            data-state={row.getIsSelected() && 'selected'}
+            className={cn(
+              'group hover:bg-muted/50 transition-colors duration-150',
+              'border-b border-border/40 last:border-b-0',
+              index % 2 === 0 ? 'bg-background' : 'bg-muted/20'
+            )}
+          >
             {row.getVisibleCells().map((cell) => (
               <TableCell
                 key={cell.id}
-                className={cn(
-                  'py-1',
-                  (cell.column.columnDef as DataTableColumnDef<TData>).cellClass
-                )}
+                className={cn((cell.column.columnDef as DataTableColumnDef<TData>).cellClass)}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </TableCell>
@@ -335,14 +350,23 @@ function DataTableInner<TData>(
 
   return (
     <div className="flex flex-col size-full gap-4">
-      <div className="flex w-full h-fit justify-between">
-        <div className="flex items-center w-full max-w-sm gap-2">
-          <SearchBar
-            placeholder="Search..."
-            onSearch={setGlobalSearch}
-            delay={initialData ? 0 : 1000}
-          />
-          <Suspense fallback={<div>Loading...</div>}>
+      {/* Header Section with improved styling */}
+      <div className="flex w-full h-fit justify-between items-start gap-4">
+        <div className="flex items-center w-full max-w-4xl gap-3">
+          <div className="relative">
+            <SearchBar
+              placeholder="Search..."
+              onSearch={setGlobalSearch}
+              delay={initialData ? 0 : 1000}
+            />
+            {(isLoading || isFetching) && (
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
+
+          <Suspense fallback={<div className="w-8 h-8 rounded bg-muted animate-pulse" />}>
             <DataTableFilters
               filters={filters || {}}
               onInit={() => setFiltersReady(true)}
@@ -352,67 +376,96 @@ function DataTableInner<TData>(
             />
           </Suspense>
 
-          {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
+          <div className="flex items-center gap-1">
+            {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 px-3 hover:bg-muted/80 transition-colors"
+                  >
+                    <Grid2X2 className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                        >
+                          {(column.columnDef as DataTableColumnDef<TData>)?.meta?.label ??
+                            column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="ml-auto">
-                  <Grid2X2 />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-3 hover:bg-muted/80 transition-colors"
+                >
+                  <Download className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {(column.columnDef as DataTableColumnDef<TData>)?.meta?.label ?? column.id}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
+                <DropdownMenuItem onClick={downloadCSV} className="gap-2">
+                  <span className="font-mono text-xs">CSV</span>
+                  <span className="text-muted-foreground">Comma separated</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={downloadTSV} className="gap-2">
+                  <span className="font-mono text-xs">TSV</span>
+                  <span className="text-muted-foreground">Tab separated</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={downloadXLSX} className="gap-2">
+                  <span className="font-mono text-xs">XLSX</span>
+                  <span className="text-muted-foreground">Excel format</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="ml-auto">
-                <Download />
+            {!!fetcher && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => load()}
+                disabled={isLoading || isFetching}
+                className="h-9 px-3 hover:bg-muted/80 transition-colors"
+              >
+                <RotateCw className={cn('w-4 h-4', (isLoading || isFetching) && 'animate-spin')} />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={downloadCSV}>.csv</DropdownMenuItem>
-              <DropdownMenuItem onClick={downloadTSV}>.tsv</DropdownMenuItem>
-              <DropdownMenuItem onClick={downloadXLSX}>.xlsx</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {!!fetcher && (
-            <Button variant="ghost" onClick={() => load()} disabled={isLoading || isFetching}>
-              <RotateCw className={cn(isLoading || (isFetching && 'animate-spin'))} />
-            </Button>
-          )}
+            )}
+          </div>
         </div>
-        <div>{action}</div>
+
+        {action && <div className="flex-shrink-0">{action}</div>}
       </div>
 
-      <Card className="py-0 gap-2 rounded-none bg-linear-to-t from-primary/5 to-card">
-        <ScrollArea className={cn(height && height, 'max-w-full')}>
+      {/* Modern Table Card */}
+      <Card className="py-0 rounded-none">
+        <ScrollArea className={cn(height, 'max-w-full')}>
           <Table>
-            <TableHeader className="sticky top-0 bg-card rounded z-10">
+            <TableHeader className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border/60 z-10">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow key={headerGroup.id} className="hover:bg-transparent border-b-0">
                   {headerGroup.headers.map((header) => {
                     return (
                       <TableHead
                         key={header.id}
                         className={cn(
-                          'py-1',
+                          'p font-semibold text-foreground/90 border-0',
+                          'bg-gradient-to-b from-muted/30 to-muted/10',
                           (header.column.columnDef as DataTableColumnDef<TData>).headerClass
                         )}
                       >
@@ -425,10 +478,12 @@ function DataTableInner<TData>(
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>{renderBody()}</TableBody>
+            <TableBody className="divide-y-0">{renderBody()}</TableBody>
           </Table>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
+
+        {/* Enhanced Footer */}
         <DataTableFooter table={table} count={rowCount} />
       </Card>
     </div>
