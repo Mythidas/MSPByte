@@ -1704,6 +1704,115 @@ export type Database = {
           },
         ]
       }
+      source_licenses_view: {
+        Row: {
+          created_at: string | null
+          external_id: string | null
+          id: string | null
+          metadata: Json | null
+          name: string | null
+          parent_name: string | null
+          parent_slug: string | null
+          site_id: string | null
+          site_name: string | null
+          site_slug: string | null
+          sku: string | null
+          source_id: string | null
+          source_tenant_id: string | null
+          status: string | null
+          sync_id: string | null
+          tenant_id: string | null
+          units: number | null
+          updated_at: string | null
+          used_units: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "source_sync_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_licenses_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       source_metrics_newest: {
         Row: {
           created_at: string | null

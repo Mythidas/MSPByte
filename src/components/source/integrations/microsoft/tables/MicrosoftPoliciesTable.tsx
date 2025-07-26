@@ -18,7 +18,12 @@ type Props = {
   parentLevel?: boolean;
 };
 
-export default function MicrosoftPoliciesTable({ sourceId, siteIds }: Props) {
+export default function MicrosoftPoliciesTable({
+  sourceId,
+  siteIds,
+  parentLevel,
+  siteLevel,
+}: Props) {
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
@@ -36,10 +41,16 @@ export default function MicrosoftPoliciesTable({ sourceId, siteIds }: Props) {
     return policies.data;
   };
 
+  const initialVisibility = {
+    parent_name: !siteLevel && !parentLevel,
+    site_name: !siteLevel,
+  };
+
   return (
     <DataTable
       fetcher={fetcher}
       ref={ref}
+      initialVisibility={initialVisibility}
       columns={
         [
           textColumn({
