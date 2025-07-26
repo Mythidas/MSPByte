@@ -37,7 +37,7 @@ export default function SophosDashboardTab({ sourceId, site, parent }: Props) {
     render: (data) => {
       if (!data) return <strong>No Tenant(s) found</strong>;
       const route =
-        site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
+        site || parent ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}` : `/${sourceId}`;
 
       return (
         <div>

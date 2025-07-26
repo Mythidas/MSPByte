@@ -120,7 +120,7 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
       );
 
       const route =
-        site || parent ? `/sites/${parent?.id ?? site?.id}/${sourceId}` : `/${sourceId}`;
+        site || parent ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}` : `/${sourceId}`;
 
       return (
         <>
