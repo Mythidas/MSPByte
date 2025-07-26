@@ -206,7 +206,6 @@ export default function MicrosoftLicensesTable({
             type: 'select',
             placeholder: 'Select status',
             options: [
-              { label: 'Active', value: 'active' },
               { label: 'Enabled', value: 'enabled' },
               { label: 'Suspended', value: 'suspended' },
               { label: 'Disabled', value: 'disabled' },
