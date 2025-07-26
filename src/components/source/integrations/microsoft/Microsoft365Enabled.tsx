@@ -89,7 +89,7 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
         </div>
         <Separator />
         <Button variant="secondary" asChild>
-          <Link href={`/${sourceId}?tab=tenants`}>
+          <Link href={`/${sourceId}/tenants`}>
             <Eye /> View All Sites
           </Link>
         </Button>
