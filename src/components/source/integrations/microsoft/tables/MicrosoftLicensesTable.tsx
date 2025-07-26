@@ -128,21 +128,21 @@ export default function MicrosoftLicensesTable({
             cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
           }),
           numberColumn({
-            key: 'units',
-            label: 'Total Units',
-            cell: ({ row }) => {
-              const metadata = row.original.metadata as unknown as MicrosoftLicenseMetadata;
-              const totalUnits = metadata?.prepaidUnits?.enabled || row.original.units || 0;
-              return <div className="text-right">{totalUnits.toLocaleString()}</div>;
-            },
-          }),
-          numberColumn({
             key: 'used_units',
             label: 'Used Units',
             cell: ({ row }) => {
               const metadata = row.original.metadata as unknown as MicrosoftLicenseMetadata;
               const usedUnits = metadata?.consumedUnits || row.original.used_units || 0;
               return <div className="text-right">{usedUnits.toLocaleString()}</div>;
+            },
+          }),
+          numberColumn({
+            key: 'units',
+            label: 'Total Units',
+            cell: ({ row }) => {
+              const metadata = row.original.metadata as unknown as MicrosoftLicenseMetadata;
+              const totalUnits = metadata?.prepaidUnits?.enabled || row.original.units || 0;
+              return <div className="text-right">{totalUnits.toLocaleString()}</div>;
             },
           }),
           column({
