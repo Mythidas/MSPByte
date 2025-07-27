@@ -40,9 +40,11 @@ type Props = {
 export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { confirmAndDelete, DeleteDialog } = useDelete<Tables<'source_tenants'>>({
-    tableName: 'source_tenants',
-    getId: (item) => item.id,
+  const { confirmAndDelete, DeleteDialog } = useDelete({
+    table: 'source_tenants',
+    getId: (item) => ({
+      id: item.id,
+    }),
     onDeleted: () => {
       setIsOpen(false);
       onDelete?.();

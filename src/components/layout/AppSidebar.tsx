@@ -1,6 +1,15 @@
 'use client';
 
-import { Building2, Cable, ChartArea, Logs, LucideProps, ScanText, ShieldUser } from 'lucide-react';
+import {
+  Building,
+  Building2,
+  Cable,
+  ChartArea,
+  Logs,
+  LucideProps,
+  ScanText,
+  ShieldUser,
+} from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -37,8 +46,9 @@ const applicationItems: Item[] = [
   {
     title: 'Sites',
     url: '/sites',
-    icon: Building2,
+    icon: Building,
   },
+  { title: 'Groups', url: '/groups', icon: Building2 },
   {
     title: 'Actions',
     url: '/actions',
@@ -74,7 +84,9 @@ export default function AppSidebar() {
     const isUsers = pathname.includes('/users');
     const isActions = pathname.includes('/actions');
     const isActivity = pathname.includes('/activity');
-    const isHome = !isSites && !isIntegrations && !isUsers && !isActions && !isActivity;
+    const isGroups = pathname.includes('/groups');
+    const isHome =
+      !isSites && !isIntegrations && !isUsers && !isActions && !isActivity && !isGroups;
 
     const isActive =
       (item.url === '' && isHome) ||
@@ -82,9 +94,12 @@ export default function AppSidebar() {
       (item.url === '/integrations' && isIntegrations) ||
       (item.url === '/sites' && isSites) ||
       (item.url === '/actions' && isActions) ||
-      (item.url === '/activity' && isActivity);
+      (item.url === '/activity' && isActivity) ||
+      (item.url === '/groups' && isGroups);
     const endRoute =
-      item.url !== '/sites' && item.url !== '/activity' && !admin ? `/${source?.source_id}` : '';
+      item.url !== '/sites' && item.url !== '/groups' && item.url !== '/activity' && !admin
+        ? `/${source?.source_id}`
+        : '';
     const tabs = isHome && item.url === '' && source ? SOURCE_TABS[source.source_id!] : {};
 
     if (Object.entries(tabs).length > 0) {
@@ -105,6 +120,32 @@ export default function AppSidebar() {
                 <SidebarMenuSubItem key={key}>
                   <SidebarMenuSubButton asChild isActive={isActive}>
                     <Link href={tabHref}>{value.label}</Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            })}
+          </SidebarMenuSub>
+        </SidebarMenuItem>
+      );
+    }
+
+    if (item.children) {
+      return (
+        <SidebarMenuItem key={item.title}>
+          <SidebarMenuButton asChild isActive={isActive}>
+            <Link href={`${item.url}${endRoute}`}>
+              <item.icon />
+              <span>{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+          <SidebarMenuSub>
+            {item.children.map((child, index) => {
+              const isActive = pathname.includes(child.url);
+
+              return (
+                <SidebarMenuSubItem key={index}>
+                  <SidebarMenuSubButton asChild isActive={isActive}>
+                    <Link href={child.url}>{child.title}</Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               );

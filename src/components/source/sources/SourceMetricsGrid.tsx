@@ -1,5 +1,6 @@
 import Loader from '@/components/shared/Loader';
 import SourceMetricCard from '@/components/source/metrics/SourceMetricCard';
+import { getRows } from '@/db/orm';
 import { Database } from '@/db/schema';
 import { LazyLoadOptions, useLazyLoad } from '@/hooks/common/useLazyLoad';
 import {
@@ -9,9 +10,10 @@ import {
 } from '@/services/source/metrics';
 
 type Props<T> = {
-  scope: 'site' | 'parent' | 'global';
+  scope: 'site' | 'parent' | 'global' | 'group';
   sourceId: string;
   siteId?: string;
+  groupId?: string;
   route?: string;
 } & Omit<LazyLoadOptions<T>, 'skeleton' | 'fetcher' | 'render'>;
 
@@ -19,12 +21,27 @@ export default function SourceMetricsGrid<T>({
   scope,
   sourceId,
   siteId,
+  groupId,
   route,
   ...props
 }: Props<T>) {
   const { content } = useLazyLoad({
     fetcher: async () => {
       switch (scope) {
+        case 'group': {
+          const metrics = await getRows('rollup_metrics_group', {
+            filters: [
+              ['group_id', 'eq', groupId],
+              ['source_id', 'eq', sourceId],
+            ],
+          });
+          if (metrics.ok) {
+            console.log(metrics.data.rows);
+            return metrics.data.rows;
+          }
+
+          return undefined;
+        }
         case 'site': {
           const metrics = await getSourceMetricsRollupSite(sourceId, siteId!);
           if (metrics.ok) {

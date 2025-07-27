@@ -45,5 +45,7 @@ export async function updateSourcePolicy(id: string, policy: TablesUpdate<'sourc
 }
 
 export async function deleteSourcePolicies(ids: string[]) {
-  return tables.delete('source_policies', ids);
+  return tables.delete('source_policies', (query) => {
+    query = query.in('id', ids);
+  });
 }

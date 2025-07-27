@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
 type UseAsyncOptions<T> = {
@@ -14,8 +14,10 @@ export function useAsync<T>({ fetcher, initial, deps = [], immediate = true }: U
   const [data, setData] = useState<T>(initial);
   const [isLoading, setIsLoading] = useState(immediate);
   const [error, setError] = useState<Error | null>(null);
+  const hasFetched = useRef(false);
 
   const run = useCallback(async () => {
+    hasFetched.current = true;
     setIsLoading(true);
     setError(null);
     try {
@@ -38,5 +40,5 @@ export function useAsync<T>({ fetcher, initial, deps = [], immediate = true }: U
     }
   }, [error]);
 
-  return { data, isLoading, error, refetch: run };
+  return { data, isLoading, error, refetch: run, hasFetched: hasFetched.current };
 }

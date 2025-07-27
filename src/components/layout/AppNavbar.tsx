@@ -7,23 +7,40 @@ import SearchBox from '@/components/shared/SearchBox';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useSource } from '@/lib/providers/SourceContext';
-import { SitesProvider } from '@/lib/providers/SitesContext';
 import { Tables } from '@/db/schema';
 import { updateUserOptions } from '@/services/users';
 import { useUser } from '@/lib/providers/UserContext';
 import { useEffect } from 'react';
+import { useAsync } from '@/hooks/common/useAsync';
+import { getRows } from '@/db/orm';
 
 type Props = {
-  sites: Tables<'sites'>[];
   integrations: Tables<'source_integrations_view'>[];
   children: React.ReactNode;
 };
 
-export default function AppNavbar({ sites, integrations, children }: Props) {
+export default function AppNavbar({ integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { source, setSource } = useSource();
   const { user, isLoading, refresh } = useUser();
+
+  const {
+    data: { sites },
+    refetch,
+    hasFetched,
+  } = useAsync({
+    initial: { sites: [] },
+    fetcher: async () => {
+      const sites = await getRows('sites');
+
+      return {
+        sites: sites.ok ? sites.data.rows : [],
+      };
+    },
+    deps: [],
+    immediate: false,
+  });
 
   useEffect(() => {
     if (source?.id !== user?.selected_source && !isLoading) {
@@ -31,6 +48,12 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
       if (newSource) setSource(newSource);
     }
   }, [user, source]);
+
+  const handleMouseEnter = () => {
+    if (!hasFetched) {
+      refetch();
+    }
+  };
 
   const handleSelect = (value: string) => {
     router.push(`/sites/${value}${source && `/${source.source_id}`}`);
@@ -66,7 +89,7 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
     <div className="flex flex-col size-full overflow-hidden">
       <header className="flex h-14 z-50 w-full border-b border-border shadow">
         <div className="flex w-full h-14 px-4 items-center justify-between">
-          <div className="flex items-center gap-2 w-1/2">
+          <div className="flex items-center gap-2 w-1/2" onMouseEnter={handleMouseEnter}>
             <SidebarTrigger className="flex md:hidden" />
             <SearchBox
               placeholder="Search sites...."
@@ -101,10 +124,10 @@ export default function AppNavbar({ sites, integrations, children }: Props) {
       <div
         className={cn(
           'flex flex-col relative size-full space-y-6 p-6 overflow-hidden',
-          pathname.includes('/sites/') && 'p-0!'
+          (pathname.includes('/sites/') || pathname.includes('/groups/')) && 'p-0!'
         )}
       >
-        <SitesProvider value={sites}>{children}</SitesProvider>
+        {children}
       </div>
     </div>
   );

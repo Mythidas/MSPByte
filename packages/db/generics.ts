@@ -308,15 +308,17 @@ export async function tablesUpsertGeneric<T extends keyof Database['public']['Ta
 
 export async function tablesDeleteGeneric<T extends keyof Database['public']['Tables']>(
   table: T,
-  ids: string[]
+  modifyQuery?: (query: QueryBuilder<T>) => void
 ): Promise<APIResponse<null>> {
   try {
     const supabase = await createClient();
-    const { error } = await supabase
-      .from(table)
-      .delete()
-      .in('id', ids as any);
+    let query = supabase.from(table).delete();
 
+    if (modifyQuery) {
+      modifyQuery(query as any);
+    }
+
+    const { error } = await query.select();
     if (error) throw new Error(error.message);
 
     return {

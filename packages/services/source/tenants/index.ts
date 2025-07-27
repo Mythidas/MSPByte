@@ -56,5 +56,7 @@ export async function updateSourceTenant(id: string, mapping: TablesUpdate<'sour
 }
 
 export async function deleteSourceTenant(id: string) {
-  return tables.delete('source_tenants', [id]);
+  return tables.delete('source_tenants', (query) => {
+    query = query.eq('id', id);
+  });
 }

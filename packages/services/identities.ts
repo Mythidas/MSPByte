@@ -107,5 +107,7 @@ export async function updateSourceIdentity(
 }
 
 export async function deleteSourceIdentities(ids: string[]) {
-  return await tables.delete('source_identities', ids);
+  return await tables.delete('source_identities', (query) => {
+    query = query.in('id', ids);
+  });
 }

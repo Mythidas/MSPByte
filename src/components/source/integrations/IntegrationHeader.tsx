@@ -10,9 +10,10 @@ type Props = {
   sourceId: string;
   tenantId: string;
   siteId?: string;
+  groupId?: string;
 };
 
-export default function IntegrationHeader({ sourceId, siteId, tenantId }: Props) {
+export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId }: Props) {
   const headerInfo = SOURCE_HEADERS[sourceId];
   const pathname = usePathname();
   const parent = pathname.includes('grouped');
@@ -37,6 +38,9 @@ export default function IntegrationHeader({ sourceId, siteId, tenantId }: Props)
         )}
         {!siteId && !parent && (
           <SyncSourceItem type="global" sourceId={sourceId} tenantId={tenantId} />
+        )}
+        {groupId && (
+          <SyncSourceItem type="group" sourceId={sourceId} tenantId={tenantId} groupId={groupId} />
         )}
       </div>
     </div>

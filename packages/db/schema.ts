@@ -251,7 +251,6 @@ export type Database = {
           description: string | null
           id: string
           name: string
-          slug: string
           tenant_id: string
           updated_at: string
         }
@@ -260,7 +259,6 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
-          slug?: string
           tenant_id: string
           updated_at?: string
         }
@@ -269,7 +267,6 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
-          slug?: string
           tenant_id?: string
           updated_at?: string
         }
@@ -1542,6 +1539,32 @@ export type Database = {
           },
         ]
       }
+      rollup_metrics_group: {
+        Row: {
+          created_at: string | null
+          delta: number | null
+          description: string | null
+          filters: Json | null
+          group_id: string | null
+          icon: string | null
+          name: string | null
+          roc_positive: boolean | null
+          source_id: string | null
+          thresholds: Json | null
+          total: number | null
+          unit: string | null
+          visual: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "site_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rollup_metrics_parent: {
         Row: {
           created_at: string | null
@@ -1593,6 +1616,77 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
             referencedColumns: ["id", "source_id"]
+          },
+        ]
+      }
+      site_group_memberships_view: {
+        Row: {
+          created_at: string | null
+          group_description: string | null
+          group_id: string | null
+          group_name: string | null
+          site_id: string | null
+          site_name: string | null
+          site_slug: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "site_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "site_group_memberships_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1824,28 +1918,6 @@ export type Database = {
           source_id: string | null
           tenant_id: string | null
           total: number | null
-        }
-        Insert: {
-          created_at?: string | null
-          delta?: number | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
-        }
-        Update: {
-          created_at?: string | null
-          delta?: number | null
-          id?: string | null
-          metric?: number | null
-          name?: string | null
-          site_id?: string | null
-          source_id?: string | null
-          tenant_id?: string | null
-          total?: number | null
         }
         Relationships: [
           {

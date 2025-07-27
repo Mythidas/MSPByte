@@ -45,5 +45,7 @@ export async function updateSourceIntegration(
 }
 
 export async function deleteSourceIntegrations(ids: string[]) {
-  return tables.delete('source_integrations', ids);
+  return tables.delete('source_integrations', (query) => {
+    query = query.in('id', ids);
+  });
 }

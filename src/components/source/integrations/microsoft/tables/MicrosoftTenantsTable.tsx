@@ -44,7 +44,7 @@ export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: 
   return (
     <DataTable
       fetcher={fetcher}
-      action={
+      action={() =>
         !siteLevel && (
           <Microsoft365MappingsDialog
             sourceId={sourceId}

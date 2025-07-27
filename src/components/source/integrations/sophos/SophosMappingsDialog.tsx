@@ -155,14 +155,14 @@ export default function SophosMappingsDialog({ source, integration }: Props) {
         <DataTable
           data={sites}
           isLoading={isLoading}
-          action={
+          action={() => (
             <div className="flex gap-2">
               <Button variant="secondary" onClick={handleClearAll}>
                 Clear All
               </Button>
               <Button onClick={handleAutoMatch}>Auto-Match</Button>
             </div>
-          }
+          )}
           columns={
             [
               textColumn({

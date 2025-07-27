@@ -179,6 +179,7 @@ function DataTableOperatorSelect({
     ilike: { icon: <Search className="w-4 h-4" /> },
     is: { icon: <Equal className="w-4 h-4" /> },
     not: { icon: <X className="w-4 h-4" /> },
+    'not.in': { icon: <X className="w-4 h-4" /> },
   };
 
   return (

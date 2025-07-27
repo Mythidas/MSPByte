@@ -2,30 +2,32 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getRowsCount } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { useSites } from '@/lib/providers/SitesContext';
-import { Building2, Globe, Users } from 'lucide-react';
+import { Building, Building2, Globe } from 'lucide-react';
 
 type Props = {
   site: Tables<'sites'>;
 };
 
 export default function SiteHeader({ site }: Props) {
-  const sites = useSites();
-
   const { content: ChildBadge } = useLazyLoad({
     fetcher: async () => {
       if (!site.is_parent) return 0;
 
-      return sites.filter((s) => s.parent_id === site.id).length;
+      const sites = await getRowsCount('sites', {
+        filters: [['parent_id', 'eq', site.id]],
+      });
+
+      return sites.ok ? sites.data : 0;
     },
     render: (data) => {
       if (!site.is_parent) return null;
 
       return (
         <Badge variant="outline">
-          <Users className="h-3 w-3 mr-1" />
+          <Building className="h-3 w-3 mr-1" />
           {data} Child Sites
         </Badge>
       );

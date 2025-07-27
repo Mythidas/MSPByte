@@ -49,5 +49,7 @@ export async function putSourceLicenses(licenses: TablesInsert<'source_license_i
 }
 
 export async function deleteSourceLicense(id: string) {
-  return tables.delete('source_license_info', [id]);
+  return tables.delete('source_license_info', (query) => {
+    query = query.eq('id', id);
+  });
 }

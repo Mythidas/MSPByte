@@ -15,7 +15,12 @@ export type Option = {
 export type TabProps = {
   label: string;
   icon?: string;
-  content: (source: string, parent?: Tables<'sites'>, site?: Tables<'sites'>) => React.ReactNode;
+  content: (
+    source: string,
+    parent?: Tables<'sites'>,
+    site?: Tables<'sites'>,
+    group?: Tables<'site_groups'>
+  ) => React.ReactNode;
 };
 
 export type Operations =
@@ -29,6 +34,7 @@ export type Operations =
   | 'ilike'
   | 'is'
   | 'not'
+  | 'not.in'
   | 'in';
 
 export type ActionProps = {

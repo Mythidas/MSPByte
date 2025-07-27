@@ -50,7 +50,7 @@ interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
   data?: TData[];
   initialVisibility?: VisibilityState;
-  action?: React.ReactNode;
+  action?: (data: TData[]) => React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
   fetcher?: (args: DataTableFetcher) => Promise<DataResponse<TData>>;
@@ -453,7 +453,7 @@ function DataTableInner<TData>(
           </div>
         </div>
 
-        {action && <div className="flex-shrink-0">{action}</div>}
+        {action && <div className="flex-shrink-0">{action(data)}</div>}
       </div>
 
       {/* Modern Table Card */}

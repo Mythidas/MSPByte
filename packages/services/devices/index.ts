@@ -42,5 +42,7 @@ export async function updateSourceDevice(id: string, device: TablesUpdate<'sourc
 }
 
 export async function deleteSourceDevices(ids: string[]) {
-  return tables.delete('source_devices', ids);
+  return tables.delete('source_devices', (query) => {
+    query = query.in('id', ids);
+  });
 }

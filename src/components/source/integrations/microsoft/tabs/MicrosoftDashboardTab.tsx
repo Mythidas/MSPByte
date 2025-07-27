@@ -18,6 +18,7 @@ import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
 import { useState } from 'react';
 import Loader from '@/components/shared/Loader';
+import { getRows } from '@/db/orm';
 
 const getMfaConfig = (enforcement: string) => {
   switch (enforcement) {
@@ -63,11 +64,33 @@ type Props = {
   sourceId: string;
   site?: Tables<'sites'>;
   parent?: Tables<'sites'>;
+  group?: Tables<'site_groups'>;
 };
 
-export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props) {
+export default function MicrosoftDashboardTab({ sourceId, site, parent, group }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
+      if (group) {
+        const memberships = await getRows('site_group_memberships', {
+          filters: [['group_id', 'eq', group.id]],
+        });
+        if (!memberships.ok) {
+          return { rows: [], total: 0 };
+        }
+
+        const tenants = await getRows('source_tenants', {
+          filters: [
+            ['site_id', 'in', memberships.data.rows.map((m) => m.site_id)],
+            ['source_id', 'eq', sourceId],
+          ],
+        });
+        if (!tenants.ok) {
+          return { rows: [], total: 0 };
+        }
+
+        return tenants.data;
+      }
+
       if (site) {
         const tenant = await getSourceTenant(sourceId, site.id);
         if (tenant.ok) {
@@ -89,7 +112,7 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
       }
     },
     render: (data) => {
-      if (!data) return <strong>No Tenant(s) found</strong>;
+      if (!data || data.total === 0) return <strong>No Tenant(s) found</strong>;
       const uniformOrMixed = () => {
         const arr = data.rows.map((d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement);
         if (arr.length === 0) return 'mixed';
@@ -97,6 +120,7 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
         return arr.every((val) => val === first) ? first : 'mixed';
       };
 
+      console.log(data);
       const mfaTypes = data.rows.map(
         (d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement || 'unknown'
       );
@@ -120,7 +144,11 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
       );
 
       const route =
-        site || parent ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}` : `/${sourceId}`;
+        site || parent
+          ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}`
+          : group
+            ? `/groups/${group.id}/${sourceId}`
+            : `/${sourceId}`;
 
       return (
         <>
@@ -191,9 +219,10 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent }: Props)
             </div>
 
             <SourceMetricsGrid
-              scope={site ? 'site' : parent ? 'parent' : 'global'}
+              scope={site ? 'site' : parent ? 'parent' : group ? 'group' : 'global'}
               sourceId={sourceId}
               siteId={parent?.id || site?.id}
+              groupId={group?.id}
               route={route}
             />
           </div>

@@ -10,37 +10,44 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Database } from '@/db/schema';
-import { deleteRows } from '@/services/general';
 import { prettyText } from '@/lib/utils';
+import { deleteRows } from '@/db/orm';
+import { RowFilter, Table } from '@/types/db';
+import { Tables } from '@/db/schema';
 
-type UseDeleteOptions<T> = {
-  tableName: keyof Database['public']['Tables'];
-  getId: (item: T) => string;
-  displayKey?: keyof T;
-  onDeleted?: (item: T) => void;
+type UseDeleteOptions<T extends Table> = {
+  table: T;
+  getId: (item: Tables<T>) => Record<string, string>; // or string | Record<string, string>
+  displayKey?: keyof Tables<T>;
+  onDeleted?: (item: Tables<T>) => void;
   refetch?: () => void;
 };
 
-export function useDelete<T>({
-  tableName,
+export function useDelete<T extends Table>({
+  table,
   getId,
   displayKey,
   onDeleted,
   refetch,
 }: UseDeleteOptions<T>) {
-  const [itemToDelete, setItemToDelete] = useState<T | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<Tables<T> | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const confirmAndDelete = (item: T) => setItemToDelete(item);
+  const confirmAndDelete = (item: Tables<T>) => setItemToDelete(item);
 
   const doDelete = async () => {
     if (!itemToDelete) return;
 
     setIsDeleting(true);
     try {
-      const id = getId(itemToDelete);
-      const result = await deleteRows(tableName, [id]);
+      const idFields = getId(itemToDelete) as Record<string, unknown>;
+      const filters = Object.entries(idFields).map(
+        ([column, value]) => [column, 'eq', value] as RowFilter<T>
+      );
+
+      const result = await deleteRows(table, {
+        filters: filters as RowFilter<T>[],
+      });
 
       if (!result.ok) throw result.error;
       onDeleted?.(itemToDelete);
@@ -58,7 +65,7 @@ export function useDelete<T>({
       <AlertDialog open={!!itemToDelete} onOpenChange={(v) => !v && setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {prettyText(tableName as string)}?</AlertDialogTitle>
+            <AlertDialogTitle>Delete {prettyText(table as string)}?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete{' '}
               <span className="font-medium">

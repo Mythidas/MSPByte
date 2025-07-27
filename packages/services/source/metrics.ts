@@ -42,5 +42,7 @@ export async function upsertSourceMetric(rows: TablesUpdate<'source_metrics'>[])
 }
 
 export async function deleteSourceMetrics(ids: string[]): Promise<APIResponse<null>> {
-  return tables.delete('source_metrics', ids);
+  return tables.delete('source_metrics', (query) => {
+    query = query.in('id', ids);
+  });
 }

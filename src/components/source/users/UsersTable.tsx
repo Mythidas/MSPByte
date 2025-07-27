@@ -43,13 +43,13 @@ export default function UsersTable() {
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={
+      action={() => (
         <CreateUserDialog
           roles={roles}
           tenantId={context?.tenant_id || ''}
           onCreate={handleChange}
         />
-      }
+      )}
       columns={
         [
           textColumn({

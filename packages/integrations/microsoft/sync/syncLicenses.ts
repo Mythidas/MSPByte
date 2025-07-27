@@ -1,7 +1,6 @@
-import { getRows, insertRows, updateRow } from '@/db/orm';
+import { deleteRows, getRows, insertRows, updateRow } from '@/db/orm';
 import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
 import { Debug } from '@/lib/utils';
-import { deleteRows } from '@/services/general';
 import { APIResponse } from '@/types';
 
 export async function syncLicenses(
@@ -39,7 +38,9 @@ export async function syncLicenses(
     if (!inserted.ok) {
       throw new Error('Failed to insert source licenses');
     }
-    const deleted = await deleteRows('source_licenses', toDelete);
+    const deleted = await deleteRows('source_licenses', {
+      filters: [['id', 'in', toDelete]],
+    });
     if (!deleted.ok) {
       Debug.warn({
         module: 'Microsoft365',
