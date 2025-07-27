@@ -285,6 +285,11 @@ export default function MicrosoftIdentitiesTable({
               return { label: lic.name, value: lic.sku };
             }),
           },
+          last_activity: {
+            label: 'Last Activity',
+            type: 'date',
+            operations: ['gte', 'lte'],
+          },
           role_ids: {
             label: 'Roles',
             type: 'multiselect',

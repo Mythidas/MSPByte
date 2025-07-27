@@ -1,6 +1,7 @@
 // components/DataTableFilterText.tsx
 'use client';
 
+import DatePicker from '@/components/shared/DatePicker';
 import MultiSelect from '@/components/shared/MultiSelect';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -315,18 +316,16 @@ export function DataTableFilterDate({
         <span className="text-sm text-muted-foreground">Between</span>
       </div>
       <div className="flex gap-2">
-        <Input
-          type="date"
-          placeholder="Start"
+        <DatePicker
           value={val[0] as string}
-          onChange={(e) => update('bt', [e.target.value, val[1] as string])}
+          onChange={(date) => update('bt', [date, val[1] as string])}
+          placeholder="Start date"
           className="flex-1"
         />
-        <Input
-          type="date"
-          placeholder="End"
+        <DatePicker
           value={val[1] as string}
-          onChange={(e) => update('bt', [val[0] as string, e.target.value])}
+          onChange={(date) => update('bt', [val[0] as string, date])}
+          placeholder="End date"
           className="flex-1"
         />
       </div>
@@ -338,11 +337,10 @@ export function DataTableFilterDate({
         onSelect={(op) => update(op, val)}
         FilterOperations={meta.operations}
       />
-      <Input
-        type="date"
-        placeholder={meta.placeholder}
+      <DatePicker
         value={value as string}
-        onChange={(e) => update(op, e.target.value)}
+        onChange={(date) => update(op, date)}
+        placeholder={meta.placeholder}
         className="flex-1 rounded-l-none"
       />
     </div>

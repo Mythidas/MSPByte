@@ -176,19 +176,10 @@ export function DataTableFilters<TData>({
 
   const handleFilterClear = () => {
     setDrawerOpen(false);
-    const cleared: Record<string, FilterValue> = {};
+    initFilters.current = false;
 
-    Object.entries(filters).forEach(([groupKey, groupFilters]) => {
-      Object.keys(groupFilters).forEach((filterKey) => {
-        const fullKey = `${groupKey}.${filterKey}`;
-        cleared[fullKey] = { op: 'eq', value: undefined };
-      });
-    });
-
-    setPendingFilters(cleared);
-    setActiveFilters({});
-    applyUrlState({ filters: [], sorting });
     if (clientSide) setFilters([]);
+    applyUrlState({ filters: [], sorting });
   };
 
   const toggleGroup = (groupKey: string) => {

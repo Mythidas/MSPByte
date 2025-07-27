@@ -1,43 +1,57 @@
-'use client';
-
-import * as React from 'react';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { format, parse } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 
-type Props = {
-  value?: Date;
-  onChange?: (date: Date | undefined) => void;
+interface Props {
+  value?: string;
+  onChange: (value: string) => void;
   placeholder?: string;
-};
+  className?: string;
+}
 
-export function DatePicker({ value, onChange, placeholder }: Props) {
-  const [date, setDate] = React.useState<Date | undefined>(value);
-
-  const handleSelect = (date: Date | undefined) => {
-    setDate(date);
-    if (onChange) {
-      onChange(date);
-    }
-  };
+export default function DatePicker({
+  value,
+  onChange,
+  placeholder = 'Pick a date',
+  className,
+}: Props) {
+  const date = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          data-empty={!date}
-          className="data-[empty=true]:text-muted-foreground w-[280px] justify-start text-left font-normal"
+          variant={'outline'}
+          className={cn(
+            'justify-start text-left font-normal',
+            !date && 'text-muted-foreground',
+            className
+          )}
         >
-          <CalendarIcon />
-          {date ? format(date, 'PPP') : <span>{placeholder || 'Pick a date'}</span>}
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {date ? format(date, 'PPP') : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={date} onSelect={handleSelect} />
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(selectedDate) => {
+            if (selectedDate) {
+              onChange(format(selectedDate, 'yyyy-MM-dd'));
+            } else {
+              onChange('');
+            }
+          }}
+          classNames={{
+            day_selected: 'bg-primary text-primary-foreground hover:bg-primary', // no hover effect override
+            day: 'rounded-md w-9 h-9 p-0 font-normal aria-selected:opacity-100',
+            selected: 'bg-primary',
+          }}
+        />
       </PopoverContent>
     </Popover>
   );
