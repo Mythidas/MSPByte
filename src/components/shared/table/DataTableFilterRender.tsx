@@ -148,9 +148,23 @@ function DataTableOperatorSelect({
     eq: { icon: <Equal className="w-4 h-4" /> },
     neq: { icon: <X className="w-4 h-4" /> },
     gt: { icon: <ChevronRight className="w-4 h-4" /> },
-    gte: { icon: <ChevronRight className="w-4 h-4" /> },
+    gte: {
+      icon: (
+        <span className="flex">
+          <ChevronRight className="w-4 h-4" />
+          <Equal className="w-4 h-4" />
+        </span>
+      ),
+    },
     lt: { icon: <ChevronRight className="w-4 h-4" /> },
-    lte: { icon: <ChevronLeft className="w-4 h-4" /> },
+    lte: {
+      icon: (
+        <span className="flex">
+          <ChevronLeft className="w-4 h-4" />
+          <Equal className="w-4 h-4" />
+        </span>
+      ),
+    },
     bt: {
       icon: (
         <span className="flex">
