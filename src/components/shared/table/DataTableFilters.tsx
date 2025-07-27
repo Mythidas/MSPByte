@@ -24,13 +24,7 @@ import {
   DataTableFilter,
   FilterType,
 } from '@/types/data-table';
-import {
-  ColumnFiltersState,
-  ColumnOrderState,
-  SortingState,
-  Table,
-  Updater,
-} from '@tanstack/react-table';
+import { ColumnFiltersState, SortingState, Table, Updater } from '@tanstack/react-table';
 import {
   FunnelPlus,
   Funnel,
