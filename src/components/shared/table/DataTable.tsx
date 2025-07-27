@@ -24,7 +24,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/button';
 import { Download, Grid2X2, RotateCw } from 'lucide-react';
-import { forwardRef, Suspense, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -80,6 +80,7 @@ function DataTableInner<TData>(
   const [pageSize, setPageSize] = useState(25);
   const [isFetching, setIsFetching] = useState(false);
   const [filtersReady, setFiltersReady] = useState(!fetcher);
+  const initialLoad = useRef(true);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -106,8 +107,10 @@ function DataTableInner<TData>(
       ),
       globalFields: columns.filter((col) => col.simpleSearch).map((col) => col.accessorKey!),
       globalSearch: globalSearch,
+      initial: initialLoad.current,
     });
 
+    initialLoad.current = false;
     setData(rows);
     setRowCount(total);
     setIsFetching(false);
@@ -371,6 +374,8 @@ function DataTableInner<TData>(
               <DataTableFilters
                 filters={filters || {}}
                 onInit={() => setFiltersReady(true)}
+                setFilters={setColumnFilters}
+                setSorting={setSorting}
                 table={table}
                 sorting={sorting}
                 clientSide={!fetcher}

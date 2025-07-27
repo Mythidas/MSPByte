@@ -212,7 +212,7 @@ export default function ActivityFeedTable() {
             label: 'Action',
             type: 'text',
             placeholder: 'Search action',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           status: {

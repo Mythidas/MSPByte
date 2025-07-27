@@ -149,31 +149,30 @@ export function paginatedFilters<T extends TableOrView>(
   filters: Filters,
   map?: Record<string, string>
 ): QueryBuilder<T> {
-  for (const [key, { op, value }] of Object.entries(filters)) {
+  for (let [key, { op, value }] of Object.entries(filters)) {
     if (value === undefined || value === null || value === '') continue;
 
     const column = map ? (map[key] ?? key) : key;
 
     switch (op) {
-      case 'lk':
-        query = query.ilike(column as any, `%${value}%`);
-        break;
+      case 'like':
+      case 'ilike':
+        value = `%${value}%`;
+
+      case 'gte':
+      case 'is':
+      case 'lte':
+      case 'not':
       case 'eq':
-        query = query.eq(column as any, value);
-        break;
-      case 'ne':
-        query = query.neq(column as any, value);
-        break;
+      case 'neq':
       case 'gt':
-        query = query.gte(column as any, value);
-        break;
       case 'lt':
-        query = query.lte(column as any, value);
-        break;
       case 'in':
         if (Array.isArray(value)) {
-          query = query.overlaps(column as any, value);
+          value = `(${value.join(',')})`;
         }
+
+        query = query.filter(column as string, op, value);
         break;
       case 'bt':
         if (Array.isArray(value)) {

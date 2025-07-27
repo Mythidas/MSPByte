@@ -1,4 +1,5 @@
 import { Database, Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Operations } from '@/types';
 import { PaginationOptions } from '@/types/data-table';
 
 // types.ts
@@ -7,7 +8,7 @@ export type TableOrView = keyof Database['public']['Tables'] | keyof Database['p
 
 export type RowFilter<T extends TableOrView> = [
   column: keyof Tables<T>,
-  operator: 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ilike' | 'is' | 'not' | 'in',
+  operator: Operations,
   value: any,
 ];
 

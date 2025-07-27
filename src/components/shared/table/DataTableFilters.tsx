@@ -24,7 +24,13 @@ import {
   DataTableFilter,
   FilterType,
 } from '@/types/data-table';
-import { ColumnFiltersState, SortingState, Table } from '@tanstack/react-table';
+import {
+  ColumnFiltersState,
+  ColumnOrderState,
+  SortingState,
+  Table,
+  Updater,
+} from '@tanstack/react-table';
 import {
   FunnelPlus,
   Funnel,
@@ -55,6 +61,8 @@ type DataTableDrawerProps<TData> = {
   filters: Record<string, Record<string, DataTableFilter>>;
   onInit: () => void;
   table: Table<TData>;
+  setFilters: (filters: ColumnFiltersState) => void;
+  setSorting: (updater: Updater<SortingState>) => void;
   sorting: SortingState;
   clientSide?: boolean;
 };
@@ -63,6 +71,8 @@ export function DataTableFilters<TData>({
   filters,
   onInit,
   table,
+  setFilters,
+  setSorting,
   sorting,
   clientSide,
 }: DataTableDrawerProps<TData>) {
@@ -82,8 +92,8 @@ export function DataTableFilters<TData>({
 
   useEffect(() => {
     if (!isReady || initFilters.current) return;
-    table.setColumnFilters(initialFilters);
-    table.setSorting(initialSorting);
+    setFilters(initialFilters);
+    setSorting(initialSorting);
     initFilters.current = true;
     onInit?.();
   }, [isReady, initialFilters, initialSorting]);
@@ -96,8 +106,8 @@ export function DataTableFilters<TData>({
     const sortingChanged =
       JSON.stringify(initialSorting) !== JSON.stringify(table.getState().sorting);
 
-    if (filtersChanged) table.setColumnFilters(initialFilters);
-    if (sortingChanged) table.setSorting(initialSorting);
+    if (filtersChanged) setFilters(initialFilters);
+    if (sortingChanged) setSorting(initialSorting);
   }, [searchParams.toString()]);
 
   useEffect(() => {
@@ -129,14 +139,12 @@ export function DataTableFilters<TData>({
     initFilters.current = false;
     const applied: ColumnFiltersState = [];
 
-    console.log(pendingFilters, activeFilters);
     for (const [fullKey, rawValue] of Object.entries(pendingFilters)) {
       if (!activeFilters[fullKey]) continue;
 
       const [groupKey, filterKey] = fullKey.split('.');
       const filterMeta = filters[groupKey]?.[filterKey];
 
-      console.log(filterMeta);
       if (!filterMeta) continue;
 
       let value = rawValue;
@@ -145,7 +153,7 @@ export function DataTableFilters<TData>({
           value = { op: 'eq', value: (rawValue?.value ?? false) as FilterPrimitive | undefined };
           break;
         case 'text':
-          value = { op: 'lk', value: (rawValue?.value ?? '') as FilterPrimitive | undefined };
+          value = { op: 'ilike', value: (rawValue?.value ?? '') as FilterPrimitive | undefined };
           break;
         case 'select':
           value = { op: 'eq', value: (rawValue?.value ?? '') as FilterPrimitive | undefined };
@@ -168,7 +176,7 @@ export function DataTableFilters<TData>({
       applied.push({ id: filterKey, value });
     }
 
-    if (clientSide) table.setColumnFilters(applied);
+    if (clientSide) setFilters(applied);
     applyUrlState({ filters: applied, sorting });
   };
 
@@ -186,7 +194,7 @@ export function DataTableFilters<TData>({
     setPendingFilters(cleared);
     setActiveFilters({});
     applyUrlState({ filters: [], sorting });
-    if (clientSide) table.setColumnFilters([]);
+    if (clientSide) setFilters([]);
   };
 
   const toggleGroup = (groupKey: string) => {
@@ -315,7 +323,13 @@ export function DataTableFilters<TData>({
                 } else {
                   setPendingFilters((prev) => ({
                     ...prev,
-                    [fullKey]: { op: 'eq', value: getDefaultValue(filterConfig.type) },
+                    [fullKey]: {
+                      op:
+                        filterConfig.operations && filterConfig.operations[0] !== 'bt'
+                          ? filterConfig.operations[0]
+                          : 'eq',
+                      value: getDefaultValue(filterConfig.type),
+                    },
                   }));
                 }
               }}

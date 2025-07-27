@@ -28,7 +28,8 @@ export default function MicrosoftLicensesTable({
 }: Props) {
   const ref = useRef<DataTableRef>(null);
 
-  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+  const fetcher = async ({ pageIndex, pageSize, sorting, ...props }: DataTableFetcher) => {
+    console.log(props.filters);
     const licenses = await getRows('source_licenses_view', {
       filters: [
         ['source_id', 'eq', sourceId],
@@ -38,7 +39,7 @@ export default function MicrosoftLicensesTable({
         page: pageIndex,
         size: pageSize,
         ...props,
-        sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+        sorting: Object.entries(sorting).length > 0 ? sorting : { site_name: 'asc' },
       },
     });
 
@@ -178,27 +179,27 @@ export default function MicrosoftLicensesTable({
             label: 'License Name',
             type: 'text',
             placeholder: 'Search license name',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           sku: {
             label: 'SKU',
             type: 'text',
             placeholder: 'Search SKU',
-            operations: ['lk'],
+            operations: ['ilike'],
           },
           site_name: {
             label: 'Site',
             type: 'text',
             placeholder: 'Search site',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           parent_name: {
             label: 'Parent',
             type: 'text',
             placeholder: 'Search parent',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           status: {
@@ -206,10 +207,10 @@ export default function MicrosoftLicensesTable({
             type: 'select',
             placeholder: 'Select status',
             options: [
-              { label: 'Enabled', value: 'enabled' },
-              { label: 'Suspended', value: 'suspended' },
-              { label: 'Disabled', value: 'disabled' },
-              { label: 'Warning', value: 'warning' },
+              { label: 'Enabled', value: 'Enabled' },
+              { label: 'Suspended', value: 'Suspended' },
+              { label: 'Disabled', value: 'Disabled' },
+              { label: 'Warning', value: 'Warning' },
             ],
           },
         },
@@ -218,13 +219,13 @@ export default function MicrosoftLicensesTable({
             label: 'Total Units',
             type: 'number',
             placeholder: 'Min units',
-            operations: ['gt', 'lt'],
+            operations: ['gte', 'lte'],
           },
           used_units: {
             label: 'Used Units',
             type: 'number',
             placeholder: 'Min used',
-            operations: ['gt', 'lt'],
+            operations: ['gte', 'lte'],
           },
         },
       }}

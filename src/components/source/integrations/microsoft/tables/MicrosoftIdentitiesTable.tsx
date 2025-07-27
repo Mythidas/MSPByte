@@ -12,13 +12,11 @@ import {
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { getSourceLicenses } from '@/services/licenses';
-import { pascalCase } from '@/lib/utils';
+import { pascalCase, Timer } from '@/lib/utils';
 import MicrosoftIdentityDrawer from '@/components/source/integrations/microsoft/drawers/MicrosoftIdentityDrawer';
-import {
-  getSourceIdentitiesUniqueRolesAndGroups,
-  getSourceIdentitiesView,
-} from '@/services/identities';
+import { getSourceIdentitiesUniqueRolesAndGroups } from '@/services/identities';
 import { useAsync } from '@/hooks/common/useAsync';
+import { getRows } from '@/db/orm';
 
 type TData = Tables<'source_identities_view'>;
 type Props = {
@@ -36,6 +34,7 @@ export default function MicrosoftIdentitiesTable({
 }: Props) {
   const {
     data: { licenses },
+    refetch: fetchLicenses,
   } = useAsync({
     initial: { licenses: [] },
     fetcher: async () => {
@@ -47,10 +46,12 @@ export default function MicrosoftIdentitiesTable({
       };
     },
     deps: [],
+    immediate: false,
   });
 
   const {
     data: { roles, groups },
+    refetch: fetchRolesAndGroups,
   } = useAsync({
     initial: { roles: [], groups: [] },
     fetcher: async () => {
@@ -63,20 +64,36 @@ export default function MicrosoftIdentitiesTable({
       };
     },
     deps: [],
+    immediate: false,
   });
 
-  const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const identities = await getSourceIdentitiesView(sourceId, siteIds, {
-      page: pageIndex,
-      size: pageSize,
-      filterMap: {
-        ca_capable: 'metadata->>valid_mfa_license',
+  const fetcher = async ({ pageIndex, pageSize, initial, sorting, ...props }: DataTableFetcher) => {
+    const timer = new Timer('Fetch identities', true);
+    const identities = await getRows('source_identities_view', {
+      filters: [
+        ['source_id', 'eq', sourceId],
+        ['site_id', 'in', siteIds],
+      ],
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        filterMap: {
+          ca_capable: 'metadata->>valid_mfa_license',
+        },
+        sorting: Object.entries(sorting).length > 0 ? sorting : { site_name: 'asc' },
+        ...props,
       },
-      ...props,
     });
 
     if (!identities.ok) {
       return { rows: [], total: 0 };
+    }
+
+    timer.summary();
+
+    if (initial) {
+      fetchLicenses();
+      fetchRolesAndGroups();
     }
 
     return identities.data;
@@ -219,14 +236,14 @@ export default function MicrosoftIdentitiesTable({
             label: 'Site',
             type: 'text',
             placeholder: 'Search site',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           parent_name: {
             label: 'Parent',
             type: 'text',
             placeholder: 'Search parent',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
         },
@@ -235,14 +252,14 @@ export default function MicrosoftIdentitiesTable({
             label: 'Name',
             type: 'text',
             placeholder: 'Search name',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           email: {
             label: 'Email',
             type: 'text',
             placeholder: 'Search email',
-            operations: ['lk'],
+            operations: ['ilike'],
             simpleSearch: true,
           },
           type: {
@@ -309,7 +326,7 @@ export default function MicrosoftIdentitiesTable({
             label: 'Methods',
             type: 'number',
             placeholder: 'Method count',
-            operations: ['gt', 'lt'],
+            operations: ['gte', 'lte'],
           },
           ca_capable: {
             label: 'CA Capable',

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import {
   DataTableFilter,
-  FilterOperation,
+  FilterOperations,
   FilterPrimitive,
   FilterPrimitiveTuple,
   FilterValue,
@@ -43,7 +43,7 @@ export function DataTableFilterText({
       onChange={(e) =>
         setPendingFilters((prev) => ({
           ...prev,
-          [fullKey]: { op: 'lk', value: e.target.value },
+          [fullKey]: { op: 'ilike', value: e.target.value },
         }))
       }
       className="w-full"
@@ -136,19 +136,21 @@ export function DataTableFilterMultiSelect({
 function DataTableOperatorSelect({
   onSelect,
   defaultValue,
-  operations,
+  FilterOperations,
 }: {
-  onSelect: (op: FilterOperation) => void;
+  onSelect: (op: FilterOperations) => void;
   defaultValue?: string;
-  operations?: FilterOperation[];
+  FilterOperations?: FilterOperations[];
 }) {
-  const availableOperations = operations || ['eq', 'gt', 'lt', 'bt'];
+  const availableFilterOperations = FilterOperations || ['eq', 'gt', 'lt', 'bt'];
 
-  const operatorLabels: Record<FilterOperation, { icon: React.ReactNode }> = {
+  const operatorLabels: Record<FilterOperations, { icon: React.ReactNode }> = {
     eq: { icon: <Equal className="w-4 h-4" /> },
-    ne: { icon: <X className="w-4 h-4" /> },
+    neq: { icon: <X className="w-4 h-4" /> },
     gt: { icon: <ChevronRight className="w-4 h-4" /> },
-    lt: { icon: <ChevronLeft className="w-4 h-4" /> },
+    gte: { icon: <ChevronRight className="w-4 h-4" /> },
+    lt: { icon: <ChevronRight className="w-4 h-4" /> },
+    lte: { icon: <ChevronLeft className="w-4 h-4" /> },
     bt: {
       icon: (
         <span className="flex">
@@ -158,23 +160,22 @@ function DataTableOperatorSelect({
       ),
     },
     in: { icon: <List className="w-4 h-4" /> },
-    lk: { icon: <Search className="w-4 h-4" /> },
-    nl: { icon: <Search className="w-4 h-4" /> },
-    ct: { icon: <Search className="w-4 h-4" /> },
-    nct: { icon: <Search className="w-4 h-4" /> },
-    is: { icon: <X className="w-4 h-4" /> },
+    like: { icon: <Search className="w-4 h-4" /> },
+    ilike: { icon: <Search className="w-4 h-4" /> },
+    is: { icon: <Search className="w-4 h-4" /> },
+    not: { icon: <Search className="w-4 h-4" /> },
   };
 
   return (
     <Select
-      onValueChange={(value) => onSelect(value as FilterOperation)}
+      onValueChange={(value) => onSelect(value as FilterOperations)}
       defaultValue={defaultValue || 'eq'}
     >
       <SelectTrigger className="w-fit rounded-r-none" noIcon>
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        {availableOperations.map((op) => (
+        {availableFilterOperations.map((op) => (
           <SelectItem key={op} value={op}>
             <div className="flex items-center gap-2">{operatorLabels[op].icon}</div>
           </SelectItem>
@@ -190,10 +191,10 @@ export function DataTableFilterNumber({
   value,
   op,
   setPendingFilters,
-}: Props<number | [number, number] | undefined> & { op: FilterOperation }) {
+}: Props<number | [number, number] | undefined> & { op: FilterOperations }) {
   const val = (value || [0, 0]) as FilterPrimitiveTuple;
 
-  const update = (op: FilterOperation, v: FilterPrimitive | FilterPrimitiveTuple): void => {
+  const update = (op: FilterOperations, v: FilterPrimitive | FilterPrimitiveTuple): void => {
     if (op === 'bt') {
       setPendingFilters((prev) => ({
         ...prev,
@@ -220,7 +221,7 @@ export function DataTableFilterNumber({
         <DataTableOperatorSelect
           defaultValue={op}
           onSelect={(op) => update(op, val)}
-          operations={meta.operations}
+          FilterOperations={meta.operations}
         />
         <span className="text-sm text-muted-foreground">Between</span>
       </div>
@@ -244,9 +245,9 @@ export function DataTableFilterNumber({
   ) : (
     <div className="flex">
       <DataTableOperatorSelect
-        defaultValue={op}
+        defaultValue={op || 'eq'}
         onSelect={(op) => update(op, val)}
-        operations={meta.operations}
+        FilterOperations={meta.operations}
       />
       <Input
         type="number"
@@ -265,10 +266,10 @@ export function DataTableFilterDate({
   value,
   op,
   setPendingFilters,
-}: Props<string | string[] | undefined> & { op: FilterOperation }) {
+}: Props<string | string[] | undefined> & { op: FilterOperations }) {
   const val = (value || ['', '']) as FilterPrimitiveTuple;
 
-  const update = (op: FilterOperation, v: FilterPrimitive | FilterPrimitiveTuple): void => {
+  const update = (op: FilterOperations, v: FilterPrimitive | FilterPrimitiveTuple): void => {
     if (op === 'bt') {
       setPendingFilters((prev) => ({
         ...prev,
@@ -295,7 +296,7 @@ export function DataTableFilterDate({
         <DataTableOperatorSelect
           defaultValue={op}
           onSelect={(op) => update(op, val)}
-          operations={meta.operations}
+          FilterOperations={meta.operations}
         />
         <span className="text-sm text-muted-foreground">Between</span>
       </div>
@@ -321,7 +322,7 @@ export function DataTableFilterDate({
       <DataTableOperatorSelect
         defaultValue={op}
         onSelect={(op) => update(op, val)}
-        operations={meta.operations}
+        FilterOperations={meta.operations}
       />
       <Input
         type="date"

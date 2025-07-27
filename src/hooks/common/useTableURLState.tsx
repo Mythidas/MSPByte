@@ -10,7 +10,7 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
   const parts = filterStr.split(/\s+and\s+/i);
 
   for (const part of parts) {
-    const match = part.match(/^(\w+)\s+(eq|lk|ne|gt|lt|ge|le|in)\s+(.+)$/i);
+    const match = part.match(/^(\w+)\s+(eq|neq|gt|gte|lt|lte|like|ilike|is|in|not|bt)\s+(.+)$/i);
     if (!match) continue;
 
     const [, field, op, rawValue] = match;

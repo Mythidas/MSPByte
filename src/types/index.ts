@@ -18,6 +18,19 @@ export type TabProps = {
   content: (source: string, parent?: Tables<'sites'>, site?: Tables<'sites'>) => React.ReactNode;
 };
 
+export type Operations =
+  | 'eq'
+  | 'neq'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'like'
+  | 'ilike'
+  | 'is'
+  | 'not'
+  | 'in';
+
 export type ActionProps = {
   label: string;
   icon?: string;
