@@ -7,9 +7,10 @@ import { Power } from 'lucide-react';
 import { getSourceIntegration } from '@/services/integrations';
 import { SourceBreadcrumb } from '@/components/source/sources/SourceBreadcrumbs';
 import { Button } from '@/components/ui/button';
-import SophosPartner from '@/components/source/integrations/sophos/SophosPartner';
 import Microsoft365Enabled from '@/components/source/integrations/microsoft/Microsoft365Enabled';
 import Microsoft365Disabled from '@/components/source/integrations/microsoft/Microsoft365Disabled';
+import SophosPartnerDisabled from '@/components/source/integrations/sophos/SophosPartnerDisabled';
+import SophosPartnerEnabled from '@/components/source/integrations/sophos/SophosPartnerEnabled';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,7 +27,8 @@ export default async function Page({ ...props }: Props) {
   const getBody = () => {
     switch (source.id) {
       case 'sophos-partner':
-        return <SophosPartner source={source} integration={integration} />;
+        if (integration) return <SophosPartnerEnabled source={source} integration={integration} />;
+        return <SophosPartnerDisabled source={source} />;
       case 'microsoft-365':
         if (integration) return <Microsoft365Enabled source={source} integration={integration} />;
         return <Microsoft365Disabled source={source} />;

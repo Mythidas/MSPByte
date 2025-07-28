@@ -12,9 +12,9 @@ import {
   UpsertRowConfig,
 } from '@/types/db';
 
-export async function getRow<T extends TableOrView>(table: T, config: GetRowConfig<T>) {
+export async function getRow<T extends TableOrView>(table: T, config?: GetRowConfig<T>) {
   return tables.selectSingle(table, (query) => {
-    if (config.filters) {
+    if (config && config.filters) {
       for (const filter of config.filters) {
         if (!filter) continue;
 
@@ -24,6 +24,15 @@ export async function getRow<T extends TableOrView>(table: T, config: GetRowConf
         }
 
         query = query.filter(col as string, op, val);
+      }
+    }
+
+    if (config && config.sorting) {
+      for (const sorting of config.sorting) {
+        if (!sorting) continue;
+        const [col, dir] = sorting;
+
+        query = query.order(col as string, { ascending: dir === 'asc' });
       }
     }
   });
@@ -50,9 +59,9 @@ export async function getRows<T extends TableOrView>(table: T, config?: GetRowCo
   );
 }
 
-export async function getRowsCount<T extends TableOrView>(table: T, config: GetRowCountConfig<T>) {
+export async function getRowsCount<T extends TableOrView>(table: T, config?: GetRowCountConfig<T>) {
   return tables.count(table, (query) => {
-    if (config.filters) {
+    if (config && config.filters) {
       for (const filter of config.filters) {
         if (!filter) continue;
 

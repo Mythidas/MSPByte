@@ -2,7 +2,7 @@
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { Tables } from '@/db/schema';
-import { column, dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
+import { dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { prettyText } from '@/lib/utils';

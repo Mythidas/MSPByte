@@ -9,9 +9,13 @@ export type TableOrView = keyof Database['public']['Tables'] | keyof Database['p
 export type RowFilter<T extends TableOrView> =
   | [column: keyof Tables<T>, operator: Operations, value: any]
   | undefined;
+export type RowSort<T extends TableOrView> =
+  | [column: keyof Tables<T>, order: 'asc' | 'desc']
+  | undefined;
 
 export type GetRowConfig<T extends TableOrView> = {
   filters?: Array<RowFilter<T> | undefined>;
+  sorting?: Array<RowSort<T> | undefined>;
   pagination?: PaginationOptions;
 };
 

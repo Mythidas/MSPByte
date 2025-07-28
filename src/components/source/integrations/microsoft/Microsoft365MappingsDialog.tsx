@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCircle, ChevronRight, ChevronLeft, Plus } from 'lucide-react';
+import { CheckCircle, ChevronRight, ChevronLeft, Map } from 'lucide-react';
 import z from 'zod';
 
 import {
@@ -369,7 +369,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
           disabled={!hasAccess('Sources', 'Write')}
           variant="secondary"
         >
-          <Plus /> New Site Mapping
+          <Map /> New Site Mapping
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">
