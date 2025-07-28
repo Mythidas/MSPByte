@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Box,
   Building,
   Building2,
   Cable,
@@ -32,6 +33,13 @@ import { SOURCE_TABS } from '@/config/sourceTabs';
 
 type Item = {
   title: string;
+  url: (sourceId: string) => string;
+  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
+  children?: Child[];
+};
+
+type Child = {
+  title: string;
   url: string;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   children?: Item[];
@@ -40,23 +48,28 @@ type Item = {
 const applicationItems: Item[] = [
   {
     title: 'Home',
-    url: '',
+    url: () => '/',
     icon: ChartArea,
   },
   {
+    title: 'Source',
+    url: (sourceId) => `/${sourceId}`,
+    icon: Box,
+  },
+  {
     title: 'Sites',
-    url: '/sites',
+    url: () => '/sites',
     icon: Building,
   },
-  { title: 'Groups', url: '/groups', icon: Building2 },
+  { title: 'Groups', url: () => '/groups', icon: Building2 },
   {
     title: 'Actions',
-    url: '/actions',
+    url: (sourceId) => `/actions/${sourceId}`,
     icon: ScanText,
   },
   {
     title: 'Activity',
-    url: '/activity',
+    url: () => '/activity',
     icon: Logs,
   },
 ];
@@ -64,12 +77,12 @@ const applicationItems: Item[] = [
 const adminItems: Item[] = [
   {
     title: 'Integrations',
-    url: '/integrations',
+    url: () => '/integrations',
     icon: Cable,
   },
   {
     title: 'Users',
-    url: '/users',
+    url: () => '/users',
     icon: ShieldUser,
   },
 ];
@@ -78,39 +91,39 @@ export default function AppSidebar() {
   const pathname = usePathname(); // always safe
   const { source } = useSource();
 
-  const renderItem = (item: Item, admin?: boolean) => {
+  const renderItem = (item: Item) => {
     const isSites = pathname.includes('/sites');
     const isIntegrations = pathname.includes('/integrations');
     const isUsers = pathname.includes('/users');
     const isActions = pathname.includes('/actions');
     const isActivity = pathname.includes('/activity');
     const isGroups = pathname.includes('/groups');
-    const isHome =
-      !isSites && !isIntegrations && !isUsers && !isActions && !isActivity && !isGroups;
+    const isHome = pathname === '/';
+    const isSource =
+      !isSites && !isIntegrations && !isUsers && !isActions && !isActivity && !isGroups && !isHome;
 
     const isActive =
-      (item.url === '' && isHome) ||
-      (item.url === '/users' && isUsers) ||
-      (item.url === '/integrations' && isIntegrations) ||
-      (item.url === '/sites' && isSites) ||
-      (item.url === '/actions' && isActions) ||
-      (item.url === '/activity' && isActivity) ||
-      (item.url === '/groups' && isGroups);
-    const endRoute =
-      item.url !== '/sites' && item.url !== '/groups' && item.url !== '/activity' && !admin
-        ? `/${source?.source_id}`
-        : '';
-    const tabs = isHome && item.url === '' && source ? SOURCE_TABS[source.source_id!] : {};
+      (item.title === 'Home' && isHome) ||
+      (item.title === 'Users' && isUsers) ||
+      (item.title === 'Integrations' && isIntegrations) ||
+      (item.title === 'Sites' && isSites) ||
+      (item.title === 'Actions' && isActions) ||
+      (item.title === 'Activity' && isActivity) ||
+      (item.title === 'Groups' && isGroups) ||
+      (item.title === 'Source' && isSource);
+    const endRoute = item.url(source?.source_id || '');
+    const tabs =
+      isSource && item.title === 'Source' && source ? SOURCE_TABS[source.source_id!] : {};
 
-    if (Object.entries(tabs).length > 0) {
-      return (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild isActive={isActive}>
-            <Link href={`${item.url}${endRoute}`}>
-              <item.icon />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
+    return (
+      <SidebarMenuItem key={item.title}>
+        <SidebarMenuButton asChild isActive={isActive}>
+          <Link href={`${endRoute}`}>
+            <item.icon />
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
+        {Object.entries(tabs).length > 0 && (
           <SidebarMenuSub>
             {Object.entries(tabs).map(([key, value], index) => {
               const tabHref = `/${source?.source_id}${index === 0 ? '' : `/${key}`}`;
@@ -125,19 +138,8 @@ export default function AppSidebar() {
               );
             })}
           </SidebarMenuSub>
-        </SidebarMenuItem>
-      );
-    }
-
-    if (item.children) {
-      return (
-        <SidebarMenuItem key={item.title}>
-          <SidebarMenuButton asChild isActive={isActive}>
-            <Link href={`${item.url}${endRoute}`}>
-              <item.icon />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
+        )}
+        {item.children && (
           <SidebarMenuSub>
             {item.children.map((child, index) => {
               const isActive = pathname.includes(child.url);
@@ -151,18 +153,7 @@ export default function AppSidebar() {
               );
             })}
           </SidebarMenuSub>
-        </SidebarMenuItem>
-      );
-    }
-
-    return (
-      <SidebarMenuItem key={item.title}>
-        <SidebarMenuButton asChild isActive={isActive}>
-          <Link href={`${item.url}${endRoute}`}>
-            <item.icon />
-            <span>{item.title}</span>
-          </Link>
-        </SidebarMenuButton>
+        )}
       </SidebarMenuItem>
     );
   };
@@ -182,7 +173,7 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Backend</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{adminItems.map((item) => renderItem(item, true))}</SidebarMenu>
+            <SidebarMenu>{adminItems.map((item) => renderItem(item))}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

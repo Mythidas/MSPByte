@@ -120,7 +120,6 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent, group }:
         return arr.every((val) => val === first) ? first : 'mixed';
       };
 
-      console.log(data);
       const mfaTypes = data.rows.map(
         (d) => (d.metadata as MicrosoftTenantMetadata).mfa_enforcement || 'unknown'
       );
