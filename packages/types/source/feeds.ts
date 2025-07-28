@@ -21,7 +21,7 @@ export type MicrosoftEmailBreachMetadata = {
           description: string;
         }[];
       }[];
-      errors: string[];
+      errors?: string[];
     };
   };
 };

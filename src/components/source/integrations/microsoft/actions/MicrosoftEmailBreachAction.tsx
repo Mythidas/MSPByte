@@ -200,7 +200,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                       const inboxError = feed
                         ? (
                             feed.metadata as MicrosoftEmailBreachMetadata
-                          ).steps.check_inbox_rules.errors.find((err) => err.includes(id.email))
+                          ).steps.check_inbox_rules.errors?.find((err) => err.includes(id.email))
                         : undefined;
 
                       return (
