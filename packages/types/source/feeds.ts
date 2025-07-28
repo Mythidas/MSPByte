@@ -13,6 +13,7 @@ export type MicrosoftEmailBreachMetadata = {
     check_inbox_rules: {
       status: string;
       data: {
+        email: string;
         userId: string;
         rules: {
           name: string;
@@ -20,6 +21,7 @@ export type MicrosoftEmailBreachMetadata = {
           description: string;
         }[];
       }[];
+      errors: string[];
     };
   };
 };

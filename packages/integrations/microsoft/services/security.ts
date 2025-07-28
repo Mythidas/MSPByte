@@ -100,7 +100,8 @@ export async function resetUserMFA(
 
 export async function checkInboxRules(
   mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
-  userId: string
+  userId: string,
+  email: string
 ) {
   try {
     const metadata = mapping.metadata as any;
@@ -119,6 +120,7 @@ export async function checkInboxRules(
     return {
       ok: true,
       data: {
+        email,
         userId,
         rules: suspicious,
       },
@@ -127,7 +129,7 @@ export async function checkInboxRules(
     return Debug.error({
       module: 'Microsoft-365',
       context: 'getInboxRules',
-      message: String(err),
+      message: `${email}: ${String(err)}`,
       time: new Date(),
     });
   }

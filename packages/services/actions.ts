@@ -44,6 +44,36 @@ export default async function microsoft365EmailBreachResponse(
       },
     });
     if (update.ok) feed = update.data;
+  } else {
+    const errors = revokeSessions.map((e) => {
+      if ('error' in e) {
+        return e.error.message;
+      }
+
+      return undefined;
+    });
+
+    const update = await updateRow('activity_feeds', {
+      id: feed.id,
+      row: {
+        ...feed,
+        updated_at: new Date().toISOString(),
+        metadata: {
+          ...(feed.metadata as any),
+          steps: {
+            ...(feed.metadata as any).steps,
+            revoke_sessions: {
+              status: 'error',
+              errors,
+            },
+            reset_password: {
+              status: 'in_progress',
+            },
+          },
+        },
+      },
+    });
+    if (update.ok) feed = update.data;
   }
 
   // Reset Passwords
@@ -62,6 +92,36 @@ export default async function microsoft365EmailBreachResponse(
             ...(feed.metadata as any).steps,
             reset_password: {
               status: 'completed',
+            },
+            reset_mfa: {
+              status: 'in_progress',
+            },
+          },
+        },
+      },
+    });
+    if (update.ok) feed = update.data;
+  } else {
+    const errors = resetPasswords.map((e) => {
+      if ('error' in e) {
+        return e.error.message;
+      }
+
+      return undefined;
+    });
+
+    const update = await updateRow('activity_feeds', {
+      id: feed.id,
+      row: {
+        ...feed,
+        updated_at: new Date().toISOString(),
+        metadata: {
+          ...(feed.metadata as any),
+          steps: {
+            ...(feed.metadata as any).steps,
+            reset_password: {
+              status: 'error',
+              errors,
             },
             reset_mfa: {
               status: 'in_progress',
@@ -98,11 +158,41 @@ export default async function microsoft365EmailBreachResponse(
       },
     });
     if (update.ok) feed = update.data;
+  } else {
+    const errors = resetMFA.map((e) => {
+      if ('error' in e) {
+        return e.error.message;
+      }
+
+      return undefined;
+    });
+
+    const update = await updateRow('activity_feeds', {
+      id: feed.id,
+      row: {
+        ...feed,
+        updated_at: new Date().toISOString(),
+        metadata: {
+          ...(feed.metadata as any),
+          steps: {
+            ...(feed.metadata as any).steps,
+            reset_mfa: {
+              status: 'error',
+              errors,
+            },
+            check_inbox_rules: {
+              status: 'in_progress',
+            },
+          },
+        },
+      },
+    });
+    if (update.ok) feed = update.data;
   }
 
   // Check Inbox Rules
   const checkRules = await Promise.all(
-    identities.map(async (id) => await checkInboxRules(tenant.data, id.external_id))
+    identities.map(async (id) => await checkInboxRules(tenant.data, id.external_id, id.email))
   );
   if (checkRules.every((session) => session.ok)) {
     await updateRow('activity_feeds', {
@@ -118,6 +208,34 @@ export default async function microsoft365EmailBreachResponse(
             check_inbox_rules: {
               status: 'completed',
               data: checkRules.map((rule) => (rule.ok ? rule.data : undefined)),
+            },
+          },
+        },
+      },
+    });
+  } else {
+    const errors = checkRules.map((e) => {
+      if ('error' in e) {
+        return e.error.message;
+      }
+
+      return undefined;
+    });
+
+    await updateRow('activity_feeds', {
+      id: feed.id,
+      row: {
+        ...feed,
+        updated_at: new Date().toISOString(),
+        status: 'error',
+        metadata: {
+          ...(feed.metadata as any),
+          steps: {
+            ...(feed.metadata as any).steps,
+            check_inbox_rules: {
+              status: 'error',
+              data: checkRules.map((rule) => (rule.ok ? rule.data : undefined)).filter(Boolean),
+              errors,
             },
           },
         },

@@ -11,6 +11,7 @@ import {
   CheckCheckIcon,
   User2,
   RotateCcw,
+  X,
 } from 'lucide-react';
 import { Tables } from '@/db/schema';
 import { Button } from '@/components/ui/button';
@@ -194,8 +195,13 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                             feed.metadata as MicrosoftEmailBreachMetadata
                           ).steps.check_inbox_rules.data.find(
                             (inbox) => inbox.userId === id.external_id
-                          )?.rules || []
+                          )?.rules
                         : [];
+                      const inboxError = feed
+                        ? (
+                            feed.metadata as MicrosoftEmailBreachMetadata
+                          ).steps.check_inbox_rules.errors.find((err) => err.includes(id.email))
+                        : undefined;
 
                       return (
                         <Display key={id.id}>
@@ -208,8 +214,16 @@ export default function MicrosoftEmailBreachAction({}: Props) {
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button variant="ghost">
-                                    <Mail className={cn(inboxRules.length > 0 && 'text-red-500')} />
-                                    {inboxRules.length}
+                                    {inboxRules ? (
+                                      <>
+                                        <Mail
+                                          className={cn(inboxRules.length > 0 && 'text-red-500')}
+                                        />
+                                        {inboxRules && inboxRules.length}
+                                      </>
+                                    ) : (
+                                      <X className="text-red-500" />
+                                    )}
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="!max-w-[50vw] !w-[50vw]">
@@ -222,18 +236,22 @@ export default function MicrosoftEmailBreachAction({}: Props) {
 
                                   <ScrollArea className="max-h-[40vh]">
                                     <div className="grid gap-2">
-                                      {inboxRules.map((rule) => {
-                                        return (
-                                          <Display key={rule.name}>
-                                            <div className="grid">
-                                              {rule.name}
-                                              <span className="text-sm text-muted-foreground">
-                                                {prettyText(rule.description)}
-                                              </span>
-                                            </div>
-                                          </Display>
-                                        );
-                                      })}
+                                      {inboxRules ? (
+                                        inboxRules.map((rule) => {
+                                          return (
+                                            <Display key={rule.name}>
+                                              <div className="grid">
+                                                {rule.name}
+                                                <span className="text-sm text-muted-foreground">
+                                                  {prettyText(rule.description)}
+                                                </span>
+                                              </div>
+                                            </Display>
+                                          );
+                                        })
+                                      ) : (
+                                        <span>{inboxError}</span>
+                                      )}
                                     </div>
                                   </ScrollArea>
 
@@ -534,7 +552,7 @@ const ProcessingStep = ({
         if (
           Object.entries(
             (feed.data.metadata as { steps: Record<string, { status: string }> }).steps
-          ).every(([_key, value]) => value.status === 'completed')
+          ).every(([_key, value]) => value.status !== 'pending' && value.status !== 'in_progress')
         ) {
           onComplete(feedId.current);
         }
