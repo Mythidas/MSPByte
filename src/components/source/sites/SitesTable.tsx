@@ -79,6 +79,7 @@ export default function SitesTable({ parentId }: Props) {
           <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
         </div>
       )}
+      initialSorting={[{ id: 'name', desc: false }]}
       columns={
         [
           textColumn({

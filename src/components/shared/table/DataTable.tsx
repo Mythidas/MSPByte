@@ -50,6 +50,7 @@ interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
   data?: TData[];
   initialVisibility?: VisibilityState;
+  initialSorting?: SortingState;
   action?: (data: TData[]) => React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
@@ -66,6 +67,7 @@ function DataTableInner<TData>(
     columns,
     data: initialData,
     initialVisibility = {},
+    initialSorting = [],
     action,
     isLoading,
     height = 'max-h-[60vh]',
@@ -93,7 +95,7 @@ function DataTableInner<TData>(
 
   const load = async (overrideSorting?: SortingState) => {
     if (!fetcher || !filtersReady) return;
-    const activeSorting = overrideSorting ?? sorting;
+    const activeSorting = overrideSorting || (sorting.length ? sorting : initialSorting);
 
     setIsFetching(true);
     const { rows, total } = await fetcher({
@@ -166,7 +168,7 @@ function DataTableInner<TData>(
       pagination: { pageIndex, pageSize },
       globalFilter: globalSearch,
     },
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       if (!filterValue) return true;
       const lower = String(filterValue).toLowerCase();
 
