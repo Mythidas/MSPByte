@@ -67,9 +67,8 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
 
   const maskSecret = (secret: string) => {
     if (!secret) return '';
-    const visibleChars = 8;
-    const masked = '•'.repeat(Math.max(0, secret.length - visibleChars));
-    return masked + secret.slice(-visibleChars);
+    const masked = '•'.repeat(Math.max(0, secret.length));
+    return masked;
   };
 
   return (
@@ -196,7 +195,7 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
                     <Label className="text-sm font-medium text-muted-foreground">
                       Client Secret
                     </Label>
-                    <Display>{maskSecret(metadata.client_secret)}</Display>
+                    <Display>{maskSecret(metadata.client_secret.substring(0, 20))}</Display>
                   </div>
                 )}
               </div>

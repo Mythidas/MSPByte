@@ -29,7 +29,6 @@ export default function MicrosoftLicensesTable({
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, sorting, ...props }: DataTableFetcher) => {
-    console.log(props.filters);
     const licenses = await getRows('source_licenses_view', {
       filters: [
         ['source_id', 'eq', sourceId],
@@ -89,7 +88,7 @@ export default function MicrosoftLicensesTable({
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/sites/${row.original.site_id}/${row.original.source_id}?tab=dashboard`}
+                href={`/sites/${row.original.site_slug}/${row.original.source_id}`}
                 className="hover:text-primary font-medium"
                 target="_blank"
               >
@@ -104,7 +103,7 @@ export default function MicrosoftLicensesTable({
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/sites/${row.original.site_id}/${row.original.source_id}?tab=dashboard`}
+                href={`/sites/${row.original.parent_slug}/${row.original.source_id}`}
                 className="hover:text-primary"
                 target="_blank"
               >
