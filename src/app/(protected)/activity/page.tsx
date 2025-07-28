@@ -166,22 +166,6 @@ export default function ActivityFeedTable() {
               return row.original.user_email;
             },
           }),
-          column({
-            key: 'is_admin',
-            label: 'Admin',
-            enableHiding: true,
-            cell: ({ row }) => (
-              <div className="flex justify-center">
-                {row.original.is_admin ? (
-                  <Badge variant="outline" className="text-xs">
-                    Admin
-                  </Badge>
-                ) : (
-                  <span className="text-muted-foreground">-</span>
-                )}
-              </div>
-            ),
-          }),
           dateColumn({
             key: 'created_at',
             label: 'Created',
@@ -200,10 +184,6 @@ export default function ActivityFeedTable() {
             type: 'select',
             placeholder: 'Select type',
             options: [
-              { label: 'Authentication', value: 'auth' },
-              { label: 'Synchronization', value: 'sync' },
-              { label: 'Integration', value: 'integration' },
-              { label: 'User Management', value: 'user' },
               { label: 'System', value: 'system' },
               { label: 'Security', value: 'security' },
             ],
@@ -234,22 +214,9 @@ export default function ActivityFeedTable() {
             type: 'select',
             placeholder: 'Select trigger',
             options: [
-              { label: 'Manual', value: 'manual' },
+              { label: 'User', value: 'user' },
               { label: 'Scheduled', value: 'scheduled' },
-              { label: 'API', value: 'api' },
-              { label: 'Webhook', value: 'webhook' },
               { label: 'System', value: 'system' },
-            ],
-          },
-        },
-        Access: {
-          is_admin: {
-            label: 'Admin Only',
-            type: 'select',
-            placeholder: 'Filter by admin',
-            options: [
-              { label: 'Admin Actions', value: 'true' },
-              { label: 'User Actions', value: 'false' },
             ],
           },
         },
