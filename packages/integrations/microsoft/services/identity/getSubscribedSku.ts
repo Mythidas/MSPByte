@@ -1,4 +1,5 @@
 import { Tables } from '@/db/schema';
+import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { Debug } from '@/lib/utils';
@@ -12,7 +13,7 @@ export async function getSubscribedSku(
     const client = await getGraphClient(
       mapping.external_id,
       metadata.client_id,
-      metadata.client_secret
+      await decrypt(metadata.client_secret)
     );
     if (!client.ok) {
       throw new Error(client.error.message);

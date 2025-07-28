@@ -1,6 +1,7 @@
 'use server';
 
 import { Tables } from '@/db/schema';
+import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
 import { Debug } from '@/lib/utils';
@@ -14,7 +15,7 @@ export async function getDomains(
     const client = await getGraphClient(
       mapping.external_id,
       metadata.client_id,
-      metadata.client_secret
+      await decrypt(metadata.client_secret)
     );
     if (!client.ok) throw new Error(client.error.message);
 

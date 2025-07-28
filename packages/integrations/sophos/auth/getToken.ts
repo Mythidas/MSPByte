@@ -1,6 +1,7 @@
 'use server';
 
 import { Tables } from '@/db/schema';
+import { decrypt } from '@/db/secret';
 import { createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
@@ -21,7 +22,9 @@ export async function getToken(
     }
 
     const clientId = (integration.config as Record<string, string>)['client_id'];
-    const clientSecret = (integration.config as Record<string, string>)['client_secret'];
+    const clientSecret = await decrypt(
+      (integration.config as Record<string, string>)['client_secret']
+    );
     const body = new URLSearchParams({
       grant_type: 'client_credentials',
       client_id: clientId,

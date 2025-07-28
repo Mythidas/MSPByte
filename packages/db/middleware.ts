@@ -1,5 +1,3 @@
-import { getCurrentUserView } from '@/services/users';
-import { UserMetadata } from '@/types/users';
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -37,13 +35,7 @@ export const updateSession = async (request: NextRequest) => {
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const auth = await supabase.auth.getUser();
-    const { data, error } = await supabase
-      .from('user_view')
-      .select()
-      .eq('id', auth.data.user?.id)
-      .single();
-    const metadata = data.metadata as UserMetadata;
+    const { data, error } = await supabase.auth.getUser();
 
     // re-write landing page
     if (error && request.nextUrl.pathname === '/') {
@@ -62,19 +54,11 @@ export const updateSession = async (request: NextRequest) => {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    if (!error && request.nextUrl.pathname === '/' && metadata.selected_source) {
-      return NextResponse.redirect(new URL(`/${metadata.selected_source}`, request.url));
-    }
-
-    const siteMatch = request.nextUrl.pathname.match(/^\/sites\/([^/]+)$/);
-    if (siteMatch) {
-      const siteId = siteMatch[1];
-
-      if (metadata?.selected_source) {
-        return NextResponse.redirect(
-          new URL(`/sites/${siteId}/${metadata.selected_source}`, request.url)
-        );
-      }
+    if (
+      request.nextUrl.pathname.includes('/sandbox') &&
+      data.user?.email !== 'blake@centriserveit.com'
+    ) {
+      return NextResponse.redirect(new URL('/', request.url));
     }
 
     return response;

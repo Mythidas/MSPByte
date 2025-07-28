@@ -1,4 +1,5 @@
 import { Tables } from '@/db/schema';
+import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser, MSGraphUserContext } from '@/integrations/microsoft/types/users';
@@ -16,7 +17,7 @@ export async function getUsers(
     const client = await getGraphClient(
       mapping.external_id,
       metadata.client_id,
-      metadata.client_secret
+      await decrypt(metadata.client_secret)
     );
     if (!client.ok) throw new Error(client.error.message);
 
@@ -73,7 +74,7 @@ export async function getUserContext(
     const client = await getGraphClient(
       mapping.external_id,
       metadata.client_id,
-      metadata.client_secret
+      await decrypt(metadata.client_secret)
     );
     if (!client.ok) throw new Error(client.error.message);
 

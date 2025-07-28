@@ -28,6 +28,7 @@ import { TablesInsert } from '@/db/schema';
 import { toast } from 'sonner';
 import { useUser } from '@/lib/providers/UserContext';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
+import { encrypt } from '@/db/secret';
 
 const credentialsSchema = z.object({
   tenant_id: z.string().min(1, 'Tenant ID is required'),
@@ -98,8 +99,6 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
     setIsValidating(true);
     setCredentials(data);
 
-    // Simulate API call to validate credentials and fetch domains
-
     const domains = await getDomains({
       external_id: data.tenant_id,
       metadata: {
@@ -131,6 +130,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
 
     const selectedDomainNames = domains.filter((d) => selectedDomains.has(d.id)).map((d) => d.id);
 
+    const client_secret = await encrypt(credentials.client_secret);
     const mapping: TablesInsert<'source_tenants'> = {
       source_id: sourceId,
       tenant_id: user?.tenant_id || '',
@@ -139,7 +139,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
       external_name: selectedDomainNames.join(','),
       metadata: {
         client_id: credentials.client_id,
-        client_secret: credentials.client_secret,
+        client_secret,
         domains: selectedDomainNames,
         mfa_enforcement: 'none',
       },
