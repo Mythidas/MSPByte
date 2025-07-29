@@ -9,8 +9,10 @@ import {
   getSourceMetricsRollupSite,
 } from '@/services/source/metrics';
 
+type Scope = 'site' | 'parent' | 'global' | 'group';
+
 type Props<T> = {
-  scope: 'site' | 'parent' | 'global' | 'group';
+  scope: Scope;
   sourceId: string;
   siteId?: string;
   groupId?: string;
@@ -29,69 +31,54 @@ export default function SourceMetricsGrid<T>({
     fetcher: async () => {
       switch (scope) {
         case 'group': {
-          const metrics = await getRows('rollup_metrics_group', {
+          const result = await getRows('rollup_metrics_group', {
             filters: [
               ['group_id', 'eq', groupId],
               ['source_id', 'eq', sourceId],
             ],
           });
-          if (metrics.ok) {
-            console.log(metrics.data.rows);
-            return metrics.data.rows;
-          }
-
-          return undefined;
+          return result.ok ? result.data.rows : undefined;
         }
+
         case 'site': {
-          const metrics = await getSourceMetricsRollupSite(sourceId, siteId!);
-          if (metrics.ok) {
-            return metrics.data.rows;
-          }
-
-          return undefined;
+          const result = await getSourceMetricsRollupSite(sourceId, siteId!);
+          return result.ok ? result.data.rows : undefined;
         }
+
         case 'parent': {
-          const metrics = await getSourceMetricsRollupParent(sourceId, siteId!);
-          if (metrics.ok) {
-            return metrics.data.rows;
-          }
-
-          return undefined;
+          const result = await getSourceMetricsRollupParent(sourceId, siteId!);
+          return result.ok ? result.data.rows : undefined;
         }
+
         case 'global': {
-          const metrics = await getSourceMetricsRollupGlobal(sourceId);
-          if (metrics.ok) {
-            return metrics.data.rows;
-          }
-
-          return undefined;
+          const result = await getSourceMetricsRollupGlobal(sourceId);
+          return result.ok ? result.data.rows : undefined;
         }
+
+        default:
+          return undefined;
       }
     },
     render: (data) => {
-      if (!data) return null;
-
-      if (!data.length) {
+      if (!data?.length) {
         return (
-          <div className="flex h-[50vh] justify-center items-center">
+          <div className="flex h-[50vh] items-center justify-center text-sm text-muted-foreground">
             <strong>No metrics found. Sync tenant.</strong>
           </div>
         );
       }
 
       return (
-        <div className="grid grid-cols-3 lg:grid-cols-5 gap-2">
-          {data.map((metric) => {
-            return (
-              <SourceMetricCard
-                key={metric.name}
-                metric={
-                  metric as unknown as Database['public']['Views']['rollup_metrics_site']['Row']
-                }
-                baseRoute={route}
-              />
-            );
-          })}
+        <div className="grid grid-cols-3 gap-2 lg:grid-cols-4">
+          {data.map((metric) => (
+            <SourceMetricCard
+              key={metric.name}
+              metric={
+                metric as unknown as Database['public']['Views']['rollup_metrics_site']['Row']
+              }
+              baseRoute={route}
+            />
+          ))}
         </div>
       );
     },
