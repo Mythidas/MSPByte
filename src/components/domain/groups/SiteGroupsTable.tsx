@@ -17,43 +17,40 @@ import { column, textColumn } from '@/components/shared/table/DataTableColumn';
 import Link from 'next/link';
 import { useDelete } from '@/hooks/common/useDelete';
 import { getRows } from '@/db/orm';
-import CreateGroupMembershipDialog from '@/components/source/groups/CreateGroupMembershipDialog';
+import CreateSiteGroupDialog from '@/components/domain/groups/CreateSiteGroupDialog';
+import { useSource } from '@/lib/providers/SourceContext';
 
-type Props = {
-  group: Tables<'site_groups'>;
-};
-
-export default function GroupSiteTable({ group }: Props) {
+export default function SiteGroupsTable() {
+  const { source } = useSource();
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
-    table: 'site_group_memberships',
-    displayKey: 'site_id',
+    table: 'site_groups',
+    displayKey: 'name',
     getId: (item) => ({
-      site_id: item.site_id,
-      group_id: item.group_id,
+      id: item.id,
     }),
     refetch: () => tableRef.current?.refetch(),
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const memberships = await getRows('site_group_memberships_view', {
-      filters: [['group_id', 'eq', group.id]],
+    const groups = await getRows('site_groups', {
       pagination: {
         page: pageIndex,
         size: pageSize,
         ...props,
       },
     });
-    if (!memberships.ok) {
+
+    if (!groups.ok) {
       return { rows: [], total: 0 };
     }
 
-    return memberships.data;
+    return groups.data;
   };
 
-  const createCallback = (membership: Tables<'site_group_memberships_view'>) => {
+  const createCallback = (group: Tables<'site_groups'>) => {
     tableRef.current?.refetch();
-    toast.info(`Linked site ${membership.site_name}`);
+    toast.info(`Created group ${group.name}`);
   };
 
   return (
@@ -63,21 +60,30 @@ export default function GroupSiteTable({ group }: Props) {
       action={() => (
         <div className="flex gap-2">
           <DeleteDialog />
-          <CreateGroupMembershipDialog group={group} onSuccess={createCallback} />
+          <CreateSiteGroupDialog onSuccess={createCallback} />
         </div>
       )}
       columns={
         [
           textColumn({
-            key: 'site_name',
+            key: 'name',
             label: 'Name',
             enableHiding: false,
             simpleSearch: true,
             cell: ({ row }) => (
-              <Link href={`/sites/${row.original.site_slug}`} className="hover:text-primary">
-                {row.original.site_name}
+              <Link
+                href={`/groups/${row.original.id}/${source?.source_id}`}
+                className="hover:text-primary"
+              >
+                {row.original.name}
               </Link>
             ),
+          }),
+          textColumn({
+            key: 'description',
+            label: 'Description',
+            enableHiding: false,
+            simpleSearch: true,
           }),
           column({
             key: 'id',
@@ -98,7 +104,7 @@ export default function GroupSiteTable({ group }: Props) {
                     module="Sites"
                     level="Full"
                     onClick={() =>
-                      confirmAndDelete(row.original as unknown as Tables<'site_group_memberships'>)
+                      confirmAndDelete(row.original as unknown as Tables<'site_groups'>)
                     }
                   >
                     Delete
@@ -107,14 +113,20 @@ export default function GroupSiteTable({ group }: Props) {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'site_group_memberships_view'>>[]
+        ] as DataTableColumnDef<Tables<'site_groups'>>[]
       }
       filters={{
         Site: {
-          site_name: {
+          name: {
             label: 'Name',
             type: 'text',
             placeholder: 'Search name',
+            simpleSearch: true,
+          },
+          description: {
+            label: 'Sescription',
+            type: 'text',
+            placeholder: 'Search description',
             simpleSearch: true,
           },
         },

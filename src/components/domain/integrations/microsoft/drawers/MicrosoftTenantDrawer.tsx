@@ -28,7 +28,7 @@ import { differenceInHours, parseISO } from 'date-fns';
 import Link from 'next/link';
 import { useDelete } from '@/hooks/common/useDelete';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import SyncSourceItem from '@/components/source/sources/SyncSourceItem';
+import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 type Props = {

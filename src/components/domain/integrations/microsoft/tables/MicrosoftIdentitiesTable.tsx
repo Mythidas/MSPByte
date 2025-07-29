@@ -13,7 +13,7 @@ import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { getSourceLicenses } from '@/services/licenses';
 import { pascalCase, Timer } from '@/lib/utils';
-import MicrosoftIdentityDrawer from '@/components/source/integrations/microsoft/drawers/MicrosoftIdentityDrawer';
+import MicrosoftIdentityDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftIdentityDrawer';
 import { getSourceIdentitiesUniqueRolesAndGroups } from '@/services/identities';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getRows } from '@/db/orm';

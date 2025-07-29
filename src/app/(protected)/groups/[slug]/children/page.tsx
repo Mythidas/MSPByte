@@ -1,7 +1,7 @@
 'use client';
 
 import Loader from '@/components/shared/Loader';
-import GroupSiteTable from '@/components/source/groups/GroupSitesTable';
+import GroupSiteTable from '@/components/domain/groups/GroupSitesTable';
 import { getRow } from '@/db/orm';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { useParams } from 'next/navigation';

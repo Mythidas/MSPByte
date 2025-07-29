@@ -1,6 +1,6 @@
 'use client';
 
-import IntegrationHeader from '@/components/source/integrations/IntegrationHeader';
+import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
 import { useSite } from '@/lib/providers/SiteContext';
 import { useParams } from 'next/navigation';
 

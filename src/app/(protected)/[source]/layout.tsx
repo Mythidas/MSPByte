@@ -1,7 +1,7 @@
 'use client';
 
 import Loader from '@/components/shared/Loader';
-import IntegrationHeader from '@/components/source/integrations/IntegrationHeader';
+import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
 import { useUser } from '@/lib/providers/UserContext';
 import { useParams } from 'next/navigation';
 

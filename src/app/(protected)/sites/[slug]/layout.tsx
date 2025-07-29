@@ -3,10 +3,10 @@
 import { getSite } from 'packages/services/sites';
 import ErrorDisplay from '@/components/shared/ErrorDisplay';
 import SitesSidebar from '@/components/layout/SitesSidebar';
-import SiteHeader from '@/components/source/sites/SiteHeader';
+import SiteHeader from '@/components/domain/sites/SiteHeader';
 import SiteProvider from '@/lib/providers/SiteProvider';
 import React from 'react';
-import SiteBreadcrumbs from '@/components/source/sites/SiteBreadcrumbs';
+import SiteBreadcrumbs from '@/components/domain/sites/SiteBreadcrumbs';
 
 type Props = {
   params: Promise<{ slug: string }>;

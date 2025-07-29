@@ -4,14 +4,14 @@ import { Badge } from '@/components/ui/badge';
 import { getSource } from 'packages/services/sources';
 import Image from 'next/image';
 import { getSourceIntegration } from '@/services/integrations';
-import { SourceBreadcrumb } from '@/components/source/sources/SourceBreadcrumbs';
-import Microsoft365Enabled from '@/components/source/integrations/microsoft/Microsoft365Enabled';
-import Microsoft365Disabled from '@/components/source/integrations/microsoft/Microsoft365Disabled';
-import SophosPartnerDisabled from '@/components/source/integrations/sophos/SophosPartnerDisabled';
-import SophosPartnerEnabled from '@/components/source/integrations/sophos/SophosPartnerEnabled';
-import AutotaskEnabled from '@/components/source/integrations/autotask/AutotaskEnabled';
-import AutotaskDisabled from '@/components/source/integrations/autotask/AutotaskDisabled';
-import ToggleIntegration from '@/components/source/integrations/ToggleIntegration';
+import { SourceBreadcrumb } from '@/components/domain/sources/SourceBreadcrumbs';
+import Microsoft365Enabled from '@/components/domain/integrations/microsoft/Microsoft365Enabled';
+import Microsoft365Disabled from '@/components/domain/integrations/microsoft/Microsoft365Disabled';
+import SophosPartnerDisabled from '@/components/domain/integrations/sophos/SophosPartnerDisabled';
+import SophosPartnerEnabled from '@/components/domain/integrations/sophos/SophosPartnerEnabled';
+import AutotaskEnabled from '@/components/domain/integrations/autotask/AutotaskEnabled';
+import AutotaskDisabled from '@/components/domain/integrations/autotask/AutotaskDisabled';
+import ToggleIntegration from '@/components/domain/integrations/ToggleIntegration';
 
 type Props = {
   params: Promise<{ slug: string }>;

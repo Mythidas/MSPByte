@@ -25,9 +25,9 @@ import {
   Settings,
 } from 'lucide-react';
 import Display from '@/components/shared/Display';
-import SyncSourceItem from '@/components/source/sources/SyncSourceItem';
+import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 import Link from 'next/link';
-import MicrosoftPolicyAssignmentsPopover from '@/components/source/integrations/microsoft/popovers/MicrosoftPolicyAssigntmentsPopover';
+import MicrosoftPolicyAssignmentsPopover from '@/components/domain/integrations/microsoft/popovers/MicrosoftPolicyAssigntmentsPopover';
 import { MicrosoftPolicyMetadata } from '@/types/source/policies';
 
 type Props = {

@@ -1,32 +1,29 @@
 'use client';
 
-import Microsoft365MappingsDialog from '@/components/source/integrations/microsoft/Microsoft365MappingsDialog';
-import SyncSourceItem from '@/components/source/sources/SyncSourceItem';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import SophosMappingsDialog from '@/components/domain/integrations/sophos/SophosMappingsDialog';
 import { Tables } from '@/db/schema';
+import { TrendingUp, Users, Zap, ExternalLink, Database, Building, Eye } from 'lucide-react';
 import { useAsync } from '@/hooks/common/useAsync';
 import { cn } from '@/lib/utils';
-import { getSourceIdentitiesCount } from '@/services/identities';
-import { getSitesCount } from '@/services/sites';
-import { getSourceTenantsCount } from '@/services/source/tenants';
-import { Building, Database, ExternalLink, Eye, TrendingUp, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
+import { getRowsCount } from '@/db/orm';
 
 type Props = {
   source: Tables<'sources'>;
   integration: Tables<'source_integrations'>;
 };
 
-export default function Microsoft365Enabled({ source, integration }: Props) {
+export default function SophosPartnerEnabled({ source, integration }: Props) {
   return (
     <div className="grid gap-2">
       {/* Top Metrics */}
       <div className="grid grid-cols-3 gap-2">
-        <TotalIdentitiesCard sourceId={source.id} />
+        <TotalDevicesCard sourceId={source.id} />
         <MonthlyUsageCard sourceId={source.id} />
       </div>
 
@@ -49,8 +46,10 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { total: 0, connected: 0 },
     fetcher: async () => {
-      const siteCount = await getSitesCount();
-      const tenantsCount = await getSourceTenantsCount(sourceId);
+      const siteCount = await getRowsCount('sites');
+      const tenantsCount = await getRowsCount('source_tenants', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
       if (!siteCount.ok || !tenantsCount.ok) {
         throw 'Failed to fetch correct counts. Please refresh.';
@@ -87,7 +86,13 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
   );
 }
 
-function QuickActionsCard({ source, integration }: Props) {
+function QuickActionsCard({
+  source,
+  integration,
+}: {
+  source: Tables<'sources'>;
+  integration: Tables<'source_integrations'>;
+}) {
   return (
     <Card>
       <CardHeader>
@@ -97,20 +102,15 @@ function QuickActionsCard({ source, integration }: Props) {
         </span>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-2">
-        <Microsoft365MappingsDialog sourceId={source.id} onSave={() => window.location.reload()} />
+        <SophosMappingsDialog source={source} integration={integration} />
         <Button className="justify-start" variant="secondary" disabled>
           <ExternalLink />
           Documentation
         </Button>
-        <SyncSourceItem
-          type="global"
-          sourceId={source.id}
-          tenantId={integration.tenant_id}
-          className="justify-start"
-        >
+        <Button className="justify-start" variant="secondary">
           <Database />
-          Sync All Sites
-        </SyncSourceItem>
+          Sync Endpoints
+        </Button>
       </CardContent>
     </Card>
   );
@@ -123,7 +123,9 @@ function MonthlyUsageCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { connected: 0 },
     fetcher: async () => {
-      const tenantsCount = await getSourceTenantsCount(sourceId);
+      const tenantsCount = await getRowsCount('source_tenants', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
       if (!tenantsCount.ok) {
         throw 'Failed to fetch correct counts. Please refresh.';
@@ -166,20 +168,22 @@ function MonthlyUsageCard({ sourceId }: { sourceId: string }) {
   );
 }
 
-function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
+function TotalDevicesCard({ sourceId }: { sourceId: string }) {
   const {
-    data: { connected },
+    data: { devices },
     isLoading,
   } = useAsync({
-    initial: { connected: 0 },
+    initial: { devices: 0 },
     fetcher: async () => {
-      const identities = await getSourceIdentitiesCount(sourceId);
+      const devices = await getRowsCount('source_devices', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
-      if (!identities.ok) {
-        throw 'Failed to fetch correct counts. Please refresh.';
+      if (devices.ok) {
+        return { devices: devices.data };
       }
 
-      return { connected: identities.data };
+      return { devices: 0 };
     },
     deps: [],
   });
@@ -187,7 +191,7 @@ function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
   return (
     <Card>
       <CardHeader>
-        Total Identities
+        Total Devices
         <CardAction>
           <Users className="w-6 h-6 text-muted-foreground" />
         </CardAction>
@@ -202,8 +206,8 @@ function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
           </>
         ) : (
           <>
-            <span className="text-xl font-bold">{connected}</span>
-            <span className="text-sm text-muted-foreground">Across all sites</span>
+            <span className="text-xl font-bold">{devices}</span>
+            <span className="text-sm text-muted-foreground">Across all endpoints</span>
           </>
         )}
       </CardContent>

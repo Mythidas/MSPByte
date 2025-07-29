@@ -11,7 +11,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import GroupHeader from '@/components/source/groups/GroupHeader';
+import GroupHeader from '@/components/domain/groups/GroupHeader';
 
 type Props = {
   params: Promise<{ slug: string }>;

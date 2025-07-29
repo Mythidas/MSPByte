@@ -2,15 +2,17 @@
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { Tables } from '@/db/schema';
-import { dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
+import { column, dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
-import { prettyText } from '@/lib/utils';
-import { useRef } from 'react';
-import { getSourcePoliciesView } from '@/services/policies';
-import MicrosoftPolicyDrawer from '@/components/source/integrations/microsoft/drawers/MicrosoftPolicyDrawer';
 import Link from 'next/link';
+import { prettyText } from '@/lib/utils';
+import { getSourceTenantsView } from '@/services/source/tenants';
+import { useRef } from 'react';
+import { MicrosoftTenantMetadata } from '@/types/source/tenants';
+import Microsoft365MappingsDialog from '@/components/domain/integrations/microsoft/Microsoft365MappingsDialog';
+import MicrosoftTenantDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftTenantDrawer';
 
-type TData = Tables<'source_policies_view'>;
+type TData = Tables<'source_tenants_view'>;
 type Props = {
   sourceId: string;
   siteIds?: string[];
@@ -18,39 +20,40 @@ type Props = {
   parentLevel?: boolean;
 };
 
-export default function MicrosoftPoliciesTable({
-  sourceId,
-  siteIds,
-  parentLevel,
-  siteLevel,
-}: Props) {
+export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: Props) {
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const policies = await getSourcePoliciesView(sourceId, siteIds, {
+    const tenants = await getSourceTenantsView(sourceId, siteIds, {
       page: pageIndex,
       size: pageSize,
       ...props,
       sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+      filterMap: {
+        mfa_enforcement: 'metadata->>mfa_enforcement',
+      },
     });
 
-    if (!policies.ok) {
+    if (!tenants.ok) {
       return { rows: [], total: 0 };
     }
 
-    return policies.data;
-  };
-
-  const initialVisibility = {
-    parent_name: !siteLevel && !parentLevel,
-    site_name: !siteLevel,
+    return tenants.data;
   };
 
   return (
     <DataTable
       fetcher={fetcher}
+      action={() =>
+        !siteLevel && (
+          <Microsoft365MappingsDialog
+            sourceId={sourceId}
+            onSave={() => ref.current?.refetch()}
+            parentId={siteIds && siteIds[0]}
+          />
+        )
+      }
       ref={ref}
-      initialVisibility={initialVisibility}
       columns={
         [
           textColumn({
@@ -59,7 +62,11 @@ export default function MicrosoftPoliciesTable({
             enableHiding: true,
             simpleSearch: true,
             cell: ({ row }) => (
-              <MicrosoftPolicyDrawer policy={row.original} label={row.original.site_name || ''} />
+              <MicrosoftTenantDrawer
+                tenant={row.original}
+                label={row.original.site_name || ''}
+                onDelete={() => ref.current?.refetch()}
+              />
             ),
           }),
           textColumn({
@@ -77,23 +84,26 @@ export default function MicrosoftPoliciesTable({
               </Link>
             ),
           }),
-          textColumn({
-            key: 'name',
-            label: 'Name',
+          column({
+            key: 'external_name',
+            label: 'Domains',
             enableHiding: false,
-            simpleSearch: true,
             cell: ({ row }) => (
-              <MicrosoftPolicyDrawer label={row.original.name!} policy={row.original} />
+              <div>{(row.original.metadata as MicrosoftTenantMetadata).domains?.length || 0}</div>
             ),
           }),
-          textColumn({
-            key: 'status',
-            label: 'Status',
-            cell: ({ row }) => prettyText(row.original.status!),
+          column({
+            key: 'mfa_enforcement',
+            label: 'MFA Enforcement',
+            cell: ({ row }) => (
+              <div>
+                {prettyText((row.original.metadata as MicrosoftTenantMetadata).mfa_enforcement)}
+              </div>
+            ),
           }),
           dateColumn({
-            key: 'created_at',
-            label: 'Created',
+            key: 'last_sync',
+            label: 'Last Sync',
           }),
         ] as DataTableColumnDef<TData>[]
       }
@@ -114,23 +124,15 @@ export default function MicrosoftPoliciesTable({
             simpleSearch: true,
           },
         },
-        Policy: {
-          name: {
-            label: 'Name',
-            type: 'text',
-            placeholder: 'Search name',
-            operations: ['ilike'],
-            simpleSearch: true,
-          },
-          status: {
-            label: 'Status',
+        Security: {
+          mfa_enforcement: {
+            label: 'MFA Enforcement',
             type: 'select',
-            placeholder: 'Select status',
-            operations: ['eq'],
+            placeholder: 'Select enforcement',
             options: [
-              { label: 'Enabled', value: 'enabled' },
-              { label: 'Disabled', value: 'disabled' },
-              { label: 'Report Only', value: 'report_only' },
+              { label: 'Conditional Access', value: 'conditional_access' },
+              { label: 'Security Defaults', value: 'security_defaults' },
+              { label: 'None', value: 'none' },
             ],
           },
         },

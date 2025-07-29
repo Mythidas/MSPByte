@@ -8,7 +8,7 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { cn } from '@/lib/utils';
 import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { AlertCircle, CheckCircle2, Clock, RefreshCw, RotateCw } from 'lucide-react';
-import SyncSourceItem from '@/components/source/sources/SyncSourceItem';
+import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 
 const getStatusConfig = (status: string) => {
   switch (status) {

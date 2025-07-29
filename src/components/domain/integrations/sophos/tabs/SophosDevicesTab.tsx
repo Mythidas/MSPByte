@@ -1,4 +1,4 @@
-import SophosDevicesTable from '@/components/source/integrations/sophos/SophosDevicesTable';
+import SophosDevicesTable from '@/components/domain/integrations/sophos/SophosDevicesTable';
 import Loader from '@/components/shared/Loader';
 import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';

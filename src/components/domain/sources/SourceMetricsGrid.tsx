@@ -1,5 +1,5 @@
 import Loader from '@/components/shared/Loader';
-import SourceMetricCard from '@/components/source/metrics/SourceMetricCard';
+import SourceMetricCard from '@/components/domain/metrics/SourceMetricCard';
 import { getRows } from '@/db/orm';
 import { Database } from '@/db/schema';
 import { LazyLoadOptions, useLazyLoad } from '@/hooks/common/useLazyLoad';

@@ -1,4 +1,4 @@
-import MicrosoftEmailBreachAction from '@/components/source/integrations/microsoft/actions/MicrosoftEmailBreachAction';
+import MicrosoftEmailBreachAction from '@/components/domain/integrations/microsoft/actions/MicrosoftEmailBreachAction';
 import { ActionProps } from '@/types';
 
 export const SOURCE_ACTIONS: Record<string, Record<string, ActionProps>> = {

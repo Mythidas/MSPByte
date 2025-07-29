@@ -1,11 +1,11 @@
+import MicrosoftIdentitiesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftIdentitiesTable';
+import MicrosoftLicensesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftLicensesTable';
+import MicrosoftPoliciesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftPoliciesTable';
+import MicrosoftTenantsTable from '@/components/domain/integrations/microsoft/tables/MicrosoftTenantsTable';
+import MicrosoftDashboardTab from '@/components/domain/integrations/microsoft/tabs/MicrosoftDashboardTab';
+import SophosDevicesTable from '@/components/domain/integrations/sophos/SophosDevicesTable';
+import SophosDashboardTab from '@/components/domain/integrations/sophos/tabs/SophosDashboardTab';
 import DataTableLoader from '@/components/shared/table/DataTableLoader';
-import MicrosoftIdentitiesTable from '@/components/source/integrations/microsoft/tables/MicrosoftIdentitiesTable';
-import MicrosoftLicensesTable from '@/components/source/integrations/microsoft/tables/MicrosoftLicensesTable';
-import MicrosoftPoliciesTable from '@/components/source/integrations/microsoft/tables/MicrosoftPoliciesTable';
-import MicrosoftTenantsTable from '@/components/source/integrations/microsoft/tables/MicrosoftTenantsTable';
-import MicrosoftDashboardTab from '@/components/source/integrations/microsoft/tabs/MicrosoftDashboardTab';
-import SophosDevicesTable from '@/components/source/integrations/sophos/SophosDevicesTable';
-import SophosDashboardTab from '@/components/source/integrations/sophos/tabs/SophosDashboardTab';
 import { TabProps } from '@/types';
 
 export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {

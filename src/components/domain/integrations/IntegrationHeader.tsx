@@ -1,8 +1,8 @@
 'use client';
 
 import Icon from '@/components/shared/Icon';
-import SourceSyncStatus from '@/components/source/sources/SourceSyncStatus';
-import SyncSourceItem from '@/components/source/sources/SyncSourceItem';
+import SourceSyncStatus from '@/components/domain/sources/SourceSyncStatus';
+import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 import { SOURCE_HEADERS } from '@/config/sourceHeaders';
 import { usePathname } from 'next/navigation';
 

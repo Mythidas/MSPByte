@@ -1,5 +1,5 @@
-import RolesTable from '@/components/source/users/RolesTable';
-import UsersTable from '@/components/source/users/UsersTable';
+import RolesTable from '@/components/domain/users/RolesTable';
+import UsersTable from '@/components/domain/users/UsersTable';
 import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
 import RouteTabsTrigger from '@/components/shared/secure/RouteTabsTrigger';
 

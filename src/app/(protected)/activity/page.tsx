@@ -10,7 +10,7 @@ import { useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { getRows } from '@/db/orm';
-import ActivityFeedDrawer from '@/components/source/activity/ActivityDrawer';
+import ActivityFeedDrawer from '@/components/domain/activity/ActivityDrawer';
 import { Button } from '@/components/ui/button';
 
 type TData = Tables<'activity_feeds_view'>;

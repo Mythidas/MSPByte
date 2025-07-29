@@ -1,7 +1,7 @@
 import Loader from '@/components/shared/Loader';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import SourceMetricsGrid from '@/components/source/sources/SourceMetricsGrid';
+import SourceMetricsGrid from '@/components/domain/sources/SourceMetricsGrid';
 import { getSites } from '@/services/sites';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { getRows } from '@/db/orm';

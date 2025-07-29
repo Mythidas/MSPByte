@@ -9,7 +9,9 @@ import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { useRef } from 'react';
 import DropDownItem from '@/components/shared/secure/DropDownItem';
+import CreateSiteDialog from '@/components/domain/sites/CreateSiteDialog';
 import { toast } from 'sonner';
+import MoveSiteDialog from '@/components/domain/sites/MoveSiteDialog';
 import { Tables } from '@/db/schema';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
@@ -17,14 +19,15 @@ import { column, textColumn } from '@/components/shared/table/DataTableColumn';
 import Link from 'next/link';
 import { useDelete } from '@/hooks/common/useDelete';
 import { getRows } from '@/db/orm';
-import CreateSiteGroupDialog from '@/components/source/groups/CreateSiteGroupDialog';
-import { useSource } from '@/lib/providers/SourceContext';
 
-export default function SiteGroupsTable() {
-  const { source } = useSource();
+type Props = {
+  parentId?: string;
+};
+
+export default function SitesTable({ parentId }: Props) {
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
-    table: 'site_groups',
+    table: 'sites',
     displayKey: 'name',
     getId: (item) => ({
       id: item.id,
@@ -33,7 +36,8 @@ export default function SiteGroupsTable() {
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const groups = await getRows('site_groups', {
+    const sites = await getRows('sites_view', {
+      filters: [parentId ? ['parent_id', 'eq', parentId] : undefined],
       pagination: {
         page: pageIndex,
         size: pageSize,
@@ -41,28 +45,41 @@ export default function SiteGroupsTable() {
       },
     });
 
-    if (!groups.ok) {
+    if (!sites.ok) {
       return { rows: [], total: 0 };
     }
 
-    return groups.data;
+    return sites.data;
   };
 
-  const createCallback = (group: Tables<'site_groups'>) => {
+  const createCallback = (site: Tables<'sites_view'>) => {
     tableRef.current?.refetch();
-    toast.info(`Created group ${group.name}`);
+    toast.info(`Created site ${site.name}`);
+  };
+
+  const moveCallback = (site: Tables<'sites'>, parent: string) => {
+    tableRef.current?.refetch();
+    toast.info(`Moved site ${site.name} to ${parent}`);
   };
 
   return (
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={() => (
+      action={(data) => (
         <div className="flex gap-2">
           <DeleteDialog />
-          <CreateSiteGroupDialog onSuccess={createCallback} />
+          {parentId && (
+            <MoveSiteDialog
+              sites={data as unknown as Tables<'sites'>[]}
+              parentId={parentId}
+              onSuccess={moveCallback}
+            />
+          )}
+          <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
         </div>
       )}
+      initialSorting={[{ id: 'name', desc: false }]}
       columns={
         [
           textColumn({
@@ -71,19 +88,21 @@ export default function SiteGroupsTable() {
             enableHiding: false,
             simpleSearch: true,
             cell: ({ row }) => (
-              <Link
-                href={`/groups/${row.original.id}/${source?.source_id}`}
-                className="hover:text-primary"
-              >
-                {row.original.name}
+              <Link href={`/sites/${row.original.slug}`} className="hover:text-primary">
+                {row.original.name} {row.original.is_parent && '(Parent)'}
               </Link>
             ),
           }),
           textColumn({
-            key: 'description',
-            label: 'Description',
+            key: 'parent_name',
+            label: 'Parent',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => (
+              <Link href={`/sites/${row.original.parent_slug}`} className="hover:text-primary">
+                {row.original.parent_name}
+              </Link>
+            ),
           }),
           column({
             key: 'id',
@@ -103,9 +122,7 @@ export default function SiteGroupsTable() {
                     variant="destructive"
                     module="Sites"
                     level="Full"
-                    onClick={() =>
-                      confirmAndDelete(row.original as unknown as Tables<'site_groups'>)
-                    }
+                    onClick={() => confirmAndDelete(row.original as unknown as Tables<'sites'>)}
                   >
                     Delete
                   </DropDownItem>
@@ -113,7 +130,7 @@ export default function SiteGroupsTable() {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'site_groups'>>[]
+        ] as DataTableColumnDef<Tables<'sites_view'>>[]
       }
       filters={{
         Site: {
@@ -123,10 +140,10 @@ export default function SiteGroupsTable() {
             placeholder: 'Search name',
             simpleSearch: true,
           },
-          description: {
-            label: 'Sescription',
+          parent_name: {
+            label: 'Parent',
             type: 'text',
-            placeholder: 'Search description',
+            placeholder: 'Search parent',
             simpleSearch: true,
           },
         },

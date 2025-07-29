@@ -1,6 +1,6 @@
 'use client';
 
-import CreateUserDialog from '@/components/source/users/CreateUserDialog';
+import CreateUserDialog from '@/components/domain/users/CreateUserDialog';
 import { Tables } from '@/db/schema';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
@@ -10,7 +10,7 @@ import { getUsers } from '@/services/users';
 import { getRoles } from '@/services/roles';
 import { pascalCase } from '@/lib/utils';
 import { textColumn, dateColumn } from '@/components/shared/table/DataTableColumn';
-import UserTableUserDrawer from '@/components/source/users/UserTableUserDrawer';
+import UserTableUserDrawer from '@/components/domain/users/UserTableUserDrawer';
 
 export default function UsersTable() {
   const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
