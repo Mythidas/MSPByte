@@ -37,7 +37,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     })
     .step(
       'Transform External',
-      async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users }) => {
+      async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users, activity }) => {
         const skus = subscribedSkus.map((sku) => sku.skuPartNumber);
         const licenseInfo = await getRows('source_license_info', {
           filters: [['sku', 'in', skus]],
@@ -54,6 +54,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
           subscribedSkus,
           caPolicies,
           securityDefaults,
+          activity,
           tenant
         );
         if (!transformedUsers.ok) {

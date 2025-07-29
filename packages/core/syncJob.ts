@@ -1,10 +1,13 @@
+'use server';
+
 import { Tables } from '@/db/schema';
+import { createClient } from '@/db/server';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
 import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
-import { SupabaseClient } from '@supabase/supabase-js';
 
-export async function syncJob(job: Tables<'source_sync_jobs'>, supabase: SupabaseClient) {
+export async function syncJob(job: Tables<'source_sync_jobs'>) {
+  const supabase = await createClient();
   try {
     switch (job.source_id) {
       case 'sophos-partner': {

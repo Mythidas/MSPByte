@@ -1,4 +1,5 @@
 import { Tables } from '@/db/schema';
+import { getRecentSignIns } from '@/integrations/microsoft/services/activity';
 import {
   getSubscribedSku,
   getConditionalAccessPolicies,
@@ -20,6 +21,7 @@ export default async function fetchExternal(
     caPolicies: MSGraphConditionalAccessPolicy[];
     securityDefaults: boolean;
     users: MSGraphUser[];
+    activity: Record<string, string>;
     cursor?: string;
   }>
 > {
@@ -48,6 +50,16 @@ export default async function fetchExternal(
     });
   }
 
+  const activity = await getRecentSignIns(tenant);
+  if (!activity.ok) {
+    Debug.warn({
+      module: 'Microsoft365',
+      context: 'Fetch External',
+      message: 'Failed to fetch external activities',
+      time: new Date(),
+    });
+  }
+
   return {
     ok: true,
     data: {
@@ -55,6 +67,7 @@ export default async function fetchExternal(
       caPolicies: caPolicies.data,
       securityDefaults: securityDefaults.data,
       users: users.data.users,
+      activity: activity.ok ? activity.data : {},
       cursor: users.data.next,
     },
   };

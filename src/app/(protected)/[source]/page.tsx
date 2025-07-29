@@ -9,5 +9,5 @@ export default function Page() {
   const tabInfo = SOURCE_TABS[sourceId];
   const tab = Object.entries(tabInfo)[0][0];
 
-  return tabInfo[tab].content(sourceId, undefined, undefined);
+  return tabInfo[tab].content(sourceId);
 }

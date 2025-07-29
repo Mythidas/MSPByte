@@ -41,7 +41,7 @@ export async function GET() {
         message: `Starting ${jobs.length} sync jobs`,
         time: new Date(),
       });
-      await Promise.all(jobs.map((job) => syncJob(job, supabase)));
+      await Promise.all(jobs.map((job) => syncJob(job)));
 
       return NextResponse.json({ status: 'finished' });
     } catch (err) {

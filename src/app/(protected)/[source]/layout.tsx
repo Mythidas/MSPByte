@@ -1,6 +1,5 @@
 'use client';
 
-import Loader from '@/components/shared/Loader';
 import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
 import { useUser } from '@/lib/providers/UserContext';
 import { useParams } from 'next/navigation';
@@ -11,14 +10,11 @@ type Props = {
 
 export default function Layout({ children }: Props) {
   const { source } = useParams();
-  const { user, isLoading } = useUser();
-
-  if (isLoading) return <Loader />;
-  if (!user) return <strong>No user found. Please refresh.</strong>;
+  const { user } = useUser();
 
   return (
     <div className="flex flex-col size-full gap-4">
-      <IntegrationHeader sourceId={source as string} tenantId={user.tenant_id!} />
+      <IntegrationHeader sourceId={source as string} tenantId={user?.tenant_id || undefined} />
       {children}
     </div>
   );

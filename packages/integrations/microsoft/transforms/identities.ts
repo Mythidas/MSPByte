@@ -22,6 +22,7 @@ export async function transformIdentities(
   subscribedSkus: MSGraphSubscribedSku[],
   caPolicies: MSGraphConditionalAccessPolicy[],
   securityDefaultsEnabled: boolean,
+  activity: Record<string, string>,
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
   const timer = new Timer('TransformIdentities', true);
@@ -47,6 +48,9 @@ export async function transformIdentities(
 
           const mfaEnforced =
             securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
+          const userActivity = activity[user.userPrincipalName];
+          const lastActivity =
+            user.signInActivity?.lastSignInDateTime || userActivity || new Date(0).toISOString();
 
           const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
@@ -68,7 +72,7 @@ export async function transformIdentities(
                 : 'conditional_access'
               : 'none',
             mfa_methods: transformedMethods,
-            last_activity: user.signInActivity?.lastSignInDateTime ?? null,
+            last_activity: lastActivity,
             license_skus: licenseSkus,
             role_ids: userContext.data.roles.map((role) => role.displayName),
             group_ids: userContext.data.groups.map((group) => group.displayName),

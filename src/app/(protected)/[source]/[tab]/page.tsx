@@ -9,5 +9,5 @@ export default function Page() {
 
   if (!tabInfo[tab as string]) return <strong>No {tab} tab defined for this source.</strong>;
 
-  return tabInfo[tab as string].content(source as string, undefined, undefined);
+  return tabInfo[tab as string].content(source as string);
 }

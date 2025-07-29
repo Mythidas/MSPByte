@@ -5,10 +5,11 @@ import SourceSyncStatus from '@/components/domain/sources/SourceSyncStatus';
 import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 import { SOURCE_HEADERS } from '@/config/sourceHeaders';
 import { usePathname } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Props = {
   sourceId: string;
-  tenantId: string;
+  tenantId?: string;
   siteId?: string;
   groupId?: string;
 };
@@ -30,16 +31,17 @@ export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId 
         </div>
       </div>
       <div className="flex items-center gap-3">
-        {siteId && !parent && (
+        {!tenantId && <Skeleton className="w-32 h-8" />}
+        {siteId && tenantId && !parent && (
           <SourceSyncStatus sourceId={sourceId} siteId={siteId} tenantId={tenantId} />
         )}
-        {siteId && parent && (
+        {siteId && tenantId && parent && (
           <SyncSourceItem type="parent" sourceId={sourceId} tenantId={tenantId} />
         )}
-        {!siteId && !parent && !groupId && (
+        {!siteId && tenantId && !parent && !groupId && (
           <SyncSourceItem type="global" sourceId={sourceId} tenantId={tenantId} />
         )}
-        {groupId && (
+        {groupId && tenantId && (
           <SyncSourceItem type="group" sourceId={sourceId} tenantId={tenantId} groupId={groupId} />
         )}
       </div>
