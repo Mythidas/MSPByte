@@ -3,14 +3,15 @@
 import { Badge } from '@/components/ui/badge';
 import { getSource } from 'packages/services/sources';
 import Image from 'next/image';
-import { Power } from 'lucide-react';
 import { getSourceIntegration } from '@/services/integrations';
 import { SourceBreadcrumb } from '@/components/source/sources/SourceBreadcrumbs';
-import { Button } from '@/components/ui/button';
 import Microsoft365Enabled from '@/components/source/integrations/microsoft/Microsoft365Enabled';
 import Microsoft365Disabled from '@/components/source/integrations/microsoft/Microsoft365Disabled';
 import SophosPartnerDisabled from '@/components/source/integrations/sophos/SophosPartnerDisabled';
 import SophosPartnerEnabled from '@/components/source/integrations/sophos/SophosPartnerEnabled';
+import AutotaskEnabled from '@/components/source/integrations/autotask/AutotaskEnabled';
+import AutotaskDisabled from '@/components/source/integrations/autotask/AutotaskDisabled';
+import ToggleIntegration from '@/components/source/integrations/ToggleIntegration';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -26,6 +27,9 @@ export default async function Page({ ...props }: Props) {
 
   const getBody = () => {
     switch (source.id) {
+      case 'autotask':
+        if (integration) return <AutotaskEnabled source={source} integration={integration} />;
+        return <AutotaskDisabled source={source} />;
       case 'sophos-partner':
         if (integration) return <SophosPartnerEnabled source={source} integration={integration} />;
         return <SophosPartnerDisabled source={source} />;
@@ -45,7 +49,7 @@ export default async function Page({ ...props }: Props) {
       {/* Header */}
       <div className="flex w-full justify-between">
         <div className="flex gap-2">
-          <div className="p-1 bg-white size-fit rounded-md">
+          <div className="p-1 border bg-secondary size-fit rounded-md">
             <Image src={source.icon_url || ''} alt={source.name} width={48} height={48} />
           </div>
           <div className="flex flex-col justify-between">
@@ -67,12 +71,7 @@ export default async function Page({ ...props }: Props) {
               </>
             )}
           </Badge>
-          <Button
-            variant={!integration ? 'default' : 'destructive'}
-            className="rounded-l-none py-1! h-full!"
-          >
-            <Power />
-          </Button>
+          <ToggleIntegration source={source} integration={integration} />
         </div>
       </div>
 
