@@ -77,9 +77,9 @@ export default function SitesSidebar({ site, children }: Props) {
 
   return (
     <div className="flex size-full">
-      <div className="w-48 flex h-full">
-        <Sidebar className="relative! w-48">
-          <SidebarContent className="w-48 bg-background p-2">
+      <div className="flex flex-col w-40 h-full">
+        <Sidebar className="relative w-40 h-fit">
+          <SidebarContent className="w-40 bg-background p-2">
             <SidebarMenu>
               {navItems.map((item) => {
                 if (item.parentOnly && !site.is_parent) return null;
@@ -138,9 +138,7 @@ export default function SitesSidebar({ site, children }: Props) {
       </div>
       <Separator orientation="vertical" />
 
-      <div className="flex flex-col relative size-full space-y-6 p-6 overflow-hidden">
-        {children}
-      </div>
+      <div className="flex flex-col relative size-full gap-4 p-6 overflow-hidden">{children}</div>
     </div>
   );
 }

@@ -14,19 +14,24 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Total Identities',
-    metric: identities.length,
+    name: 'Enabled',
+    metric: identities.filter((id) => id.enabled).length,
     total: identities.length,
     created_at: new Date().toISOString(),
   };
 
+  const isInactive = (date: string | number) => {
+    const dateA = new Date(date);
+    const target = new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 30);
+    return dateA.getTime() >= target.getTime();
+  };
   const licensedIdentities: TablesInsert<'source_metrics'> = {
     site_id: tenant.site_id,
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Licensed Identities',
-    metric: identities.filter((id) => id.license_skus.length > 0).length,
+    name: 'Inactive',
+    metric: identities.filter((id) => isInactive(id.last_activity || 0)).length,
     total: identities.length,
     created_at: new Date().toISOString(),
   };
@@ -36,14 +41,25 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'MFA Enabled',
-    metric: identities.filter((id) => id.mfa_enforced).length,
+    name: 'Secured',
+    metric: identities.filter((id) => id.mfa_enforced && id.enabled).length,
+    total: identities.filter((id) => id.enabled).length,
+    created_at: new Date().toISOString(),
+  };
+
+  const guestUsers: TablesInsert<'source_metrics'> = {
+    site_id: tenant.site_id,
+    tenant_id: tenant.tenant_id,
+    source_id: tenant.source_id,
+    source_tenant_id: tenant.id,
+    name: 'Guests',
+    metric: identities.filter((id) => id.type === 'guest').length,
     total: identities.length,
     created_at: new Date().toISOString(),
   };
 
   try {
-    await putSourceMetrics([totalIdentities, licensedIdentities, mfaEnabled]);
+    await putSourceMetrics([totalIdentities, licensedIdentities, mfaEnabled, guestUsers]);
 
     return {
       ok: true,

@@ -1,96 +1,143 @@
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
-import { Database } from '@/db/schema';
-import { TrendingUp } from 'lucide-react';
-import Link from 'next/link';
+import Display from '@/components/shared/Display';
 import Icon from '@/components/shared/Icon';
-
-type RollupMetric = Database['public']['Views']['rollup_metrics_site']['Row'];
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { getRows } from '@/db/orm';
+import { Tables } from '@/db/schema';
+import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import { Users2 } from 'lucide-react';
+import Link from 'next/link';
 
 type Props = {
-  metric: RollupMetric;
-  baseRoute?: string;
+  route: string;
+  sourceId: string;
+  site?: Tables<'sites'>;
+  parent?: Tables<'sites'>;
+  group?: Tables<'site_groups'>;
+  unit?: string;
 };
+export function SourceMetricCard({ route, sourceId, site, parent, group, unit }: Props) {
+  const { content } = useLazyLoad({
+    fetcher: async () => {
+      if (group) {
+        const metrics = await getRows('rollup_metrics_group', {
+          filters: [
+            ['group_id', 'eq', group.id],
+            ['source_id', 'eq', sourceId],
+            unit ? ['unit', 'eq', unit] : undefined,
+          ],
+        });
 
-export default function SourceMetricCard({ metric, baseRoute }: Props) {
-  const filtersFormatted = () => {
-    let parsed = '';
-    for (const [key, value] of Object.entries(metric.filters as Record<string, string>)) {
-      if (key === 'tab') {
-        continue;
+        if (metrics.ok) {
+          return metrics.data.rows;
+        }
       }
 
-      if (parsed.length > 0) parsed += '&';
-      else parsed += '?';
-      parsed += `${key}=${value}`;
-    }
+      if (site) {
+        const metrics = await getRows('rollup_metrics_site', {
+          filters: [
+            ['source_id', 'eq', sourceId],
+            ['site_id', 'eq', site.id],
+            unit ? ['unit', 'eq', unit] : undefined,
+          ],
+        });
 
-    if ((metric.filters as Record<string, string>)['tab']) {
-      parsed = `/${(metric.filters as Record<string, string>)['tab']}` + parsed;
-    }
-
-    return parsed;
-  };
-
-  const valueDisplay = () => {
-    switch (metric.visual) {
-      case 'percentage': {
-        const percentage = (metric.value! / metric.total!) * 100;
-        return `${percentage.toFixed(0)}%`;
+        if (metrics.ok) {
+          return metrics.data.rows;
+        }
       }
-      default:
-        return metric.value;
-    }
-  };
 
-  const deltaDisplay = () => {
-    switch (metric.visual) {
-      case 'percentage': {
-        const percentage = (metric.delta! / metric.total!) * 100;
-        return `${percentage.toFixed(0)}%`;
+      if (parent) {
+        const metrics = await getRows('rollup_metrics_parent', {
+          filters: [
+            ['source_id', 'eq', sourceId],
+            ['parent_id', 'eq', parent.id],
+            unit ? ['unit', 'eq', unit] : undefined,
+          ],
+        });
+
+        if (metrics.ok) {
+          return metrics.data.rows;
+        }
       }
-      default:
-        return metric.delta;
-    }
-  };
 
-  const color =
-    metric.delta === 0 || (metric.visual === 'percentage' && metric.delta === 0)
-      ? 'text-slate-500'
-      : metric.roc_positive
-        ? metric.delta! > 0
-          ? 'text-green-600'
-          : 'text-red-600'
-        : metric.delta! < 0
-          ? 'text-green-600'
-          : 'text-red-600';
+      const metrics = await getRows('rollup_metrics_global', {
+        filters: [['source_id', 'eq', sourceId], unit ? ['unit', 'eq', unit] : undefined],
+      });
 
-  return (
-    <Card className="bg-linear-to-t from-primary/5 to-card">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">
-          <Link
-            href={
-              baseRoute
-                ? `${baseRoute}${filtersFormatted()}`
-                : `/${metric.source_id}${filtersFormatted()}`
-            }
-          >
-            {metric.name}
-          </Link>
-        </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" iconName={metric.icon!} />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-1">
-          <div className="text-2xl font-bold">{valueDisplay()}</div>
-          <div className="flex items-center gap-1">
-            <TrendingUp className={`h-3 w-3 ${color}`} />
-            <span className={`text-xs font-medium ${color}`}>{deltaDisplay()}</span>
-            <span className="text-xs text-muted-foreground">vs last sync</span>
-          </div>
-          <p className="text-xs text-muted-foreground">{metric.description}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
+      if (metrics.ok) {
+        return metrics.data.rows;
+      }
+    },
+    render: (metrics) => {
+      if (!metrics || !metrics.length) return null;
+
+      return (
+        <Card className="py-4">
+          <CardHeader className="px-4">
+            <CardTitle>
+              <Link href={route} className="flex gap-2 items-center hover:text-primary">
+                <Users2 className="h-5 w-5" />
+                Total Identities
+              </Link>
+            </CardTitle>
+            <CardAction>{metrics[0].total}</CardAction>
+          </CardHeader>
+          <CardContent className="px-4">
+            <div className="grid gap-2">
+              {metrics.map(
+                ({ icon, name, value, total, description, visual, filters: _filters }, index) => {
+                  const filters = _filters as Record<string, string>;
+
+                  return (
+                    <Display key={index} href={`${route}?filter=${filters.filter}`}>
+                      <div className="flex w-full justify-between">
+                        <span className="flex gap-2 items-center">
+                          <Icon iconName={icon!} className={`w-4 h-4 ${visual}`} />
+                          {name}
+                          <span className="text-xs text-muted-foreground">{description}</span>
+                        </span>
+                        <div className="flex gap-2 font-medium text-muted-foreground">
+                          {value}
+                          <Badge variant="secondary">
+                            {((value! / total!) * 100).toFixed(0)} %
+                          </Badge>
+                        </div>
+                      </div>
+                    </Display>
+                  );
+                }
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    },
+    skeleton: () => {
+      return (
+        <Card className="py-4">
+          <CardHeader className="px-4">
+            <CardTitle className="flex gap-2 items-center">
+              <Users2 className="h-5 w-5" />
+              Total Identities
+            </CardTitle>
+            <CardAction>
+              <Skeleton className="w-6 h-6" />
+            </CardAction>
+          </CardHeader>
+          <CardContent className="px-4">
+            <div className="grid gap-2">
+              <Skeleton className="w-full h-10" />
+              <Skeleton className="w-full h-10" />
+              <Skeleton className="w-full h-10" />
+              <Skeleton className="w-full h-10" />
+            </div>
+          </CardContent>
+        </Card>
+      );
+    },
+  });
+
+  return content;
 }

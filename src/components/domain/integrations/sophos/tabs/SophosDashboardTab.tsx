@@ -1,7 +1,6 @@
 import Loader from '@/components/shared/Loader';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import SourceMetricsGrid from '@/components/domain/sources/SourceMetricsGrid';
 import { getSites } from '@/services/sites';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { getRows } from '@/db/orm';
@@ -59,26 +58,12 @@ export default function SophosDashboardTab({ sourceId, site, parent, group }: Pr
     },
     render: (data) => {
       if (!data) return <strong>No Tenant(s) found</strong>;
-      const route =
-        site || parent
-          ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}`
-          : group
-            ? `/groups/${group.id}/${sourceId}`
-            : `/${sourceId}`;
 
       return (
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold">Quick Metrics</h2>
           </div>
-
-          <SourceMetricsGrid
-            scope={site ? 'site' : parent ? 'parent' : group ? 'group' : 'global'}
-            sourceId={sourceId}
-            siteId={parent?.id || site?.id}
-            groupId={group?.id}
-            route={route}
-          />
         </div>
       );
     },

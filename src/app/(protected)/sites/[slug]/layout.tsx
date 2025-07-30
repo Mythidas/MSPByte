@@ -3,7 +3,6 @@
 import { getSite } from 'packages/services/sites';
 import ErrorDisplay from '@/components/shared/ErrorDisplay';
 import SitesSidebar from '@/components/layout/SitesSidebar';
-import SiteHeader from '@/components/domain/sites/SiteHeader';
 import SiteProvider from '@/lib/providers/SiteProvider';
 import React from 'react';
 import SiteBreadcrumbs from '@/components/domain/sites/SiteBreadcrumbs';
@@ -24,7 +23,6 @@ export default async function Layout({ children, ...props }: Props) {
   return (
     <SitesSidebar site={site.data}>
       <SiteBreadcrumbs site={site.data} />
-      <SiteHeader site={site.data} />
       <SiteProvider site={site.data}>{children}</SiteProvider>
     </SitesSidebar>
   );

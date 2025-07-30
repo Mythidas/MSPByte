@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge } from '@/components/ui/badge';
 import {
   BreadcrumbLink,
   BreadcrumbPage,
@@ -8,9 +9,11 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getRowsCount } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSite } from '@/services/sites';
+import { Building } from 'lucide-react';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import React from 'react';
 
@@ -20,6 +23,33 @@ type Props = {
 
 export default function SiteBreadcrumbs({ site }: Props) {
   const slug = useSelectedLayoutSegment();
+
+  const { content: ChildBadge } = useLazyLoad({
+    fetcher: async () => {
+      if (!site.is_parent) return 0;
+
+      const sites = await getRowsCount('sites', {
+        filters: [['parent_id', 'eq', site.id]],
+      });
+
+      return sites.ok ? sites.data : 0;
+    },
+    render: (data) => {
+      if (!site.is_parent) return null;
+
+      return (
+        <Badge variant="outline">
+          <Building className="h-3 w-3 mr-1" />
+          {data} Child Sites
+        </Badge>
+      );
+    },
+    skeleton: () => {
+      if (!site.is_parent) return null;
+      <Skeleton className="w-20 h-5" />;
+    },
+    deps: [site],
+  });
 
   const { content } = useLazyLoad({
     fetcher: async () => {
@@ -99,5 +129,15 @@ export default function SiteBreadcrumbs({ site }: Props) {
     deps: [site.id, slug],
   });
 
-  return content;
+  return (
+    <div className="flex justify-between">
+      {content}
+      <div className="flex gap-2">
+        <Badge variant={site.is_parent ? 'default' : 'secondary'}>
+          {site.is_parent ? 'Parent Site' : 'Site'}
+        </Badge>
+        {ChildBadge}
+      </div>
+    </div>
+  );
 }

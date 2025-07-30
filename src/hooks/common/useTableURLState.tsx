@@ -5,8 +5,6 @@ import { FilterValue } from '@/types/data-table';
 
 function parseODataFilter(filterStr: string): ColumnFiltersState {
   const filters: ColumnFiltersState = [];
-
-  // Split on ' and ', naive parser — improve if needed
   const parts = filterStr.split(/\s+and\s+/i);
 
   for (const part of parts) {

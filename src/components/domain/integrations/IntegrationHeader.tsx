@@ -6,6 +6,7 @@ import SyncSourceItem from '@/components/domain/sources/SyncSourceItem';
 import { SOURCE_HEADERS } from '@/config/sourceHeaders';
 import { usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 type Props = {
   sourceId: string;
@@ -20,31 +21,39 @@ export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId 
   const parent = pathname.includes('grouped');
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-blue-100 rounded-lg">
-          <Icon iconName={headerInfo.icon} className="h-6 w-6 text-blue-600" />
+    <>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-blue-100 rounded-lg">
+            <Icon iconName={headerInfo.icon} className="h-6 w-6 text-blue-600" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{headerInfo.label}</h1>
+            <p className="text-sm text-muted-foreground">{headerInfo.description}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold">{headerInfo.label}</h1>
-          <p className="text-sm text-muted-foreground">{headerInfo.description}</p>
+        <div className="flex items-center gap-3">
+          {!tenantId && <Skeleton className="w-32 h-8" />}
+          {siteId && tenantId && !parent && (
+            <SourceSyncStatus sourceId={sourceId} siteId={siteId} tenantId={tenantId} />
+          )}
+          {siteId && tenantId && parent && (
+            <SyncSourceItem type="parent" sourceId={sourceId} tenantId={tenantId} />
+          )}
+          {!siteId && tenantId && !parent && !groupId && (
+            <SyncSourceItem type="global" sourceId={sourceId} tenantId={tenantId} />
+          )}
+          {groupId && tenantId && (
+            <SyncSourceItem
+              type="group"
+              sourceId={sourceId}
+              tenantId={tenantId}
+              groupId={groupId}
+            />
+          )}
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        {!tenantId && <Skeleton className="w-32 h-8" />}
-        {siteId && tenantId && !parent && (
-          <SourceSyncStatus sourceId={sourceId} siteId={siteId} tenantId={tenantId} />
-        )}
-        {siteId && tenantId && parent && (
-          <SyncSourceItem type="parent" sourceId={sourceId} tenantId={tenantId} />
-        )}
-        {!siteId && tenantId && !parent && !groupId && (
-          <SyncSourceItem type="global" sourceId={sourceId} tenantId={tenantId} />
-        )}
-        {groupId && tenantId && (
-          <SyncSourceItem type="group" sourceId={sourceId} tenantId={tenantId} groupId={groupId} />
-        )}
-      </div>
-    </div>
+      <Separator />
+    </>
   );
 }

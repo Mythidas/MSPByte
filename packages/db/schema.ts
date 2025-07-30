@@ -1553,6 +1553,7 @@ export type Database = {
           thresholds: Json | null
           total: number | null
           unit: string | null
+          value: number | null
           visual: string | null
         }
         Relationships: [

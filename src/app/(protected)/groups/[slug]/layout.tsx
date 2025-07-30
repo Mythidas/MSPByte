@@ -30,15 +30,19 @@ export default async function Layout({ children, ...props }: Props) {
 
   return (
     <GroupSidebar group={group.data}>
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbLink href={'/groups'}>Groups</BreadcrumbLink>
-          <BreadcrumbSeparator />
-          <BreadcrumbPage>{group.data.name}</BreadcrumbPage>
-        </BreadcrumbList>
-      </Breadcrumb>
+      <div className="flex w-full justify-between">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbLink href={'/groups'}>Groups</BreadcrumbLink>
+            <BreadcrumbSeparator />
+            <BreadcrumbPage>{group.data.name}</BreadcrumbPage>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-      <GroupHeader group={group.data} />
+        <div>
+          <GroupHeader group={group.data} />
+        </div>
+      </div>
       {children}
     </GroupSidebar>
   );

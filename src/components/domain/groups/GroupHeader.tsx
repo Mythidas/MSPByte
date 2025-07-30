@@ -5,7 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getRowsCount } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { Building, Building2 } from 'lucide-react';
+import { Building } from 'lucide-react';
 
 type Props = {
   group: Tables<'site_groups'>;
@@ -32,17 +32,5 @@ export default function GroupHeader({ group }: Props) {
     deps: [group],
   });
 
-  return (
-    <div className="flex items-center justify-between mb-6">
-      <div className="flex items-center gap-3">
-        <div className="p-2 bg-primary/10 rounded-lg">
-          <Building2 className="h-5 w-5" />
-        </div>
-        <div className="flex gap-2">
-          <h1 className="text-2xl font-bold">{group.name}</h1>
-          <div className="flex items-center gap-2 mt-1">{ChildBadge}</div>
-        </div>
-      </div>
-    </div>
-  );
+  return ChildBadge;
 }

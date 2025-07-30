@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
-import SourceMetricsGrid from '@/components/domain/sources/SourceMetricsGrid';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import { Tables } from '@/db/schema';
 import { getSites } from '@/services/sites';
@@ -173,13 +172,6 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent, group }:
         (tenant) => (tenant.metadata as MicrosoftTenantMetadata).domains || []
       );
 
-      const route =
-        site || parent
-          ? `/sites/${parent?.slug ?? site?.slug}/${sourceId}`
-          : group
-            ? `/groups/${group.id}/${sourceId}`
-            : `/${sourceId}`;
-
       return (
         <div className="grid gap-4">
           {/* Key Metrics Cards */}
@@ -233,14 +225,6 @@ export default function MicrosoftDashboardTab({ sourceId, site, parent, group }:
                 <p className="text-muted-foreground mt-1">Comprehensive metrics and insights</p>
               </div>
             </div>
-
-            <SourceMetricsGrid
-              scope={site ? 'site' : parent ? 'parent' : group ? 'group' : 'global'}
-              sourceId={sourceId}
-              siteId={parent?.id || site?.id}
-              groupId={group?.id}
-              route={route}
-            />
           </div>
         </div>
       );

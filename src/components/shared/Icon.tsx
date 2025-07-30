@@ -6,7 +6,9 @@ import {
   LucideProps,
   Shield,
   ShieldCheck,
+  SquareUser,
   Users,
+  Zap,
 } from 'lucide-react';
 
 const iconMap = {
@@ -17,6 +19,8 @@ const iconMap = {
   Shield: Shield,
   Users: Users,
   Database: Database,
+  Zap: Zap,
+  SquareUser: SquareUser,
 } as const;
 
 const iconNames = Object.entries(iconMap).map((icon) => icon[0]);
