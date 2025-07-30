@@ -43,6 +43,7 @@ export default function MicrosoftDashboardTab({ ...props }: Props) {
 
   return (
     <div className="grid gap-2">
+      <SourceTenantCards {...props} />
       <div className="grid grid-cols-3 gap-2">
         <SourceMetricCard
           route={`${route}/identities`}
@@ -51,7 +52,6 @@ export default function MicrosoftDashboardTab({ ...props }: Props) {
           color="text-emerald-500"
         />
       </div>
-      <SourceTenantCards {...props} />
     </div>
   );
 }
