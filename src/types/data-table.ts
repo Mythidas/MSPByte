@@ -33,8 +33,3 @@ export type DataTableFilter = {
   serverKey?: string; // e.g. "metadata->>'valid_license'"
   dependsOn?: string[];
 };
-
-export type DataResponse<T> = {
-  rows: T[];
-  total: number;
-};

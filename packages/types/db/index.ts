@@ -22,6 +22,11 @@ export type FilterValue =
   | { op: 'bt'; value: FilterPrimitiveTuple };
 export type Filters = Record<string, FilterValue>;
 
+export type DataResponse<T> = {
+  rows: T[];
+  total: number;
+};
+
 export type PaginationOptions = {
   page: number;
   size: number;
