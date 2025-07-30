@@ -4,17 +4,32 @@ import Link from 'next/link';
 type Props = {
   children: React.ReactNode;
   lead?: React.ReactNode;
-} & React.ComponentProps<'a'>;
+  href?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+} & Omit<React.ComponentProps<'a'>, 'onClick' | 'href'>;
 
-export default function Display({ lead, className, children, href = '', ...props }: Props) {
+export default function Display({
+  lead,
+  className,
+  children,
+  href = '',
+  onClick,
+  ...props
+}: Props) {
   if (!href) {
     return (
-      <div className={cn('flex items-center w-full gap-2 p-2 rounded border bg-card', className)}>
+      <button
+        className={cn(
+          'flex items-center w-full gap-2 p-2 rounded border bg-card',
+          onClick && 'hover:cursor-pointer hover:bg-input/30'
+        )}
+        onClick={onClick}
+      >
         {lead && <span className="h-4 w-4 text-muted-foreground">{lead}</span>}
         <span className="flex w-full select-text text-sm font-medium space-x-2 justify-start items-center">
           {children}
         </span>
-      </div>
+      </button>
     );
   }
 

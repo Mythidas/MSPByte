@@ -2,22 +2,25 @@ import Display from '@/components/shared/Display';
 import Icon from '@/components/shared/Icon';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRows } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import { cn } from '@/lib/utils';
 import { Users2 } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
   route: string;
   sourceId: string;
+  color?: string;
   site?: Tables<'sites'>;
   parent?: Tables<'sites'>;
   group?: Tables<'site_groups'>;
   unit?: string;
 };
-export function SourceMetricCard({ route, sourceId, site, parent, group, unit }: Props) {
+export function SourceMetricCard({ route, sourceId, site, parent, group, unit, color }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (group) {
@@ -74,16 +77,17 @@ export function SourceMetricCard({ route, sourceId, site, parent, group, unit }:
       if (!metrics || !metrics.length) return null;
 
       return (
-        <Card className="py-4">
+        <Card className="py-4 gap-2">
           <CardHeader className="px-4">
             <CardTitle>
               <Link href={route} className="flex gap-2 items-center hover:text-primary">
-                <Users2 className="h-5 w-5" />
+                <Users2 className={cn('h-5 w-5', color)} />
                 Total Identities
               </Link>
             </CardTitle>
             <CardAction>{metrics[0].total}</CardAction>
           </CardHeader>
+          <Separator />
           <CardContent className="px-4">
             <div className="grid gap-2">
               {metrics.map(
@@ -116,7 +120,7 @@ export function SourceMetricCard({ route, sourceId, site, parent, group, unit }:
     },
     skeleton: () => {
       return (
-        <Card className="py-4">
+        <Card className="py-4 gap-2">
           <CardHeader className="px-4">
             <CardTitle className="flex gap-2 items-center">
               <Users2 className="h-5 w-5" />
@@ -126,6 +130,7 @@ export function SourceMetricCard({ route, sourceId, site, parent, group, unit }:
               <Skeleton className="w-6 h-6" />
             </CardAction>
           </CardHeader>
+          <Separator />
           <CardContent className="px-4">
             <div className="grid gap-2">
               <Skeleton className="w-full h-10" />
