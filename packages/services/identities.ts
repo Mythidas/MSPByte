@@ -2,7 +2,7 @@
 
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
-import { PaginationOptions } from '@/types/data-table';
+import { PaginationOptions } from '@/types/db';
 import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 import { tables } from 'packages/db';
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';

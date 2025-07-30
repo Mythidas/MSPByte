@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import type { ColumnFiltersState, SortingState } from '@tanstack/react-table';
-import { FilterValue } from '@/types/data-table';
+import { FilterValue } from '@/types/db';
 
 function parseODataFilter(filterStr: string): ColumnFiltersState {
   const filters: ColumnFiltersState = [];

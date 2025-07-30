@@ -13,13 +13,8 @@ import {
   SelectItem,
   Select,
 } from '@/components/ui/select';
-import {
-  DataTableFilter,
-  FilterOperations,
-  FilterPrimitive,
-  FilterPrimitiveTuple,
-  FilterValue,
-} from '@/types/data-table';
+import { DataTableFilter } from '@/types/data-table';
+import { FilterValue, FilterOperations, FilterPrimitiveTuple, FilterPrimitive } from '@/types/db';
 import { Equal, X, ChevronRight, ChevronLeft, List, Search } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 

@@ -2,7 +2,7 @@
 
 import { TablesInsert, TablesUpdate } from 'packages/db/schema';
 import { tables } from '@/db';
-import { PaginationOptions } from '@/types/data-table';
+import { PaginationOptions } from '@/types/db';
 
 export async function getSourceDevices(sourceId?: string, siteIds?: string[]) {
   return tables.select('source_devices', (query) => {

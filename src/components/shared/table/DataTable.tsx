@@ -38,13 +38,13 @@ import {
   DataTableColumnDef,
   DataTableFetcher,
   DataTableFilter,
-  FilterValue,
 } from '@/types/data-table';
 import { Spinner } from '@/components/shared/Spinner';
 import { DataTableFilters } from '@/components/shared/table/DataTableFilters';
 import { DataTableFooter } from '@/components/shared/table/DataTableFooter';
 import * as XLSX from 'xlsx';
 import { ClassValue } from 'clsx';
+import { FilterValue } from '@/types/db';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];

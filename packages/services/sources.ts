@@ -1,7 +1,7 @@
 'use server';
 
 import { TablesInsert } from '@/db/schema';
-import { PaginationOptions } from '@/types/data-table';
+import { PaginationOptions } from '@/types/db';
 import { tables } from 'packages/db';
 
 export async function getSources(pagination?: PaginationOptions) {

@@ -17,13 +17,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useTableURLState } from '@/hooks/common/useTableURLState';
-import {
-  FilterValue,
-  FilterPrimitive,
-  FilterPrimitiveTuple,
-  DataTableFilter,
-  FilterType,
-} from '@/types/data-table';
 import { ColumnFiltersState, SortingState, Table, Updater } from '@tanstack/react-table';
 import {
   FunnelPlus,
@@ -50,6 +43,8 @@ import {
   DataTableFilterSelect,
   DataTableFilterText,
 } from '@/components/shared/table/DataTableFilterRender';
+import { DataTableFilter } from '@/types/data-table';
+import { FilterValue, FilterPrimitive, FilterPrimitiveTuple, FilterType } from '@/types/db';
 
 type DataTableDrawerProps<TData> = {
   filters: Record<string, Record<string, DataTableFilter>>;

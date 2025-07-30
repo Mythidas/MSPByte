@@ -1,4 +1,4 @@
-import { FilterValue } from '@/types/data-table';
+import { FilterValue } from '@/types/db';
 import { Row } from '@tanstack/react-table';
 
 export function booleanFilter<TData>(row: Row<TData>, colId: keyof TData, value: FilterValue) {

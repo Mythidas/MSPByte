@@ -3,7 +3,8 @@ import { APIResponse } from '@/types';
 import { createClient } from 'packages/db/server';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { Database, Tables, TablesInsert, TablesUpdate } from 'packages/db/schema';
-import { DataResponse, Filters, PaginationOptions } from '@/types/data-table';
+import { DataResponse } from '@/types/data-table';
+import { Filters, PaginationOptions } from '@/types/db';
 
 type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 type RowType<T extends TableOrView> = T extends keyof Database['public']['Tables']

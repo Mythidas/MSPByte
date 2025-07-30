@@ -3,7 +3,7 @@
 import { tables } from '@/db';
 import { Tables } from '@/db/schema';
 import { APIResponse } from '@/types';
-import { PaginationOptions } from '@/types/data-table';
+import { PaginationOptions } from '@/types/db';
 
 function isUUID(id: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
