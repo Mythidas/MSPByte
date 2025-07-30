@@ -6,7 +6,6 @@ import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 
 export async function syncMetrics(
   tenant: Tables<'source_tenants'>,
-  _policies: Tables<'source_policies'>[],
   identities: Tables<'source_identities'>[]
 ): Promise<APIResponse<null>> {
   // Identities

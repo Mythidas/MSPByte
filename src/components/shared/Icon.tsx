@@ -6,6 +6,8 @@ import {
   LucideProps,
   Shield,
   ShieldCheck,
+  ShieldOff,
+  ShieldPlus,
   SquareUser,
   Users,
   Zap,
@@ -21,6 +23,8 @@ const iconMap = {
   Database: Database,
   Zap: Zap,
   SquareUser: SquareUser,
+  ShieldPlus: ShieldPlus,
+  ShieldOff: ShieldOff,
 } as const;
 
 const iconNames = Object.entries(iconMap).map((icon) => icon[0]);

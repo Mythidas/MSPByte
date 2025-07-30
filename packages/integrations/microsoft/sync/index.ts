@@ -152,8 +152,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       });
 
       const _identities = identities.data.rows.filter((id) => !identitiesToDelete.includes(id.id));
-      const _policies = policies.data.rows.filter((pol) => !policicesToDelete.includes(pol.id));
-      await syncMetrics(tenant, _policies, _identities);
+      await syncMetrics(tenant, _identities);
     });
 
   return await sync.run();
