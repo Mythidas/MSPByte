@@ -1,7 +1,7 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { getRows } from '@/db/orm';
+import { deleteRows, getRows } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
@@ -118,12 +118,18 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       });
     })
     .final(async (ctx) => {
-      const [policies, identities] = await Promise.all([
+      const [policies, identities, licenses] = await Promise.all([
         await getSourcePolicies(ctx.source_id, [ctx.site_id]),
         await getSourceIdentities(ctx.source_id, [ctx.site_id]),
+        await getRows('source_licenses', {
+          filters: [
+            ['source_id', 'eq', ctx.source_id],
+            ['site_id', 'eq', ctx.site_id],
+          ],
+        }),
       ]);
 
-      if (!policies.ok || !identities.ok) return;
+      if (!policies.ok || !identities.ok || !licenses.ok) return;
 
       const identitiesToDelete = identities.data.rows
         .filter((id) => id.sync_id && id.sync_id !== ctx.sync_id)
@@ -131,13 +137,23 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       const policicesToDelete = policies.data.rows
         .filter((pol) => pol.sync_id && pol.sync_id !== ctx.sync_id)
         .map((pol) => pol.id);
+      const licensesToDelete = licenses.data.rows
+        .filter((lic) => lic.sync_id && lic.sync_id !== ctx.sync_id)
+        .map((lic) => lic.id);
 
-      await deleteSourceIdentities(identitiesToDelete);
-      await deleteSourcePolicies(policicesToDelete);
+      await deleteRows('source_identities', {
+        filters: [['id', 'in', identitiesToDelete]],
+      });
+      await deleteRows('source_policies', {
+        filters: [['id', 'in', policicesToDelete]],
+      });
+      await deleteRows('source_licenses', {
+        filters: [['id', 'in', licensesToDelete]],
+      });
 
       const _identities = identities.data.rows.filter((id) => !identitiesToDelete.includes(id.id));
       const _policies = policies.data.rows.filter((pol) => !policicesToDelete.includes(pol.id));
-      await syncMetrics(tenant, _policies, [], _identities);
+      await syncMetrics(tenant, _policies, _identities);
     });
 
   return await sync.run();

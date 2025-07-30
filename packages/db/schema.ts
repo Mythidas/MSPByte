@@ -763,6 +763,7 @@ export type Database = {
           filters: Json
           icon: string | null
           id: string
+          name: string
           order: number | null
           roc_positive: boolean | null
           source_id: string
@@ -776,7 +777,8 @@ export type Database = {
           description: string
           filters: Json
           icon?: string | null
-          id: string
+          id?: string
+          name: string
           order?: number | null
           roc_positive?: boolean | null
           source_id: string
@@ -791,6 +793,7 @@ export type Database = {
           filters?: Json
           icon?: string | null
           id?: string
+          name?: string
           order?: number | null
           roc_positive?: boolean | null
           source_id?: string
@@ -819,10 +822,10 @@ export type Database = {
       source_metrics: {
         Row: {
           created_at: string | null
+          definition_id: string
           delta: number | null
           id: string
           metric: number
-          name: string
           site_id: string
           source_id: string | null
           source_tenant_id: string
@@ -833,10 +836,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          definition_id: string
           delta?: number | null
           id?: string
           metric: number
-          name: string
           site_id: string
           source_id?: string | null
           source_tenant_id: string
@@ -847,10 +850,10 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          definition_id?: string
           delta?: number | null
           id?: string
           metric?: number
-          name?: string
           site_id?: string
           source_id?: string | null
           source_tenant_id?: string
@@ -861,11 +864,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "source_metrics_source_tenant_id_fkey"
@@ -1516,6 +1519,7 @@ export type Database = {
       rollup_metrics_global: {
         Row: {
           created_at: string | null
+          definition_id: string | null
           delta: number | null
           description: string | null
           filters: Json | null
@@ -1531,17 +1535,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
       rollup_metrics_group: {
         Row: {
           created_at: string | null
+          definition_id: string | null
           delta: number | null
           description: string | null
           filters: Json | null
@@ -1564,11 +1569,19 @@ export type Database = {
             referencedRelation: "site_groups"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
+            isOneToOne: false
+            referencedRelation: "source_metric_definitions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       rollup_metrics_parent: {
         Row: {
           created_at: string | null
+          definition_id: string | null
           delta: number | null
           description: string | null
           filters: Json | null
@@ -1585,17 +1598,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
       rollup_metrics_site: {
         Row: {
           created_at: string | null
+          definition_id: string | null
           delta: number | null
           description: string | null
           filters: Json | null
@@ -1612,11 +1626,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1911,10 +1925,10 @@ export type Database = {
       source_metrics_newest: {
         Row: {
           created_at: string | null
+          definition_id: string | null
           delta: number | null
           id: string | null
           metric: number | null
-          name: string | null
           site_id: string | null
           source_id: string | null
           tenant_id: string | null
@@ -1922,11 +1936,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "source_metrics_name_source_id_fkey"
-            columns: ["name", "source_id"]
+            foreignKeyName: "source_metrics_definition_id_fkey"
+            columns: ["definition_id"]
             isOneToOne: false
             referencedRelation: "source_metric_definitions"
-            referencedColumns: ["id", "source_id"]
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "source_metrics_tenant_id_fkey"

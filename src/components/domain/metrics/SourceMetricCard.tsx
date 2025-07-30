@@ -103,6 +103,7 @@ export function SourceMetricCard({ route, sourceId, site, parent, group, unit, c
                           <span className="text-xs text-muted-foreground">{description}</span>
                         </span>
                         <div className="flex gap-2 font-medium text-muted-foreground">
+                          {}
                           {value}
                           <Badge variant="secondary">
                             {((value! / total!) * 100).toFixed(0)} %

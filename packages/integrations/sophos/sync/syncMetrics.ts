@@ -19,23 +19,12 @@ export async function syncMetrics(
       if (!(device.metadata as SPEndpoint).tamperProtectionEnabled) tamperDisabledCount++;
     }
 
-    const totalDevices: TablesInsert<'source_metrics'> = {
-      tenant_id: tenant.tenant_id,
-      site_id: tenant.site_id,
-      source_id: tenant.source_id,
-      source_tenant_id: tenant.id,
-      name: 'Total Devices',
-      metric: devices.length,
-      total: devices.length,
-      created_at: new Date().toISOString(),
-    };
-
     const mdrManagedDevices: TablesInsert<'source_metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
       source_id: tenant.source_id,
       source_tenant_id: tenant.id,
-      name: 'MDR Managed',
+      definition_id: 'ymeoaq0z',
       metric: mdrManaged,
       total: devices.length,
       created_at: new Date().toISOString(),
@@ -46,7 +35,7 @@ export async function syncMetrics(
       site_id: tenant.site_id,
       source_id: tenant.source_id,
       source_tenant_id: tenant.id,
-      name: 'Upgradable',
+      definition_id: 'liydr8yz',
       metric: upgradeable,
       total: devices.length,
       created_at: new Date().toISOString(),
@@ -57,13 +46,13 @@ export async function syncMetrics(
       site_id: tenant.site_id,
       source_id: tenant.source_id,
       source_tenant_id: tenant.id,
-      name: 'Tamper Disabled',
+      definition_id: '7q1ycluz',
       metric: tamperDisabledCount,
       total: devices.length,
       created_at: new Date().toISOString(),
     };
 
-    await putSourceMetrics([totalDevices, mdrManagedDevices, upgradableDevices, tamperDisabled]);
+    await putSourceMetrics([mdrManagedDevices, upgradableDevices, tamperDisabled]);
 
     return {
       ok: true,

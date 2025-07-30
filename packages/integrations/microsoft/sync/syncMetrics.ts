@@ -1,20 +1,22 @@
+import { insertRows } from '@/db/orm';
 import { Tables, TablesInsert } from '@/db/schema';
 import { Debug } from '@/lib/utils';
-import { putSourceMetrics } from '@/services/source/metrics';
 import { APIResponse } from '@/types';
+import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 
 export async function syncMetrics(
   tenant: Tables<'source_tenants'>,
   _policies: Tables<'source_policies'>[],
-  _licenses: Tables<'source_license_info'>[],
   identities: Tables<'source_identities'>[]
 ): Promise<APIResponse<null>> {
+  // Identities
+  const enabledUsers = identities.filter((id) => id.enabled);
   const totalIdentities: TablesInsert<'source_metrics'> = {
     site_id: tenant.site_id,
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Enabled',
+    definition_id: 'bfyqylqz',
     metric: identities.filter((id) => id.enabled).length,
     total: identities.length,
     created_at: new Date().toISOString(),
@@ -30,7 +32,7 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Inactive',
+    definition_id: 'ug1r6e4z',
     metric: identities.filter((id) => isInactive(id.last_activity || 0)).length,
     total: identities.length,
     created_at: new Date().toISOString(),
@@ -41,9 +43,9 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Secured',
-    metric: identities.filter((id) => id.mfa_enforced && id.enabled).length,
-    total: identities.filter((id) => id.enabled).length,
+    definition_id: 'h2da764z',
+    metric: enabledUsers.filter((id) => id.mfa_enforced).length,
+    total: enabledUsers.length,
     created_at: new Date().toISOString(),
   };
 
@@ -52,14 +54,18 @@ export async function syncMetrics(
     tenant_id: tenant.tenant_id,
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
-    name: 'Guests',
-    metric: identities.filter((id) => id.type === 'guest').length,
-    total: identities.length,
+    definition_id: 'mgclj74z',
+    metric: enabledUsers.filter(
+      (id) => (id.metadata as MicrosoftIdentityMetadata).valid_mfa_license
+    ).length,
+    total: enabledUsers.length,
     created_at: new Date().toISOString(),
   };
 
   try {
-    await putSourceMetrics([totalIdentities, licensedIdentities, mfaEnabled, guestUsers]);
+    await insertRows('source_metrics', {
+      rows: [totalIdentities, licensedIdentities, mfaEnabled, guestUsers],
+    });
 
     return {
       ok: true,

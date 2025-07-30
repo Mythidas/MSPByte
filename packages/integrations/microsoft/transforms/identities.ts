@@ -25,7 +25,7 @@ export async function transformIdentities(
   activity: Record<string, string>,
   mapping: Tables<'source_tenants'>
 ): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
-  const timer = new Timer('TransformIdentities', true);
+  const timer = new Timer('TransformIdentities', false);
 
   try {
     const identities = await pMap(
