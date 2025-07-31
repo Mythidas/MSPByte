@@ -3,12 +3,15 @@
 import { pascalCase } from '@/lib/utils';
 import { Tables } from '@/db/schema';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
-import DataTable from '@/components/shared/table/DataTable';
+import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableHeader } from '@/components/shared/table/DataTableHeader';
 import { getSourceDevicesViewPaginated } from '@/services/devices';
 import { textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
+import enableSophosTamperProtection from '@/integrations/sophos/services/actions/enableSophosTamperProtection';
+import { useUser } from '@/lib/providers/UserContext';
+import { useRef } from 'react';
 
 type Props = {
   sourceId: string;
@@ -18,6 +21,9 @@ type Props = {
 };
 
 export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
+  const { user } = useUser();
+  const tableRef = useRef<DataTableRef>(null);
+
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const devices = await getSourceDevicesViewPaginated(
       {
@@ -44,6 +50,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
     <DataTable
       fetcher={fetcher}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
+      ref={tableRef}
       columns={
         [
           textColumn({
@@ -129,6 +136,14 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
           },
         ] as DataTableColumnDef<Tables<'source_devices_view'>>[]
       }
+      actions={[
+        {
+          label: 'Enable Tamper Protection',
+          action: async (data) => {
+            enableSophosTamperProtection(data, user?.id || undefined);
+          },
+        },
+      ]}
       filters={{
         Tenant: {
           site_name: {

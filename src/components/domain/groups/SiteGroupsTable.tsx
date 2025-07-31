@@ -57,7 +57,7 @@ export default function SiteGroupsTable() {
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={() => (
+      lead={() => (
         <div className="flex gap-2">
           <DeleteDialog />
           <CreateSiteGroupDialog onSuccess={createCallback} />

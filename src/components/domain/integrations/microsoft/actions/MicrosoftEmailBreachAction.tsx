@@ -41,7 +41,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import microsoft365EmailBreachResponse from '@/services/actions';
+import microsoft365EmailBreachResponse from '@/integrations/microsoft/services/actions/email';
 import { getRow, insertRows } from '@/db/orm';
 import { useUser } from '@/lib/providers/UserContext';
 import { useAsync } from '@/hooks/common/useAsync';
@@ -512,6 +512,7 @@ const ProcessingStep = ({
               tenant_id: identities[0].tenant_id,
               user_id: user?.id || null,
               site_id: identities[0].site_id,
+              source_id: identities[0].source_id,
               type: 'security',
               action: 'email_breach_response',
               status: 'in_progress',

@@ -23,7 +23,7 @@ import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SearchBar from '@/components/shared/SearchBar';
 import { Button } from '@/components/ui/button';
-import { Download, Grid2X2, RotateCw } from 'lucide-react';
+import { Clapperboard, Download, Grid2X2, RotateCw } from 'lucide-react';
 import { forwardRef, Suspense, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import {
   DropdownMenu,
@@ -33,24 +33,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { DataTableColumnDef, DataTableFetcher, DataTableFilter } from '@/types/data-table';
+import {
+  DataTableAction,
+  DataTableColumnDef,
+  DataTableFetcher,
+  DataTableFilter,
+} from '@/types/data-table';
 import { Spinner } from '@/components/shared/Spinner';
 import { DataTableFilters } from '@/components/shared/table/DataTableFilters';
 import { DataTableFooter } from '@/components/shared/table/DataTableFooter';
 import * as XLSX from 'xlsx';
 import { ClassValue } from 'clsx';
 import { DataResponse, FilterValue } from '@/types/db';
+import { toast } from 'sonner';
 
 interface DataTableProps<TData> {
   columns: DataTableColumnDef<TData>[];
   data?: TData[];
   initialVisibility?: VisibilityState;
   initialSorting?: SortingState;
-  action?: (data: TData[]) => React.ReactNode;
+  lead?: (data: TData[]) => React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
   fetcher?: (args: DataTableFetcher) => Promise<DataResponse<TData>>;
   filters?: Record<string, Record<string, DataTableFilter>>;
+  actions?: DataTableAction<TData>[];
 }
 
 export type DataTableRef = {
@@ -63,11 +70,12 @@ function DataTableInner<TData>(
     data: initialData,
     initialVisibility = {},
     initialSorting = [],
-    action,
+    lead,
     isLoading,
     height = 'max-h-[60vh]',
     fetcher,
     filters,
+    actions,
   }: DataTableProps<TData>,
   ref: React.Ref<DataTableRef>
 ) {
@@ -83,6 +91,7 @@ function DataTableInner<TData>(
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(initialVisibility);
   const [globalSearch, setGlobalSearch] = useState('');
+  const [rowSelection, setRowSelection] = useState({});
   const simpleSearchFields = columns
     .filter((col) => (col as DataTableColumnDef<TData>).simpleSearch)
     .map((col) => col.accessorKey)
@@ -130,13 +139,39 @@ function DataTableInner<TData>(
     refetch: load,
   }));
 
+  const checkboxColumn: DataTableColumnDef<TData> = {
+    id: '__select',
+    header: ({ table }) => (
+      <div className="flex items-center gap-1">
+        <input
+          type="checkbox"
+          checked={table.getIsAllPageRowsSelected()}
+          onChange={table.getToggleAllPageRowsSelectedHandler()}
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <input
+        type="checkbox"
+        checked={row.getIsSelected()}
+        onChange={row.getToggleSelectedHandler()}
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    size: 48,
+  };
+
+  const dynamicColumns = actions && actions.length > 0 ? [checkboxColumn, ...columns] : columns;
   const table = useReactTable({
     data,
-    columns: columns as DataTableColumnDef<TData>[],
+    columns: dynamicColumns as DataTableColumnDef<TData>[],
     manualPagination: fetcher !== undefined,
     pageCount: fetcher ? Math.ceil(rowCount / pageSize) : undefined,
     manualSorting: fetcher !== undefined,
     manualFiltering: fetcher !== undefined,
+    enableRowSelection: actions && actions.length > 0,
+    onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: !fetcher
@@ -160,6 +195,7 @@ function DataTableInner<TData>(
       sorting,
       columnFilters,
       columnVisibility,
+      rowSelection,
       pagination: { pageIndex, pageSize },
       globalFilter: globalSearch,
     },
@@ -180,7 +216,7 @@ function DataTableInner<TData>(
       return (
         <TableRow>
           <TableCell
-            colSpan={columns.length}
+            colSpan={dynamicColumns.length}
             className="h-32 text-center justify-center items-center border-0"
           >
             <div className="flex flex-col w-full justify-center items-center gap-3">
@@ -195,7 +231,7 @@ function DataTableInner<TData>(
     if (!table.getRowModel().rows?.length) {
       return (
         <TableRow>
-          <TableCell colSpan={columns.length} className="h-32 text-center border-0">
+          <TableCell colSpan={dynamicColumns.length} className="h-32 text-center border-0">
             <div className="flex flex-col items-center gap-2">
               <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
                 <Grid2X2 className="w-5 h-5 text-muted-foreground" />
@@ -378,6 +414,35 @@ function DataTableInner<TData>(
                 clientSide={!fetcher}
               />
             </Suspense>
+            {actions && actions.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">
+                    <Clapperboard className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {actions.map((action) => (
+                    <DropdownMenuItem
+                      key={action.label}
+                      onClick={() => {
+                        const selectedRows = table
+                          .getSelectedRowModel()
+                          .rows.map((r) => r.original);
+                        if (!selectedRows.length) {
+                          toast.warning('No rows selected');
+                        } else {
+                          action.action(selectedRows);
+                          toast.info('Action started. Please view activity feed for updates.');
+                        }
+                      }}
+                    >
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             {table.getAllColumns().filter((column) => column.getCanHide()).length > 0 && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -450,7 +515,7 @@ function DataTableInner<TData>(
           </div>
         </div>
 
-        {action && <div className="flex-shrink-0">{action(data)}</div>}
+        {lead && <div className="flex-shrink-0">{lead(data)}</div>}
       </div>
 
       {/* Modern Table Card */}

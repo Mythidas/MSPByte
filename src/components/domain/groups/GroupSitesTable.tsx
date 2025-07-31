@@ -60,7 +60,7 @@ export default function GroupSiteTable({ group }: Props) {
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={() => (
+      lead={() => (
         <div className="flex gap-2">
           <DeleteDialog />
           <CreateGroupMembershipDialog group={group} onSuccess={createCallback} />

@@ -43,7 +43,7 @@ export default function UsersTable() {
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={() => (
+      lead={() => (
         <CreateUserDialog
           roles={roles}
           tenantId={context?.tenant_id || ''}

@@ -33,3 +33,8 @@ export type DataTableFilter = {
   serverKey?: string; // e.g. "metadata->>'valid_license'"
   dependsOn?: string[];
 };
+
+export type DataTableAction<TData> = {
+  label: string;
+  action: (selected: TData[]) => Promise<void>;
+};

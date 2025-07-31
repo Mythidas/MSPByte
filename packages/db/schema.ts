@@ -22,6 +22,7 @@ export type Database = {
           is_admin: boolean
           metadata: Json | null
           site_id: string | null
+          source_id: string
           status: string
           summary: string
           tenant_id: string
@@ -37,6 +38,7 @@ export type Database = {
           is_admin?: boolean
           metadata?: Json | null
           site_id?: string | null
+          source_id: string
           status: string
           summary: string
           tenant_id: string
@@ -52,6 +54,7 @@ export type Database = {
           is_admin?: boolean
           metadata?: Json | null
           site_id?: string | null
+          source_id?: string
           status?: string
           summary?: string
           tenant_id?: string
@@ -102,6 +105,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_tenants_view"
             referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "activity_feeds_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "activity_feeds_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "activity_feeds_tenant_id_fkey"
@@ -1441,6 +1458,8 @@ export type Database = {
           site_id: string | null
           site_name: string | null
           site_slug: string | null
+          source_id: string | null
+          source_name: string | null
           status: string | null
           summary: string | null
           tenant_id: string | null
@@ -1492,6 +1511,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_tenants_view"
             referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "activity_feeds_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "activity_feeds_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "activity_feeds_tenant_id_fkey"

@@ -66,7 +66,7 @@ export default function SitesTable({ parentId }: Props) {
     <DataTable
       fetcher={fetcher}
       ref={tableRef}
-      action={(data) => (
+      lead={(data) => (
         <div className="flex gap-2">
           <DeleteDialog />
           {parentId && (

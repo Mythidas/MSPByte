@@ -77,6 +77,7 @@ export default function ActivityFeedTable() {
     <DataTable
       fetcher={fetcher}
       ref={ref}
+      initialVisibility={{ updated_at: false }}
       columns={
         [
           textColumn({
@@ -94,15 +95,6 @@ export default function ActivityFeedTable() {
             ),
           }),
           textColumn({
-            key: 'action',
-            label: 'Action',
-            enableHiding: true,
-            simpleSearch: true,
-            cell: ({ row }) => (
-              <div className="font-medium">{prettyText(row.original.action!)}</div>
-            ),
-          }),
-          textColumn({
             key: 'status',
             label: 'Status',
             enableHiding: false,
@@ -110,6 +102,19 @@ export default function ActivityFeedTable() {
               <Badge variant={getStatusBadgeVariant(row.original.status!)}>
                 {prettyText(row.original.status!)}
               </Badge>
+            ),
+          }),
+          textColumn({
+            key: 'action',
+            label: 'Action',
+            enableHiding: true,
+            simpleSearch: true,
+            cell: ({ row }) => (
+              <ActivityFeedDrawer activity={row.original}>
+                <Button className="p-0 hover:text-primary" variant="none">
+                  {prettyText(row.original.action!)}
+                </Button>
+              </ActivityFeedDrawer>
             ),
           }),
           textColumn({
@@ -122,6 +127,15 @@ export default function ActivityFeedTable() {
                   {row.original.summary}
                 </Button>
               </ActivityFeedDrawer>
+            ),
+          }),
+          textColumn({
+            key: 'source_id',
+            label: 'Source',
+            enableHiding: true,
+            simpleSearch: true,
+            cell: ({ row }) => (
+              <div className="text-sm text-muted-foreground">{row.original.source_name}</div>
             ),
           }),
           textColumn({
@@ -209,6 +223,15 @@ export default function ActivityFeedTable() {
               { label: 'Error', value: 'error' },
             ],
           },
+          source_id: {
+            label: 'Source',
+            type: 'select',
+            placeholder: 'Select source',
+            options: [
+              { label: 'Microsoft 365', value: 'microsoft-365' },
+              { label: 'Sophos Partner', value: 'sophos-partner' },
+            ],
+          },
           trigger_source: {
             label: 'Trigger Source',
             type: 'select',
@@ -218,6 +241,18 @@ export default function ActivityFeedTable() {
               { label: 'Scheduled', value: 'scheduled' },
               { label: 'System', value: 'system' },
             ],
+          },
+        },
+        Audit: {
+          created_at: {
+            label: 'Created At',
+            type: 'date',
+            operations: ['lte', 'gte'],
+          },
+          updated_at: {
+            label: 'Updated At',
+            type: 'date',
+            operations: ['lte', 'gte'],
           },
         },
       }}
