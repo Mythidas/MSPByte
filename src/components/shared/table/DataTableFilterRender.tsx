@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select';
 import { DataTableFilter } from '@/types/data-table';
 import { FilterValue, FilterOperations, FilterPrimitiveTuple, FilterPrimitive } from '@/types/db';
+import { subDays } from 'date-fns';
 import { Equal, X, ChevronRight, ChevronLeft, List, Search } from 'lucide-react';
 import { Dispatch, SetStateAction } from 'react';
 
@@ -279,6 +280,9 @@ export function DataTableFilterDate({
   op,
   setPendingFilters,
 }: Props<string | [string, string] | undefined> & { op: FilterOperations }) {
+  if (typeof value === 'number') {
+    value = subDays(new Date(), value).toISOString();
+  }
   const val =
     op === 'bt' ? ((value || ['', '']) as [string, string]) : (value as string | undefined);
 
@@ -303,7 +307,6 @@ export function DataTableFilterDate({
     }));
   };
 
-  console.log(value);
   return op === 'bt' ? (
     <div className="space-y-2">
       <div className="flex items-center gap-2">

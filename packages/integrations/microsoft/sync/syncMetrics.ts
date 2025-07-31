@@ -32,7 +32,7 @@ export async function syncMetrics(
     source_id: tenant.source_id,
     source_tenant_id: tenant.id,
     definition_id: 'ug1r6e4z',
-    metric: identities.filter((id) => isInactive(id.last_activity || 0)).length,
+    metric: identities.filter((id) => isInactive(id.last_activity_at || 0)).length,
     total: identities.length,
     created_at: new Date().toISOString(),
   };

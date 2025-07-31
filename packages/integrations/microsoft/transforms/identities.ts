@@ -72,7 +72,7 @@ export async function transformIdentities(
                 : 'conditional_access'
               : 'none',
             mfa_methods: transformedMethods,
-            last_activity: lastActivity,
+            last_activity_at: lastActivity,
             license_skus: licenseSkus,
             role_ids: userContext.data.roles.map((role) => role.displayName),
             group_ids: userContext.data.groups.map((group) => group.displayName),

@@ -18,7 +18,7 @@ export default function DatePicker({
   placeholder = 'Pick a date',
   className,
 }: Props) {
-  const date = value ? parse(value, 'yyyy-MM-dd', new Date()) : undefined;
+  const date = value ? parse(value.substring(0, 10), 'yyyy-MM-dd', new Date()) : undefined;
 
   return (
     <Popover>

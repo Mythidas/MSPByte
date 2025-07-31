@@ -425,7 +425,7 @@ export type Database = {
           external_id: string
           group_ids: string[]
           id: string
-          last_activity: string | null
+          last_activity_at: string | null
           license_skus: string[]
           metadata: Json | null
           mfa_enforced: boolean
@@ -448,7 +448,7 @@ export type Database = {
           external_id: string
           group_ids?: string[]
           id?: string
-          last_activity?: string | null
+          last_activity_at?: string | null
           license_skus: string[]
           metadata?: Json | null
           mfa_enforced: boolean
@@ -471,7 +471,7 @@ export type Database = {
           external_id?: string
           group_ids?: string[]
           id?: string
-          last_activity?: string | null
+          last_activity_at?: string | null
           license_skus?: string[]
           metadata?: Json | null
           mfa_enforced?: boolean
@@ -1778,7 +1778,7 @@ export type Database = {
           external_id: string | null
           group_ids: string[] | null
           id: string | null
-          last_activity: string | null
+          last_activity_at: string | null
           license_skus: string[] | null
           metadata: Json | null
           mfa_enforced: boolean | null

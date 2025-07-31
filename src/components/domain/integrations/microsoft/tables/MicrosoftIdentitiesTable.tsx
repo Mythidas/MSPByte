@@ -219,7 +219,7 @@ export default function MicrosoftIdentitiesTable({
             label: 'Groups',
           }),
           dateColumn({
-            key: 'last_activity',
+            key: 'last_activity_at',
             label: 'Last Activity',
           }),
           booleanColumn({
@@ -285,7 +285,7 @@ export default function MicrosoftIdentitiesTable({
               return { label: lic.name, value: lic.sku };
             }),
           },
-          last_activity: {
+          last_activity_at: {
             label: 'Last Activity',
             type: 'date',
             operations: ['gte', 'lte'],

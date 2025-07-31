@@ -92,8 +92,8 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
             <div className="space-y-2">
               <Label className="text-sm font-medium text-muted-foreground">Last Active</Label>
               <Display>
-                {identity.last_activity
-                  ? new Date(identity.last_activity).toLocaleString()
+                {identity.last_activity_at
+                  ? new Date(identity.last_activity_at).toLocaleString()
                   : 'Unavailable'}
               </Display>
             </div>

@@ -4,6 +4,7 @@ import { createClient } from 'packages/db/server';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import { Database, Tables, TablesInsert, TablesUpdate } from 'packages/db/schema';
 import { DataResponse, Filters, PaginationOptions } from '@/types/db';
+import { subDays } from 'date-fns';
 
 type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
 type RowType<T extends TableOrView> = T extends keyof Database['public']['Tables']
@@ -160,13 +161,17 @@ export function paginatedFilters<T extends TableOrView>(
         value = `%${value}%`;
 
       case 'gte':
-      case 'is':
       case 'lte':
+      case 'gt':
+      case 'lt':
+        if (key.includes('_at')) {
+          value = subDays(new Date(), value as number).toISOString();
+        }
+
+      case 'is':
       case 'not':
       case 'eq':
       case 'neq':
-      case 'gt':
-      case 'lt':
       case 'in':
         if (Array.isArray(value)) {
           value = `(${value.join(',')})`;
