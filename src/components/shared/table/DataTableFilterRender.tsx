@@ -203,7 +203,8 @@ export function DataTableFilterNumber({
   op,
   setPendingFilters,
 }: Props<number | [number, number] | undefined> & { op: FilterOperations }) {
-  const val = (value || [0, 0]) as FilterPrimitiveTuple;
+  const val =
+    op === 'bt' ? ((value || ['', '']) as [number, number]) : (value as number | undefined);
 
   const update = (op: FilterOperations, v: FilterPrimitive | FilterPrimitiveTuple): void => {
     if (op === 'bt') {
@@ -240,15 +241,15 @@ export function DataTableFilterNumber({
         <Input
           type="number"
           placeholder="Min"
-          value={val[0] as number}
-          onChange={(e) => update('bt', [Number(e.target.value), val[1] as number])}
+          value={(val as [number, number])[0]}
+          onChange={(e) => update('bt', [Number(e.target.value), (val as [number, number])[1]])}
           className="flex-1"
         />
         <Input
           type="number"
           placeholder="Max"
-          value={val[1] as number}
-          onChange={(e) => update('bt', [val[0] as number, Number(e.target.value)])}
+          value={(val as [number, number])[1]}
+          onChange={(e) => update('bt', [(val as [number, number])[0], Number(e.target.value)])}
           className="flex-1"
         />
       </div>
@@ -277,8 +278,9 @@ export function DataTableFilterDate({
   value,
   op,
   setPendingFilters,
-}: Props<string | string[] | undefined> & { op: FilterOperations }) {
-  const val = (value || ['', '']) as FilterPrimitiveTuple;
+}: Props<string | [string, string] | undefined> & { op: FilterOperations }) {
+  const val =
+    op === 'bt' ? ((value || ['', '']) as [string, string]) : (value as string | undefined);
 
   const update = (op: FilterOperations, v: FilterPrimitive | FilterPrimitiveTuple): void => {
     if (op === 'bt') {
@@ -301,6 +303,7 @@ export function DataTableFilterDate({
     }));
   };
 
+  console.log(value);
   return op === 'bt' ? (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
@@ -313,14 +316,14 @@ export function DataTableFilterDate({
       </div>
       <div className="flex gap-2">
         <DatePicker
-          value={val[0] as string}
-          onChange={(date) => update('bt', [date, val[1] as string])}
+          value={val?.[0] as string}
+          onChange={(date) => update('bt', [date, val?.[1] as string])}
           placeholder="Start date"
           className="flex-1"
         />
         <DatePicker
-          value={val[1] as string}
-          onChange={(date) => update('bt', [val[0] as string, date])}
+          value={val?.[1] as string}
+          onChange={(date) => update('bt', [val?.[0] as string, date])}
           placeholder="End date"
           className="flex-1"
         />
@@ -334,7 +337,7 @@ export function DataTableFilterDate({
         FilterOperations={meta.operations}
       />
       <DatePicker
-        value={value as string}
+        value={value as string | undefined}
         onChange={(date) => update(op, date)}
         placeholder={meta.placeholder}
         className="flex-1 rounded-l-none"

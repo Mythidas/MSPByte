@@ -25,6 +25,7 @@ export default function MicrosoftDashboardTab({ ...props }: Props) {
       <MicrosoftTenantMetricsCard {...props} />
       <div className="grid grid-cols-3 gap-2">
         <SourceMetricCard
+          title="Total Identities"
           route={`${route}/identities`}
           {...props}
           unit="identities"

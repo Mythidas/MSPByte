@@ -13,6 +13,7 @@ import Link from 'next/link';
 
 type Props = {
   route: string;
+  title: string;
   sourceId: string;
   color?: string;
   site?: Tables<'sites'>;
@@ -20,7 +21,16 @@ type Props = {
   group?: Tables<'site_groups'>;
   unit?: string;
 };
-export function SourceMetricCard({ route, sourceId, site, parent, group, unit, color }: Props) {
+export function SourceMetricCard({
+  route,
+  title,
+  sourceId,
+  site,
+  parent,
+  group,
+  unit,
+  color,
+}: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (group) {
@@ -82,7 +92,7 @@ export function SourceMetricCard({ route, sourceId, site, parent, group, unit, c
             <CardTitle>
               <Link href={route} className="flex gap-2 items-center hover:text-primary">
                 <Users2 className={cn('h-5 w-5', color)} />
-                Total Identities
+                {title}
               </Link>
             </CardTitle>
             <CardAction>{metrics[0].total}</CardAction>

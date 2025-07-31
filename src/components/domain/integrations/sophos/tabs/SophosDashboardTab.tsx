@@ -22,6 +22,7 @@ export default function SophosDashboardTab({ ...props }: Props) {
   return (
     <div className="grid grid-cols-3 gap-2">
       <SourceMetricCard
+        title="Total Devices"
         route={`${route}/devices`}
         {...props}
         unit="devices"
