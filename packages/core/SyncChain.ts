@@ -33,16 +33,6 @@ export default class SyncChain<TInput = null> {
     };
   }
 
-  _step<TInput, TOutput>(name: string, fn: SyncStep<TInput, TOutput>) {
-    this.steps.push(async (ctx, input) => {
-      const timer = new Timer(name, true);
-      const result = await fn(ctx, input);
-      timer.summary();
-      return result;
-    });
-    return this;
-  }
-
   step<TOutput>(name: string, fn: SyncStep<TInput, TOutput>): SyncChain<TOutput> {
     this.steps.push(async (ctx, input) => {
       const timer = new Timer(name, true);

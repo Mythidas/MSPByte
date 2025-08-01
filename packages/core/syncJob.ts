@@ -2,6 +2,7 @@
 
 import { Tables } from '@/db/schema';
 import { createClient } from '@/db/server';
+import { syncAutoTask } from '@/integrations/autotask/sync';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
 import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
@@ -11,10 +12,16 @@ export async function syncJob(job: Tables<'source_sync_jobs'>) {
   try {
     switch (job.source_id) {
       case 'sophos-partner': {
-        return await syncSophosPartner(job);
+        await syncSophosPartner(job);
+        break;
       }
       case 'microsoft-365': {
-        return await syncMicrosoft365(job);
+        await syncMicrosoft365(job);
+        break;
+      }
+      case 'autotask': {
+        await syncAutoTask(job);
+        break;
       }
       default:
         throw new Error('No sync defined for this source');

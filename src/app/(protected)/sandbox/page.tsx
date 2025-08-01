@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 
 export default function Page() {
   const [selectedTenant, setSelectedTenant] = useState('');
+  const [selectedSource, setSelectedSource] = useState('');
 
   const { content: TenantSearchBar } = useLazyLoad({
     fetcher: async () => {
@@ -58,6 +59,48 @@ export default function Page() {
     skeleton: () => <Loader />,
   });
 
+  const { content: SourceSearchBar } = useLazyLoad({
+    fetcher: async () => {
+      const integrations = await getRows('source_integrations');
+      if (integrations.ok) return integrations.data.rows;
+    },
+    render: (data) => {
+      if (!data) return <strong>Failed to find integrations</strong>;
+
+      const handleClick = async () => {
+        const integration = data.find((t) => t.id === selectedSource)!;
+
+        const job = await insertRows('source_sync_jobs', {
+          rows: [
+            {
+              tenant_id: integration.tenant_id,
+              source_id: integration.source_id!,
+              status: 'running',
+            },
+          ],
+        });
+        if (job.ok) {
+          testSyncJob(job.data[0].id);
+          toast.info('Job started');
+        }
+      };
+
+      return (
+        <Label className="grid gap-2">
+          Source
+          <SearchBox
+            options={data.map((integration) => {
+              return { label: `${integration.source_id}`, value: integration.id! };
+            })}
+            onSelect={setSelectedSource}
+          />
+          <Button onClick={handleClick}>Test Sync</Button>
+        </Label>
+      );
+    },
+    skeleton: () => <Loader />,
+  });
+
   return (
     <div className="grid gap-2">
       <h1 className="text-2xl font-bold">Sandbox</h1>
@@ -66,7 +109,12 @@ export default function Page() {
           <TabsTrigger value="sync_job">Job Testing</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="sync_job">{TenantSearchBar}</TabsContent>
+        <TabsContent value="sync_job">
+          <div className="grid grid-cols-2 gap-2">
+            {TenantSearchBar}
+            {SourceSearchBar}
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

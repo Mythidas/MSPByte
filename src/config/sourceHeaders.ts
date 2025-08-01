@@ -8,6 +8,11 @@ export const SOURCE_HEADERS: Record<string, { label: string; description: string
     'microsoft-365': {
       label: 'Microsoft 365',
       description: 'Integration dashboard and metrics',
+      icon: 'ShieldUser',
+    },
+    autotask: {
+      label: 'AutoTask',
+      description: 'Integration dashboard and metrics',
       icon: 'Database',
     },
   };

@@ -12,13 +12,19 @@ import { transformIdentities } from '@/integrations/microsoft/transforms/identit
 import { transformLicenses } from '@/integrations/microsoft/transforms/licenses';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
 import { Debug } from '@/lib/utils';
-import { deleteSourceIdentities, getSourceIdentities } from '@/services/identities';
-import { deleteSourcePolicies, getSourcePolicies } from '@/services/policies';
+import { getSourceIdentities } from '@/services/identities';
+import { getSourcePolicies } from '@/services/policies';
 import { getSourceTenant, updateSourceTenant } from '@/services/source/tenants';
 
 export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
+  if (!job.site_id) {
+    throw 'Microsft 365 does not support global sync jobs';
+  }
+
   const tenantResult = await getSourceTenant(job.source_id, job.site_id);
-  if (!tenantResult.ok) return;
+  if (!tenantResult.ok) {
+    throw 'No source tenant found';
+  }
   const { data: tenant } = tenantResult;
 
   const sync = new SyncChain({

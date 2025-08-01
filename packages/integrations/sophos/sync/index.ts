@@ -13,6 +13,15 @@ import { getSourceIntegration } from '@/services/integrations';
 import { getSourceTenant } from '@/services/source/tenants';
 
 export async function syncSophosPartner(job: Tables<'source_sync_jobs'>) {
+  if (!job.site_id) {
+    return Debug.error({
+      module: 'SophosPartner',
+      context: 'syncSophosPartner',
+      message: 'Sophos Partner does not support global sync jobs',
+      time: new Date(),
+    });
+  }
+
   const tenantResult = await getSourceTenant(job.source_id, job.site_id);
   const integrationResult = await getSourceIntegration(undefined, job.source_id);
   if (!tenantResult.ok || !integrationResult.ok) return;

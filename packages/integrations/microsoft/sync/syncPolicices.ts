@@ -23,7 +23,7 @@ export async function syncPolicies(
     const toUpdate: TablesUpdate<'source_policies'>[] = [];
 
     for (const policy of caPolicies) {
-      const existing = existingPolicies.data.rows.find((i) => i.external_id === policy.id);
+      const existing = existingPolicies.data.rows.find((i) => i.external_id === policy.external_id);
 
       if (existing) toUpdate.push({ ...existing, ...policy, sync_id });
       else toInsert.push({ ...policy, sync_id });

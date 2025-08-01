@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   ShieldOff,
   ShieldPlus,
+  ShieldUser,
   SquareUser,
   Users,
   Zap,
@@ -25,6 +26,7 @@ const iconMap = {
   SquareUser: SquareUser,
   ShieldPlus: ShieldPlus,
   ShieldOff: ShieldOff,
+  ShieldUser: ShieldUser,
 } as const;
 
 const iconNames = Object.entries(iconMap).map((icon) => icon[0]);

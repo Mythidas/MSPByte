@@ -85,4 +85,10 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
       ),
     },
   },
+  autotask: {
+    dashboard: {
+      label: 'Dashboard',
+      content: () => null,
+    },
+  },
 };

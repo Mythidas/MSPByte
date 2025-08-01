@@ -536,6 +536,7 @@ export type Database = {
           config: Json
           created_at: string | null
           id: string
+          last_sync_at: string | null
           source_id: string | null
           tenant_id: string
           token: string | null
@@ -546,6 +547,7 @@ export type Database = {
           config: Json
           created_at?: string | null
           id?: string
+          last_sync_at?: string | null
           source_id?: string | null
           tenant_id: string
           token?: string | null
@@ -556,6 +558,7 @@ export type Database = {
           config?: Json
           created_at?: string | null
           id?: string
+          last_sync_at?: string | null
           source_id?: string | null
           tenant_id?: string
           token?: string | null
@@ -1050,6 +1053,80 @@ export type Database = {
           },
         ]
       }
+      source_sites: {
+        Row: {
+          created_at: string | null
+          enabled: boolean
+          external_created_at: string | null
+          external_id: string
+          external_updated_at: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          source_id: string
+          sync_id: string | null
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled: boolean
+          external_created_at?: string | null
+          external_id: string
+          external_updated_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          source_id: string
+          sync_id?: string | null
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean
+          external_created_at?: string | null
+          external_id?: string
+          external_updated_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          source_id?: string
+          sync_id?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_sites_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_sites_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sites_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "source_sync_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       source_sync_jobs: {
         Row: {
           completed_at: string | null
@@ -1059,9 +1136,9 @@ export type Database = {
           id: string
           last_attempt_at: string | null
           retry_count: number
-          site_id: string
+          site_id: string | null
           source_id: string
-          source_tenant_id: string
+          source_tenant_id: string | null
           started_at: string | null
           state: Json
           status: string
@@ -1076,9 +1153,9 @@ export type Database = {
           id?: string
           last_attempt_at?: string | null
           retry_count?: number
-          site_id: string
+          site_id?: string | null
           source_id: string
-          source_tenant_id: string
+          source_tenant_id?: string | null
           started_at?: string | null
           state?: Json
           status?: string
@@ -1093,9 +1170,9 @@ export type Database = {
           id?: string
           last_attempt_at?: string | null
           retry_count?: number
-          site_id?: string
+          site_id?: string | null
           source_id?: string
-          source_tenant_id?: string
+          source_tenant_id?: string | null
           started_at?: string | null
           state?: Json
           status?: string
@@ -2184,9 +2261,9 @@ export type Database = {
           id: string
           last_attempt_at: string | null
           retry_count: number
-          site_id: string
+          site_id: string | null
           source_id: string
-          source_tenant_id: string
+          source_tenant_id: string | null
           started_at: string | null
           state: Json
           status: string
