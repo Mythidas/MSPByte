@@ -390,6 +390,13 @@ export type Database = {
             foreignKeyName: "source_devices_source_tenant_id_fkey"
             columns: ["source_tenant_id"]
             isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "source_devices_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
             referencedRelation: "source_tenants"
             referencedColumns: ["id"]
           },
@@ -500,6 +507,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sources"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_identities_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
           },
           {
             foreignKeyName: "source_identities_source_tenant_id_fkey"
@@ -750,6 +764,13 @@ export type Database = {
             foreignKeyName: "source_licenses_source_tenant_id_fkey"
             columns: ["source_tenant_id"]
             isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
             referencedRelation: "source_tenants"
             referencedColumns: ["id"]
           },
@@ -894,6 +915,13 @@ export type Database = {
             foreignKeyName: "source_metrics_source_tenant_id_fkey"
             columns: ["source_tenant_id"]
             isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "source_metrics_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
             referencedRelation: "source_tenants"
             referencedColumns: ["id"]
           },
@@ -1022,6 +1050,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sources"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_policies_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
           },
           {
             foreignKeyName: "source_policies_source_tenant_id_fkey"
@@ -1240,6 +1275,13 @@ export type Database = {
             foreignKeyName: "source_sync_jobs_source_tenant_id_fkey"
             columns: ["source_tenant_id"]
             isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "source_sync_jobs_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
             referencedRelation: "source_tenants"
             referencedColumns: ["id"]
           },
@@ -1269,6 +1311,7 @@ export type Database = {
           metadata: Json | null
           site_id: string
           source_id: string
+          sync_id: string | null
           tenant_id: string
           updated_at: string
         }
@@ -1281,6 +1324,7 @@ export type Database = {
           metadata?: Json | null
           site_id: string
           source_id?: string
+          sync_id?: string | null
           tenant_id: string
           updated_at?: string
         }
@@ -1293,6 +1337,7 @@ export type Database = {
           metadata?: Json | null
           site_id?: string
           source_id?: string
+          sync_id?: string | null
           tenant_id?: string
           updated_at?: string
         }
@@ -1345,6 +1390,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "source_tenants_view"
             referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_tenants_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "source_sync_jobs"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2006,6 +2058,13 @@ export type Database = {
             foreignKeyName: "source_licenses_source_tenant_id_fkey"
             columns: ["source_tenant_id"]
             isOneToOne: false
+            referencedRelation: "source_sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "source_licenses_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
             referencedRelation: "source_tenants"
             referencedColumns: ["id"]
           },
@@ -2142,6 +2201,96 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "tenants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      source_sites_view: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          external_created_at: string | null
+          external_id: string | null
+          external_updated_at: string | null
+          id: string | null
+          metadata: Json | null
+          name: string | null
+          site_id: string | null
+          source_id: string | null
+          source_tenant_id: string | null
+          sync_id: string | null
+          tenant_id: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "source_sites_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["source_id"]
+          },
+          {
+            foreignKeyName: "source_sites_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sites_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "source_sync_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_sites_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_devices_view"
+            referencedColumns: ["site_id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "source_tenants_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "source_tenants_view"
+            referencedColumns: ["parent_id"]
           },
         ]
       }
