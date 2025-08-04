@@ -1,12 +1,9 @@
 'use client';
 
 import Display from '@/components/shared/Display';
-import { LazyTabContent } from '@/components/shared/LazyTabsContent';
 import Loader from '@/components/shared/Loader';
-import RouteTabsTrigger from '@/components/shared/secure/RouteTabsTrigger';
 import { Card, CardAction, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsList } from '@/components/ui/tabs';
 import { getRows } from '@/db/orm';
 import { Tables } from '@/db/schema';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
@@ -19,17 +16,9 @@ type Props = {
 
 export default function AutotaskEnabled({ source }: Props) {
   return (
-    <Tabs defaultValue="overview">
-      <TabsList>
-        <RouteTabsTrigger value="overview">Overview</RouteTabsTrigger>
-      </TabsList>
-
-      <LazyTabContent value="overview">
-        <div className="grid grid-cols-3 gap-2">
-          <AutoTaskSitesCard sourceId={source.id} />
-        </div>
-      </LazyTabContent>
-    </Tabs>
+    <div className="grid grid-cols-3 gap-2">
+      <AutoTaskSitesCard sourceId={source.id} />
+    </div>
   );
 }
 

@@ -1,14 +1,12 @@
 import { Tables } from '@/db/schema';
 import { createClient } from '@/db/server';
-import { Debug, Timer } from '@/lib/utils';
+import { Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 type SyncContext = {
   state: Record<string, string | null>;
-  sync_id: string;
   tenant_id: string;
-  source_id: string;
-  site_id: string;
+  job: Tables<'source_sync_jobs'>;
   getState: (name: string) => string | undefined;
   setState: (name: string, value: string | undefined) => void;
 };
@@ -74,7 +72,7 @@ export default class SyncChain<TInput = null> {
         state: this.ctx.state,
         status: finished ? 'completed' : 'pending',
       })
-      .eq('id', this.ctx.sync_id);
+      .eq('id', this.ctx.job.id);
 
     if (finished) {
       await supabase
@@ -97,7 +95,9 @@ export default class SyncChain<TInput = null> {
       .update({
         last_attempt_at: new Date().toISOString(),
         status: 'failed',
+        error: error,
+        retry_count: this.ctx.job.retry_count + 1,
       })
-      .eq('id', this.ctx.sync_id);
+      .eq('id', this.ctx.job.id);
   }
 }

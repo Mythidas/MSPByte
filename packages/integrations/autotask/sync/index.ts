@@ -20,9 +20,7 @@ export async function syncAutoTask(job: Tables<'source_sync_jobs'>) {
   const sync = new SyncChain({
     tenant_id: '',
     state: job.state as Record<string, string | null>,
-    sync_id: job.id,
-    source_id: job.source_id,
-    site_id: '',
+    job,
     getState: () => '',
     setState: () => {},
   })

@@ -37,9 +37,7 @@ export async function syncSophosPartner(job: Tables<'source_sync_jobs'>) {
   const sync = new SyncChain({
     tenant_id: tenant.id,
     state: job.state as Record<string, string | null>,
-    sync_id: job.id,
-    source_id: job.source_id,
-    site_id: job.site_id,
+    job: job,
     getState: () => '',
     setState: () => {},
   })
@@ -84,11 +82,11 @@ export async function syncSophosPartner(job: Tables<'source_sync_jobs'>) {
       };
     })
     .final(async (ctx) => {
-      const devices = await getSourceDevices(ctx.source_id, [ctx.site_id]);
+      const devices = await getSourceDevices(ctx.job.source_id, [ctx.job.site_id!]);
       if (!devices.ok) return;
 
       const devicesToDelete = devices.data.rows
-        .filter((d) => d.sync_id && d.sync_id !== ctx.sync_id)
+        .filter((d) => d.sync_id && d.sync_id !== ctx.job.id)
         .map((d) => d.id);
 
       await deleteSourceDevices(devicesToDelete);

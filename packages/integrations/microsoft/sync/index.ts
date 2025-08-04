@@ -30,9 +30,7 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
   const sync = new SyncChain({
     tenant_id: tenant.id,
     state: job.state as Record<string, string | null>,
-    sync_id: job.id,
-    source_id: job.source_id,
-    site_id: job.site_id,
+    job,
     getState: () => '',
     setState: () => {},
   })
@@ -90,9 +88,9 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
         ctx,
         { transformedUsers, transformedPolicies, transformedLicenses, securityDefaults, caPolicies }
       ) => {
-        const policies = await syncPolicies(tenant, transformedPolicies, ctx.sync_id);
-        const licenses = await syncLicenses(tenant, transformedLicenses, ctx.sync_id);
-        const identities = await syncIdentities(tenant, transformedUsers, ctx.sync_id);
+        const policies = await syncPolicies(tenant, transformedPolicies, ctx.job.id);
+        const licenses = await syncLicenses(tenant, transformedLicenses, ctx.job.id);
+        const identities = await syncIdentities(tenant, transformedUsers, ctx.job.id);
         if (!policies.ok || !identities.ok || !licenses.ok) {
           return Debug.error({
             module: 'Microsoft365',
@@ -125,12 +123,12 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
     })
     .final(async (ctx) => {
       const [policies, identities, licenses] = await Promise.all([
-        await getSourcePolicies(ctx.source_id, [ctx.site_id]),
-        await getSourceIdentities(ctx.source_id, [ctx.site_id]),
+        await getSourcePolicies(ctx.job.source_id, [ctx.job.site_id!]),
+        await getSourceIdentities(ctx.job.source_id, [ctx.job.site_id!]),
         await getRows('source_licenses', {
           filters: [
-            ['source_id', 'eq', ctx.source_id],
-            ['site_id', 'eq', ctx.site_id],
+            ['source_id', 'eq', ctx.job.source_id],
+            ['site_id', 'eq', ctx.job.site_id],
           ],
         }),
       ]);
@@ -138,13 +136,13 @@ export async function syncMicrosoft365(job: Tables<'source_sync_jobs'>) {
       if (!policies.ok || !identities.ok || !licenses.ok) return;
 
       const identitiesToDelete = identities.data.rows
-        .filter((id) => id.sync_id && id.sync_id !== ctx.sync_id)
+        .filter((id) => id.sync_id && id.sync_id !== ctx.job.id)
         .map((id) => id.id);
       const policicesToDelete = policies.data.rows
-        .filter((pol) => pol.sync_id && pol.sync_id !== ctx.sync_id)
+        .filter((pol) => pol.sync_id && pol.sync_id !== ctx.job.id)
         .map((pol) => pol.id);
       const licensesToDelete = licenses.data.rows
-        .filter((lic) => lic.sync_id && lic.sync_id !== ctx.sync_id)
+        .filter((lic) => lic.sync_id && lic.sync_id !== ctx.job.id)
         .map((lic) => lic.id);
 
       await deleteRows('source_identities', {
