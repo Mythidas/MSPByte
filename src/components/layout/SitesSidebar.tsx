@@ -15,7 +15,7 @@ import { SOURCE_TABS } from '@/config/sourceTabs';
 import { Tables } from '@/db/schema';
 import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
-import { BarChart3, Building2, Puzzle, Settings, LucideProps, Logs } from 'lucide-react';
+import { BarChart3, Building2, Puzzle, Settings, LucideProps, Logs, Box } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
@@ -23,7 +23,7 @@ import { ForwardRefExoticComponent, RefAttributes } from 'react';
 type NavItem = {
   label: string;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
-  href: string;
+  href: (sourceId: string) => string;
   children?: NavItem[];
   parentOnly?: boolean;
   siteOnly?: boolean;
@@ -33,29 +33,34 @@ const navItems: NavItem[] = [
   {
     label: 'Dashboard',
     icon: BarChart3,
-    href: ``,
+    href: () => '/',
+  },
+  {
+    label: 'Source',
+    icon: Box,
+    href: (sourceId) => `/${sourceId}`,
   },
   {
     label: 'Sites',
     icon: Building2,
-    href: `/children`,
+    href: () => '/children',
     parentOnly: true,
   },
   {
     label: 'Grouped',
     icon: Puzzle,
-    href: `/grouped`,
+    href: (sourceId) => `/${sourceId}/grouped`,
     parentOnly: true,
   },
   {
     label: 'Activity',
     icon: Logs,
-    href: `/activity`,
+    href: () => '/activity',
   },
   {
     label: 'Settings',
     icon: Settings,
-    href: `/settings`,
+    href: () => '/settings',
   },
 ];
 
@@ -73,7 +78,9 @@ export default function SitesSidebar({ site, children }: Props) {
   const isGroupedPage = segments.includes('grouped');
   const isOnChildren = segments.includes('children');
   const isOnActivity = segments.includes('activity');
-  const isDashboard = !isOnSettings && !isGroupedPage && !isOnChildren && !isOnActivity;
+  const isDashboard = pathname === `/sites/${site.slug}`;
+  const isSource =
+    !isOnSettings && !isGroupedPage && !isOnChildren && !isOnActivity && !isDashboard;
 
   return (
     <div className="flex size-full">
@@ -85,28 +92,26 @@ export default function SitesSidebar({ site, children }: Props) {
                 if (item.parentOnly && !site.is_parent) return null;
                 if (item.siteOnly && site.is_parent) return null;
 
-                const baseHref =
-                  source && (item.href === '' || item.href === '/grouped')
-                    ? `/sites/${site.slug}/${source.source_id}`
-                    : `/sites/${site.slug}`;
+                const baseHref = `/sites/${site.slug}${item.href(source?.source_id || '')}`;
 
                 const isActive =
-                  (item.href === '' && isDashboard) ||
-                  (item.href === '/settings' && isOnSettings) ||
-                  (item.href === '/grouped' && isGroupedPage) ||
-                  (item.href === '/children' && isOnChildren) ||
-                  (item.href === '/activity' && isOnActivity);
+                  (item.label === 'Dashboard' && isDashboard) ||
+                  (item.label === 'Settings' && isOnSettings) ||
+                  (item.label === 'Grouped' && isGroupedPage) ||
+                  (item.label === 'Children' && isOnChildren) ||
+                  (item.label === 'Activity' && isOnActivity) ||
+                  (item.label === 'Source' && isSource);
                 const Icon = item.icon;
                 const tabs =
-                  (isDashboard || isGroupedPage) && isActive && source
+                  (isSource || isGroupedPage) && isActive && source
                     ? SOURCE_TABS[source.source_id!]
                     : {};
 
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.label}>
                     <SidebarMenuButton asChild>
                       <Link
-                        href={`${baseHref}${item.href}`}
+                        href={baseHref}
                         className={cn(isActive && 'bg-primary text-primary-foreground')}
                       >
                         <Icon className="h-4 w-4" />
