@@ -52,6 +52,7 @@ interface DataTableProps<TData> {
   data?: TData[];
   initialVisibility?: VisibilityState;
   initialSorting?: SortingState;
+  initialPagination?: { pageIndex: number; pageSize: number };
   lead?: (data: TData[]) => React.ReactNode;
   isLoading?: boolean;
   height?: ClassValue;
@@ -70,6 +71,7 @@ function DataTableInner<TData>(
     data: initialData,
     initialVisibility = {},
     initialSorting = [],
+    initialPagination,
     lead,
     isLoading,
     height = 'max-h-[60vh]',
@@ -81,8 +83,8 @@ function DataTableInner<TData>(
 ) {
   const [data, setData] = useState<TData[]>(initialData ?? []);
   const [rowCount, setRowCount] = useState(initialData?.length ?? 0);
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageIndex, setPageIndex] = useState(initialPagination?.pageIndex || 0);
+  const [pageSize, setPageSize] = useState(initialPagination?.pageSize || 25);
   const [isFetching, setIsFetching] = useState(false);
   const [filtersReady, setFiltersReady] = useState(!fetcher);
   const initialLoad = useRef(true);

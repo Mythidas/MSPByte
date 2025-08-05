@@ -8,6 +8,7 @@ import {
   tablesSelectPaginated,
   tablesSelectSingleGeneric,
   tablesUpdateGeneric,
+  tablesUpdatesGeneric,
   tablesUpsertGeneric,
 } from '@/db/generics';
 
@@ -18,6 +19,7 @@ export const tables = {
   applyFilters: paginatedFilters,
   insert: tablesInsertGeneric,
   update: tablesUpdateGeneric,
+  updates: tablesUpdatesGeneric,
   upsert: tablesUpsertGeneric,
   delete: tablesDeleteGeneric,
   count: tablesCountGeneric,

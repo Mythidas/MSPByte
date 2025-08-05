@@ -56,6 +56,10 @@ export type UpdateRowConfig<T extends Table> = {
   row: TablesUpdate<T>;
 };
 
+export type UpdateRowsConfig<T extends Table> = {
+  rows: [id: keyof Tables<T>, update: [val: string, data: TablesUpdate<T>]][];
+};
+
 export type UpsertRowConfig<T extends Table> = {
   rows: TablesUpdate<T>[];
   filters?: Array<RowFilter<T> | undefined>;

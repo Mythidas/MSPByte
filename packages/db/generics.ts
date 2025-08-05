@@ -281,6 +281,45 @@ export async function tablesUpdateGeneric<T extends keyof Database['public']['Ta
   }
 }
 
+export async function tablesUpdatesGeneric<T extends keyof Database['public']['Tables']>(
+  table: T,
+  rows: [id: keyof Tables<T>, update: [val: string, data: TablesUpdate<T>]][]
+): Promise<APIResponse<Tables<T>[]>> {
+  try {
+    const supabase = await createClient();
+
+    const updates = await Promise.all(
+      rows.map(async ([id, update]) => {
+        const [value, row] = update;
+        const { data, error } = await supabase
+          .from(table)
+          .update(row as any)
+          .eq(id as string, value as any)
+          .select()
+          .single();
+
+        if (error)
+          throw new Error(
+            `Failed to update row with ${id as string} ${value as string}: ${error.message}`
+          );
+        return data as Tables<T>;
+      })
+    );
+
+    return {
+      ok: true,
+      data: updates,
+    };
+  } catch (err) {
+    return Debug.error({
+      module: 'supabase',
+      context: `update_${String(table)}`,
+      message: String(err),
+      time: new Date(),
+    });
+  }
+}
+
 export async function tablesUpsertGeneric<T extends keyof Database['public']['Tables']>(
   table: T,
   rows: TablesUpdate<T>[],

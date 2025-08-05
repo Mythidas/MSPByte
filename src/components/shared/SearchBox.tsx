@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import SearchBar from '@/components/shared/SearchBar';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type Option = { label: string; value: string };
 
@@ -39,8 +40,12 @@ export default function SearchBox({
   }, [defaultValue]);
 
   useEffect(() => {
-    setSearch('');
     if (inputRef.current) inputRef.current.value = '';
+    if (!isOpen) {
+      setTimeout(() => {
+        setSearch('');
+      }, 500);
+    }
   }, [isOpen]);
 
   const handleSelect = (option: Option) => {
@@ -60,7 +65,7 @@ export default function SearchBox({
   const filteredOptions = options.filter((o) => o.label.toLowerCase().includes(search));
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
       <PopoverTrigger asChild>
         <div className="w-full">
           <SearchBar
@@ -80,28 +85,30 @@ export default function SearchBox({
       </PopoverTrigger>
       <PopoverContent
         align="start" // ensures alignment to the left
-        className="w-[--radix-popover-trigger-width] p-0 max-h-[30vh] overflow-y-auto"
+        className="flex relative w-[--radix-popover-trigger-width] p-0 z-[1000]"
         style={{ width: 'var(--radix-popover-trigger-width)' }}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        {loading ? (
-          <Button disabled variant="ghost" className="w-full">
-            Loading...
-          </Button>
-        ) : (
-          <div className="grid w-full">
-            {filteredOptions.map((opt) => (
-              <Button
-                key={opt.value}
-                variant="ghost"
-                className="w-full justify-start"
-                onClick={() => handleSelect(opt)}
-              >
-                {opt.label}
-              </Button>
-            ))}
-          </div>
-        )}
+        <ScrollArea className="w-full max-h-96" type="always">
+          {loading ? (
+            <Button disabled variant="ghost" className="w-full">
+              Loading...
+            </Button>
+          ) : (
+            <div className="grid w-full">
+              {filteredOptions.map((opt) => (
+                <Button
+                  key={opt.value}
+                  variant="ghost"
+                  className="w-full justify-start"
+                  onClick={() => handleSelect(opt)}
+                >
+                  {opt.label}
+                </Button>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
       </PopoverContent>
     </Popover>
   );

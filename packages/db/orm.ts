@@ -9,6 +9,7 @@ import {
   Table,
   TableOrView,
   UpdateRowConfig,
+  UpdateRowsConfig,
   UpsertRowConfig,
 } from '@/types/db';
 
@@ -54,6 +55,15 @@ export async function getRows<T extends TableOrView>(table: T, config?: GetRowCo
           query = query.filter(col as string, op, val);
         }
       }
+
+      if (config && config.sorting) {
+        for (const sort of config.sorting) {
+          if (!sort) continue;
+
+          let [col, dir] = sort;
+          query = query.order(col as string, { ascending: dir === 'asc' });
+        }
+      }
     },
     config?.pagination
   );
@@ -82,6 +92,10 @@ export async function insertRows<T extends Table>(table: T, config: InsertRowCon
 
 export async function updateRow<T extends Table>(table: T, config: UpdateRowConfig<T>) {
   return tables.update(table, config.id, config.row);
+}
+
+export async function updateRows<T extends Table>(table: T, config: UpdateRowsConfig<T>) {
+  return tables.updates(table, config.rows);
 }
 
 export async function upsertRows<T extends Table>(table: T, config: UpsertRowConfig<T>) {

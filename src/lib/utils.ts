@@ -16,6 +16,15 @@ export function prettyText(input: string): string {
     .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize first letter of each word
 }
 
+export function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFKD') // optional: normalize accented characters
+    .replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/[^a-z0-9]/g, '') // remove non-alphanumeric
+    .trim();
+}
+
 export function generateUUID(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
