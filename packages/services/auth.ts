@@ -2,7 +2,6 @@
 
 import { createAdminClient, createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
-import { updateUser } from '@/services/users';
 import { APIResponse } from '@/types';
 import { redirect } from 'next/navigation';
 
@@ -18,10 +17,6 @@ export async function login(email: string, password: string): Promise<APIRespons
     if (error) {
       throw error.message;
     }
-
-    await updateUser(data.user.id, {
-      last_login: new Date().toISOString(),
-    });
 
     return {
       ok: true,

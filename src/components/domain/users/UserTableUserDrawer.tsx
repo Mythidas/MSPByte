@@ -123,7 +123,7 @@ export default function UserTableUserDrawer({ user, roles, children, disabled, o
             <div className="flex flex-col gap-6 p-4 flex-1 overflow-y-auto">
               <Label className="flex flex-col gap-2 items-start">
                 <strong>Last Login</strong>
-                {user.last_login ? new Date(user.last_login).toDateString() : 'Never'}
+                {user.last_login_at ? new Date(user.last_login_at).toDateString() : 'Never'}
               </Label>
 
               <FormField

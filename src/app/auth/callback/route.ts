@@ -1,6 +1,5 @@
 import { createClient } from 'packages/db/server';
 import { NextResponse } from 'next/server';
-import { updateUser } from '@/services/users';
 
 export async function GET(request: Request) {
   // The `/auth/callback` route is required for the server-side auth flow implemented
@@ -13,13 +12,7 @@ export async function GET(request: Request) {
 
   if (code) {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (!error) {
-      await updateUser(data.user.id, {
-        last_login: new Date().toISOString(),
-      });
-    }
+    await supabase.auth.exchangeCodeForSession(code);
   }
 
   if (redirectTo) {

@@ -32,6 +32,7 @@ export async function getEndpoints(
     }
 
     const data = await response.json();
+
     return {
       ok: true,
       data: [...data.items],

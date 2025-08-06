@@ -1530,7 +1530,7 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
-          last_login: string | null
+          last_login_at: string | null
           metadata: Json
           name: string
           role_id: string
@@ -1542,7 +1542,7 @@ export type Database = {
           created_at?: string | null
           email: string
           id?: string
-          last_login?: string | null
+          last_login_at?: string | null
           metadata?: Json
           name: string
           role_id: string
@@ -1554,7 +1554,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
-          last_login?: string | null
+          last_login_at?: string | null
           metadata?: Json
           name?: string
           role_id?: string
@@ -2372,7 +2372,7 @@ export type Database = {
         Row: {
           email: string | null
           id: string | null
-          last_login: string | null
+          last_login_at: string | null
           metadata: Json | null
           name: string | null
           rights: Json | null

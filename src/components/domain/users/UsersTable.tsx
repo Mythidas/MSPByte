@@ -75,8 +75,8 @@ export default function UsersTable() {
             simpleSearch: true,
           }),
           dateColumn({
-            key: 'last_login',
-            label: 'Last Activity',
+            key: 'last_login_at',
+            label: 'Last Login',
           }),
           textColumn({
             key: 'role_id',
