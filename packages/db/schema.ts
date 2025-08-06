@@ -551,7 +551,8 @@ export type Database = {
           created_at: string | null
           id: string
           last_sync_at: string | null
-          source_id: string | null
+          source_id: string
+          sync_interval: number
           tenant_id: string
           token: string | null
           token_expiration: string | null
@@ -562,7 +563,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_sync_at?: string | null
-          source_id?: string | null
+          source_id: string
+          sync_interval?: number
           tenant_id: string
           token?: string | null
           token_expiration?: string | null
@@ -573,7 +575,8 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_sync_at?: string | null
-          source_id?: string | null
+          source_id?: string
+          sync_interval?: number
           tenant_id?: string
           token?: string | null
           token_expiration?: string | null

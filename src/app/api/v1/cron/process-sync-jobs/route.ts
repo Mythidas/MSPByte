@@ -36,7 +36,7 @@ export async function GET() {
       }
 
       Debug.info({
-        module: '/api/v1/sync-jobs',
+        module: '/api/v1/process-sync-jobs',
         context: 'GET',
         message: `Starting ${jobs.length} sync jobs`,
         time: new Date(),

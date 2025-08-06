@@ -2,8 +2,12 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
-      "path": "/api/v1/sync-jobs",
+      "path": "/api/v1/cron/process-sync-jobs",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/v1/cron/process-sync-jobs",
+      "schedule": "0 * * * *"
     }
   ]
 }

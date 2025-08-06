@@ -1,6 +1,5 @@
 'use client';
 
-import Display from '@/components/shared/Display';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import {
