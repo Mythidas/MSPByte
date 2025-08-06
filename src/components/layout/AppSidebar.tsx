@@ -9,6 +9,7 @@ import {
   Logs,
   LucideProps,
   ScanText,
+  Settings,
   ShieldUser,
 } from 'lucide-react';
 import {
@@ -81,6 +82,11 @@ const adminItems: Item[] = [
     icon: Cable,
   },
   {
+    title: 'Settings',
+    url: () => '/settings',
+    icon: Settings,
+  },
+  {
     title: 'Users',
     url: () => '/users',
     icon: ShieldUser,
@@ -98,9 +104,17 @@ export default function AppSidebar() {
     const isActions = pathname.includes('/actions');
     const isActivity = pathname.includes('/activity');
     const isGroups = pathname.includes('/groups');
+    const isSettings = pathname.includes('/settings');
     const isHome = pathname === '/';
     const isSource =
-      !isSites && !isIntegrations && !isUsers && !isActions && !isActivity && !isGroups && !isHome;
+      !isSites &&
+      !isIntegrations &&
+      !isUsers &&
+      !isActions &&
+      !isSettings &&
+      !isActivity &&
+      !isGroups &&
+      !isHome;
 
     const isActive =
       (item.title === 'Home' && isHome) ||
@@ -110,6 +124,7 @@ export default function AppSidebar() {
       (item.title === 'Actions' && isActions) ||
       (item.title === 'Activity' && isActivity) ||
       (item.title === 'Groups' && isGroups) ||
+      (item.title === 'Settings' && isSettings) ||
       (item.title === 'Source' && isSource);
     const endRoute = item.url(source?.source_id || '');
     const tabs =

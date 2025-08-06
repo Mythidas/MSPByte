@@ -5,15 +5,18 @@ import UserContext from '@/lib/providers/UserContext';
 import { Tables } from '@/db/schema';
 import { getCurrentUserView, getUserOptions } from '@/services/users';
 import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
+import { getRow } from '@/db/orm';
 
 const fetchUserContext = async () => {
   const user = await getCurrentUserView();
 
   if (user.ok) {
     const options = await getUserOptions(user.data.id!);
+    const tenant = await getRow('tenants');
     return {
       user: user.data,
       options: options.ok ? options.data : undefined,
+      tenant: tenant.ok ? tenant.data : undefined,
     };
   }
 
@@ -26,6 +29,7 @@ const fetchUserContext = async () => {
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Tables<'user_view'>>();
   const [options, setOptions] = useState<Tables<'user_options'>>();
+  const [tenant, setTenant] = useState<Tables<'tenants'>>();
   const [isLoading, setIsLoading] = useState(true);
 
   const hasAccess = (module: RoleAccessModule, access: RoleAccessLevel) => {
@@ -41,9 +45,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const load = () => {
     setIsLoading(true);
     fetchUserContext()
-      .then(({ user, options }) => {
+      .then(({ user, options, tenant }) => {
         setUser(user);
         setOptions(options);
+        setTenant(tenant);
       })
       .finally(() => setIsLoading(false));
   };
@@ -53,7 +58,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, options, isLoading, hasAccess, refresh: load }}>
+    <UserContext.Provider value={{ user, options, tenant, isLoading, hasAccess, refresh: load }}>
       {children}
     </UserContext.Provider>
   );

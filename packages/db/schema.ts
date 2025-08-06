@@ -663,7 +663,7 @@ export type Database = {
           source_id: string
           source_tenant_id: string
           status: string
-          sync_id: string
+          sync_id: string | null
           tenant_id: string
           units: number
           updated_at: string
@@ -680,7 +680,7 @@ export type Database = {
           source_id: string
           source_tenant_id: string
           status: string
-          sync_id: string
+          sync_id?: string | null
           tenant_id: string
           units: number
           updated_at?: string
@@ -697,7 +697,7 @@ export type Database = {
           source_id?: string
           source_tenant_id?: string
           status?: string
-          sync_id?: string
+          sync_id?: string | null
           tenant_id?: string
           units?: number
           updated_at?: string
@@ -1453,18 +1453,21 @@ export type Database = {
           created_at: string | null
           id: string
           name: string
+          pr_create_sites: string
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
           id?: string
           name: string
+          pr_create_sites?: string
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
           id?: string
           name?: string
+          pr_create_sites?: string
           updated_at?: string | null
         }
         Relationships: []
