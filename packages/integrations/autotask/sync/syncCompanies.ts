@@ -20,7 +20,7 @@ export async function syncCompanies(
 
     for (const company of companies) {
       const existing = existingCompanies.data.rows.find(
-        (i) => i.external_id === company.external_updated_at
+        (i) => i.external_id === company.external_id
       );
 
       if (existing) toUpdate.push({ ...existing, ...company, sync_id: job.id });
