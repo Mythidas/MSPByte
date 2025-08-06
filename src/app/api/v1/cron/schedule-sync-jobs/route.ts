@@ -36,7 +36,7 @@ export async function GET() {
       return NextResponse.json({ status: 'finished' });
     } catch (err) {
       Debug.error({
-        module: '/api/v1/schedule-sync-jobs',
+        module: '/api/v1/cron/schedule-sync-jobs',
         context: 'GET',
         message: String(err),
         time: new Date(),
