@@ -16,9 +16,9 @@ import { useUser } from '@/lib/providers/UserContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AuthButton() {
-  const { user, isLoading } = useUser();
+  const { user } = useUser();
 
-  if (isLoading) {
+  if (!user) {
     return <Skeleton className="w-32 h-4" />;
   }
 

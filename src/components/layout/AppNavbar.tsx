@@ -82,7 +82,10 @@ export default function AppNavbar({ integrations, children }: Props) {
     }
 
     const newPath = `/${updatedSegments.join('/')}`;
-    router.replace(newPath);
+
+    if (newPath !== pathname) {
+      router.replace(newPath);
+    }
   };
 
   return (
