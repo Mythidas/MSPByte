@@ -21,7 +21,7 @@ export async function GET() {
             new Date(integration.last_sync_at).getTime() +
               1000 * 60 * 60 * integration.sync_interval
           );
-          const shouldSync = target.getTime() >= now.getTime();
+          const shouldSync = target.getTime() <= now.getTime();
 
           if (shouldSync) {
             syncable.push(integration);
