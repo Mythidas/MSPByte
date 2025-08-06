@@ -23,7 +23,7 @@ export async function GET() {
       }
       if (!jobs?.length) {
         Debug.warn({
-          module: '/api/v1/sync-jobs',
+          module: '/api/v1/process-sync-jobs',
           context: 'GET',
           message: 'No jobs found',
           time: new Date(),
@@ -46,7 +46,7 @@ export async function GET() {
       return NextResponse.json({ status: 'finished' });
     } catch (err) {
       Debug.error({
-        module: '/api/v1/sync-jobs',
+        module: '/api/v1/process-sync-jobs',
         context: 'GET',
         message: String(err),
         time: new Date(),
