@@ -10,7 +10,10 @@ import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 
 export async function syncAutoTask(job: Tables<'source_sync_jobs'>) {
   const integration = await getRow('source_integrations', {
-    filters: [['source_id', 'eq', job.source_id]],
+    filters: [
+      ['source_id', 'eq', job.source_id],
+      ['tenant_id', 'eq', job.tenant_id],
+    ],
   });
   if (!integration.ok) {
     throw 'Failed to find source integration';
