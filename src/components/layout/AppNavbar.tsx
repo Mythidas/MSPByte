@@ -104,11 +104,11 @@ export default function AppNavbar({ integrations, children }: Props) {
                 })}
               />
             )}
-            {hasAccess('Sources.Read') && (
+            {hasAccess('Sources.Read') && integrations.length && (
               <div className="w-80">
                 <SearchBox
                   placeholder={source?.source_name || 'Select Source'}
-                  defaultValue={source?.source_id || 'none'}
+                  defaultValue={source?.source_id || ''}
                   lead={<span>Source</span>}
                   onSelect={handleSource}
                   delay={0}

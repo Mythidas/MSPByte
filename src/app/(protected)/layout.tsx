@@ -19,20 +19,16 @@ export default async function Layout({ children }: { children: React.ReactNode }
   });
   const tenant = await getRow('tenants');
 
-  if (!user.ok || !options.ok || !tenant.ok) {
+  if (!user.ok || !options.ok || !tenant.ok || !integrations.ok) {
     return <Loader />;
   }
+
+  const integration = integrations.data.rows.find((int) => int.id === options.data.selected_source);
 
   return (
     <SidebarProvider>
       <UserProvider user={user.data} options={options.data} tenant={tenant.data}>
-        <SourceProvider
-          value={
-            integrations.ok && options.ok
-              ? integrations.data.rows.find((int) => int.source_id === options.data.selected_source)
-              : undefined
-          }
-        >
+        <SourceProvider value={integration}>
           <div className="flex size-full">
             <div className="w-48">
               <AppSidebar />

@@ -32,12 +32,21 @@ export const updateSession = async (request: NextRequest) => {
 
     const { data, error } = await supabase.auth.getUser();
     if (data.user) {
-      await supabase
+      const { data: user, error } = await supabase
         .from('users')
         .update({
           last_login_at: new Date().toISOString(),
+          status: 'active',
         })
-        .eq('id', data.user.id);
+        .eq('id', data.user.id)
+        .select()
+        .single();
+
+      if (user) {
+        if (user.status === 'disabled') {
+          return NextResponse.redirect(new URL('/auth/login', request.url));
+        }
+      }
     }
 
     // re-write landing page
