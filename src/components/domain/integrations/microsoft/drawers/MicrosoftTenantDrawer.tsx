@@ -237,8 +237,7 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
           <SubmitButton
             variant="destructive"
             onClick={() => confirmAndDelete(tenant as unknown as Tables<'source_tenants'>)}
-            module="Sources"
-            level="Full"
+            module="SourceTenants.Delete"
           >
             Delete
           </SubmitButton>

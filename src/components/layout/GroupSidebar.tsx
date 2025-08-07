@@ -15,7 +15,7 @@ import { SOURCE_TABS } from '@/config/sourceTabs';
 import { Tables } from '@/db/schema';
 import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
-import { BarChart3, Building2, Settings, LucideProps, Logs } from 'lucide-react';
+import { BarChart3, Building2, Settings, LucideProps, Logs, Box } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
@@ -27,30 +27,8 @@ type NavItem = {
   children?: NavItem[];
   parentOnly?: boolean;
   siteOnly?: boolean;
+  sourceOnly?: boolean;
 };
-
-const navItems: NavItem[] = [
-  {
-    label: 'Dashboard',
-    icon: BarChart3,
-    href: ``,
-  },
-  {
-    label: 'Sites',
-    icon: Building2,
-    href: `/children`,
-  },
-  {
-    label: 'Activity',
-    icon: Logs,
-    href: `/activity`,
-  },
-  {
-    label: 'Settings',
-    icon: Settings,
-    href: `/settings`,
-  },
-];
 
 type Props = {
   group: Tables<'site_groups'>;
@@ -62,10 +40,40 @@ export default function GroupSidebar({ group, children }: Props) {
   const segments = pathname.split('/').filter(Boolean);
   const { source } = useSource();
 
+  const navItems: NavItem[] = [
+    {
+      label: 'Dashboard',
+      icon: BarChart3,
+      href: ``,
+    },
+    {
+      label: 'Source',
+      icon: Box,
+      href: `/${source?.id}`,
+      sourceOnly: true,
+    },
+    {
+      label: 'Sites',
+      icon: Building2,
+      href: `/children`,
+    },
+    {
+      label: 'Activity',
+      icon: Logs,
+      href: `/activity`,
+    },
+    {
+      label: 'Settings',
+      icon: Settings,
+      href: `/settings`,
+    },
+  ];
+
   const isOnSettings = segments.includes('settings');
   const isOnChildren = segments.includes('children');
   const isOnActivity = segments.includes('activity');
-  const isDashboard = !isOnSettings && !isOnChildren && !isOnActivity;
+  const isDashboard = pathname === `/groups/${group.id}`;
+  const isSource = !isOnSettings && !isOnChildren && !isOnActivity && !isDashboard;
 
   return (
     <div className="flex size-full">
@@ -74,6 +82,8 @@ export default function GroupSidebar({ group, children }: Props) {
           <SidebarContent className="w-48 bg-background p-2">
             <SidebarMenu>
               {navItems.map((item) => {
+                if (item.sourceOnly && !source) return null;
+
                 const baseHref =
                   source && item.href === ''
                     ? `/groups/${group.id}/${source.source_id}`
@@ -83,6 +93,7 @@ export default function GroupSidebar({ group, children }: Props) {
                   (item.href === '' && isDashboard) ||
                   (item.href === '/settings' && isOnSettings) ||
                   (item.href === '/children' && isOnChildren) ||
+                  (item.href === '/source' && isSource) ||
                   (item.href === '/activity' && isOnActivity);
                 const Icon = item.icon;
                 const tabs =

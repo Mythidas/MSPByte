@@ -27,6 +27,7 @@ type NavItem = {
   children?: NavItem[];
   parentOnly?: boolean;
   siteOnly?: boolean;
+  sourceOnly?: boolean;
 };
 
 const navItems: NavItem[] = [
@@ -39,6 +40,7 @@ const navItems: NavItem[] = [
     label: 'Source',
     icon: Box,
     href: (sourceId) => `/${sourceId}`,
+    sourceOnly: true,
   },
   {
     label: 'Sites',
@@ -51,6 +53,7 @@ const navItems: NavItem[] = [
     icon: Puzzle,
     href: (sourceId) => `/${sourceId}/grouped`,
     parentOnly: true,
+    sourceOnly: true,
   },
   {
     label: 'Activity',
@@ -89,6 +92,7 @@ export default function SitesSidebar({ site, children }: Props) {
           <SidebarContent className="w-40 bg-background p-2">
             <SidebarMenu>
               {navItems.map((item) => {
+                if (item.sourceOnly && !source) return null;
                 if (item.parentOnly && !site.is_parent) return null;
                 if (item.siteOnly && site.is_parent) return null;
 

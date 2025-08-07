@@ -87,7 +87,7 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <SubmitButton module="Sites" level="Write">
+        <SubmitButton module="Sites.Write">
           <HousePlus className="h-4 w-4 mr-2" />
           Add Site
         </SubmitButton>

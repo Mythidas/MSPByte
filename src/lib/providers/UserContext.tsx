@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext } from 'react';
-import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
+import { RoleAccessKey } from '@/types/rights';
 import { Tables } from '@/db/schema';
 
 type UserContextValue = {
@@ -9,7 +9,8 @@ type UserContextValue = {
   options: Tables<'user_options'> | undefined;
   tenant: Tables<'tenants'> | undefined;
   isLoading: boolean;
-  hasAccess: (module: RoleAccessModule, access: RoleAccessLevel) => boolean;
+  hasAccess: (key: RoleAccessKey) => boolean;
+  hasModule: (module: string) => boolean;
   refresh: () => void;
 };
 
@@ -19,6 +20,7 @@ const UserContext = createContext<UserContextValue>({
   tenant: undefined,
   isLoading: false,
   hasAccess: () => false,
+  hasModule: () => false,
   refresh: () => {},
 });
 

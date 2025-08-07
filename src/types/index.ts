@@ -21,6 +21,7 @@ export type TabProps = {
     site?: Tables<'sites'>,
     group?: Tables<'site_groups'>
   ) => React.ReactNode;
+  modules?: string[];
 };
 
 export type Operations =

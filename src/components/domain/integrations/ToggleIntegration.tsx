@@ -131,8 +131,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
               variant="destructive"
               pending={isLoading}
               onClick={handleDisable}
-              module="Sources"
-              level="Full"
+              module="Integrations.Write"
             >
               Disable
             </SubmitButton>
@@ -170,7 +169,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
                 <DialogClose asChild>
                   <Button variant="secondary">Close</Button>
                 </DialogClose>
-                <SubmitButton type="submit" pending={isLoading} module="Sources" level="Full">
+                <SubmitButton type="submit" pending={isLoading} module="Integrations.Write">
                   Save
                 </SubmitButton>
               </DialogFooter>

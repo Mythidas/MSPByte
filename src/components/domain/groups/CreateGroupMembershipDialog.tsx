@@ -108,7 +108,7 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <SubmitButton module="Sites" level="Write">
+        <SubmitButton module="Groups.Write">
           <Plus className="h-4 w-4 mr-2" />
           Add Site to Group
         </SubmitButton>

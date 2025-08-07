@@ -34,7 +34,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
   const [sophosData, setSophosData] = useState<{ id: string; name: string }[]>([]);
   const [selectedSite, setSelectedSite] = useState<string>('');
   const [selectedSophosSite, setSelectedSophosSite] = useState<string>('');
-  const { user, hasAccess } = useUser();
+  const { user } = useUser();
 
   const { data: availableSites, refetch } = useAsync({
     initial: [],
@@ -329,7 +329,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
       <DialogTrigger asChild>
         <Button
           className="flex justify-start"
-          disabled={!hasAccess('Sources', 'Write')}
+          // disabled={!hasAccess('Sources', 'Write')}
           variant="secondary"
         >
           <Map /> New Site Mapping

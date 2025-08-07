@@ -23,7 +23,7 @@ export default function AppNavbar({ integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { source, setSource } = useSource();
-  const { user, isLoading, refresh } = useUser();
+  const { user, isLoading, hasAccess, refresh } = useUser();
 
   const {
     data: { sites },
@@ -94,28 +94,34 @@ export default function AppNavbar({ integrations, children }: Props) {
         <div className="flex w-full h-14 px-4 items-center justify-between">
           <div className="flex items-center gap-2 w-1/2" onMouseEnter={handleMouseEnter}>
             <SidebarTrigger className="flex md:hidden" />
-            <SearchBox
-              placeholder="Search sites...."
-              lead={<span>Sites</span>}
-              onSelect={handleSelect}
-              delay={0}
-              options={sites.map((s) => {
-                return { label: s.name, value: s.slug };
-              })}
-            />
-            <div className="w-80">
+            {hasAccess('Sites.Read') && (
               <SearchBox
-                placeholder={source?.source_name || 'Select Source'}
-                defaultValue={source?.source_id || undefined}
-                lead={<span>Source</span>}
-                onSelect={handleSource}
+                placeholder="Search sites...."
+                lead={<span>Sites</span>}
+                onSelect={handleSelect}
                 delay={0}
-                options={integrations.map((s) => ({
-                  label: s.source_name!,
-                  value: s.source_id!,
-                }))}
+                options={sites.map((s) => {
+                  return { label: s.name, value: s.slug };
+                })}
               />
-            </div>
+            )}
+            {hasAccess('Sources.Read') && (
+              <div className="w-80">
+                <SearchBox
+                  placeholder={source?.source_name || 'Select Source'}
+                  defaultValue={source?.source_id || 'none'}
+                  lead={<span>Source</span>}
+                  onSelect={handleSource}
+                  delay={0}
+                  options={[
+                    ...integrations.map((s) => ({
+                      label: s.source_name!,
+                      value: s.source_id!,
+                    })),
+                  ]}
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2">

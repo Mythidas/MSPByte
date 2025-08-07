@@ -7,7 +7,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -86,10 +85,10 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button className="w-full !justify-start px-2">
+        <SubmitButton className="w-full !justify-start px-2" module="Sites.Write">
           <UserPlus className="h-4 w-4 mr-2" />
           <span>Create User</span>
-        </Button>
+        </SubmitButton>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>

@@ -120,8 +120,7 @@ export default function SitesTable({ parentId }: Props) {
                 <DropdownMenuContent align="end">
                   <DropDownItem
                     variant="destructive"
-                    module="Sites"
-                    level="Full"
+                    module="Sites.Delete"
                     onClick={() => confirmAndDelete(row.original as unknown as Tables<'sites'>)}
                   >
                     Delete

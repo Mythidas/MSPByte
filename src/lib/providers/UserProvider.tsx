@@ -4,7 +4,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import UserContext from '@/lib/providers/UserContext';
 import { Tables } from '@/db/schema';
 import { getCurrentUserView, getUserOptions } from '@/services/users';
-import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
+import { RoleAccessKey } from '@/types/rights';
 import { getRow } from '@/db/orm';
 
 const fetchUserContext = async () => {
@@ -32,14 +32,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [tenant, setTenant] = useState<Tables<'tenants'>>();
   const [isLoading, setIsLoading] = useState(true);
 
-  const hasAccess = (module: RoleAccessModule, access: RoleAccessLevel) => {
+  const hasAccess = (key: RoleAccessKey) => {
     if (!user || !user.rights) return false;
+    if ((user.rights as Record<RoleAccessKey, boolean>)['Global.Admin']) return true;
 
-    const current = (user.rights as Record<RoleAccessModule, RoleAccessLevel>)[module];
-    if (!current || current === 'None') return false;
+    const current = (user.rights as Record<RoleAccessKey, boolean>)[key];
+    return current || false;
+  };
 
-    const levels = ['None', 'Read', 'Write', 'Full'] as const;
-    return levels.indexOf(current) >= levels.indexOf(access);
+  const hasModule = (module: string) => {
+    if (!user || !user.rights) return false;
+    if ((user.rights as Record<RoleAccessKey, boolean>)['Global.Admin']) return true;
+
+    for (const [key, value] of Object.entries(user.rights)) {
+      if (key.includes(module) && value) return true;
+    }
+
+    return false;
   };
 
   const load = () => {
@@ -58,7 +67,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, options, tenant, isLoading, hasAccess, refresh: load }}>
+    <UserContext.Provider
+      value={{ user, options, tenant, isLoading, hasAccess, hasModule, refresh: load }}
+    >
       {children}
     </UserContext.Provider>
   );

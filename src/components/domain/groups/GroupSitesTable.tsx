@@ -95,8 +95,7 @@ export default function GroupSiteTable({ group }: Props) {
                 <DropdownMenuContent align="end">
                   <DropDownItem
                     variant="destructive"
-                    module="Sites"
-                    level="Full"
+                    module="Groups.Delete"
                     onClick={() =>
                       confirmAndDelete(row.original as unknown as Tables<'site_group_memberships'>)
                     }

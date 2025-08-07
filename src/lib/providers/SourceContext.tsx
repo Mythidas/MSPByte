@@ -17,15 +17,12 @@ export function SourceProvider({
   children,
 }: {
   value?: Tables<'source_integrations_view'>;
-  integrations?: Tables<'source_integrations_view'>[];
   children: React.ReactNode;
 }) {
   const [source, setSource] = useState<Tables<'source_integrations_view'> | undefined>(value);
 
   useEffect(() => {
-    if (value) {
-      setSource(value);
-    }
+    setSource(value);
   }, [value]);
 
   return <SourceContext.Provider value={{ source, setSource }}>{children}</SourceContext.Provider>;

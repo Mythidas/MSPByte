@@ -78,7 +78,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <SubmitButton variant="secondary" module="Sites" level="Write">
+        <SubmitButton variant="secondary" module="Sites.Write">
           Move Site
         </SubmitButton>
       </AlertDialogTrigger>

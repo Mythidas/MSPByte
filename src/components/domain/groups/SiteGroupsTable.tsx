@@ -18,10 +18,8 @@ import Link from 'next/link';
 import { useDelete } from '@/hooks/common/useDelete';
 import { getRows } from '@/db/orm';
 import CreateSiteGroupDialog from '@/components/domain/groups/CreateSiteGroupDialog';
-import { useSource } from '@/lib/providers/SourceContext';
 
 export default function SiteGroupsTable() {
-  const { source } = useSource();
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
     table: 'site_groups',
@@ -71,10 +69,7 @@ export default function SiteGroupsTable() {
             enableHiding: false,
             simpleSearch: true,
             cell: ({ row }) => (
-              <Link
-                href={`/groups/${row.original.id}/${source?.source_id}`}
-                className="hover:text-primary"
-              >
+              <Link href={`/groups/${row.original.id}`} className="hover:text-primary">
                 {row.original.name}
               </Link>
             ),
@@ -101,8 +96,7 @@ export default function SiteGroupsTable() {
                 <DropdownMenuContent align="end">
                   <DropDownItem
                     variant="destructive"
-                    module="Sites"
-                    level="Full"
+                    module="Groups.Delete"
                     onClick={() =>
                       confirmAndDelete(row.original as unknown as Tables<'site_groups'>)
                     }

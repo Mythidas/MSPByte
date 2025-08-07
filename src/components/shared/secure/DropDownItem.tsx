@@ -4,14 +4,13 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { useUser } from '@/lib/providers/UserContext';
 import { cn } from '@/lib/utils';
-import { RoleAccessModule, RoleAccessLevel } from '@/types/rights';
+import { RoleAccessKey } from '@/types/rights';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 
 type Props = {
   children: React.ReactNode;
-  module: RoleAccessModule;
-  level: RoleAccessLevel;
+  module: RoleAccessKey;
   route?: string;
   onClick?: React.MouseEventHandler<HTMLDivElement> | undefined;
   inset?: boolean;
@@ -24,7 +23,6 @@ type Props = {
 export default function DropDownItem({
   children,
   module,
-  level,
   route,
   onClick,
   className,
@@ -43,13 +41,13 @@ export default function DropDownItem({
       <DropdownMenuItem
         className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
         inset={inset}
-        disabled={disabled || !hasAccess(module, level)}
+        disabled={disabled || !hasAccess(module)}
         onClick={(e) => {
           e.stopPropagation();
           if (onClick) {
             onClick(e);
           }
-          if (route && hasAccess(module, level)) {
+          if (route && hasAccess(module)) {
             router.push(route);
           }
         }}
@@ -72,13 +70,13 @@ export default function DropDownItem({
     <DropdownMenuItem
       className={cn(variant === 'destructive' && 'text-red-600', 'w-full', className)}
       inset={inset}
-      disabled={disabled || !hasAccess(module, level)}
+      disabled={disabled || !hasAccess(module)}
       onClick={(e) => {
         e.stopPropagation();
         if (onClick) {
           onClick(e);
         }
-        if (route && hasAccess(module, level)) {
+        if (route && hasAccess(module)) {
           router.push(route);
         }
       }}

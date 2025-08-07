@@ -31,20 +31,18 @@ import Link from 'next/link';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 import { useSource } from '@/lib/providers/SourceContext';
 import { SOURCE_TABS } from '@/config/sourceTabs';
+import { useUser } from '@/lib/providers/UserContext';
 
 type Item = {
   title: string;
   url: (sourceId: string) => string;
   icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
   children?: Child[];
+  modules?: string[];
+  sourceOnly?: boolean;
 };
 
-type Child = {
-  title: string;
-  url: string;
-  icon: ForwardRefExoticComponent<Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>>;
-  children?: Item[];
-};
+type Child = Omit<Item, 'children'>;
 
 const applicationItems: Item[] = [
   {
@@ -56,22 +54,28 @@ const applicationItems: Item[] = [
     title: 'Source',
     url: (sourceId) => `/${sourceId}`,
     icon: Box,
+    modules: ['Sources'],
+    sourceOnly: true,
   },
   {
     title: 'Sites',
     url: () => '/sites',
     icon: Building,
+    modules: ['Sites'],
   },
-  { title: 'Groups', url: () => '/groups', icon: Building2 },
+  { title: 'Groups', url: () => '/groups', icon: Building2, modules: ['Groups'] },
   {
     title: 'Actions',
     url: (sourceId) => `/actions/${sourceId}`,
     icon: ScanText,
+    modules: ['Sources', 'Actions'],
+    sourceOnly: true,
   },
   {
     title: 'Activity',
     url: () => '/activity',
     icon: Logs,
+    modules: ['Activity'],
   },
 ];
 
@@ -80,24 +84,30 @@ const adminItems: Item[] = [
     title: 'Integrations',
     url: () => '/integrations',
     icon: Cable,
+    modules: ['Integrations'],
   },
   {
     title: 'Settings',
     url: () => '/settings',
     icon: Settings,
+    modules: ['Settings'],
   },
   {
     title: 'Users',
     url: () => '/users',
     icon: ShieldUser,
+    modules: ['Users'],
   },
 ];
 
 export default function AppSidebar() {
   const pathname = usePathname(); // always safe
   const { source } = useSource();
+  const { hasModule } = useUser();
 
   const renderItem = (item: Item) => {
+    if (item.sourceOnly && !source) return null;
+
     const isSites = pathname.includes('/sites');
     const isIntegrations = pathname.includes('/integrations');
     const isUsers = pathname.includes('/users');
@@ -157,12 +167,12 @@ export default function AppSidebar() {
         {item.children && (
           <SidebarMenuSub>
             {item.children.map((child, index) => {
-              const isActive = pathname.includes(child.url);
+              const isActive = pathname.includes(child.url(source?.id || ''));
 
               return (
                 <SidebarMenuSubItem key={index}>
                   <SidebarMenuSubButton asChild isActive={isActive}>
-                    <Link href={child.url}>{child.title}</Link>
+                    <Link href={child.url(source?.id || '')}>{child.title}</Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
               );
@@ -182,13 +192,25 @@ export default function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{applicationItems.map((item) => renderItem(item))}</SidebarMenu>
+            <SidebarMenu>
+              {applicationItems.map((item) => {
+                if (item.modules && !item.modules.every((m) => hasModule(m))) return null;
+
+                return renderItem(item);
+              })}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Backend</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>{adminItems.map((item) => renderItem(item))}</SidebarMenu>
+            <SidebarMenu>
+              {adminItems.map((item) => {
+                if (item.modules && item.modules.every((m) => !hasModule(m))) return null;
+
+                return renderItem(item);
+              })}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

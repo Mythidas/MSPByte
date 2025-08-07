@@ -21,7 +21,6 @@ export default async function Layout({ children }: { children: React.ReactNode }
                 )
               : undefined
           }
-          integrations={integrations.ok ? integrations.data.rows : undefined}
         >
           <div className="flex size-full">
             <div className="w-48">
