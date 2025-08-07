@@ -23,7 +23,7 @@ export default function AppNavbar({ integrations, children }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const { source, setSource } = useSource();
-  const { user, isLoading, hasAccess, refresh } = useUser();
+  const { user, hasAccess } = useUser();
 
   const {
     data: { sites },
@@ -43,7 +43,7 @@ export default function AppNavbar({ integrations, children }: Props) {
   });
 
   useEffect(() => {
-    if (source?.id !== user?.selected_source && !isLoading) {
+    if (source?.id !== user?.selected_source) {
       const newSource = integrations.find((i) => i.id === user?.selected_source);
       if (newSource) setSource(newSource);
     }
@@ -64,7 +64,6 @@ export default function AppNavbar({ integrations, children }: Props) {
     if (!newSource || value === source?.source_id) return;
 
     if (user) await updateUserOptions(user.id!, { selected_source: newSource.id });
-    refresh();
 
     const segments = pathname.split('?')[0].split('/').filter(Boolean);
     const knownSlugs = integrations.map((s) => s.source_id);

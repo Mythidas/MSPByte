@@ -1,24 +1,35 @@
 import AppNavbar from '@/components/layout/AppNavbar';
 import AppSidebar from '@/components/layout/AppSidebar';
+import Loader from '@/components/shared/Loader';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import { getRow, getRows } from '@/db/orm';
+import { createClient } from '@/db/server';
 import { SourceProvider } from '@/lib/providers/SourceContext';
 import { UserProvider } from '@/lib/providers/UserProvider';
-import { getSourceIntegrationsView } from '@/services/integrations';
-import { getCurrentUserView } from '@/services/users';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  const integrations = await getSourceIntegrationsView();
-  const current_user = await getCurrentUserView();
+  const supabase = await createClient();
+  const currentUser = await supabase.auth.getUser();
+  const integrations = await getRows('source_integrations_view');
+  const user = await getRow('user_view', {
+    filters: [['id', 'eq', currentUser.data.user?.id]],
+  });
+  const options = await getRow('user_options', {
+    filters: [['id', 'eq', currentUser.data.user?.id]],
+  });
+  const tenant = await getRow('tenants');
+
+  if (!user.ok || !options.ok || !tenant.ok) {
+    return <Loader />;
+  }
 
   return (
     <SidebarProvider>
-      <UserProvider>
+      <UserProvider user={user.data} options={options.data} tenant={tenant.data}>
         <SourceProvider
           value={
-            integrations.ok && current_user.ok
-              ? integrations.data.rows.find(
-                  (int) => int.source_id === current_user.data.selected_source
-                )
+            integrations.ok && options.ok
+              ? integrations.data.rows.find((int) => int.source_id === options.data.selected_source)
               : undefined
           }
         >

@@ -17,7 +17,7 @@ export async function GET() {
       const nowUtc = DateTime.utc();
 
       for (const integration of integrations.data.rows) {
-        const tenantTime = integration.tenant_timezone ?? 'UTC';
+        const tenantTime = integration.tenant_timezone || 'UTC';
         const now = nowUtc.setZone(tenantTime);
 
         const lastSynced = integration.last_sync_at
@@ -25,7 +25,7 @@ export async function GET() {
           : null;
 
         if (integration.sync_interval === 'daily') {
-          // Define after-hours window: 10PM to 6AM
+          // Replace this logic with tenant defining their sync time
           const hour = now.hour;
           const inAfterHours = hour >= 22 || hour < 4;
 

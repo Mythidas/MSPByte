@@ -37,7 +37,7 @@ export default function RootLayout({
               className="fixed top-0 flex flex-col z-[999] w-screen h-screen pointer-events-none"
             ></div>
           </main>
-          <Toaster position="top-center" />
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
