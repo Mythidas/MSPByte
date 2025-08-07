@@ -13,16 +13,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { signOutAction } from '@/lib/actions/auth';
 import { useUser } from '@/lib/providers/UserContext';
-import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AuthButton() {
   const { user } = useUser();
 
   if (!user) {
-    return <Skeleton className="w-32 h-4" />;
+    return (
+      <div className="flex gap-2">
+        <Button asChild size="sm">
+          <Link href="/auth/login">Login</Link>
+        </Button>
+      </div>
+    );
   }
 
-  return user ? (
+  return (
     <div className="flex items-center gap-4">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -47,12 +52,6 @@ export default function AuthButton() {
           </form>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
-  ) : (
-    <div className="flex gap-2">
-      <Button asChild size="sm">
-        <Link href="/auth/login">Login</Link>
-      </Button>
     </div>
   );
 }
