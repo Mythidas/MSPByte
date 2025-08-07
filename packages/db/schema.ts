@@ -552,7 +552,7 @@ export type Database = {
           id: string
           last_sync_at: string | null
           source_id: string
-          sync_interval: number
+          sync_interval: string
           tenant_id: string
           token: string | null
           token_expiration: string | null
@@ -564,7 +564,7 @@ export type Database = {
           id?: string
           last_sync_at?: string | null
           source_id: string
-          sync_interval?: number
+          sync_interval?: string
           tenant_id: string
           token?: string | null
           token_expiration?: string | null
@@ -576,7 +576,7 @@ export type Database = {
           id?: string
           last_sync_at?: string | null
           source_id?: string
-          sync_interval?: number
+          sync_interval?: string
           tenant_id?: string
           token?: string | null
           token_expiration?: string | null
@@ -1457,6 +1457,7 @@ export type Database = {
           id: string
           name: string
           pr_create_sites: string
+          timezone: string
           updated_at: string | null
         }
         Insert: {
@@ -1464,6 +1465,7 @@ export type Database = {
           id?: string
           name: string
           pr_create_sites?: string
+          timezone?: string
           updated_at?: string | null
         }
         Update: {
@@ -1471,6 +1473,7 @@ export type Database = {
           id?: string
           name?: string
           pr_create_sites?: string
+          timezone?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -1959,10 +1962,15 @@ export type Database = {
           config: Json | null
           created_at: string | null
           id: string | null
+          last_sync_at: string | null
           source_id: string | null
           source_name: string | null
+          sync_interval: string | null
+          tenant_id: string | null
+          tenant_timezone: string | null
           token: string | null
           token_expiration: string | null
+          updated_at: string | null
         }
         Relationships: [
           {
@@ -1977,6 +1985,13 @@ export type Database = {
             columns: ["source_id"]
             isOneToOne: false
             referencedRelation: "sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "source_integrations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
             referencedColumns: ["id"]
           },
         ]

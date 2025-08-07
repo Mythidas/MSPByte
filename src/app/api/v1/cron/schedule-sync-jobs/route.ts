@@ -3,6 +3,7 @@ import { Debug } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 import { getRows, insertRows } from '@/db/orm';
 import { Tables } from '@/db/schema';
+import { DateTime } from 'luxon';
 
 export const runtime = 'nodejs'; // Important!
 export const dynamic = 'force-dynamic'; // Avoid caching
@@ -10,24 +11,35 @@ export const dynamic = 'force-dynamic'; // Avoid caching
 export async function GET() {
   return await setBearerToken(process.env.NEXT_SUPABASE_SERVICE_KEY!, async () => {
     try {
-      const integrations = await getRows('source_integrations');
+      const integrations = await getRows('source_integrations_view');
       if (!integrations.ok) throw integrations.error.message;
       const syncable = [];
+      const nowUtc = DateTime.utc();
 
       for (const integration of integrations.data.rows) {
-        if (integration.last_sync_at) {
-          const now = new Date();
-          const target = new Date(
-            new Date(integration.last_sync_at).getTime() +
-              1000 * 60 * 60 * integration.sync_interval
-          );
-          const shouldSync = target.getTime() <= now.getTime();
+        const tenantTime = integration.tenant_timezone ?? 'UTC';
+        const now = nowUtc.setZone(tenantTime);
 
-          if (shouldSync) {
-            syncable.push(integration);
+        const lastSynced = integration.last_sync_at
+          ? DateTime.fromISO(integration.last_sync_at).setZone(tenantTime)
+          : null;
+
+        if (integration.sync_interval === 'daily') {
+          // Define after-hours window: 10PM to 6AM
+          const hour = now.hour;
+          const inAfterHours = hour >= 22 || hour < 4;
+
+          const syncedToday = lastSynced ? lastSynced.hasSame(now, 'day') : false;
+
+          if (inAfterHours && !syncedToday) {
+            syncable.push(integration as unknown as Tables<'source_integrations'>);
           }
-        } else {
-          syncable.push(integration);
+        } else if (integration.sync_interval === 'hourly') {
+          const hoursSinceLastSync = lastSynced ? now.diff(lastSynced, 'hours').hours : Infinity;
+
+          if (hoursSinceLastSync >= 1) {
+            syncable.push(integration as unknown as Tables<'source_integrations'>);
+          }
         }
       }
 
