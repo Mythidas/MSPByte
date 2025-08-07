@@ -42,13 +42,6 @@ export default function AppNavbar({ integrations, children }: Props) {
     immediate: false,
   });
 
-  useEffect(() => {
-    if (source?.id !== user?.selected_source) {
-      const newSource = integrations.find((i) => i.id === user?.selected_source);
-      if (newSource) setSource(newSource);
-    }
-  }, [user, source]);
-
   const handleMouseEnter = () => {
     if (!hasFetched) {
       refetch();
@@ -64,6 +57,7 @@ export default function AppNavbar({ integrations, children }: Props) {
     if (!newSource || value === source?.source_id) return;
 
     if (user) await updateUserOptions(user.id!, { selected_source: newSource.id });
+    setSource(newSource);
 
     const segments = pathname.split('?')[0].split('/').filter(Boolean);
     const knownSlugs = integrations.map((s) => s.source_id);

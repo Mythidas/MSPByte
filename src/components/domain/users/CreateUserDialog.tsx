@@ -1,15 +1,25 @@
+'use client';
+
 import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
+  AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -17,8 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import FormError from '@/components/shared/FormError';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { Tables } from '@/db/schema';
 import { putUser } from '@/services/users';
@@ -28,12 +36,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
-  email: z.string().email(),
-  name: z.string(),
-  role_id: z.string({ message: 'Please select a role' }),
-  sendEmail: z.boolean(),
+  email: z.string().email('Please enter a valid email address'),
+  name: z.string().min(1, 'Name is required'),
+  role_id: z.string().min(1, 'Please select a role'),
+  sendEmail: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -47,20 +56,22 @@ type Props = {
 export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = useForm<FormData>({
+
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      name: '',
+      role_id: '',
+      sendEmail: true,
+    },
   });
 
   const onSubmit = async (data: FormData) => {
     try {
       setIsSaving(true);
       const { sendEmail, ...user } = data;
+
       const result = await putUser(
         {
           tenant_id: tenantId,
@@ -73,8 +84,10 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
         throw result.error.message;
       }
 
-      if (onCreate) onCreate(result.data);
+      onCreate?.(result.data);
       setIsOpen(false);
+      form.reset();
+      toast.success('User created successfully');
     } catch (err) {
       toast.error(`Failed to create user: ${err}`);
     } finally {
@@ -90,61 +103,91 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
           <span>Create User</span>
         </SubmitButton>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Create User</AlertDialogTitle>
-          </AlertDialogHeader>
+      <AlertDialogContent className="sm:max-w-md">
+        <Form {...form}>
+          <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Create User</AlertDialogTitle>
+              <AlertDialogDescription>Add a new user to your organization</AlertDialogDescription>
+            </AlertDialogHeader>
 
-          <Label className="flex flex-col items-start">
-            Name
-            <Input placeholder="John Doe" {...register('name')} />
-            <FormError name="name" errors={errors} />
-          </Label>
-          <Label className="flex flex-col items-start">
-            Email
-            <Input placeholder="John.Doe@email.com" {...register('email')} />
-            <FormError name="email" errors={errors} />
-          </Label>
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Separator />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="john.doe@example.com" type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Separator />
 
-          <Label className="flex flex-col items-start">
-            Role
-            <Select
-              onValueChange={(value) => setValue('role_id', value, { shouldValidate: true })}
-              defaultValue={watch('role_id')}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                {roles.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
-                    {role.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormError name="role_id" errors={errors} />
-          </Label>
+              <FormField
+                control={form.control}
+                name="role_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          <Label>
-            <Checkbox
-              {...register('sendEmail')}
-              defaultChecked={watch('sendEmail')}
-              onCheckedChange={(value) => setValue('sendEmail', value as boolean)}
-            />
-            Send invitation email?
-            <FormError name="sendEmail" errors={errors} />
-          </Label>
+              <FormField
+                control={form.control}
+                name="sendEmail"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2 space-y-0">
+                    <FormControl>
+                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                    <FormLabel className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                      Send invitation email
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          <Separator />
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isSaving}>Close</AlertDialogCancel>
-            <SubmitButton pending={isSaving}>Create</SubmitButton>
-          </AlertDialogFooter>
-        </form>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={isSaving}>Cancel</AlertDialogCancel>
+              <SubmitButton pending={isSaving}>Create User</SubmitButton>
+            </AlertDialogFooter>
+          </form>
+        </Form>
       </AlertDialogContent>
     </AlertDialog>
   );
