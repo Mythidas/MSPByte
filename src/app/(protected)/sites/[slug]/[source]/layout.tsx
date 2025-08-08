@@ -23,18 +23,19 @@ export default async function Layout({ params, children }: Props) {
     ],
   });
 
-  if (!tenant.ok) {
-    return <strong>This site does not have a Tenant mapping for this source</strong>;
-  }
-
   return (
     <div className="flex flex-col size-full gap-4">
       <IntegrationHeader
         sourceId={source as string}
         siteId={site.data.id}
         tenantId={site.data.tenant_id}
+        hide={!tenant.ok}
       />
-      {children}
+      {!tenant.ok ? (
+        <strong>This site does not have a Tenant mapping for this source</strong>
+      ) : (
+        children
+      )}
     </div>
   );
 }

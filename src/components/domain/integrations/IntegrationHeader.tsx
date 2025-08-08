@@ -13,9 +13,10 @@ type Props = {
   tenantId?: string;
   siteId?: string;
   groupId?: string;
+  hide?: boolean;
 };
 
-export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId }: Props) {
+export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId, hide }: Props) {
   const headerInfo = SOURCE_HEADERS[sourceId];
   const pathname = usePathname();
   const parent = pathname.includes('grouped');
@@ -33,14 +34,14 @@ export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId 
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {!tenantId && <Skeleton className="w-32 h-8" />}
-          {siteId && tenantId && !parent && (
+          {!hide && !tenantId && <Skeleton className="w-32 h-8" />}
+          {!hide && siteId && tenantId && !parent && (
             <SourceSyncStatus sourceId={sourceId} siteId={siteId} tenantId={tenantId} />
           )}
-          {siteId && tenantId && parent && (
+          {!hide && siteId && tenantId && parent && (
             <SyncSourceItem type="parent" sourceId={sourceId} tenantId={tenantId} />
           )}
-          {groupId && tenantId && (
+          {!hide && groupId && tenantId && (
             <SyncSourceItem
               type="group"
               sourceId={sourceId}
