@@ -32,7 +32,7 @@ export async function syncJob(job: Tables<'source_sync_jobs'>) {
       .update({
         status: 'failed',
         error: String(err),
-        retry_count: 3,
+        retry_count: job.retry_count + 1,
         last_attemt_at: new Date().toISOString(),
       })
       .eq('id', job.id);

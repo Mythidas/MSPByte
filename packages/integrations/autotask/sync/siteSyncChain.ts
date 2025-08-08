@@ -1,11 +1,8 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { getRow, updateRow } from '@/db/orm';
+import { getRow } from '@/db/orm';
 import { Tables } from '@/db/schema';
-import { getActiveCompanies } from '@/integrations/autotask/services/companies';
-import { syncCompanies } from '@/integrations/autotask/sync/syncCompanies';
-import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 
 export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
@@ -26,30 +23,8 @@ export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
     job,
     getState: () => '',
     setState: () => {},
-  })
-    .step('Fetch External', async () => {
-      const results = await getActiveCompanies(config);
-      return results;
-    })
-    .step('Transforms', async (_ctx, companies) => {
-      const transformedCompanies = transformCompanies(companies, job);
-      return {
-        ok: true,
-        data: transformedCompanies,
-      };
-    })
-    .step('Sync Data', async (_ctx, companies) => {
-      const results = await syncCompanies(job, companies);
-      return results;
-    })
-    .final(async () => {
-      await updateRow('source_integrations', {
-        id: integration.data.id,
-        row: {
-          last_sync_at: new Date().toISOString(),
-        },
-      });
-    });
+  });
 
+  config.client_id;
   return await sync.run();
 }
