@@ -10,7 +10,6 @@ export default function Page() {
   const tabInfo = SOURCE_TABS[sourceId];
   const site = useSite();
   const tab = Object.entries(tabInfo)[0][0];
-
   if (!site) return <strong>No site found. Please Refresh.</strong>;
 
   return tabInfo[tab].content(sourceId, undefined, site);

@@ -40,9 +40,6 @@ export default function IntegrationHeader({ sourceId, siteId, tenantId, groupId 
           {siteId && tenantId && parent && (
             <SyncSourceItem type="parent" sourceId={sourceId} tenantId={tenantId} />
           )}
-          {!siteId && tenantId && !parent && !groupId && (
-            <SyncSourceItem type="global" sourceId={sourceId} tenantId={tenantId} />
-          )}
           {groupId && tenantId && (
             <SyncSourceItem
               type="group"

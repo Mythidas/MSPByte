@@ -10,7 +10,6 @@ import { useSource } from '@/lib/providers/SourceContext';
 import { Tables } from '@/db/schema';
 import { updateUserOptions } from '@/services/users';
 import { useUser } from '@/lib/providers/UserContext';
-import { useEffect } from 'react';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getRows } from '@/db/orm';
 
@@ -49,7 +48,7 @@ export default function AppNavbar({ integrations, children }: Props) {
   };
 
   const handleSelect = (value: string) => {
-    router.push(`/sites/${value}${source && `/${source.source_id}`}`);
+    router.push(`/sites/${value}`);
   };
 
   const handleSource = async (value: string) => {

@@ -1,24 +1,39 @@
-'use client';
-
 import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
-import { useSite } from '@/lib/providers/SiteContext';
-import { useParams } from 'next/navigation';
+import { getRow } from '@/db/orm';
 
 type Props = {
+  params: Promise<{ slug: string; source: string }>;
   children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
-  const site = useSite();
-  const { source } = useParams();
+export default async function Layout({ params, children }: Props) {
+  const { slug, source } = await params;
+  const site = await getRow('sites', {
+    filters: [['slug', 'eq', slug]],
+  });
 
-  if (!site) {
+  if (!site.ok) {
     return <strong>No site found. Please refresh.</strong>;
+  }
+
+  const tenant = await getRow('source_tenants', {
+    filters: [
+      ['source_id', 'eq', source],
+      ['site_id', 'eq', site.data.id],
+    ],
+  });
+
+  if (!tenant.ok) {
+    return <strong>This site does not have a Tenant mapping for this source</strong>;
   }
 
   return (
     <div className="flex flex-col size-full gap-4">
-      <IntegrationHeader sourceId={source as string} siteId={site.id} tenantId={site.tenant_id} />
+      <IntegrationHeader
+        sourceId={source as string}
+        siteId={site.data.id}
+        tenantId={site.data.tenant_id}
+      />
       {children}
     </div>
   );
