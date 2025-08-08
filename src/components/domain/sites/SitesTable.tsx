@@ -79,6 +79,7 @@ export default function SitesTable({ parentId }: Props) {
           <CreateSiteDialog parentId={parentId} onSuccess={createCallback} />
         </div>
       )}
+      initialPagination={{ pageSize: 1000, pageIndex: 0 }}
       initialSorting={[{ id: 'name', desc: false }]}
       columns={
         [

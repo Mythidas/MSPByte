@@ -11,7 +11,7 @@ export async function getActiveCompanies(
   config: AutoTaskIntegrationConfig
 ): Promise<APIResponse<AutoTaskCompany[]>> {
   try {
-    const search: AutoTaskSearch = {
+    const search: AutoTaskSearch<AutoTaskCompany> = {
       filter: [
         { op: 'eq', field: 'isActive', value: true },
         { op: 'eq', field: 'companyType', value: 1 },

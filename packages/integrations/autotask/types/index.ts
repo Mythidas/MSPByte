@@ -26,7 +26,7 @@ export type AutoTaskIntegrationConfig = {
   server: string;
 };
 
-export type AutoTaskSearch = {
+export type AutoTaskSearch<T> = {
   filter: {
     op:
       | 'eq'
@@ -42,7 +42,7 @@ export type AutoTaskSearch = {
       | 'notExist'
       | 'in'
       | 'notIn';
-    field: string;
+    field: keyof T;
     value: unknown;
   }[];
 };

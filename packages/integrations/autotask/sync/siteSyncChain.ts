@@ -3,6 +3,10 @@
 import SyncChain from '@/core/SyncChain';
 import { getRow } from '@/db/orm';
 import { Tables } from '@/db/schema';
+import {
+  getActiveContracts,
+  getContractServices,
+} from '@/integrations/autotask/services/contracts';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 
 export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
@@ -23,8 +27,25 @@ export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
     job,
     getState: () => '',
     setState: () => {},
+  }).step('Fetch External', async () => {
+    const contracts = await getActiveContracts(config, '');
+    if (!contracts.ok) throw contracts.error.message;
+
+    const services = await Promise.all(
+      contracts.data.map((c) => getContractServices(config, c.id.toString()))
+    );
+    if (services.every((s) => s.ok)) {
+      return {
+        ok: true,
+        data: {
+          contracts: contracts.data,
+          services: services.map((s) => s.data),
+        },
+      };
+    }
+
+    throw 'Failed to fetch all services';
   });
 
-  config.client_id;
   return await sync.run();
 }
