@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getSourceIntegrations } from '@/services/integrations';
 import { getSources } from '@/services/sources';
 import DataTable from '@/components/shared/table/DataTable';
@@ -12,7 +12,7 @@ import { column, textColumn } from '@/components/shared/table/DataTableColumn';
 import Link from 'next/link';
 
 export default function IntegrationsTable() {
-  const [integrations, setIntegrations] = useState<Tables<'source_integrations'>[]>([]);
+  const [integrations, setIntegrations] = useState<Tables<'public', 'integrations'>[]>([]);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const sources = await getSources({
@@ -82,7 +82,7 @@ export default function IntegrationsTable() {
               );
             },
           }),
-        ] as DataTableColumnDef<Tables<'sources'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'sources'>>[]
       }
       filters={{
         Integration: {

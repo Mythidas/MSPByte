@@ -1,12 +1,12 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getPartnerID, getToken } from '@/integrations/sophos/auth';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getTenants(
-  integration: Tables<'source_integrations'>
+  integration: Tables<'public', 'integrations'>
 ): Promise<APIResponse<any[]>> {
   try {
     const token = await getToken(integration);

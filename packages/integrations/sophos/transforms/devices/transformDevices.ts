@@ -1,10 +1,10 @@
-import { Tables, TablesInsert } from '@/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 
 export function transformDevices(
-  mapping: Tables<'source_tenants'>,
+  mapping: Tables<'source', 'tenants'>,
   devices: SPEndpoint[]
-): TablesInsert<'source_devices'>[] {
+): TablesInsert<'source', 'devices'>[] {
   return devices.map((device) => {
     return {
       tenant_id: mapping.tenant_id,

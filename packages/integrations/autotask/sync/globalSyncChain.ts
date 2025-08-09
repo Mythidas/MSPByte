@@ -2,14 +2,14 @@
 
 import SyncChain from '@/core/SyncChain';
 import { getRow, updateRow } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getActiveCompanies } from '@/integrations/autotask/services/companies';
 import { syncCompanies } from '@/integrations/autotask/sync/syncCompanies';
 import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 
-export async function globalSyncChain(job: Tables<'source_sync_jobs'>) {
-  const integration = await getRow('source_integrations', {
+export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
+  const integration = await getRow('public', 'integrations', {
     filters: [
       ['source_id', 'eq', job.source_id],
       ['tenant_id', 'eq', job.tenant_id],
@@ -43,7 +43,7 @@ export async function globalSyncChain(job: Tables<'source_sync_jobs'>) {
       return results;
     })
     .final(async () => {
-      await updateRow('source_integrations', {
+      await updateRow('public', 'integrations', {
         id: integration.data.id,
         row: {
           last_sync_at: new Date().toISOString(),

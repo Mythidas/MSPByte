@@ -1,6 +1,6 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
@@ -8,7 +8,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getDomains(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<MSGraphDomain[]>> {
   try {
     const metadata = mapping.metadata as any;

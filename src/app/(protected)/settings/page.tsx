@@ -18,7 +18,7 @@ import { Info } from 'lucide-react';
 export default function Page() {
   const { content: Preferences } = useLazyLoad({
     fetcher: async () => {
-      const tenant = await getRow('tenants');
+      const tenant = await getRow('public', 'tenants');
       if (tenant.ok) {
         return tenant.data;
       }

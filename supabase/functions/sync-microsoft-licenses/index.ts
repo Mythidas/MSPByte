@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    const inserts: TablesInsert<'source_license_info'>[] = Array.from(skuMap.entries()).map(
+    const inserts: TablesInsert<'source', 'license_info'>[] = Array.from(skuMap.entries()).map(
       ([sku, { name, services }]) => ({
         sku,
         name,
@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
     );
 
     const { error } = await supabase
-      .from('source_license_info')
+      .from('source', 'license_info')
       .upsert(inserts, { onConflict: 'sku' });
 
     if (error) {

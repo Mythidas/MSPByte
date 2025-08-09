@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import SearchBox from '@/components/shared/SearchBox';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Tables, TablesInsert } from '@/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
 import { putSourceTenant } from '@/services/source/tenants';
@@ -22,8 +22,8 @@ import { useUser } from '@/lib/providers/UserContext';
 import { getRows } from '@/db/orm';
 
 type Props = {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration: Tables<'public', 'integrations'>;
   onSave?: () => void;
 };
 
@@ -39,10 +39,10 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
   const { data: availableSites, refetch } = useAsync({
     initial: [],
     fetcher: async () => {
-      const sites = await getRows('sites_view', {
+      const sites = await getRows('public', 'sites_view', {
         sorting: [['name', 'asc']],
       });
-      const existingMappings = await getRows('source_tenants', {
+      const existingMappings = await getRows('source', 'tenants', {
         filters: [['source_id', 'eq', source.id]],
       });
 
@@ -100,7 +100,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
     try {
       const selectedSophosData = sophosData.find((s) => s.id === selectedSophosSite);
 
-      const mapping: TablesInsert<'source_tenants'> = {
+      const mapping: TablesInsert<'source', 'tenants'> = {
         source_id: source.id,
         tenant_id: user?.tenant_id || '',
         site_id: selectedSite,
@@ -329,7 +329,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
       <DialogTrigger asChild>
         <Button
           className="flex justify-start"
-          // disabled={!hasAccess('Sources', 'Write')}
+          // disabled={!hasAccess('public', 'sources', 'Write')}
           variant="secondary"
         >
           <Map /> New Site Mapping

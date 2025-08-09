@@ -1,12 +1,12 @@
-import { Tables, TablesInsert } from '@/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import { Debug } from '@/lib/utils';
 import { putSourceMetrics } from '@/services/source/metrics';
 import { APIResponse } from '@/types';
 
 export async function syncMetrics(
-  tenant: Tables<'source_tenants'>,
-  devices: Tables<'source_devices'>[]
+  tenant: Tables<'source', 'tenants'>,
+  devices: Tables<'source', 'devices'>[]
 ): Promise<APIResponse<null>> {
   try {
     let upgradeable = 0;
@@ -19,7 +19,7 @@ export async function syncMetrics(
       if (!(device.metadata as SPEndpoint).tamperProtectionEnabled) tamperDisabledCount++;
     }
 
-    const mdrManagedDevices: TablesInsert<'source_metrics'> = {
+    const mdrManagedDevices: TablesInsert<'source', 'metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
       source_id: tenant.source_id,
@@ -30,7 +30,7 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
-    const upgradableDevices: TablesInsert<'source_metrics'> = {
+    const upgradableDevices: TablesInsert<'source', 'metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
       source_id: tenant.source_id,
@@ -41,7 +41,7 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
-    const tamperDisabled: TablesInsert<'source_metrics'> = {
+    const tamperDisabled: TablesInsert<'source', 'metrics'> = {
       tenant_id: tenant.tenant_id,
       site_id: tenant.site_id,
       source_id: tenant.source_id,

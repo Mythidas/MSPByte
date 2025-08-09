@@ -1,31 +1,31 @@
 'use server';
 
 import { getRow, insertRows, updateRow } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
 import { enableTamperProtection } from '@/integrations/sophos/services/endpoints/enableTamperProtection';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export default async function enableSophosTamperProtection(
-  devices: Tables<'source_devices_view'>[],
+  devices: Tables<'source', 'devices_view'>[],
   userId?: string
 ): Promise<APIResponse<number>> {
   try {
-    const getIntegration = await getRow('source_integrations', {
+    const getIntegration = await getRow('public', 'integrations', {
       filters: [['source_id', 'eq', 'sophos-partner']],
     });
     if (!getIntegration.ok) throw getIntegration.error.message;
     if (!devices.length) throw 'No devices provided';
 
     const { data: integration } = getIntegration;
-    const tenants: Record<string, Tables<'source_tenants'>> = {};
+    const tenants: Record<string, Tables<'source', 'tenants'>> = {};
     const errors: string[] = [];
 
     for await (const device of devices) {
       let tenant = tenants[device.site_id!];
       if (!tenant) {
-        const getTenant = await getRow('source_tenants', {
+        const getTenant = await getRow('source', 'tenants', {
           filters: [
             ['site_id', 'eq', device.site_id],
             ['source_id', 'eq', device.source_id],
@@ -45,7 +45,7 @@ export default async function enableSophosTamperProtection(
         errors.push(`${device.hostname}: ${update.error.message}`);
       }
 
-      await updateRow('source_devices', {
+      await updateRow('source', 'devices', {
         id: device.id!,
         row: {
           metadata: {
@@ -58,7 +58,7 @@ export default async function enableSophosTamperProtection(
 
     for await (const [_key, value] of Object.entries(tenants)) {
       const devicesFiltered = devices.filter((d) => d.site_id === value.site_id);
-      await insertRows('activity_feeds', {
+      await insertRows('public', 'activity_feeds', {
         rows: [
           {
             tenant_id: value.tenant_id,

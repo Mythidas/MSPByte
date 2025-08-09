@@ -1,5 +1,5 @@
 import pMap from 'p-map';
-import { Tables, TablesInsert } from '@/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 import {
   doesPolicyApplyToUser,
   isUserCapableOfCA,
@@ -23,14 +23,14 @@ export async function transformIdentities(
   caPolicies: MSGraphConditionalAccessPolicy[],
   securityDefaultsEnabled: boolean,
   activity: Record<string, string>,
-  mapping: Tables<'source_tenants'>
-): Promise<APIResponse<TablesInsert<'source_identities'>[]>> {
+  mapping: Tables<'source', 'tenants'>
+): Promise<APIResponse<TablesInsert<'source', 'identities'>[]>> {
   const timer = new Timer('TransformIdentities', false);
 
   try {
     const identities = await pMap(
       users,
-      async (user): Promise<TablesInsert<'source_identities'> | null> => {
+      async (user): Promise<TablesInsert<'source', 'identities'> | null> => {
         try {
           const [mfaMethods, userContext] = await Promise.all([
             getAuthenticationMethods(user.id, mapping),
@@ -54,7 +54,7 @@ export async function transformIdentities(
 
           const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
-          const identity: TablesInsert<'source_identities'> = {
+          const identity: TablesInsert<'source', 'identities'> = {
             tenant_id: mapping.tenant_id,
             source_id: mapping.source_id,
             site_id: mapping.site_id,
@@ -97,7 +97,7 @@ export async function transformIdentities(
       { concurrency: 5 } // Adjust as needed based on throttling/responsiveness
     );
 
-    return { ok: true, data: identities.filter(Boolean) as TablesInsert<'source_identities'>[] };
+    return { ok: true, data: identities.filter(Boolean) as TablesInsert<'source', 'identities'>[] };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft365',

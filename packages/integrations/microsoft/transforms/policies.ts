@@ -1,10 +1,10 @@
-import { Tables, TablesInsert } from 'packages/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 import { MSGraphConditionalAccessPolicy } from 'packages/integrations/microsoft/types/conditionalAccess';
 
 export function transformPolicies(
   caPolicies: MSGraphConditionalAccessPolicy[],
-  mapping: Tables<'source_tenants'>
-): TablesInsert<'source_policies'>[] {
+  mapping: Tables<'source', 'tenants'>
+): TablesInsert<'source', 'policies'>[] {
   return caPolicies.map((policy) => ({
     tenant_id: mapping.tenant_id,
     source_id: mapping.source_id,

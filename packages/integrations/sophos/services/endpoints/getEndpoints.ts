@@ -1,13 +1,13 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getEndpoints(
   token: string,
-  mapping: Tables<'source_tenants'>
+  mapping: Tables<'source', 'tenants'>
 ): Promise<APIResponse<SPEndpoint[]>> {
   try {
     if (!token) {

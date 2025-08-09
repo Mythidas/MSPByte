@@ -10,14 +10,14 @@ import { UserProvider } from '@/lib/providers/UserProvider';
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
   const currentUser = await supabase.auth.getUser();
-  const integrations = await getRows('source_integrations_view');
-  const user = await getRow('user_view', {
+  const integrations = await getRows('public', 'integrations_view');
+  const user = await getRow('public', 'user_view', {
     filters: [['id', 'eq', currentUser.data.user?.id]],
   });
-  const options = await getRow('user_options', {
+  const options = await getRow('public', 'user_options', {
     filters: [['id', 'eq', currentUser.data.user?.id]],
   });
-  const tenant = await getRow('tenants');
+  const tenant = await getRow('public', 'tenants');
 
   if (!user.ok || !options.ok || !tenant.ok || !integrations.ok) {
     return <Loader />;

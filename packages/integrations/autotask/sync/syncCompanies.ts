@@ -1,22 +1,22 @@
 import { deleteRows, getRows, insertRows, updateRow } from '@/db/orm';
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function syncCompanies(
-  job: Tables<'source_sync_jobs'>,
-  companies: TablesInsert<'source_sites'>[]
-): Promise<APIResponse<Tables<'source_sites'>[]>> {
+  job: Tables<'source', 'sync_jobs'>,
+  companies: TablesInsert<'source', 'sites'>[]
+): Promise<APIResponse<Tables<'source', 'sites'>[]>> {
   try {
-    const existingCompanies = await getRows('source_sites', {
+    const existingCompanies = await getRows('source', 'sites', {
       filters: [['source_id', 'eq', job.source_id]],
     });
     if (!existingCompanies.ok) {
       throw new Error(existingCompanies.error.message);
     }
 
-    const toInsert: TablesInsert<'source_sites'>[] = [];
-    const toUpdate: TablesUpdate<'source_sites'>[] = [];
+    const toInsert: TablesInsert<'source', 'sites'>[] = [];
+    const toUpdate: TablesUpdate<'source', 'sites'>[] = [];
 
     for (const company of companies) {
       const existing = existingCompanies.data.rows.find(
@@ -32,13 +32,13 @@ export async function syncCompanies(
       .filter((item) => !updateIds.has(item.external_id))
       .map((item) => item.id);
 
-    const inserted = await insertRows('source_sites', {
+    const inserted = await insertRows('source', 'sites', {
       rows: toInsert,
     });
     if (!inserted.ok) {
       throw new Error('Failed to insert source sites');
     }
-    const deleted = await deleteRows('source_sites', {
+    const deleted = await deleteRows('source', 'sites', {
       filters: [['id', 'in', toDelete]],
     });
     if (!deleted.ok) {
@@ -52,7 +52,7 @@ export async function syncCompanies(
 
     const finalCompanies = [...inserted.data];
     for await (const update of toUpdate) {
-      const updated = await updateRow('source_sites', {
+      const updated = await updateRow('source', 'sites', {
         id: update.id!,
         row: update,
       });

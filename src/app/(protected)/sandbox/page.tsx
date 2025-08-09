@@ -17,7 +17,7 @@ export default function Page() {
 
   const { content: TenantSearchBar } = useLazyLoad({
     fetcher: async () => {
-      const tenants = await getRows('source_tenants_view');
+      const tenants = await getRows('source', 'tenants_view');
       if (tenants.ok) return tenants.data.rows;
     },
     render: (data) => {
@@ -26,7 +26,7 @@ export default function Page() {
       const handleClick = async () => {
         const tenant = data.find((t) => t.id === selectedTenant)!;
 
-        const job = await insertRows('source_sync_jobs', {
+        const job = await insertRows('source', 'sync_jobs', {
           rows: [
             {
               tenant_id: tenant.tenant_id!,
@@ -61,7 +61,7 @@ export default function Page() {
 
   const { content: SourceSearchBar } = useLazyLoad({
     fetcher: async () => {
-      const integrations = await getRows('source_integrations');
+      const integrations = await getRows('public', 'integrations');
       if (integrations.ok) return integrations.data.rows;
     },
     render: (data) => {
@@ -70,7 +70,7 @@ export default function Page() {
       const handleClick = async () => {
         const integration = data.find((t) => t.id === selectedSource)!;
 
-        const job = await insertRows('source_sync_jobs', {
+        const job = await insertRows('source', 'sync_jobs', {
           rows: [
             {
               tenant_id: integration.tenant_id,

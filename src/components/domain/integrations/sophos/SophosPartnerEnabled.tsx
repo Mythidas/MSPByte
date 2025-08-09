@@ -6,7 +6,7 @@ import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import SophosMappingsDialog from '@/components/domain/integrations/sophos/SophosMappingsDialog';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { TrendingUp, Users, Zap, ExternalLink, Database, Building, Eye } from 'lucide-react';
 import { useAsync } from '@/hooks/common/useAsync';
 import { cn } from '@/lib/utils';
@@ -14,8 +14,8 @@ import Link from 'next/link';
 import { getRowsCount } from '@/db/orm';
 
 type Props = {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration: Tables<'public', 'integrations'>;
 };
 
 export default function SophosPartnerEnabled({ source, integration }: Props) {
@@ -46,8 +46,8 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { total: 0, connected: 0 },
     fetcher: async () => {
-      const siteCount = await getRowsCount('sites');
-      const tenantsCount = await getRowsCount('source_tenants', {
+      const siteCount = await getRowsCount('public', 'sites');
+      const tenantsCount = await getRowsCount('source', 'tenants', {
         filters: [['source_id', 'eq', sourceId]],
       });
 
@@ -90,8 +90,8 @@ function QuickActionsCard({
   source,
   integration,
 }: {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration: Tables<'public', 'integrations'>;
 }) {
   return (
     <Card>
@@ -123,7 +123,7 @@ function MonthlyUsageCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { connected: 0 },
     fetcher: async () => {
-      const tenantsCount = await getRowsCount('source_tenants', {
+      const tenantsCount = await getRowsCount('source', 'tenants', {
         filters: [['source_id', 'eq', sourceId]],
       });
 
@@ -175,7 +175,7 @@ function TotalDevicesCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { devices: 0 },
     fetcher: async () => {
-      const devices = await getRowsCount('source_devices', {
+      const devices = await getRowsCount('source', 'devices', {
         filters: [['source_id', 'eq', sourceId]],
       });
 

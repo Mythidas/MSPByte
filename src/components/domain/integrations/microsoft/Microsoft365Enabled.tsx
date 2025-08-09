@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useAsync } from '@/hooks/common/useAsync';
 import { cn } from '@/lib/utils';
 import { getSourceIdentitiesCount } from '@/services/identities';
@@ -17,8 +17,8 @@ import { Building, Database, ExternalLink, Eye, TrendingUp, Users, Zap } from 'l
 import Link from 'next/link';
 
 type Props = {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration: Tables<'public', 'integrations'>;
 };
 
 export default function Microsoft365Enabled({ source, integration }: Props) {

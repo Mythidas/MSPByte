@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import { getRows } from '@/db/orm';
 import ActivityFeedDrawer from '@/components/domain/activity/ActivityDrawer';
 import { Button } from '@/components/ui/button';
 
-type TData = Tables<'activity_feeds_view'>;
+type TData = Tables<'public', 'activity_feeds_view'>;
 
 const getStatusBadgeVariant = (status: string) => {
   switch (status.toLowerCase()) {
@@ -49,7 +49,7 @@ export default function ActivityFeedTable() {
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const activities = await getRows('activity_feeds_view', {
+    const activities = await getRows('public', 'activity_feeds_view', {
       filters: [],
       pagination: {
         page: pageIndex,

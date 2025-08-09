@@ -6,6 +6,7 @@ import {
   GetRowConfig,
   GetRowCountConfig,
   InsertRowConfig,
+  Schemas,
   Table,
   TableOrView,
   UpdateRowConfig,
@@ -13,8 +14,12 @@ import {
   UpsertRowConfig,
 } from '@/types/db';
 
-export async function getRow<T extends TableOrView>(table: T, config?: GetRowConfig<T>) {
-  return tables.selectSingle(table, (query) => {
+export async function getRow<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
+  table: T,
+  config?: GetRowConfig<S, T>
+) {
+  return tables.selectSingle(schema, table, (query) => {
     if (config && config.filters) {
       for (const filter of config.filters) {
         if (!filter) continue;
@@ -39,8 +44,13 @@ export async function getRow<T extends TableOrView>(table: T, config?: GetRowCon
   });
 }
 
-export async function getRows<T extends TableOrView>(table: T, config?: GetRowConfig<T>) {
+export async function getRows<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
+  table: T,
+  config?: GetRowConfig<S, T>
+) {
   return tables.select(
+    schema,
     table,
     (query) => {
       if (config && config.filters) {
@@ -69,8 +79,12 @@ export async function getRows<T extends TableOrView>(table: T, config?: GetRowCo
   );
 }
 
-export async function getRowsCount<T extends TableOrView>(table: T, config?: GetRowCountConfig<T>) {
-  return tables.count(table, (query) => {
+export async function getRowsCount<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
+  table: T,
+  config?: GetRowCountConfig<S, T>
+) {
+  return tables.count(schema, table, (query) => {
     if (config && config.filters) {
       for (const filter of config.filters) {
         if (!filter) continue;
@@ -86,20 +100,36 @@ export async function getRowsCount<T extends TableOrView>(table: T, config?: Get
   });
 }
 
-export async function insertRows<T extends Table>(table: T, config: InsertRowConfig<T>) {
-  return tables.insert(table, config.rows);
+export async function insertRows<S extends Schemas, T extends Table<S>>(
+  schema: S,
+  table: T,
+  config: InsertRowConfig<S, T>
+) {
+  return tables.insert(schema, table, config.rows);
 }
 
-export async function updateRow<T extends Table>(table: T, config: UpdateRowConfig<T>) {
-  return tables.update(table, config.id, config.row);
+export async function updateRow<S extends Schemas, T extends Table<S>>(
+  schema: S,
+  table: T,
+  config: UpdateRowConfig<S, T>
+) {
+  return tables.update(schema, table, config.id, config.row);
 }
 
-export async function updateRows<T extends Table>(table: T, config: UpdateRowsConfig<T>) {
-  return tables.updates(table, config.rows);
+export async function updateRows<S extends Schemas, T extends Table<S>>(
+  schema: S,
+  table: T,
+  config: UpdateRowsConfig<S, T>
+) {
+  return tables.updates(schema, table, config.rows);
 }
 
-export async function upsertRows<T extends Table>(table: T, config: UpsertRowConfig<T>) {
-  return tables.upsert(table, config.rows, (query) => {
+export async function upsertRows<S extends Schemas, T extends Table<S>>(
+  schema: S,
+  table: T,
+  config: UpsertRowConfig<S, T>
+) {
+  return tables.upsert(schema, table, config.rows, (query) => {
     if (config.filters) {
       for (const filter of config.filters) {
         if (!filter) continue;
@@ -115,8 +145,12 @@ export async function upsertRows<T extends Table>(table: T, config: UpsertRowCon
   });
 }
 
-export async function deleteRows<T extends Table>(table: T, config: DeleteRowConfig<T>) {
-  return tables.delete(table, (query) => {
+export async function deleteRows<S extends Schemas, T extends Table<S>>(
+  schema: S,
+  table: T,
+  config: DeleteRowConfig<S, T>
+) {
+  return tables.delete(schema, table, (query) => {
     for (const filter of config.filters) {
       if (!filter) continue;
 

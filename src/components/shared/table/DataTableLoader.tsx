@@ -1,15 +1,15 @@
 import Loader from '@/components/shared/Loader';
 import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getRows } from '@/db/orm';
 import { ComponentType } from 'react';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
-  group?: Tables<'site_groups'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
+  group?: Tables<'public', 'site_groups'>;
   TableComponent: ComponentType<{
     sourceId: string;
     siteIds: string[];
@@ -22,7 +22,7 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (group) {
-        const memberships = await getRows('site_group_memberships', {
+        const memberships = await getRows('public', 'site_group_memberships', {
           filters: [['group_id', 'eq', group.id]],
         });
         if (!memberships.ok) {

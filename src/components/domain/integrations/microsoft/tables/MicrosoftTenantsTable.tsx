@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { column, dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import Microsoft365MappingsDialog from '@/components/domain/integrations/microsoft/Microsoft365MappingsDialog';
 import MicrosoftTenantDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftTenantDrawer';
 
-type TData = Tables<'source_tenants_view'>;
+type TData = Tables<'source', 'tenants_view'>;
 type Props = {
   sourceId: string;
   siteIds?: string[];

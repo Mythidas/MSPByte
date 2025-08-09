@@ -39,12 +39,12 @@ export default function SyncSourceItem({
     try {
       switch (type) {
         case 'group': {
-          const memberships = await getRows('site_group_memberships', {
+          const memberships = await getRows('public', 'site_group_memberships', {
             filters: [['group_id', 'eq', groupId]],
           });
           if (!memberships.ok) throw memberships.error.message;
 
-          const tenants = await getRows('source_tenants', {
+          const tenants = await getRows('source', 'tenants', {
             filters: [
               ['source_id', 'eq', sourceId],
               ['site_id', 'in', memberships.data.rows.map((m) => m.site_id)],

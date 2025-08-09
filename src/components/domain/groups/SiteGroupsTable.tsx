@@ -10,7 +10,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { useRef } from 'react';
 import DropDownItem from '@/components/shared/secure/DropDownItem';
 import { toast } from 'sonner';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/shared/table/DataTableColumn';
@@ -22,6 +22,7 @@ import CreateSiteGroupDialog from '@/components/domain/groups/CreateSiteGroupDia
 export default function SiteGroupsTable() {
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
+    schema: 'public',
     table: 'site_groups',
     displayKey: 'name',
     getId: (item) => ({
@@ -31,7 +32,7 @@ export default function SiteGroupsTable() {
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const groups = await getRows('site_groups', {
+    const groups = await getRows('public', 'site_groups', {
       pagination: {
         page: pageIndex,
         size: pageSize,
@@ -46,7 +47,7 @@ export default function SiteGroupsTable() {
     return groups.data;
   };
 
-  const createCallback = (group: Tables<'site_groups'>) => {
+  const createCallback = (group: Tables<'public', 'site_groups'>) => {
     tableRef.current?.refetch();
     toast.info(`Created group ${group.name}`);
   };
@@ -98,7 +99,7 @@ export default function SiteGroupsTable() {
                     variant="destructive"
                     module="Groups.Delete"
                     onClick={() =>
-                      confirmAndDelete(row.original as unknown as Tables<'site_groups'>)
+                      confirmAndDelete(row.original as unknown as Tables<'public', 'site_groups'>)
                     }
                   >
                     Delete
@@ -107,7 +108,7 @@ export default function SiteGroupsTable() {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'site_groups'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'site_groups'>>[]
       }
       filters={{
         Site: {

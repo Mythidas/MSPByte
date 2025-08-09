@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { column, textColumn, numberColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { getRows } from '@/db/orm';
 import { MicrosoftLicenseMetadata } from '@/types/source/licenses';
 
-type TData = Tables<'source_licenses_view'>;
+type TData = Tables<'source', 'licenses_view'>;
 type Props = {
   sourceId: string;
   siteIds?: string[];
@@ -29,7 +29,7 @@ export default function MicrosoftLicensesTable({
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, sorting, ...props }: DataTableFetcher) => {
-    const licenses = await getRows('source_licenses_view', {
+    const licenses = await getRows('source', 'licenses_view', {
       filters: [
         ['source_id', 'eq', sourceId],
         ['site_id', 'in', siteIds],

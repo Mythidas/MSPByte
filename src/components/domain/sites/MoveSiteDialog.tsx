@@ -13,21 +13,21 @@ import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import SearchBox from '@/components/shared/SearchBox';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getParentSites, updateSite } from '@/services/sites';
 
 type Props = {
-  sites: Tables<'sites'>[];
+  sites: Tables<'public', 'sites'>[];
   parentId: string;
-  onSuccess?: (site: Tables<'sites'>, parent: string) => void;
+  onSuccess?: (site: Tables<'public', 'sites'>, parent: string) => void;
 };
 
 export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [parents, setParents] = useState<Tables<'sites'>[]>([]);
-  const [parent, setParent] = useState<Tables<'sites'> | undefined>(undefined);
-  const [site, setSite] = useState<Tables<'sites'> | undefined>(undefined);
+  const [parents, setParents] = useState<Tables<'public', 'sites'>[]>([]);
+  const [parent, setParent] = useState<Tables<'public', 'sites'> | undefined>(undefined);
+  const [site, setSite] = useState<Tables<'public', 'sites'> | undefined>(undefined);
 
   useEffect(() => {
     const loadSites = async () => {
@@ -63,7 +63,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
       const result = await updateSite(site.id, {
         ...site,
         parent_id: parent.id,
-      } as Tables<'sites'>);
+      } as Tables<'public', 'sites'>);
       if (result.ok && onSuccess && site) {
         onSuccess(site, parent.name);
       }

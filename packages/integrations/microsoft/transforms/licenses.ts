@@ -1,11 +1,11 @@
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
-import { Tables, TablesInsert } from 'packages/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 
 export function transformLicenses(
   licenses: MSGraphSubscribedSku[],
-  mapping: Tables<'source_tenants'>,
-  licenseInfo: Tables<'source_license_info'>[]
-): TablesInsert<'source_licenses'>[] {
+  mapping: Tables<'source', 'tenants'>,
+  licenseInfo: Tables<'source', 'license_info'>[]
+): TablesInsert<'source', 'licenses'>[] {
   return licenses.map((license) => ({
     tenant_id: mapping.tenant_id,
     source_id: mapping.source_id,

@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable from '@/components/shared/table/DataTable';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import {
   booleanColumn,
   column,
@@ -18,7 +18,7 @@ import { getSourceIdentitiesUniqueRolesAndGroups } from '@/services/identities';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getRows } from '@/db/orm';
 
-type TData = Tables<'source_identities_view'>;
+type TData = Tables<'source', 'identities_view'>;
 type Props = {
   sourceId: string;
   siteIds?: string[];
@@ -69,7 +69,7 @@ export default function MicrosoftIdentitiesTable({
 
   const fetcher = async ({ pageIndex, pageSize, initial, sorting, ...props }: DataTableFetcher) => {
     const timer = new Timer('Fetch identities', true);
-    const identities = await getRows('source_identities_view', {
+    const identities = await getRows('source', 'identities_view', {
       filters: [
         ['source_id', 'eq', sourceId],
         ['site_id', 'in', siteIds],

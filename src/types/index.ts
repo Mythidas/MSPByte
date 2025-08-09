@@ -1,4 +1,4 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
 export type FormState<Schema> = {
   success?: boolean;
@@ -17,9 +17,9 @@ export type TabProps = {
   icon?: string;
   content: (
     source: string,
-    parent?: Tables<'sites'>,
-    site?: Tables<'sites'>,
-    group?: Tables<'site_groups'>
+    parent?: Tables<'public', 'sites'>,
+    site?: Tables<'public', 'sites'>,
+    group?: Tables<'public', 'site_groups'>
   ) => React.ReactNode;
   modules?: string[];
 };

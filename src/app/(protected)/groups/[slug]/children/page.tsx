@@ -10,7 +10,7 @@ export default function Page() {
   const { slug } = useParams();
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const group = await getRow('site_groups', {
+      const group = await getRow('public', 'site_groups', {
         filters: [['id', 'eq', slug]],
       });
       if (group.ok) return group.data;

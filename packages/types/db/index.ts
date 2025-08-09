@@ -1,16 +1,65 @@
-import { Database, Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Database } from '@/db/schema';
 import { Operations } from '@/types';
 
 // types.ts
-export type Table = keyof Database['public']['Tables'];
-export type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
+export type Schemas = keyof Omit<Database, '__InternalSupabase'>;
+export type Table<S extends Schemas> = keyof Database[S]['Tables'];
+export type TableOrView<S extends Schemas> =
+  | keyof Database[S]['Tables']
+  | keyof Database[S]['Views'];
+export type Tables<
+  S extends Schemas,
+  T extends TableOrView<S>,
+> = T extends keyof Database[S]['Tables']
+  ? Database[S]['Tables'][T] extends { Row: infer R }
+    ? R
+    : never
+  : T extends keyof Database[S]['Views']
+    ? Database[S]['Views'][T] extends { Row: infer R }
+      ? R
+      : never
+    : never;
 
-export type RowFilter<T extends TableOrView> =
-  | [column: keyof Tables<T>, operator: Operations, value: any]
-  | undefined;
-export type RowSort<T extends TableOrView> =
-  | [column: keyof Tables<T>, order: 'asc' | 'desc']
-  | undefined;
+export type RowFilter<
+  S extends Schemas,
+  T extends TableOrView<S>,
+> = T extends keyof Database[S]['Tables']
+  ? Database[S]['Tables'][T] extends { Row: infer R }
+    ? [column: keyof R, operator: Operations, value: any] | undefined
+    : undefined
+  : T extends keyof Database[S]['Views']
+    ? Database[S]['Views'][T] extends { Row: infer R }
+      ? [column: keyof R, operator: Operations, value: any] | undefined
+      : undefined
+    : undefined;
+export type RowSort<
+  S extends Schemas,
+  T extends TableOrView<S>,
+> = T extends keyof Database[S]['Tables']
+  ? Database[S]['Tables'][T] extends { Row: infer R }
+    ? [column: keyof R, order: 'asc' | 'desc'] | undefined
+    : undefined
+  : T extends keyof Database[S]['Views']
+    ? Database[S]['Views'][T] extends { Row: infer R }
+      ? [column: keyof R, order: 'asc' | 'desc'] | undefined
+      : undefined
+    : undefined;
+export type TablesInsert<
+  S extends Schemas,
+  T extends Table<S>,
+> = T extends keyof Database[S]['Tables']
+  ? Database[S]['Tables'][T] extends { Insert: infer R }
+    ? R
+    : never
+  : never;
+export type TablesUpdate<
+  S extends Schemas,
+  T extends Table<S>,
+> = T extends keyof Database[S]['Tables']
+  ? Database[S]['Tables'][T] extends { Update: infer R }
+    ? R
+    : never
+  : never;
 
 export type FilterOperations = Operations | 'bt';
 export type FilterType = 'text' | 'select' | 'boolean' | 'date' | 'number' | 'multiselect';
@@ -37,34 +86,34 @@ export type PaginationOptions = {
   sorting?: Record<string, 'asc' | 'desc'>;
 };
 
-export type GetRowConfig<T extends TableOrView> = {
-  filters?: Array<RowFilter<T> | undefined>;
-  sorting?: Array<RowSort<T> | undefined>;
+export type GetRowConfig<S extends Schemas, T extends TableOrView<S>> = {
+  filters?: Array<RowFilter<S, T> | undefined>;
+  sorting?: Array<RowSort<S, T> | undefined>;
   pagination?: PaginationOptions;
 };
 
-export type GetRowCountConfig<T extends TableOrView> = {
-  filters?: Array<RowFilter<T> | undefined>;
+export type GetRowCountConfig<S extends Schemas, T extends TableOrView<S>> = {
+  filters?: Array<RowFilter<S, T> | undefined>;
 };
 
-export type InsertRowConfig<T extends Table> = {
-  rows: TablesInsert<T>[];
+export type InsertRowConfig<S extends Schemas, T extends Table<S>> = {
+  rows: TablesInsert<S, T>[];
 };
 
-export type UpdateRowConfig<T extends Table> = {
+export type UpdateRowConfig<S extends Schemas, T extends Table<S>> = {
   id: string;
-  row: TablesUpdate<T>;
+  row: TablesUpdate<S, T>;
 };
 
-export type UpdateRowsConfig<T extends Table> = {
-  rows: [id: keyof Tables<T>, update: [val: string, data: TablesUpdate<T>]][];
+export type UpdateRowsConfig<S extends Schemas, T extends Table<S>> = {
+  rows: [id: keyof TablesUpdate<S, T>, update: [val: string, data: TablesUpdate<S, T>]][];
 };
 
-export type UpsertRowConfig<T extends Table> = {
-  rows: TablesUpdate<T>[];
-  filters?: Array<RowFilter<T> | undefined>;
+export type UpsertRowConfig<S extends Schemas, T extends Table<S>> = {
+  rows: TablesUpdate<S, T>[];
+  filters?: Array<RowFilter<S, T> | undefined>;
 };
 
-export type DeleteRowConfig<T extends Table> = {
-  filters: Array<RowFilter<T>>;
+export type DeleteRowConfig<S extends Schemas, T extends Table<S>> = {
+  filters: Array<RowFilter<S, T>>;
 };

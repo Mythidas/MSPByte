@@ -12,7 +12,7 @@ import DropDownItem from '@/components/shared/secure/DropDownItem';
 import CreateSiteDialog from '@/components/domain/sites/CreateSiteDialog';
 import { toast } from 'sonner';
 import MoveSiteDialog from '@/components/domain/sites/MoveSiteDialog';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/shared/table/DataTableColumn';
@@ -27,6 +27,7 @@ type Props = {
 export default function SitesTable({ parentId }: Props) {
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
+    schema: 'public',
     table: 'sites',
     displayKey: 'name',
     getId: (item) => ({
@@ -36,7 +37,7 @@ export default function SitesTable({ parentId }: Props) {
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const sites = await getRows('sites_view', {
+    const sites = await getRows('public', 'sites_view', {
       filters: [parentId ? ['parent_id', 'eq', parentId] : undefined],
       pagination: {
         page: pageIndex,
@@ -52,12 +53,12 @@ export default function SitesTable({ parentId }: Props) {
     return sites.data;
   };
 
-  const createCallback = (site: Tables<'sites_view'>) => {
+  const createCallback = (site: Tables<'public', 'sites_view'>) => {
     tableRef.current?.refetch();
     toast.info(`Created site ${site.name}`);
   };
 
-  const moveCallback = (site: Tables<'sites'>, parent: string) => {
+  const moveCallback = (site: Tables<'public', 'sites'>, parent: string) => {
     tableRef.current?.refetch();
     toast.info(`Moved site ${site.name} to ${parent}`);
   };
@@ -71,7 +72,7 @@ export default function SitesTable({ parentId }: Props) {
           <DeleteDialog />
           {parentId && (
             <MoveSiteDialog
-              sites={data as unknown as Tables<'sites'>[]}
+              sites={data as unknown as Tables<'public', 'sites'>[]}
               parentId={parentId}
               onSuccess={moveCallback}
             />
@@ -122,7 +123,9 @@ export default function SitesTable({ parentId }: Props) {
                   <DropDownItem
                     variant="destructive"
                     module="Sites.Delete"
-                    onClick={() => confirmAndDelete(row.original as unknown as Tables<'sites'>)}
+                    onClick={() =>
+                      confirmAndDelete(row.original as unknown as Tables<'public', 'sites'>)
+                    }
                   >
                     Delete
                   </DropDownItem>
@@ -130,7 +133,7 @@ export default function SitesTable({ parentId }: Props) {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'sites_view'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'sites_view'>>[]
       }
       filters={{
         Site: {

@@ -1,15 +1,15 @@
 import { deleteRows, getRows, insertRows, updateRow } from '@/db/orm';
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function syncLicenses(
-  tenant: Tables<'source_tenants'>,
-  licenses: TablesInsert<'source_licenses'>[],
+  tenant: Tables<'source', 'tenants'>,
+  licenses: TablesInsert<'source', 'licenses'>[],
   sync_id: string
-): Promise<APIResponse<Tables<'source_licenses'>[]>> {
+): Promise<APIResponse<Tables<'source', 'licenses'>[]>> {
   try {
-    const existingLicenses = await getRows('source_licenses', {
+    const existingLicenses = await getRows('source', 'licenses', {
       filters: [
         ['source_id', 'eq', tenant.source_id],
         ['site_id', 'eq', tenant.site_id],
@@ -19,8 +19,8 @@ export async function syncLicenses(
       throw new Error(existingLicenses.error.message);
     }
 
-    const toInsert: TablesInsert<'source_licenses'>[] = [];
-    const toUpdate: TablesUpdate<'source_licenses'>[] = [];
+    const toInsert: TablesInsert<'source', 'licenses'>[] = [];
+    const toUpdate: TablesUpdate<'source', 'licenses'>[] = [];
 
     for (const policy of licenses) {
       const existing = existingLicenses.data.rows.find((i) => i.external_id === policy.id);
@@ -34,11 +34,11 @@ export async function syncLicenses(
       .filter((item) => !updateIds.has(item.external_id))
       .map((item) => item.id);
 
-    const inserted = await insertRows('source_licenses', { rows: toInsert });
+    const inserted = await insertRows('source', 'licenses', { rows: toInsert });
     if (!inserted.ok) {
       throw new Error('Failed to insert source licenses');
     }
-    const deleted = await deleteRows('source_licenses', {
+    const deleted = await deleteRows('source', 'licenses', {
       filters: [['id', 'in', toDelete]],
     });
     if (!deleted.ok) {
@@ -52,7 +52,7 @@ export async function syncLicenses(
 
     const policies = [...inserted.data];
     for await (const update of toUpdate) {
-      const updated = await updateRow('source_licenses', { id: update.id!, row: update });
+      const updated = await updateRow('source', 'licenses', { id: update.id!, row: update });
       if (!updated.ok) {
         Debug.warn({
           module: 'Microsoft365',

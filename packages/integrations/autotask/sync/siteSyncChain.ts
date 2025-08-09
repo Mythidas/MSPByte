@@ -2,15 +2,15 @@
 
 import SyncChain from '@/core/SyncChain';
 import { getRow } from '@/db/orm';
-import { Tables } from '@/db/schema';
 import {
   getActiveContracts,
   getContractServices,
 } from '@/integrations/autotask/services/contracts';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
+import { Tables } from '@/types/db';
 
-export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
-  const integration = await getRow('source_integrations', {
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
+  const integration = await getRow('public', 'integrations', {
     filters: [
       ['source_id', 'eq', job.source_id],
       ['tenant_id', 'eq', job.tenant_id],

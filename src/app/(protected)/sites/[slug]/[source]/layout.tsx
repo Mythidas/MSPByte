@@ -8,7 +8,7 @@ type Props = {
 
 export default async function Layout({ params, children }: Props) {
   const { slug, source } = await params;
-  const site = await getRow('sites', {
+  const site = await getRow('public', 'sites', {
     filters: [['slug', 'eq', slug]],
   });
 
@@ -16,7 +16,7 @@ export default async function Layout({ params, children }: Props) {
     return <strong>No site found. Please refresh.</strong>;
   }
 
-  const tenant = await getRow('source_tenants', {
+  const tenant = await getRow('source', 'tenants', {
     filters: [
       ['source_id', 'eq', source],
       ['site_id', 'eq', site.data.id],

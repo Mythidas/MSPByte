@@ -1,4 +1,4 @@
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import {
   getSourceDevices,
@@ -9,17 +9,17 @@ import {
 import { APIResponse } from '@/types';
 
 export async function syncDevices(
-  tenant: Tables<'source_tenants'>,
-  spDevices: TablesInsert<'source_devices'>[]
-): Promise<APIResponse<Tables<'source_devices'>[]>> {
+  tenant: Tables<'source', 'tenants'>,
+  spDevices: TablesInsert<'source', 'devices'>[]
+): Promise<APIResponse<Tables<'source', 'devices'>[]>> {
   try {
     const existingDevices = await getSourceDevices(tenant.source_id, [tenant.site_id]);
     if (!existingDevices.ok) {
       throw new Error(existingDevices.error.message);
     }
 
-    const toInsert: TablesInsert<'source_devices'>[] = [];
-    const toUpdate: TablesUpdate<'source_devices'>[] = [];
+    const toInsert: TablesInsert<'source', 'devices'>[] = [];
+    const toUpdate: TablesUpdate<'source', 'devices'>[] = [];
 
     for (const device of spDevices) {
       const existing = existingDevices.data.rows.find((i) => i.external_id === device.id);

@@ -1,6 +1,6 @@
 'use server';
 
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { createAdminClient, createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { sendEmail } from '@/services/email';
@@ -9,17 +9,17 @@ import { PaginationOptions } from '@/types/db';
 import { tables } from 'packages/db';
 
 export async function getUsers(pagination?: PaginationOptions) {
-  return tables.select('users', undefined, pagination);
+  return tables.select('public', 'users', undefined, pagination);
 }
 
 export async function getUser(id: string) {
-  return tables.selectSingle('users', (query) => {
+  return tables.selectSingle('public', 'users', (query) => {
     query = query.eq('id', id);
   });
 }
 
 export async function getUserOptions(id: string) {
-  return tables.selectSingle('user_options', (query) => {
+  return tables.selectSingle('public', 'user_options', (query) => {
     query = query.eq('id', id);
   });
 }
@@ -33,7 +33,7 @@ export async function getCurrentUserView() {
       throw error.message;
     }
 
-    return tables.selectSingle('user_view', (query) => {
+    return tables.selectSingle('public', 'user_view', (query) => {
       query = query.eq('id', data.user.id);
     });
   } catch (err) {
@@ -46,18 +46,18 @@ export async function getCurrentUserView() {
   }
 }
 
-export async function updateUser(id: string, row: TablesUpdate<'users'>) {
-  return tables.update('users', id, row);
+export async function updateUser(id: string, row: TablesUpdate<'public', 'users'>) {
+  return tables.update('public', 'users', id, row);
 }
 
-export async function updateUserOptions(id: string, row: TablesUpdate<'user_options'>) {
-  return tables.update('user_options', id, row);
+export async function updateUserOptions(id: string, row: TablesUpdate<'public', 'user_options'>) {
+  return tables.update('public', 'user_options', id, row);
 }
 
 export async function putUser(
-  row: TablesInsert<'users'>,
+  row: TablesInsert<'public', 'users'>,
   _sendEmail?: boolean
-): Promise<APIResponse<Tables<'users'>>> {
+): Promise<APIResponse<Tables<'public', 'users'>>> {
   try {
     const supabaseAdmin = await createAdminClient();
     const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -122,7 +122,7 @@ export async function putUser(
 
     return {
       ok: true,
-      data: data as Tables<'users'>,
+      data: data as Tables<'public', 'users'>,
     };
   } catch (err) {
     return Debug.error({

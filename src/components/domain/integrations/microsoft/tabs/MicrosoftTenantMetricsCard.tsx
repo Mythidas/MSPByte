@@ -14,7 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRow, getRows } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { resolveSearch } from '@/lib/helpers/search';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
@@ -24,23 +24,23 @@ import { useState } from 'react';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
-  group?: Tables<'site_groups'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
+  group?: Tables<'public', 'site_groups'>;
 };
 
 export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (group) {
-        const memberships = await getRows('site_group_memberships', {
+        const memberships = await getRows('public', 'site_group_memberships', {
           filters: [['group_id', 'eq', group.id]],
         });
         if (!memberships.ok) {
           return { rows: [], total: 0 };
         }
 
-        const tenants = await getRows('source_tenants', {
+        const tenants = await getRows('source', 'tenants', {
           filters: [
             ['site_id', 'in', memberships.data.rows.map((m) => m.site_id)],
             ['source_id', 'eq', sourceId],
@@ -54,7 +54,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
       }
 
       if (site) {
-        const tenant = await getRow('source_tenants', {
+        const tenant = await getRow('source', 'tenants', {
           filters: [
             ['source_id', 'eq', sourceId],
             ['site_id', 'eq', site.id],
@@ -67,7 +67,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
         return undefined;
       }
 
-      const sites = await getRows('sites', {
+      const sites = await getRows('public', 'sites', {
         filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
       });
       if (!sites.ok) return undefined;
@@ -75,7 +75,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
       const siteIds = parent
         ? [parent.id, ...sites.data.rows.map((s) => s.id)]
         : [...sites.data.rows.map((s) => s.id)];
-      const tenant = await getRows('source_tenants', {
+      const tenant = await getRows('source', 'tenants', {
         filters: [
           ['source_id', 'eq', sourceId],
           ['site_id', 'in', siteIds],
@@ -162,7 +162,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
 }
 
 type SourceTenantCardsProps = {
-  tenants: Tables<'source_tenants'>[];
+  tenants: Tables<'source', 'tenants'>[];
   route: string;
 };
 function SecurityPostureCard({ tenants, route }: SourceTenantCardsProps) {

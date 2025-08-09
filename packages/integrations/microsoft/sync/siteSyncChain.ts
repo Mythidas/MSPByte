@@ -1,8 +1,7 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { deleteRows, getRows } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { deleteRows, getRow, getRows } from '@/db/orm';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
 import { syncLicenses } from '@/integrations/microsoft/sync/syncLicenses';
@@ -14,10 +13,16 @@ import { transformPolicies } from '@/integrations/microsoft/transforms/policies'
 import { Debug } from '@/lib/utils';
 import { getSourceIdentities } from '@/services/identities';
 import { getSourcePolicies } from '@/services/policies';
-import { getSourceTenant, updateSourceTenant } from '@/services/source/tenants';
+import { updateSourceTenant } from '@/services/source/tenants';
+import { Tables } from '@/types/db';
 
-export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
-  const tenantResult = await getSourceTenant(job.source_id, job.site_id!);
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
+  const tenantResult = await getRow('source', 'tenants', {
+    filters: [
+      ['source_id', 'eq', job.source_id],
+      ['site_id', 'eq', job.site_id],
+    ],
+  });
   if (!tenantResult.ok) {
     throw 'No source tenant found';
   }
@@ -39,7 +44,7 @@ export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
       'Transform External',
       async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users, activity }) => {
         const skus = subscribedSkus.map((sku) => sku.skuPartNumber);
-        const licenseInfo = await getRows('source_license_info', {
+        const licenseInfo = await getRows('source', 'license_info', {
           filters: [['sku', 'in', skus]],
         });
 
@@ -121,7 +126,7 @@ export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
       const [policies, identities, licenses] = await Promise.all([
         await getSourcePolicies(ctx.job.source_id, [ctx.job.site_id!]),
         await getSourceIdentities(ctx.job.source_id, [ctx.job.site_id!]),
-        await getRows('source_licenses', {
+        await getRows('source', 'licenses', {
           filters: [
             ['source_id', 'eq', ctx.job.source_id],
             ['site_id', 'eq', ctx.job.site_id],
@@ -141,13 +146,13 @@ export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
         .filter((lic) => lic.sync_id && lic.sync_id !== ctx.job.id)
         .map((lic) => lic.id);
 
-      await deleteRows('source_identities', {
+      await deleteRows('source', 'identities', {
         filters: [['id', 'in', identitiesToDelete]],
       });
-      await deleteRows('source_policies', {
+      await deleteRows('source', 'policies', {
         filters: [['id', 'in', policicesToDelete]],
       });
-      await deleteRows('source_licenses', {
+      await deleteRows('source', 'licenses', {
         filters: [['id', 'in', licensesToDelete]],
       });
 

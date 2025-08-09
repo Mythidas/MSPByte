@@ -23,7 +23,7 @@ import {
   SelectItem,
 } from '@/components/ui/select';
 import { Form, FormField, FormControl, FormItem, FormLabel } from '@/components/ui/form';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { updateUser } from '@/services/users';
 import { pascalCase } from '@/lib/utils';
 import { z } from 'zod';
@@ -42,11 +42,11 @@ const schema = z.object({
 type FormSchema = z.infer<typeof schema>;
 
 type Props = {
-  user: Tables<'users'>;
-  roles: Tables<'roles'>[];
+  user: Tables<'public', 'users'>;
+  roles: Tables<'public', 'roles'>[];
   children: React.ReactNode;
   disabled?: boolean;
-  onSave?: (user: Tables<'users'>) => void;
+  onSave?: (user: Tables<'public', 'users'>) => void;
 };
 
 export default function UserTableUserDrawer({ user, roles, children, disabled, onSave }: Props) {

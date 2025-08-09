@@ -1,13 +1,13 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { createClient } from '@/db/server';
 import { syncAutoTask } from '@/integrations/autotask/sync';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
 import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 
-export async function syncJob(job: Tables<'source_sync_jobs'>) {
+export async function syncJob(job: Tables<'source', 'sync_jobs'>) {
   const supabase = await createClient();
   try {
     switch (job.source_id) {
@@ -28,7 +28,8 @@ export async function syncJob(job: Tables<'source_sync_jobs'>) {
     }
   } catch (err: unknown) {
     await supabase
-      .from('source_sync_jobs')
+      .schema('source')
+      .from('sync_jobs')
       .update({
         status: 'failed',
         error: String(err),

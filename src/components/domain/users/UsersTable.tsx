@@ -1,7 +1,7 @@
 'use client';
 
 import CreateUserDialog from '@/components/domain/users/CreateUserDialog';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { useUser } from '@/lib/providers/UserContext';
@@ -13,7 +13,7 @@ import { textColumn, dateColumn } from '@/components/shared/table/DataTableColum
 import UserTableUserDrawer from '@/components/domain/users/UserTableUserDrawer';
 
 export default function UsersTable() {
-  const [roles, setRoles] = useState<Tables<'roles'>[]>([]);
+  const [roles, setRoles] = useState<Tables<'public', 'roles'>[]>([]);
   const tableRef = useRef<DataTableRef>(null);
   const { user: context } = useUser();
 
@@ -90,7 +90,7 @@ export default function UsersTable() {
             label: 'Status',
             cell: ({ row }) => pascalCase(row.original.status || ''),
           }),
-        ] as DataTableColumnDef<Tables<'users'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'users'>>[]
       }
       filters={{
         User: {

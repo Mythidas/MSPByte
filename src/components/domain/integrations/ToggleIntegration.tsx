@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { Power } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -32,8 +32,8 @@ import { deleteRows, insertRows } from '@/db/orm';
 import { useUser } from '@/lib/providers/UserContext';
 
 type Props = {
-  source: Tables<'sources'>;
-  integration?: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration?: Tables<'public', 'integrations'>;
 };
 
 export default function ToggleIntegration({ source, integration }: Props) {
@@ -58,7 +58,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
     setIsLoading(true);
 
     try {
-      const result = await deleteRows('source_integrations', {
+      const result = await deleteRows('public', 'integrations', {
         filters: [['id', 'eq', integration?.id]],
       });
 
@@ -78,7 +78,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
     setIsLoading(true);
 
     try {
-      const result = await insertRows('source_integrations', {
+      const result = await insertRows('public', 'integrations', {
         rows: [
           {
             source_id: source.id,

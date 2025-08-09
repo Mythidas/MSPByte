@@ -34,14 +34,14 @@ export default function AutoTaskSiteMappingDialog({ sourceId, onSave }: Props) {
   const { refetch } = useAsync({
     initial: { autoTaskSites: [], internalSites: [] },
     fetcher: async () => {
-      const autoTask = await getRows('source_sites_view', {
+      const autoTask = await getRows('source', 'sites_view', {
         filters: [['source_id', 'eq', sourceId]],
         sorting: [['name', 'asc']],
       });
 
       if (autoTask.ok) {
         const siteIds = autoTask.data.rows.filter((at) => !!at.site_id).map((at) => at.site_id);
-        const sites = await getRows('sites', {
+        const sites = await getRows('public', 'sites', {
           filters: [['id', 'not.in', siteIds]],
           sorting: [['name', 'asc']],
         });
@@ -113,7 +113,7 @@ export default function AutoTaskSiteMappingDialog({ sourceId, onSave }: Props) {
         return;
       }
 
-      const result = await insertRows('source_tenants', {
+      const result = await insertRows('source', 'tenants', {
         rows: [
           {
             tenant_id: internalSite.tenant_id,

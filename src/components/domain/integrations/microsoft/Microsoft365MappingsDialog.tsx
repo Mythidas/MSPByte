@@ -24,7 +24,7 @@ import SearchBox from '@/components/shared/SearchBox';
 import { getSourceTenants, putSourceTenant } from '@/services/source/tenants';
 import { getDomains } from '@/integrations/microsoft/services/domains';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
-import { TablesInsert } from '@/db/schema';
+import { TablesInsert } from '@/types/db';
 import { toast } from 'sonner';
 import { useUser } from '@/lib/providers/UserContext';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
@@ -131,7 +131,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
     const selectedDomainNames = domains.filter((d) => selectedDomains.has(d.id)).map((d) => d.id);
 
     const client_secret = await encrypt(credentials.client_secret);
-    const mapping: TablesInsert<'source_tenants'> = {
+    const mapping: TablesInsert<'source', 'tenants'> = {
       source_id: sourceId,
       tenant_id: user?.tenant_id || '',
       site_id: selectedSite,

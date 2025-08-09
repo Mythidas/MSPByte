@@ -3,7 +3,6 @@ import {
   tablesCountGeneric,
   tablesDeleteGeneric,
   tablesInsertGeneric,
-  tablesRPCGeneric,
   tablesSelectGeneric,
   tablesSelectPaginated,
   tablesSelectSingleGeneric,
@@ -23,5 +22,4 @@ export const tables = {
   upsert: tablesUpsertGeneric,
   delete: tablesDeleteGeneric,
   count: tablesCountGeneric,
-  rpc: tablesRPCGeneric,
 };

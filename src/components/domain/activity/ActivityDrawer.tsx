@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { prettyText } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import {
@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/drawer';
 import CopyToClipboard from '@/components/shared/CopyToClipboard';
 
-type ActivityFeed = Tables<'activity_feeds_view'>;
+type ActivityFeed = Tables<'public', 'activity_feeds_view'>;
 
 interface Props {
   activity: ActivityFeed;

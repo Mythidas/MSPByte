@@ -1,11 +1,11 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getSecurityDefaultsEnabled(
-  mapping: Tables<'source_tenants'>
+  mapping: Tables<'source', 'tenants'>
 ): Promise<APIResponse<boolean>> {
   try {
     const metadata = mapping.metadata as any;

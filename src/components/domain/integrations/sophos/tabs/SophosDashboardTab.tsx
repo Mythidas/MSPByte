@@ -1,11 +1,11 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { SourceMetricCard } from '@/components/domain/metrics/SourceMetricCard';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
-  group?: Tables<'site_groups'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
+  group?: Tables<'public', 'site_groups'>;
 };
 
 export default function SophosDashboardTab({ ...props }: Props) {

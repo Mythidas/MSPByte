@@ -1,8 +1,8 @@
 'use server';
 
 import { tables } from '@/db';
-import { TablesInsert } from '@/db/schema';
+import { TablesInsert } from '@/types/db';
 
-export async function putSite(sites: TablesInsert<'sites'>[]) {
-  return tables.insert('sites', sites);
+export async function putSite(sites: TablesInsert<'public', 'sites'>[]) {
+  return tables.insert('public', 'sites', sites);
 }

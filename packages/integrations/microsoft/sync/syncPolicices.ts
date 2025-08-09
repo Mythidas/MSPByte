@@ -1,4 +1,4 @@
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import {
   getSourcePolicies,
@@ -9,18 +9,18 @@ import {
 import { APIResponse } from '@/types';
 
 export async function syncPolicies(
-  tenant: Tables<'source_tenants'>,
-  caPolicies: TablesInsert<'source_policies'>[],
+  tenant: Tables<'source', 'tenants'>,
+  caPolicies: TablesInsert<'source', 'policies'>[],
   sync_id: string
-): Promise<APIResponse<Tables<'source_policies'>[]>> {
+): Promise<APIResponse<Tables<'source', 'policies'>[]>> {
   try {
     const existingPolicies = await getSourcePolicies(tenant.source_id, [tenant.site_id]);
     if (!existingPolicies.ok) {
       throw new Error(existingPolicies.error.message);
     }
 
-    const toInsert: TablesInsert<'source_policies'>[] = [];
-    const toUpdate: TablesUpdate<'source_policies'>[] = [];
+    const toInsert: TablesInsert<'source', 'policies'>[] = [];
+    const toUpdate: TablesUpdate<'source', 'policies'>[] = [];
 
     for (const policy of caPolicies) {
       const existing = existingPolicies.data.rows.find((i) => i.external_id === policy.external_id);

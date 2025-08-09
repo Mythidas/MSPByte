@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useState } from 'react';
 import {
   Shield,
@@ -32,7 +32,7 @@ import { MicrosoftPolicyMetadata } from '@/types/source/policies';
 
 type Props = {
   label: string;
-  policy: Tables<'source_policies_view'>;
+  policy: Tables<'source', 'policies_view'>;
   onDelete?: () => void;
 };
 

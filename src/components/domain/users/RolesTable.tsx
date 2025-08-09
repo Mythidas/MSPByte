@@ -1,6 +1,6 @@
 'use client';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import DataTable from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { numberColumn, textColumn } from '@/components/shared/table/DataTableColumn';
@@ -9,7 +9,7 @@ import { getUsers } from '@/services/users';
 import { useState } from 'react';
 
 export default function RolesTable() {
-  const [users, setUsers] = useState<Tables<'users'>[]>([]);
+  const [users, setUsers] = useState<Tables<'public', 'users'>[]>([]);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const roles = await getRoles({
@@ -57,7 +57,7 @@ export default function RolesTable() {
             label: 'Custom',
             cell: ({ row }) => <div>{row.original.tenant_id ? 'True' : 'False'}</div>,
           }),
-        ] as DataTableColumnDef<Tables<'roles'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'roles'>>[]
       }
       filters={{
         Role: {

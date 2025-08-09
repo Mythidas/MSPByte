@@ -1,4 +1,4 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import { putSourceSyncJobs } from '@/services/sources';
 import { APIResponse } from '@/types';
@@ -7,7 +7,7 @@ export async function syncSource(
   sourceId: string,
   tenantId: string,
   siteIds: { siteId: string; sourceTenantId: string }[]
-): Promise<APIResponse<Tables<'source_sync_jobs'>[]>> {
+): Promise<APIResponse<Tables<'source', 'sync_jobs'>[]>> {
   const getEstDuration = () => {
     switch (sourceId) {
       case 'microsoft-365':

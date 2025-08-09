@@ -1,11 +1,11 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function revokeUserSessions(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>,
   userId: string
 ): Promise<APIResponse<null>> {
   try {
@@ -31,7 +31,7 @@ export async function revokeUserSessions(
 }
 
 export async function resetUserPassword(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>,
   userId: string,
   newPassword: string
 ): Promise<APIResponse<null>> {
@@ -63,7 +63,7 @@ export async function resetUserPassword(
 }
 
 export async function resetUserMFA(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>,
   userId: string
 ): Promise<APIResponse<null>> {
   try {
@@ -100,7 +100,7 @@ export async function resetUserMFA(
 }
 
 export async function checkInboxRules(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>,
   userId: string,
   email: string
 ) {

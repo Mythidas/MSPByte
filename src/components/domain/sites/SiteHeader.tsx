@@ -3,12 +3,12 @@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRowsCount } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Building, Building2, Globe } from 'lucide-react';
 
 type Props = {
-  site: Tables<'sites'>;
+  site: Tables<'public', 'sites'>;
 };
 
 export default function SiteHeader({ site }: Props) {
@@ -16,7 +16,7 @@ export default function SiteHeader({ site }: Props) {
     fetcher: async () => {
       if (!site.is_parent) return 0;
 
-      const sites = await getRowsCount('sites', {
+      const sites = await getRowsCount('public', 'sites', {
         filters: [['parent_id', 'eq', site.id]],
       });
 

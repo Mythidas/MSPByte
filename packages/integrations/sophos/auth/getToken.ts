@@ -1,13 +1,13 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getToken(
-  integration: Tables<'source_integrations'>
+  integration: Tables<'public', 'integrations'>
 ): Promise<APIResponse<string>> {
   try {
     if (integration.token) {
@@ -48,7 +48,7 @@ export async function getToken(
 
     const supabase = await createClient();
     await supabase
-      .from('source_integrations')
+      .from('integrations')
       .update({
         token: data.access_token,
         token_expiration: new Date(new Date().getTime() + data.expires_in * 1000).toISOString(),

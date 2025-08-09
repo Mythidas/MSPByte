@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRowsCount } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { getSite } from '@/services/sites';
 import { Building } from 'lucide-react';
@@ -18,7 +18,7 @@ import { useSelectedLayoutSegment } from 'next/navigation';
 import React from 'react';
 
 type Props = {
-  site: Tables<'sites'>;
+  site: Tables<'public', 'sites'>;
 };
 
 export default function SiteBreadcrumbs({ site }: Props) {
@@ -28,7 +28,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
     fetcher: async () => {
       if (!site.is_parent) return 0;
 
-      const sites = await getRowsCount('sites', {
+      const sites = await getRowsCount('public', 'sites', {
         filters: [['parent_id', 'eq', site.id]],
       });
 
@@ -53,7 +53,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      let parent: Tables<'sites'> | undefined;
+      let parent: Tables<'public', 'sites'> | undefined;
 
       if (site.parent_id) {
         const result = await getSite(site.parent_id);

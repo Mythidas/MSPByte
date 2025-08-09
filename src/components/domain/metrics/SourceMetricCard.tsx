@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardAction, CardContent } from '@/componen
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRows } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { cn } from '@/lib/utils';
 import { Users2 } from 'lucide-react';
@@ -16,9 +16,9 @@ type Props = {
   title: string;
   sourceId: string;
   color?: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
-  group?: Tables<'site_groups'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
+  group?: Tables<'public', 'site_groups'>;
   unit?: string;
 };
 export function SourceMetricCard({
@@ -34,7 +34,7 @@ export function SourceMetricCard({
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (group) {
-        const metrics = await getRows('rollup_metrics_group', {
+        const metrics = await getRows('source', 'metrics_rollup_group', {
           filters: [
             ['group_id', 'eq', group.id],
             ['source_id', 'eq', sourceId],
@@ -48,7 +48,7 @@ export function SourceMetricCard({
       }
 
       if (site) {
-        const metrics = await getRows('rollup_metrics_site', {
+        const metrics = await getRows('source', 'metrics_rollup_site', {
           filters: [
             ['source_id', 'eq', sourceId],
             ['site_id', 'eq', site.id],
@@ -62,7 +62,7 @@ export function SourceMetricCard({
       }
 
       if (parent) {
-        const metrics = await getRows('rollup_metrics_parent', {
+        const metrics = await getRows('source', 'metrics_rollup_parent', {
           filters: [
             ['source_id', 'eq', sourceId],
             ['parent_id', 'eq', parent.id],
@@ -75,7 +75,7 @@ export function SourceMetricCard({
         }
       }
 
-      const metrics = await getRows('rollup_metrics_global', {
+      const metrics = await getRows('source', 'metrics_rollup_global', {
         filters: [['source_id', 'eq', sourceId], unit ? ['unit', 'eq', unit] : undefined],
       });
 

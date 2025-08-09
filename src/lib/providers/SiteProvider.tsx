@@ -1,12 +1,12 @@
 'use client';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { SiteProvider } from '@/lib/providers/SiteContext';
 export default function SiteProviderClient({
   site,
   children,
 }: {
-  site: Tables<'sites'>;
+  site: Tables<'public', 'sites'>;
   children: React.ReactNode;
 }) {
   return <SiteProvider value={site}>{children}</SiteProvider>;

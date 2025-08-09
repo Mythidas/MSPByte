@@ -1,4 +1,4 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { MSGraphUserSignInLog } from '@/integrations/microsoft/types/activity';
@@ -7,7 +7,7 @@ import { APIResponse } from '@/types';
 import Papa from 'papaparse';
 
 export async function getRecentSignIns(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<Record<string, string>>> {
   try {
     const metadata = mapping.metadata as any;

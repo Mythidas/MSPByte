@@ -2,7 +2,7 @@ import { setBearerToken } from '@/db/context';
 import { Debug } from '@/lib/utils';
 import { NextResponse } from 'next/server';
 import { getRows, insertRows } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { DateTime } from 'luxon';
 
 export const runtime = 'nodejs'; // Important!
@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'; // Avoid caching
 export async function GET() {
   return await setBearerToken(process.env.NEXT_SUPABASE_SERVICE_KEY!, async () => {
     try {
-      const integrations = await getRows('source_integrations_view');
+      const integrations = await getRows('public', 'integrations_view');
       if (!integrations.ok) throw integrations.error.message;
       const syncable = [];
       const nowUtc = DateTime.utc();
@@ -32,13 +32,13 @@ export async function GET() {
           const syncedToday = lastSynced ? lastSynced.hasSame(now, 'day') : false;
 
           if (inAfterHours && !syncedToday) {
-            syncable.push(integration as unknown as Tables<'source_integrations'>);
+            syncable.push(integration as unknown as Tables<'public', 'integrations'>);
           }
         } else if (integration.sync_interval === 'hourly') {
           const hoursSinceLastSync = lastSynced ? now.diff(lastSynced, 'hours').hours : Infinity;
 
           if (hoursSinceLastSync >= 1) {
-            syncable.push(integration as unknown as Tables<'source_integrations'>);
+            syncable.push(integration as unknown as Tables<'public', 'integrations'>);
           }
         }
       }
@@ -62,8 +62,8 @@ export async function GET() {
   });
 }
 
-async function startSync(integration: Tables<'source_integrations'>) {
-  const sourceTenants = await getRows('source_tenants', {
+async function startSync(integration: Tables<'public', 'integrations'>) {
+  const sourceTenants = await getRows('source', 'tenants', {
     filters: [
       ['source_id', 'eq', integration.source_id],
       ['tenant_id', 'eq', integration.tenant_id],
@@ -79,7 +79,7 @@ async function startSync(integration: Tables<'source_integrations'>) {
     };
   });
 
-  await insertRows('source_sync_jobs', {
+  await insertRows('source', 'sync_jobs', {
     rows: [
       ...siteRows,
       {

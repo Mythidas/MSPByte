@@ -1,4 +1,4 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
@@ -6,7 +6,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getConditionalAccessPolicies(
-  mapping: Tables<'source_tenants'>
+  mapping: Tables<'source', 'tenants'>
 ): Promise<APIResponse<MSGraphConditionalAccessPolicy[]>> {
   try {
     const metadata = mapping.metadata as any;

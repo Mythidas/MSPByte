@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { getRow, insertRows } from '@/db/orm';
@@ -37,14 +37,14 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 type Props = {
-  group: Tables<'site_groups'>;
-  onSuccess?: (view: Tables<'site_group_memberships_view'>) => void;
+  group: Tables<'public', 'site_groups'>;
+  onSuccess?: (view: Tables<'public', 'site_group_memberships_view'>) => void;
 };
 
 export default function CreateGroupMembershipDialog({ group, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [sites, setSites] = useState<Tables<'sites'>[]>([]);
+  const [sites, setSites] = useState<Tables<'public', 'sites'>[]>([]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -55,10 +55,10 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
 
   useEffect(() => {
     const fetchSites = async () => {
-      const existing = await getRows('site_group_memberships', {
+      const existing = await getRows('public', 'site_group_memberships', {
         filters: [['group_id', 'eq', group.id]],
       });
-      const res = await getRows('sites', {
+      const res = await getRows('public', 'sites', {
         filters: [
           existing.ok ? ['id', 'not.in', existing.data.rows.map((e) => e.site_id)] : undefined,
         ],
@@ -74,7 +74,7 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
     try {
       setIsSaving(true);
 
-      const result = await insertRows('site_group_memberships', {
+      const result = await insertRows('public', 'site_group_memberships', {
         rows: [
           {
             site_id: data.site_id,
@@ -86,7 +86,7 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
 
       if (!result.ok) throw result.error.message;
 
-      const view = await getRow('site_group_memberships_view', {
+      const view = await getRow('public', 'site_group_memberships_view', {
         filters: [
           ['site_id', 'eq', result.data[0].site_id],
           ['group_id', 'eq', result.data[0].group_id],

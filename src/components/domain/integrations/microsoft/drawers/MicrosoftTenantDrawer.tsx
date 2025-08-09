@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { prettyText } from '@/lib/utils';
 import { useState } from 'react';
 import {
@@ -33,7 +33,7 @@ import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 
 type Props = {
   label: string;
-  tenant: Tables<'source_tenants_view'>;
+  tenant: Tables<'source', 'tenants_view'>;
   onDelete?: () => void;
 };
 
@@ -41,7 +41,8 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
   const [isOpen, setIsOpen] = useState(false);
 
   const { confirmAndDelete, DeleteDialog } = useDelete({
-    table: 'source_tenants',
+    schema: 'source',
+    table: 'tenants',
     getId: (item) => ({
       id: item.id,
     }),
@@ -236,7 +237,7 @@ export default function MicrosoftTenantDrawer({ label, tenant, onDelete }: Props
           />
           <SubmitButton
             variant="destructive"
-            onClick={() => confirmAndDelete(tenant as unknown as Tables<'source_tenants'>)}
+            onClick={() => confirmAndDelete(tenant as unknown as Tables<'source', 'tenants'>)}
             module="SourceTenants.Delete"
           >
             Delete

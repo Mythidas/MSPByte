@@ -1,4 +1,4 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
@@ -8,7 +8,7 @@ import { APIResponse } from '@/types';
 import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getUsers(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>,
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>,
   licenses: MSGraphSubscribedSku[],
   cursor?: string
 ): Promise<APIResponse<{ users: MSGraphUser[]; next?: string }>> {
@@ -67,7 +67,7 @@ export async function getUsers(
 
 export async function getUserContext(
   user: MSGraphUser,
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<MSGraphUserContext>> {
   try {
     const metadata = mapping.metadata as any;

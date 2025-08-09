@@ -28,7 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { putUser } from '@/services/users';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { UserPlus } from 'lucide-react';
@@ -49,8 +49,8 @@ type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   tenantId: string;
-  roles: Tables<'roles'>[];
-  onCreate?: (user: Tables<'users'>) => void;
+  roles: Tables<'public', 'roles'>[];
+  onCreate?: (user: Tables<'public', 'users'>) => void;
 };
 
 export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {

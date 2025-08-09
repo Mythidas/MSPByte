@@ -13,7 +13,7 @@ import {
   RotateCcw,
   X,
 } from 'lucide-react';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,8 +49,8 @@ import { MicrosoftEmailBreachMetadata } from '@/types/source/feeds';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
 };
 
 type Step = {
@@ -62,8 +62,10 @@ type Step = {
 
 export default function MicrosoftEmailBreachAction({}: Props) {
   const [currentPhase, setCurrentPhase] = useState('sites');
-  const [selectedSite, setSelectedSite] = useState<Tables<'source_tenants_view'>>();
-  const [selectedIdentities, setSelectedIdentities] = useState<Tables<'source_identities'>[]>([]);
+  const [selectedSite, setSelectedSite] = useState<Tables<'source', 'tenants_view'>>();
+  const [selectedIdentities, setSelectedIdentities] = useState<Tables<'source', 'identities'>[]>(
+    []
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [feedId, setFeedId] = useState('');
   const newPassword = useRef(generatePassword());
@@ -72,7 +74,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
     initial: undefined,
     fetcher: async () => {
       if (currentPhase === 'results' && feedId) {
-        const feed = await getRow('activity_feeds', { filters: [['id', 'eq', feedId]] });
+        const feed = await getRow('public', 'activity_feeds', { filters: [['id', 'eq', feedId]] });
         if (feed.ok) {
           return feed.data;
         }
@@ -88,11 +90,11 @@ export default function MicrosoftEmailBreachAction({}: Props) {
     results: 'Results',
   };
 
-  const handleSiteSelect = (site: Tables<'source_tenants_view'>) => {
+  const handleSiteSelect = (site: Tables<'source', 'tenants_view'>) => {
     setSelectedSite(site);
     setCurrentPhase('users');
   };
-  const handelIdentitySubmit = (identities: Tables<'source_identities'>[]) => {
+  const handelIdentitySubmit = (identities: Tables<'source', 'identities'>[]) => {
     setSelectedIdentities(identities);
 
     if (identities.length > 0) {
@@ -305,7 +307,11 @@ export default function MicrosoftEmailBreachAction({}: Props) {
   );
 }
 
-const SitesStep = ({ onSelect }: { onSelect: (site: Tables<'source_tenants_view'>) => void }) => {
+const SitesStep = ({
+  onSelect,
+}: {
+  onSelect: (site: Tables<'source', 'tenants_view'>) => void;
+}) => {
   const { content } = useLazyLoad({
     fetcher: async () => {
       const sites = await getSourceTenantsView('microsoft-365');
@@ -314,7 +320,7 @@ const SitesStep = ({ onSelect }: { onSelect: (site: Tables<'source_tenants_view'
     render: (sites) => {
       if (!sites) return <strong>Failed to fetch sites. Please refresh.</strong>;
 
-      const handleClick = (site: Tables<'source_tenants_view'>) => {
+      const handleClick = (site: Tables<'source', 'tenants_view'>) => {
         onSelect(site);
       };
 
@@ -337,7 +343,7 @@ const SitesStep = ({ onSelect }: { onSelect: (site: Tables<'source_tenants_view'
                   </button>
                 ),
               }),
-            ] as DataTableColumnDef<Tables<'source_tenants_view'>>[]
+            ] as DataTableColumnDef<Tables<'source', 'tenants_view'>>[]
           }
         />
       );
@@ -353,9 +359,11 @@ const UsersStep = ({
   onSubmit,
 }: {
   siteId: string;
-  onSubmit: (identities: Tables<'source_identities'>[]) => void;
+  onSubmit: (identities: Tables<'source', 'identities'>[]) => void;
 }) => {
-  const [selectedIdentities, setSelectedIdentities] = useState<Tables<'source_identities'>[]>([]);
+  const [selectedIdentities, setSelectedIdentities] = useState<Tables<'source', 'identities'>[]>(
+    []
+  );
   const [search, setSearch] = useState('');
   const [dialog, setDialog] = useState(false);
 
@@ -367,7 +375,7 @@ const UsersStep = ({
     render: (identities) => {
       if (!identities) return <strong>Failed to fetch users. Please refresh.</strong>;
 
-      const handleIdentityToggle = (identity: Tables<'source_identities'>) => {
+      const handleIdentityToggle = (identity: Tables<'source', 'identities'>) => {
         setSelectedIdentities((prev) =>
           prev.includes(identity) ? prev.filter((id) => id.id !== identity.id) : [...prev, identity]
         );
@@ -465,7 +473,7 @@ const ProcessingStep = ({
   password,
   onComplete,
 }: {
-  identities: Tables<'source_identities'>[];
+  identities: Tables<'source', 'identities'>[];
   password: string;
   onComplete: (feedId: string) => void;
 }) => {
@@ -505,7 +513,7 @@ const ProcessingStep = ({
     fetcher: async () => {
       if (!postedRef.current) {
         postedRef.current = true;
-        const feed = await insertRows('activity_feeds', {
+        const feed = await insertRows('public', 'activity_feeds', {
           rows: [
             {
               id: feedId.current,
@@ -548,7 +556,9 @@ const ProcessingStep = ({
         }
       }
 
-      const feed = await getRow('activity_feeds', { filters: [['id', 'eq', feedId.current]] });
+      const feed = await getRow('public', 'activity_feeds', {
+        filters: [['id', 'eq', feedId.current]],
+      });
       if (feed.ok) {
         if (
           Object.entries(

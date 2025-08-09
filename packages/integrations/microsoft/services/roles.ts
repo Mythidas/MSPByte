@@ -1,6 +1,6 @@
 'use server';
 
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth';
 import { MSGraphRole } from '@/integrations/microsoft/types/roles';
@@ -8,7 +8,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getRoles(
-  mapping: Pick<Tables<'source_tenants'>, 'external_id' | 'metadata'>
+  mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<MSGraphRole[]>> {
   try {
     const metadata = mapping.metadata as any;

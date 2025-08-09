@@ -12,7 +12,7 @@ import {
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
 import { SOURCE_TABS } from '@/config/sourceTabs';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useSource } from '@/lib/providers/SourceContext';
 import { cn } from '@/lib/utils';
 import { BarChart3, Building2, Puzzle, Settings, LucideProps, Logs, Box } from 'lucide-react';
@@ -68,7 +68,7 @@ const navItems: NavItem[] = [
 ];
 
 type Props = {
-  site: Tables<'sites'>;
+  site: Tables<'public', 'sites'>;
   children: React.ReactNode;
 };
 

@@ -21,7 +21,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useUser } from '@/lib/providers/UserContext';
 import { getSiteView, putSite } from '@/services/sites';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -40,7 +40,7 @@ type FormData = z.infer<typeof formSchema>;
 
 type Props = {
   parentId?: string;
-  onSuccess?: (site: Tables<'sites_view'>) => void;
+  onSuccess?: (site: Tables<'public', 'sites_view'>) => void;
 };
 
 export default function CreateSiteDialog({ parentId, onSuccess }: Props) {

@@ -1,7 +1,7 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
 import { getEndpoints } from '@/integrations/sophos/services/endpoints';
 import { syncDevices } from '@/integrations/sophos/sync/syncDevices';
@@ -12,7 +12,7 @@ import { deleteSourceDevices, getSourceDevices } from '@/services/devices';
 import { getSourceIntegration } from '@/services/integrations';
 import { getSourceTenant } from '@/services/source/tenants';
 
-export async function siteSyncChain(job: Tables<'source_sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const tenantResult = await getSourceTenant(job.source_id, job.site_id!);
   const integrationResult = await getSourceIntegration(undefined, job.source_id);
   if (!tenantResult.ok || !integrationResult.ok) return;

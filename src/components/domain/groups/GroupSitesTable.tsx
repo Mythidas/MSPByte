@@ -10,7 +10,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { useRef } from 'react';
 import DropDownItem from '@/components/shared/secure/DropDownItem';
 import { toast } from 'sonner';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/shared/table/DataTableColumn';
@@ -20,12 +20,13 @@ import { getRows } from '@/db/orm';
 import CreateGroupMembershipDialog from '@/components/domain/groups/CreateGroupMembershipDialog';
 
 type Props = {
-  group: Tables<'site_groups'>;
+  group: Tables<'public', 'site_groups'>;
 };
 
 export default function GroupSiteTable({ group }: Props) {
   const tableRef = useRef<DataTableRef>(null);
   const { confirmAndDelete, DeleteDialog } = useDelete({
+    schema: 'public',
     table: 'site_group_memberships',
     displayKey: 'site_id',
     getId: (item) => ({
@@ -36,7 +37,7 @@ export default function GroupSiteTable({ group }: Props) {
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const memberships = await getRows('site_group_memberships_view', {
+    const memberships = await getRows('public', 'site_group_memberships_view', {
       filters: [['group_id', 'eq', group.id]],
       pagination: {
         page: pageIndex,
@@ -51,7 +52,7 @@ export default function GroupSiteTable({ group }: Props) {
     return memberships.data;
   };
 
-  const createCallback = (membership: Tables<'site_group_memberships_view'>) => {
+  const createCallback = (membership: Tables<'public', 'site_group_memberships_view'>) => {
     tableRef.current?.refetch();
     toast.info(`Linked site ${membership.site_name}`);
   };
@@ -97,7 +98,9 @@ export default function GroupSiteTable({ group }: Props) {
                     variant="destructive"
                     module="Groups.Delete"
                     onClick={() =>
-                      confirmAndDelete(row.original as unknown as Tables<'site_group_memberships'>)
+                      confirmAndDelete(
+                        row.original as unknown as Tables<'public', 'site_group_memberships'>
+                      )
                     }
                   >
                     Delete
@@ -106,7 +109,7 @@ export default function GroupSiteTable({ group }: Props) {
               </DropdownMenu>
             ),
           }),
-        ] as DataTableColumnDef<Tables<'site_group_memberships_view'>>[]
+        ] as DataTableColumnDef<Tables<'public', 'site_group_memberships_view'>>[]
       }
       filters={{
         Site: {

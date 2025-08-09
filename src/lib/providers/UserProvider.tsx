@@ -2,13 +2,13 @@
 
 import { ReactNode } from 'react';
 import UserContext from '@/lib/providers/UserContext';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { RoleAccessKey } from '@/types/rights';
 
 type Props = {
-  user: Tables<'user_view'>;
-  options: Tables<'user_options'>;
-  tenant: Tables<'tenants'>;
+  user: Tables<'public', 'user_view'>;
+  options: Tables<'public', 'user_options'>;
+  tenant: Tables<'public', 'tenants'>;
   children: ReactNode;
 };
 

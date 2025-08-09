@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useUser } from '@/lib/providers/UserContext';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HousePlus } from 'lucide-react';
@@ -38,7 +38,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 type Props = {
-  onSuccess?: (group: Tables<'site_groups'>) => void;
+  onSuccess?: (group: Tables<'public', 'site_groups'>) => void;
 };
 
 export default function CreateSiteGroupDialog({ onSuccess }: Props) {
@@ -58,7 +58,7 @@ export default function CreateSiteGroupDialog({ onSuccess }: Props) {
     try {
       setIsSaving(true);
 
-      const result = await insertRows('site_groups', {
+      const result = await insertRows('public', 'site_groups', {
         rows: [
           {
             tenant_id: user?.tenant_id || '',

@@ -3,18 +3,18 @@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getRowsCount } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Building } from 'lucide-react';
 
 type Props = {
-  group: Tables<'site_groups'>;
+  group: Tables<'public', 'site_groups'>;
 };
 
 export default function GroupHeader({ group }: Props) {
   const { content: ChildBadge } = useLazyLoad({
     fetcher: async () => {
-      const memberships = await getRowsCount('site_group_memberships', {
+      const memberships = await getRowsCount('public', 'site_group_memberships', {
         filters: [['group_id', 'eq', group.id]],
       });
 

@@ -3,11 +3,11 @@
 // lib/providers/SourceContext.tsx
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
 type SourceContextType = {
-  source?: Tables<'source_integrations_view'>;
-  setSource: (src: Tables<'source_integrations_view'>) => void;
+  source?: Tables<'public', 'integrations_view'>;
+  setSource: (src: Tables<'public', 'integrations_view'>) => void;
 };
 
 const SourceContext = createContext<SourceContextType | undefined>(undefined);
@@ -16,10 +16,10 @@ export function SourceProvider({
   value,
   children,
 }: {
-  value?: Tables<'source_integrations_view'>;
+  value?: Tables<'public', 'integrations_view'>;
   children: React.ReactNode;
 }) {
-  const [source, setSource] = useState<Tables<'source_integrations_view'> | undefined>(value);
+  const [source, setSource] = useState<Tables<'public', 'integrations_view'> | undefined>(value);
 
   useEffect(() => {
     setSource(value);

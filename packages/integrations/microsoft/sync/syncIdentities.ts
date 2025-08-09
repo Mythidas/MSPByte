@@ -1,4 +1,4 @@
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 import {
   getSourceIdentities,
@@ -8,18 +8,18 @@ import {
 import { APIResponse } from '@/types';
 
 export async function syncIdentities(
-  tenant: Tables<'source_tenants'>,
-  graphUsers: TablesInsert<'source_identities'>[],
+  tenant: Tables<'source', 'tenants'>,
+  graphUsers: TablesInsert<'source', 'identities'>[],
   sync_id: string
-): Promise<APIResponse<Tables<'source_identities'>[]>> {
+): Promise<APIResponse<Tables<'source', 'identities'>[]>> {
   try {
     const existingIdentities = await getSourceIdentities(tenant.source_id!, [tenant.site_id!]);
     if (!existingIdentities.ok) {
       throw new Error(existingIdentities.error.message);
     }
 
-    const toInsert: TablesInsert<'source_identities'>[] = [];
-    const toUpdate: TablesUpdate<'source_identities'>[] = [];
+    const toInsert: TablesInsert<'source', 'identities'>[] = [];
+    const toUpdate: TablesUpdate<'source', 'identities'>[] = [];
 
     for (const user of graphUsers) {
       const existing = existingIdentities.data.rows.find((i) => i.external_id === user.external_id);

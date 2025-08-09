@@ -1,7 +1,7 @@
 'use server';
 
 import { tables } from '@/db';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { APIResponse } from '@/types';
 import { PaginationOptions } from '@/types/db';
 
@@ -10,19 +10,19 @@ function isUUID(id: string): boolean {
 }
 
 export async function getParentSites() {
-  return tables.select('sites', (query) => {
+  return tables.select('public', 'sites', (query) => {
     query = query.eq('is_parent', true).order('name');
   });
 }
 
 export async function getUpperSites() {
-  return tables.select('sites', (query) => {
+  return tables.select('public', 'sites', (query) => {
     query = query.or(`is_parent.eq.true,parent_id.is.null`).order('name', { ascending: true });
   });
 }
 
 export async function getSites(parentId?: string, name?: string, isParent?: boolean) {
-  return tables.select('sites', (query) => {
+  return tables.select('public', 'sites', (query) => {
     query = query.order('name');
     if (parentId) {
       if (isUUID(parentId)) {
@@ -40,6 +40,7 @@ export async function getSitesView(
   pagination?: PaginationOptions
 ) {
   return tables.select(
+    'public',
     'sites_view',
     (query) => {
       query = query.order('name', { ascending: true });
@@ -54,8 +55,8 @@ export async function getSitesView(
   );
 }
 
-export async function getSite(id: string): Promise<APIResponse<Tables<'sites'>>> {
-  return tables.selectSingle('sites', (query) => {
+export async function getSite(id: string): Promise<APIResponse<Tables<'public', 'sites'>>> {
+  return tables.selectSingle('public', 'sites', (query) => {
     if (isUUID(id)) {
       query = query.eq('id', id);
     } else query = query.eq('slug', id);
@@ -63,7 +64,7 @@ export async function getSite(id: string): Promise<APIResponse<Tables<'sites'>>>
 }
 
 export async function getSiteView(id: string) {
-  return tables.selectSingle('sites_view', (query) => {
+  return tables.selectSingle('public', 'sites_view', (query) => {
     if (isUUID(id)) {
       query = query.eq('id', id);
     } else query = query.eq('slug', id);
@@ -71,7 +72,7 @@ export async function getSiteView(id: string) {
 }
 
 export async function getSitesCount(parentId?: string) {
-  return tables.count('sites', (query) => {
+  return tables.count('public', 'sites', (query) => {
     if (parentId) {
       if (isUUID(parentId)) {
         query = query.eq('parent_id', parentId);

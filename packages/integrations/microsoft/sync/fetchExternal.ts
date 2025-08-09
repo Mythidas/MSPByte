@@ -1,4 +1,3 @@
-import { Tables } from '@/db/schema';
 import { getRecentSignIns } from '@/integrations/microsoft/services/activity';
 import {
   getSubscribedSku,
@@ -11,9 +10,10 @@ import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
+import { Tables } from '@/types/db';
 
 export default async function fetchExternal(
-  tenant: Tables<'source_tenants'>,
+  tenant: Tables<'source', 'tenants'>,
   cursor?: string
 ): Promise<
   APIResponse<{

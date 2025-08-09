@@ -1,7 +1,7 @@
 'use client';
 
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { prettyText } from '@/lib/utils';
@@ -10,7 +10,7 @@ import { getSourcePoliciesView } from '@/services/policies';
 import MicrosoftPolicyDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftPolicyDrawer';
 import Link from 'next/link';
 
-type TData = Tables<'source_policies_view'>;
+type TData = Tables<'source', 'policies_view'>;
 type Props = {
   sourceId: string;
   siteIds?: string[];

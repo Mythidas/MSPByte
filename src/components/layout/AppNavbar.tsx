@@ -7,14 +7,14 @@ import SearchBox from '@/components/shared/SearchBox';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useSource } from '@/lib/providers/SourceContext';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { updateUserOptions } from '@/services/users';
 import { useUser } from '@/lib/providers/UserContext';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getRows } from '@/db/orm';
 
 type Props = {
-  integrations: Tables<'source_integrations_view'>[];
+  integrations: Tables<'public', 'integrations_view'>[];
   children: React.ReactNode;
 };
 
@@ -31,7 +31,7 @@ export default function AppNavbar({ integrations, children }: Props) {
   } = useAsync({
     initial: { sites: [] },
     fetcher: async () => {
-      const sites = await getRows('sites');
+      const sites = await getRows('public', 'sites');
 
       return {
         sites: sites.ok ? sites.data.rows : [],

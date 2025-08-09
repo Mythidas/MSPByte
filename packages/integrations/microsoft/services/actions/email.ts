@@ -1,7 +1,7 @@
 'use server';
 
 import { updateRow } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import {
   checkInboxRules,
   resetUserMFA,
@@ -11,8 +11,8 @@ import {
 import { getSourceTenant } from '@/services/source/tenants';
 
 export default async function microsoft365EmailBreachResponse(
-  feed: Tables<'activity_feeds'>,
-  identities: Tables<'source_identities'>[],
+  feed: Tables<'public', 'activity_feeds'>,
+  identities: Tables<'source', 'identities'>[],
   password: string
 ) {
   if (!feed.site_id) return;
@@ -24,7 +24,7 @@ export default async function microsoft365EmailBreachResponse(
     identities.map(async (id) => await revokeUserSessions(tenant.data, id.external_id))
   );
   if (revokeSessions.every((session) => session.ok)) {
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -53,7 +53,7 @@ export default async function microsoft365EmailBreachResponse(
       return undefined;
     });
 
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -81,7 +81,7 @@ export default async function microsoft365EmailBreachResponse(
     identities.map(async (id) => await resetUserPassword(tenant.data, id.external_id, password))
   );
   if (resetPasswords.every((session) => session.ok)) {
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -110,7 +110,7 @@ export default async function microsoft365EmailBreachResponse(
       return undefined;
     });
 
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -138,7 +138,7 @@ export default async function microsoft365EmailBreachResponse(
     identities.map(async (id) => await resetUserMFA(tenant.data, id.external_id))
   );
   if (resetMFA.every((session) => session.ok)) {
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -167,7 +167,7 @@ export default async function microsoft365EmailBreachResponse(
       return undefined;
     });
 
-    const update = await updateRow('activity_feeds', {
+    const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -195,7 +195,7 @@ export default async function microsoft365EmailBreachResponse(
     identities.map(async (id) => await checkInboxRules(tenant.data, id.external_id, id.email))
   );
   if (checkRules.every((session) => session.ok)) {
-    await updateRow('activity_feeds', {
+    await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,
@@ -222,7 +222,7 @@ export default async function microsoft365EmailBreachResponse(
       return undefined;
     });
 
-    await updateRow('activity_feeds', {
+    await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
         ...feed,

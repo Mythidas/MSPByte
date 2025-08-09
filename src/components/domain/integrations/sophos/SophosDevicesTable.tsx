@@ -1,7 +1,7 @@
 'use client';
 
 import { pascalCase } from '@/lib/utils';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableHeader } from '@/components/shared/table/DataTableHeader';
@@ -134,7 +134,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
               </div>
             ),
           },
-        ] as DataTableColumnDef<Tables<'source_devices_view'>>[]
+        ] as DataTableColumnDef<Tables<'source', 'devices_view'>>[]
       }
       actions={[
         {

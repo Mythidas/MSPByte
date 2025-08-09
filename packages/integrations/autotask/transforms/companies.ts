@@ -1,10 +1,10 @@
 import { AutoTaskCompany } from '@/integrations/autotask/types/company';
-import { Tables, TablesInsert } from 'packages/db/schema';
+import { Tables, TablesInsert } from '@/types/db';
 
 export default function transformCompanies(
   companies: AutoTaskCompany[],
-  job: Tables<'source_sync_jobs'>
-): TablesInsert<'source_sites'>[] {
+  job: Tables<'source', 'sync_jobs'>
+): TablesInsert<'source', 'sites'>[] {
   return companies.map((company) => ({
     tenant_id: job.tenant_id,
     source_id: job.source_id,

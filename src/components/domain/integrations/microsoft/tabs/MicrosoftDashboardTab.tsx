@@ -1,12 +1,12 @@
 import MicrosoftTenantMetricsCard from '@/components/domain/integrations/microsoft/tabs/MicrosoftTenantMetricsCard';
 import { SourceMetricCard } from '@/components/domain/metrics/SourceMetricCard';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
-  group?: Tables<'site_groups'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
+  group?: Tables<'public', 'site_groups'>;
 };
 
 export default function MicrosoftDashboardTab({ ...props }: Props) {

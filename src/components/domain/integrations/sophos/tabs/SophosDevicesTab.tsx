@@ -2,12 +2,12 @@ import SophosDevicesTable from '@/components/domain/integrations/sophos/SophosDe
 import Loader from '@/components/shared/Loader';
 import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
 type Props = {
   sourceId: string;
-  site?: Tables<'sites'>;
-  parent?: Tables<'sites'>;
+  site?: Tables<'public', 'sites'>;
+  parent?: Tables<'public', 'sites'>;
 };
 
 export default function SophosDevicesTab({ sourceId, parent, site }: Props) {

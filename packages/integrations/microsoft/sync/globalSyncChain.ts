@@ -1,8 +1,8 @@
 import SyncChain from '@/core/SyncChain';
 import { getRow, updateRow } from '@/db/orm';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
-export async function globalSyncChain(job: Tables<'source_sync_jobs'>) {
+export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const sync = new SyncChain({
     tenant_id: job.source_tenant_id!,
     state: job.state as Record<string, string | null>,
@@ -10,7 +10,7 @@ export async function globalSyncChain(job: Tables<'source_sync_jobs'>) {
     getState: () => '',
     setState: () => {},
   }).final(async () => {
-    const integration = await getRow('source_integrations', {
+    const integration = await getRow('public', 'integrations', {
       filters: [
         ['source_id', 'eq', job.source_id],
         ['tenant_id', 'eq', job.tenant_id],
@@ -20,7 +20,7 @@ export async function globalSyncChain(job: Tables<'source_sync_jobs'>) {
       throw 'Failed to find source integration';
     }
 
-    await updateRow('source_integrations', {
+    await updateRow('public', 'integrations', {
       id: integration.data.id,
       row: {
         last_sync_at: new Date().toISOString(),

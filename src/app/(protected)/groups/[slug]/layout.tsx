@@ -20,7 +20,7 @@ type Props = {
 
 export default async function Layout({ children, ...props }: Props) {
   const params = await props.params;
-  const group = await getRow('site_groups', {
+  const group = await getRow('public', 'site_groups', {
     filters: [['id', 'eq', params.slug]],
   });
 

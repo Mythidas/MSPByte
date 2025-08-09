@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/drawer';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 import { pascalCase, prettyText } from '@/lib/utils';
 import { useState } from 'react';
 import { User, Mail, Key, AlertCircle, FileCheck2, CircleCheck, CircleX } from 'lucide-react';
@@ -18,8 +18,8 @@ import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 
 type Props = {
   label: string;
-  identity: Tables<'source_identities_view'>;
-  licenses?: Tables<'source_license_info'>[];
+  identity: Tables<'source', 'identities_view'>;
+  licenses?: Tables<'source', 'license_info'>[];
 };
 
 export default function SourceIdentityDrawer({ label, identity, licenses = [] }: Props) {

@@ -5,17 +5,17 @@ import { APIResponse } from '@/types';
 import { PaginationOptions } from '@/types/db';
 import { MicrosoftIdentityMetadata } from '@/types/source/identities';
 import { tables } from 'packages/db';
-import { TablesInsert, TablesUpdate } from 'packages/db/schema';
+import { TablesInsert, TablesUpdate } from '@/types/db';
 
 export async function getSourceIdentities(sourceId: string, siteIds?: string[]) {
-  return await tables.select('source_identities', (query) => {
+  return await tables.select('source', 'identities', (query) => {
     query = query.order('name').eq('source_id', sourceId);
     if (siteIds) query = query.in('site_id', siteIds);
   });
 }
 
 export async function getSourceIdentitiesCount(sourceId: string, siteIds?: string[]) {
-  return await tables.count('source_identities', (query) => {
+  return await tables.count('source', 'identities', (query) => {
     query = query.order('name').eq('source_id', sourceId);
     if (siteIds) query = query.in('site_id', siteIds);
   });
@@ -27,7 +27,8 @@ export async function getSourceIdentitiesView(
   pagination?: PaginationOptions
 ) {
   return await tables.select(
-    'source_identities_view',
+    'source',
+    'identities_view',
     (query) => {
       query = query.order('site_id').order('name');
       if (sourceId) query = query.eq('source_id', sourceId);
@@ -47,7 +48,7 @@ export async function getSourceIdentitiesUniqueRolesAndGroups(
   }>
 > {
   try {
-    const identities = await tables.select('source_identities', (query) => {
+    const identities = await tables.select('source', 'identities', (query) => {
       query = query.order('site_id').order('name');
       if (sourceId) query = query.eq('source_id', sourceId);
       if (siteIds) query = query.in('site_id', siteIds);
@@ -92,22 +93,22 @@ export async function getSourceIdentitiesUniqueRolesAndGroups(
   }
 }
 
-export async function putSourceIdentities(identities: TablesInsert<'source_identities'>[]) {
-  return await tables.insert('source_identities', identities);
+export async function putSourceIdentities(identities: TablesInsert<'source', 'identities'>[]) {
+  return await tables.insert('source', 'identities', identities);
 }
 
 export async function updateSourceIdentity(
   id: string,
-  identity: TablesUpdate<'source_identities'>
+  identity: TablesUpdate<'source', 'identities'>
 ) {
-  return await tables.update('source_identities', id, {
+  return await tables.update('source', 'identities', id, {
     ...identity,
     updated_at: new Date().toISOString(),
   });
 }
 
 export async function deleteSourceIdentities(ids: string[]) {
-  return await tables.delete('source_identities', (query) => {
+  return await tables.delete('source', 'identities', (query) => {
     query = query.in('id', ids);
   });
 }

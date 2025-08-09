@@ -1,19 +1,19 @@
 'use server';
 
 import { tables } from '@/db';
-import { TablesInsert, TablesUpdate } from '@/db/schema';
+import { TablesInsert, TablesUpdate } from '@/types/db';
 import { Debug } from '@/lib/utils';
 
 export async function getSourceIntegrations() {
-  return tables.select('source_integrations');
+  return tables.select('public', 'integrations');
 }
 
 export async function getSourceIntegrationsView() {
-  return tables.select('source_integrations_view');
+  return tables.select('public', 'integrations_view');
 }
 
 export async function getSourceIntegrationView(sourceId: string) {
-  return tables.selectSingle('source_integrations_view', (query) => {
+  return tables.selectSingle('public', 'integrations_view', (query) => {
     query = query.eq('source_id', sourceId);
   });
 }
@@ -27,25 +27,25 @@ export async function getSourceIntegration(id?: string, sourceId?: string) {
       time: new Date(),
     });
   }
-  return tables.selectSingle('source_integrations', (query) => {
+  return tables.selectSingle('public', 'integrations', (query) => {
     if (id) query = query.eq('id', id);
     if (sourceId) query = query.eq('source_id', sourceId);
   });
 }
 
-export async function putSourceIntegrations(rows: TablesInsert<'source_integrations'>[]) {
-  return tables.insert('source_integrations', rows);
+export async function putSourceIntegrations(rows: TablesInsert<'public', 'integrations'>[]) {
+  return tables.insert('public', 'integrations', rows);
 }
 
 export async function updateSourceIntegration(
   id: string,
-  integration: TablesUpdate<'source_integrations'>
+  integration: TablesUpdate<'public', 'integrations'>
 ) {
-  return tables.update('source_integrations', id, integration);
+  return tables.update('public', 'integrations', id, integration);
 }
 
 export async function deleteSourceIntegrations(ids: string[]) {
-  return tables.delete('source_integrations', (query) => {
+  return tables.delete('public', 'integrations', (query) => {
     query = query.in('id', ids);
   });
 }

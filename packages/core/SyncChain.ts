@@ -1,12 +1,12 @@
-import { Tables } from '@/db/schema';
 import { createClient } from '@/db/server';
 import { Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
+import { Tables } from '@/types/db';
 
 type SyncContext = {
   state: Record<string, string | null>;
   tenant_id: string;
-  job: Tables<'source_sync_jobs'>;
+  job: Tables<'source', 'sync_jobs'>;
   getState: (name: string) => string | undefined;
   setState: (name: string, value: string | undefined) => void;
 };
@@ -66,7 +66,8 @@ export default class SyncChain<TInput = null> {
     const supabase = await createClient();
     const completed = new Date().toISOString();
     await supabase
-      .from('source_sync_jobs')
+      .schema('source')
+      .from('sync_jobs')
       .update({
         completed_at: completed,
         state: this.ctx.state,
@@ -76,7 +77,8 @@ export default class SyncChain<TInput = null> {
 
     if (finished) {
       await supabase
-        .from('source_tenants')
+        .schema('source')
+        .from('tenants')
         .update({
           last_sync: completed,
         })
@@ -91,7 +93,8 @@ export default class SyncChain<TInput = null> {
   private async fail(error: string) {
     const supabase = await createClient();
     await supabase
-      .from('source_sync_jobs')
+      .schema('source')
+      .from('sync_jobs')
       .update({
         last_attempt_at: new Date().toISOString(),
         status: 'failed',

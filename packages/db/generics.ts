@@ -2,30 +2,50 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 import { createClient } from 'packages/db/server';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
-import { Database, Tables, TablesInsert, TablesUpdate } from 'packages/db/schema';
-import { DataResponse, Filters, PaginationOptions } from '@/types/db';
+import {
+  DataResponse,
+  Filters,
+  PaginationOptions,
+  Schemas,
+  Table,
+  TableOrView,
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from '@/types/db';
 import { subDays } from 'date-fns';
+import { Database } from '@/db/schema';
 
-type TableOrView = keyof Database['public']['Tables'] | keyof Database['public']['Views'];
-type RowType<T extends TableOrView> = T extends keyof Database['public']['Tables']
+type RowType<
+  S extends Schemas,
+  T extends TableOrView<S>,
+> = T extends keyof Database['public']['Tables']
   ? Database['public']['Tables'][T]['Row']
   : T extends keyof Database['public']['Views']
     ? Database['public']['Views'][T]['Row']
-    : never;
-type QueryBuilder<T extends TableOrView> = PostgrestFilterBuilder<
+    : T extends keyof Database['source']['Tables']
+      ? Database['source']['Tables'][T]['Row']
+      : T extends keyof Database['source']['Views']
+        ? Database['source']['Views'][T]['Row']
+        : never;
+type QueryBuilder<S extends Schemas, T extends TableOrView<S>> = PostgrestFilterBuilder<
   Database['public'],
-  RowType<T>,
-  RowType<T>
+  RowType<S, T>,
+  RowType<S, T>
 >;
 
-export async function tablesCountGeneric<T extends TableOrView>(
+export async function tablesCountGeneric<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
   table: T,
-  modifyQuery?: (query: QueryBuilder<T>) => void
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
 ): Promise<APIResponse<number>> {
   try {
     const supabase = await createClient();
 
-    let query = supabase.from(table as any).select('*', { count: 'exact', head: true }); // head = no rows, just headers/meta
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .select('*', { count: 'exact', head: true }); // head = no rows, just headers/meta
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -49,16 +69,20 @@ export async function tablesCountGeneric<T extends TableOrView>(
   }
 }
 
-export async function tablesSelectGeneric<T extends TableOrView>(
+export async function tablesSelectGeneric<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
   table: T,
-  modifyQuery?: (query: QueryBuilder<T>) => void,
+  modifyQuery?: (query: QueryBuilder<S, T>) => void,
   pagination?: PaginationOptions
-): Promise<APIResponse<DataResponse<Tables<T>>>> {
-  if (pagination) return tablesSelectPaginated(table, pagination, modifyQuery);
+): Promise<APIResponse<DataResponse<Tables<S, T>>>> {
+  if (pagination) return tablesSelectPaginated(schema, table, pagination, modifyQuery);
 
   try {
     const supabase = await createClient();
-    let query = supabase.from(table as any).select('*');
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .select('*');
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -77,7 +101,9 @@ export async function tablesSelectGeneric<T extends TableOrView>(
 
     return {
       ok: true,
-      data: { rows: results as Tables<T>[], total: results.length } as DataResponse<Tables<T>>,
+      data: { rows: results as Tables<S, T>[], total: results.length } as DataResponse<
+        Tables<S, T>
+      >,
     };
   } catch (err) {
     return Debug.error({
@@ -89,11 +115,12 @@ export async function tablesSelectGeneric<T extends TableOrView>(
   }
 }
 
-export async function tablesSelectPaginated<T extends TableOrView>(
+export async function tablesSelectPaginated<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
   table: T,
   pagination: PaginationOptions,
-  modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<DataResponse<Tables<T>>>> {
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
+): Promise<APIResponse<DataResponse<Tables<S, T>>>> {
   try {
     const supabase = await createClient();
 
@@ -101,6 +128,7 @@ export async function tablesSelectPaginated<T extends TableOrView>(
     const to = from + pagination.size - 1;
 
     let query = supabase
+      .schema(schema)
       .from(table as any)
       .select('*', { count: 'exact' }) // includes count in response
       .range(from, to);
@@ -131,7 +159,7 @@ export async function tablesSelectPaginated<T extends TableOrView>(
     return {
       ok: true,
       data: {
-        rows: (data as Tables<T>[]) ?? [],
+        rows: (data as Tables<S, T>[]) ?? [],
         total: count ?? 0,
       },
     };
@@ -145,11 +173,11 @@ export async function tablesSelectPaginated<T extends TableOrView>(
   }
 }
 
-export function paginatedFilters<T extends TableOrView>(
-  query: QueryBuilder<T>,
+export function paginatedFilters<S extends Schemas, T extends TableOrView<S>>(
+  query: QueryBuilder<S, T>,
   filters: Filters,
   map?: Record<string, string>
-): QueryBuilder<T> {
+): QueryBuilder<S, T> {
   for (let [key, { op, value }] of Object.entries(filters)) {
     if (value === undefined || value === null || value === '') continue;
 
@@ -192,13 +220,17 @@ export function paginatedFilters<T extends TableOrView>(
   return query;
 }
 
-export async function tablesSelectSingleGeneric<T extends TableOrView>(
+export async function tablesSelectSingleGeneric<S extends Schemas, T extends TableOrView<S>>(
+  schema: S,
   table: T,
-  modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<Tables<T>>> {
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
+): Promise<APIResponse<Tables<S, T>>> {
   try {
     const supabase = await createClient();
-    let query = supabase.from(table as any).select('*');
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .select('*');
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -209,7 +241,7 @@ export async function tablesSelectSingleGeneric<T extends TableOrView>(
 
     return {
       ok: true,
-      data: data as Tables<T>,
+      data: data as Tables<S, T>,
     };
   } catch (err) {
     return Debug.error({
@@ -221,14 +253,18 @@ export async function tablesSelectSingleGeneric<T extends TableOrView>(
   }
 }
 
-export async function tablesInsertGeneric<T extends keyof Database['public']['Tables']>(
+export async function tablesInsertGeneric<S extends Schemas, T extends Table<S>>(
+  schema: S,
   table: T,
-  rows: TablesInsert<T>[],
-  modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<Tables<T>[]>> {
+  rows: TablesInsert<S, T>[],
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
+): Promise<APIResponse<Tables<S, T>[]>> {
   try {
     const supabase = await createClient();
-    let query = supabase.from(table).insert(rows as any);
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .insert(rows as any);
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -239,7 +275,7 @@ export async function tablesInsertGeneric<T extends keyof Database['public']['Ta
 
     return {
       ok: true,
-      data: data as Tables<T>[],
+      data: data as Tables<S, T>[],
     };
   } catch (err) {
     return Debug.error({
@@ -251,15 +287,17 @@ export async function tablesInsertGeneric<T extends keyof Database['public']['Ta
   }
 }
 
-export async function tablesUpdateGeneric<T extends keyof Database['public']['Tables']>(
+export async function tablesUpdateGeneric<S extends Schemas, T extends Table<S>>(
+  schema: S,
   table: T,
   id: string,
-  row: TablesUpdate<T>
-): Promise<APIResponse<Tables<T>>> {
+  row: TablesUpdate<S, T>
+): Promise<APIResponse<Tables<S, T>>> {
   try {
     const supabase = await createClient();
     const { data, error } = await supabase
-      .from(table)
+      .schema(schema)
+      .from(table as any)
       .update(row as any)
       .eq('id', id as any)
       .select()
@@ -269,7 +307,7 @@ export async function tablesUpdateGeneric<T extends keyof Database['public']['Ta
 
     return {
       ok: true,
-      data: data as Tables<T>,
+      data: data as Tables<S, T>,
     };
   } catch (err) {
     return Debug.error({
@@ -281,10 +319,11 @@ export async function tablesUpdateGeneric<T extends keyof Database['public']['Ta
   }
 }
 
-export async function tablesUpdatesGeneric<T extends keyof Database['public']['Tables']>(
+export async function tablesUpdatesGeneric<S extends Schemas, T extends Table<S>>(
+  schema: S,
   table: T,
-  rows: [id: keyof Tables<T>, update: [val: string, data: TablesUpdate<T>]][]
-): Promise<APIResponse<Tables<T>[]>> {
+  rows: [id: keyof TablesUpdate<S, T>, update: [val: string, data: TablesUpdate<S, T>]][]
+): Promise<APIResponse<Tables<S, T>[]>> {
   try {
     const supabase = await createClient();
 
@@ -292,7 +331,8 @@ export async function tablesUpdatesGeneric<T extends keyof Database['public']['T
       rows.map(async ([id, update]) => {
         const [value, row] = update;
         const { data, error } = await supabase
-          .from(table)
+          .schema(schema)
+          .from(table as any)
           .update(row as any)
           .eq(id as string, value as any)
           .select()
@@ -302,7 +342,7 @@ export async function tablesUpdatesGeneric<T extends keyof Database['public']['T
           throw new Error(
             `Failed to update row with ${id as string} ${value as string}: ${error.message}`
           );
-        return data as Tables<T>;
+        return data as Tables<S, T>;
       })
     );
 
@@ -320,14 +360,18 @@ export async function tablesUpdatesGeneric<T extends keyof Database['public']['T
   }
 }
 
-export async function tablesUpsertGeneric<T extends keyof Database['public']['Tables']>(
+export async function tablesUpsertGeneric<S extends Schemas, T extends Table<S>>(
+  schema: S,
   table: T,
-  rows: TablesUpdate<T>[],
-  modifyQuery?: (query: QueryBuilder<T>) => void
-): Promise<APIResponse<Tables<T>[]>> {
+  rows: TablesUpdate<S, T>[],
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
+): Promise<APIResponse<Tables<S, T>[]>> {
   try {
     const supabase = await createClient();
-    let query = supabase.from(table).upsert(rows as any);
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .upsert(rows as any);
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -338,7 +382,7 @@ export async function tablesUpsertGeneric<T extends keyof Database['public']['Ta
 
     return {
       ok: true,
-      data: data as Tables<T>[],
+      data: data as Tables<S, T>[],
     };
   } catch (err) {
     return Debug.error({
@@ -350,13 +394,17 @@ export async function tablesUpsertGeneric<T extends keyof Database['public']['Ta
   }
 }
 
-export async function tablesDeleteGeneric<T extends keyof Database['public']['Tables']>(
+export async function tablesDeleteGeneric<S extends Schemas, T extends Table<S>>(
+  schema: S,
   table: T,
-  modifyQuery?: (query: QueryBuilder<T>) => void
+  modifyQuery?: (query: QueryBuilder<S, T>) => void
 ): Promise<APIResponse<null>> {
   try {
     const supabase = await createClient();
-    let query = supabase.from(table).delete();
+    let query = supabase
+      .schema(schema)
+      .from(table as any)
+      .delete();
 
     if (modifyQuery) {
       modifyQuery(query as any);
@@ -373,31 +421,6 @@ export async function tablesDeleteGeneric<T extends keyof Database['public']['Ta
     return Debug.error({
       module: 'supabase',
       context: `delete_${String(table)}`,
-      message: String(err),
-      time: new Date(),
-    });
-  }
-}
-
-export async function tablesRPCGeneric<
-  Fn extends keyof Database['public']['Functions'],
-  Args extends Database['public']['Functions'][Fn]['Args'],
-  Ret = Database['public']['Functions'][Fn]['Returns'],
->(fn: Fn, args: Args): Promise<APIResponse<Ret>> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase.rpc(fn, args);
-
-    if (error) throw new Error(error.message);
-
-    return {
-      ok: true,
-      data: data as Ret,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'supabase',
-      context: `rpc_${String(fn)}`,
       message: String(err),
       time: new Date(),
     });

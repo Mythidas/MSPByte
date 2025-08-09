@@ -1,7 +1,7 @@
-import { Tables } from '@/db/schema';
+import { Tables } from '@/types/db';
 
 type Props = {
-  source: Tables<'sources'>;
+  source: Tables<'public', 'sources'>;
 };
 
 export default function Microsoft365Disabled({}: Props) {

@@ -24,7 +24,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList } from '@/components/ui/tabs';
 import { deleteRows, getRows, insertRows, updateRows } from '@/db/orm';
-import { Tables, TablesInsert, TablesUpdate } from '@/db/schema';
+import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { resolveSearch } from '@/lib/helpers/search';
 import { normalizeText } from '@/lib/utils';
@@ -35,8 +35,8 @@ import { useCallback, useState } from 'react';
 import { toast } from 'sonner';
 
 type Props = {
-  source: Tables<'sources'>;
-  integration: Tables<'source_integrations'>;
+  source: Tables<'public', 'sources'>;
+  integration: Tables<'public', 'integrations'>;
 };
 
 export default function AutotaskEnabled({ source }: Props) {
@@ -59,8 +59,8 @@ export default function AutotaskEnabled({ source }: Props) {
   );
 }
 
-type SourceSite = Tables<'source_sites_view'>;
-type InternalSite = Tables<'sites'>;
+type SourceSite = Tables<'source', 'sites_view'>;
+type InternalSite = Tables<'public', 'sites'>;
 
 export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
   const [autoTaskSites, setAutoTaskSites] = useState<SourceSite[]>([]);
@@ -86,12 +86,12 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const autoTask = await getRows('source_sites_view', {
+      const autoTask = await getRows('source', 'sites_view', {
         filters: [['source_id', 'eq', sourceId]],
         sorting: [['name', 'asc']],
       });
 
-      const sites = await getRows('sites', {
+      const sites = await getRows('public', 'sites', {
         sorting: [['name', 'asc']],
       });
 
@@ -123,8 +123,8 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
         setIsSaving(true);
 
         try {
-          const toInsert: TablesInsert<'source_tenants'>[] = [];
-          const toUpdate: TablesUpdate<'source_tenants'>[] = [];
+          const toInsert: TablesInsert<'source', 'tenants'>[] = [];
+          const toUpdate: TablesUpdate<'source', 'tenants'>[] = [];
           const toDelete: string[] = [];
 
           for (const [autoTaskSiteId, internalSiteId] of Object.entries(changedMappings)) {
@@ -162,10 +162,10 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
 
           const [insertResult, updateResult, deleteResult] = await Promise.all([
             toInsert.length > 0
-              ? insertRows('source_tenants', { rows: toInsert })
+              ? insertRows('source', 'tenants', { rows: toInsert })
               : Promise.resolve({ ok: true, data: [] } as APIResponse<[]>),
             toUpdate.length > 0
-              ? updateRows('source_tenants', {
+              ? updateRows('source', 'tenants', {
                   rows: toUpdate.map((to) => {
                     const key = to.id;
                     return ['id', [key!, to]];
@@ -173,7 +173,7 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
                 })
               : Promise.resolve({ ok: true, data: [] } as APIResponse<[]>),
             toDelete.length > 0
-              ? deleteRows('source_tenants', {
+              ? deleteRows('source', 'tenants', {
                   filters: [['id', 'in', toDelete]],
                 })
               : Promise.resolve({ ok: true, data: null } as APIResponse<null>),
@@ -273,7 +273,7 @@ function AutoTaskSitesCard({ sourceId }: { sourceId: string }) {
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const sites = await getRows('source_sites_view', {
+      const sites = await getRows('source', 'sites_view', {
         filters: [['source_id', 'eq', sourceId]],
         sorting: [['name', 'asc']],
       });

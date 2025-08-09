@@ -12,28 +12,29 @@ import {
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { prettyText } from '@/lib/utils';
 import { deleteRows } from '@/db/orm';
-import { RowFilter, Table } from '@/types/db';
-import { Tables } from '@/db/schema';
+import { RowFilter, Schemas, Table, Tables } from '@/types/db';
 
-type UseDeleteOptions<T extends Table> = {
+type UseDeleteOptions<S extends Schemas, T extends Table<S>> = {
+  schema: S;
   table: T;
-  getId: (item: Tables<T>) => Record<string, string>; // or string | Record<string, string>
-  displayKey?: keyof Tables<T>;
-  onDeleted?: (item: Tables<T>) => void;
+  getId: (item: Tables<S, T>) => Record<string, string>; // or string | Record<string, string>
+  displayKey?: keyof Tables<S, T>;
+  onDeleted?: (item: Tables<S, T>) => void;
   refetch?: () => void;
 };
 
-export function useDelete<T extends Table>({
+export function useDelete<S extends Schemas, T extends Table<S>>({
+  schema,
   table,
   getId,
   displayKey,
   onDeleted,
   refetch,
-}: UseDeleteOptions<T>) {
-  const [itemToDelete, setItemToDelete] = useState<Tables<T> | null>(null);
+}: UseDeleteOptions<S, T>) {
+  const [itemToDelete, setItemToDelete] = useState<Tables<S, T> | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const confirmAndDelete = (item: Tables<T>) => setItemToDelete(item);
+  const confirmAndDelete = (item: Tables<S, T>) => setItemToDelete(item);
 
   const doDelete = async () => {
     if (!itemToDelete) return;
@@ -42,11 +43,11 @@ export function useDelete<T extends Table>({
     try {
       const idFields = getId(itemToDelete) as Record<string, unknown>;
       const filters = Object.entries(idFields).map(
-        ([column, value]) => [column, 'eq', value] as RowFilter<T>
+        ([column, value]) => [column, 'eq', value] as RowFilter<S, T>
       );
 
-      const result = await deleteRows(table, {
-        filters: filters as RowFilter<T>[],
+      const result = await deleteRows(schema, table, {
+        filters: filters as RowFilter<S, T>[],
       });
 
       if (!result.ok) throw result.error;
