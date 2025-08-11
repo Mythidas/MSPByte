@@ -4,13 +4,13 @@ import SyncChain from '@/core/SyncChain';
 import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
 import { getEndpoints } from '@/integrations/sophos/services/endpoints';
-import { syncDevices } from '@/integrations/sophos/sync/syncDevices';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
 import { Debug } from '@/lib/utils';
-import { deleteSourceDevices, getSourceDevices } from '@/services/devices';
 import { getSourceIntegration } from '@/services/integrations';
 import { getSourceTenant } from '@/services/source/tenants';
+import { tables } from '@/db';
+import { deleteRows, getRows } from '@/db/orm';
 
 export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
   const tenantResult = await getSourceTenant(job.source_id, job.site_id!);
@@ -56,8 +56,20 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
         data: { transformedDevices },
       };
     })
-    .step('Sync Data', async (_ctx, { transformedDevices }) => {
-      const devices = await syncDevices(tenant, transformedDevices);
+    .step('Sync Data', async (ctx, { transformedDevices }) => {
+      const devices = await tables.sync(
+        'source',
+        'devices',
+        ctx.job,
+        transformedDevices,
+        [
+          ['source_id', 'eq', job.source_id],
+          ['site_id', 'eq', job.site_id],
+        ],
+        'external_id',
+        'id',
+        'SophosPartner'
+      );
       if (!devices.ok) {
         return Debug.error({
           module: 'SophosPartner',
@@ -73,14 +85,20 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
       };
     })
     .final(async (ctx) => {
-      const devices = await getSourceDevices(ctx.job.source_id, [ctx.job.site_id!]);
+      const devices = await getRows('source', 'devices', {
+        filters: [
+          ['source_id', 'eq', ctx.job.source_id],
+          ['site_id', 'eq', ctx.job.site_id],
+        ],
+      });
       if (!devices.ok) return;
 
       const devicesToDelete = devices.data.rows
         .filter((d) => d.sync_id && d.sync_id !== ctx.job.id)
         .map((d) => d.id);
-
-      await deleteSourceDevices(devicesToDelete);
+      await deleteRows('source', 'devices', {
+        filters: [['id', 'in', devicesToDelete]],
+      });
 
       const _devices = devices.data.rows.filter((dev) => !devicesToDelete.includes(dev.id));
       await syncMetrics(tenant, _devices);
