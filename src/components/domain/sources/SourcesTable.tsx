@@ -2,13 +2,12 @@
 
 import { Card, CardAction, CardContent, CardHeader } from '@/components/ui/card';
 import { Spinner } from '@/components/shared/Spinner';
-import { getSourceIntegrationsView } from '@/services/integrations';
 import { useState } from 'react';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSourceTenants } from '@/services/source/tenants';
 import { Settings } from 'lucide-react';
 import Link from 'next/link';
 import SearchBar from '@/components/shared/SearchBar';
+import { getRows } from '@/db/orm';
 
 type Props = {
   siteIds?: string[];
@@ -20,7 +19,7 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
   const [search, setSearch] = useState('');
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const integrations = await getSourceIntegrationsView();
+      const integrations = await getRows('public', 'integrations_view');
       if (!integrations.ok) {
         return {
           mappings: [],
@@ -28,7 +27,9 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
         };
       }
       if (siteIds) {
-        const mappings = await getSourceTenants(undefined, siteIds);
+        const mappings = await getRows('source', 'tenants', {
+          filters: [['site_id', 'in', siteIds]],
+        });
         if (mappings.ok) {
           return {
             mappings: mappings.data.rows,

@@ -16,10 +16,9 @@ import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { Tables, TablesInsert } from '@/types/db';
 import { useAsync } from '@/hooks/common/useAsync';
 import { getTenants } from '@/integrations/sophos/services/tenants';
-import { putSourceTenant } from '@/services/source/tenants';
 import { toast } from 'sonner';
 import { useUser } from '@/lib/providers/UserContext';
-import { getRows } from '@/db/orm';
+import { getRows, insertRows } from '@/db/orm';
 
 type Props = {
   source: Tables<'public', 'sources'>;
@@ -109,7 +108,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
         metadata: selectedSophosData || {},
       };
 
-      const result = await putSourceTenant([mapping]);
+      const result = await insertRows('source', 'tenants', { rows: [mapping] });
       if (result.ok) {
         toast.info('Site mapping created successfully!');
         onSave?.();

@@ -1,5 +1,4 @@
 import Loader from '@/components/shared/Loader';
-import { getSites } from '@/services/sites';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Tables } from '@/types/db';
 import { getRows } from '@/db/orm';
@@ -36,7 +35,9 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
         return [site.id];
       }
 
-      const sites = await getSites(parent?.id);
+      const sites = await getRows('public', 'sites', {
+        filters: [['parent_id', 'is', parent?.id]],
+      });
       if (!sites.ok) return [];
 
       return parent

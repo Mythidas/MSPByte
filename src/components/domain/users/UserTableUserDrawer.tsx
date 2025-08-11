@@ -24,7 +24,6 @@ import {
 } from '@/components/ui/select';
 import { Form, FormField, FormControl, FormItem, FormLabel } from '@/components/ui/form';
 import { Tables } from '@/types/db';
-import { updateUser } from '@/services/users';
 import { pascalCase } from '@/lib/utils';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -32,6 +31,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import EditableInput from '@/components/shared/EditableInput';
+import { updateRow } from '@/db/orm';
 
 const schema = z.object({
   name: z.string().min(1),
@@ -74,7 +74,10 @@ export default function UserTableUserDrawer({ user, roles, children, disabled, o
       return;
     }
 
-    const result = await updateUser(user.id, { ...user, ...changes });
+    const result = await updateRow('public', 'users', {
+      id: user.id,
+      row: { ...user, ...changes },
+    });
 
     if (result.ok) {
       toast.success('User updated');

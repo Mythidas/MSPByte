@@ -8,10 +8,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useSource } from '@/lib/providers/SourceContext';
 import { Tables } from '@/types/db';
-import { updateUserOptions } from '@/services/users';
 import { useUser } from '@/lib/providers/UserContext';
 import { useAsync } from '@/hooks/common/useAsync';
-import { getRows } from '@/db/orm';
+import { getRows, updateRow } from '@/db/orm';
 
 type Props = {
   integrations: Tables<'public', 'integrations_view'>[];
@@ -55,7 +54,11 @@ export default function AppNavbar({ integrations, children }: Props) {
     const newSource = integrations.find((int) => int.source_id === value);
     if (!newSource || value === source?.source_id) return;
 
-    if (user) await updateUserOptions(user.id!, { selected_source: newSource.id });
+    if (user)
+      await updateRow('public', 'user_options', {
+        id: user.id!,
+        row: { selected_source: newSource.id },
+      });
     setSource(newSource);
 
     const segments = pathname.split('?')[0].split('/').filter(Boolean);

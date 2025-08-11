@@ -1,7 +1,7 @@
 import { Tables } from '@/types/db';
 import { Debug } from '@/lib/utils';
-import { putSourceSyncJobs } from '@/services/sources';
 import { APIResponse } from '@/types';
+import { insertRows } from '@/db/orm';
 
 export async function syncSource(
   sourceId: string,
@@ -20,8 +20,8 @@ export async function syncSource(
   };
 
   try {
-    const jobs = await putSourceSyncJobs(
-      siteIds.map((s) => {
+    const jobs = await insertRows('public', 'source_sync_jobs', {
+      rows: siteIds.map((s) => {
         return {
           source_id: sourceId,
           tenant_id: tenantId,
@@ -30,8 +30,8 @@ export async function syncSource(
           site_id: s.siteId,
           created_at: new Date().toISOString(),
         };
-      })
-    );
+      }),
+    });
 
     if (!jobs.ok) {
       throw new Error(jobs.error.message);

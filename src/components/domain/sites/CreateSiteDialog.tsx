@@ -23,13 +23,13 @@ import { Input } from '@/components/ui/input';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { Tables } from '@/types/db';
 import { useUser } from '@/lib/providers/UserContext';
-import { getSiteView, putSite } from '@/services/sites';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { HousePlus } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import z from 'zod';
+import { getRow, insertRows } from '@/db/orm';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -60,18 +60,22 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
     try {
       setIsSaving(true);
 
-      const result = await putSite([
-        {
-          tenant_id: user?.tenant_id || '',
-          parent_id: parentId,
-          name: data.name,
-          is_parent: !!data.isParent,
-        },
-      ]);
+      const result = await insertRows('public', 'sites', {
+        rows: [
+          {
+            tenant_id: user?.tenant_id || '',
+            parent_id: parentId,
+            name: data.name,
+            is_parent: !!data.isParent,
+          },
+        ],
+      });
 
       if (!result.ok) throw result.error.message;
 
-      const view = await getSiteView(result.data[0].id);
+      const view = await getRow('public', 'sites_view', {
+        filters: [['id', 'eq', result.data[0].id]],
+      });
       if (!view.ok) throw view.error.message;
 
       onSuccess?.(view.data);

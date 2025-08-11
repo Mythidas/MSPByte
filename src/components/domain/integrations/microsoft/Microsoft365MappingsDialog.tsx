@@ -19,9 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useAsync } from '@/hooks/common/useAsync';
-import { getSitesView } from '@/services/sites';
 import SearchBox from '@/components/shared/SearchBox';
-import { getSourceTenants, putSourceTenant } from '@/services/source/tenants';
 import { getDomains } from '@/integrations/microsoft/services/domains';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
 import { TablesInsert } from '@/types/db';
@@ -29,6 +27,7 @@ import { toast } from 'sonner';
 import { useUser } from '@/lib/providers/UserContext';
 import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { encrypt } from '@/db/secret';
+import { getRows, insertRows } from '@/db/orm';
 
 const credentialsSchema = z.object({
   tenant_id: z.string().min(1, 'Tenant ID is required'),
@@ -57,8 +56,12 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
   const { data: sites } = useAsync({
     initial: [],
     fetcher: async () => {
-      const sites = await getSitesView(parentId);
-      const tenants = await getSourceTenants(sourceId);
+      const sites = await getRows('public', 'sites_view', {
+        filters: [['parent_id', 'eq', parentId]],
+      });
+      const tenants = await getRows('source', 'tenants', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
       if (sites.ok && tenants.ok) {
         return sites.data.rows.filter(
           (site) => !tenants.data.rows.some((tenant) => tenant.site_id === site.id)
@@ -145,7 +148,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
       },
     };
 
-    const result = await putSourceTenant([mapping]);
+    const result = await insertRows('source', 'tenants', { rows: [mapping] });
     if (result.ok) {
       console.log(result);
       toast.info(`Created source tenant mapping!`);

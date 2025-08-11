@@ -6,11 +6,10 @@ import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { useUser } from '@/lib/providers/UserContext';
 import { useRef, useState } from 'react';
-import { getUsers } from '@/services/users';
-import { getRoles } from '@/services/roles';
 import { pascalCase } from '@/lib/utils';
 import { textColumn, dateColumn } from '@/components/shared/table/DataTableColumn';
 import UserTableUserDrawer from '@/components/domain/users/UserTableUserDrawer';
+import { getRows } from '@/db/orm';
 
 export default function UsersTable() {
   const [roles, setRoles] = useState<Tables<'public', 'roles'>[]>([]);
@@ -18,12 +17,14 @@ export default function UsersTable() {
   const { user: context } = useUser();
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const users = await getUsers({
-      page: pageIndex,
-      size: pageSize,
-      ...props,
+    const users = await getRows('public', 'users', {
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        ...props,
+      },
     });
-    const roles = await getRoles();
+    const roles = await getRows('public', 'roles');
     if (roles.ok) {
       setRoles(roles.data.rows);
     }

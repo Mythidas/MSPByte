@@ -1,6 +1,6 @@
 import SophosDevicesTable from '@/components/domain/integrations/sophos/SophosDevicesTable';
 import Loader from '@/components/shared/Loader';
-import { getSites } from '@/services/sites';
+import { getRows } from '@/db/orm';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { Tables } from '@/types/db';
 
@@ -14,7 +14,9 @@ export default function SophosDevicesTab({ sourceId, parent, site }: Props) {
   const { content } = useLazyLoad({
     fetcher: async () => {
       if (site) return [site];
-      const sites = await getSites(parent?.id);
+      const sites = await getRows('public', 'sites', {
+        filters: [parent ? ['parent_id', 'eq', parent?.id] : undefined],
+      });
       if (sites.ok) {
         return parent ? [parent!, ...sites.data.rows] : sites.data.rows;
       }

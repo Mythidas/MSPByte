@@ -1,28 +1,11 @@
 'use server';
 
-import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
+import { Tables, TablesInsert } from '@/types/db';
 import { createAdminClient, createClient } from '@/db/server';
 import { Debug } from '@/lib/utils';
 import { sendEmail } from '@/services/email';
 import { APIResponse } from '@/types';
-import { PaginationOptions } from '@/types/db';
 import { tables } from 'packages/db';
-
-export async function getUsers(pagination?: PaginationOptions) {
-  return tables.select('public', 'users', undefined, pagination);
-}
-
-export async function getUser(id: string) {
-  return tables.selectSingle('public', 'users', (query) => {
-    query = query.eq('id', id);
-  });
-}
-
-export async function getUserOptions(id: string) {
-  return tables.selectSingle('public', 'user_options', (query) => {
-    query = query.eq('id', id);
-  });
-}
 
 export async function getCurrentUserView() {
   try {
@@ -44,14 +27,6 @@ export async function getCurrentUserView() {
       time: new Date(),
     });
   }
-}
-
-export async function updateUser(id: string, row: TablesUpdate<'public', 'users'>) {
-  return tables.update('public', 'users', id, row);
-}
-
-export async function updateUserOptions(id: string, row: TablesUpdate<'public', 'user_options'>) {
-  return tables.update('public', 'user_options', id, row);
 }
 
 export async function putUser(

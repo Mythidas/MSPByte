@@ -9,10 +9,9 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getRowsCount } from '@/db/orm';
+import { getRow, getRowsCount } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { getSite } from '@/services/sites';
 import { Building } from 'lucide-react';
 import { useSelectedLayoutSegment } from 'next/navigation';
 import React from 'react';
@@ -56,7 +55,9 @@ export default function SiteBreadcrumbs({ site }: Props) {
       let parent: Tables<'public', 'sites'> | undefined;
 
       if (site.parent_id) {
-        const result = await getSite(site.parent_id);
+        const result = await getRow('public', 'sites', {
+          filters: [['id', 'eq', site.parent_id]],
+        });
         if (result.ok) {
           parent = result.data;
         }

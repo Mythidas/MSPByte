@@ -43,13 +43,3 @@ export async function getSourceLicenses(sourceId?: string, skus?: string[], site
     });
   }
 }
-
-export async function putSourceLicenses(licenses: TablesInsert<'source', 'license_info'>[]) {
-  return tables.insert('source', 'license_info', licenses);
-}
-
-export async function deleteSourceLicense(id: string) {
-  return tables.delete('source', 'license_info', (query) => {
-    query = query.eq('id', id);
-  });
-}

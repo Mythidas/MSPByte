@@ -4,20 +4,21 @@ import { Tables } from '@/types/db';
 import DataTable from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { numberColumn, textColumn } from '@/components/shared/table/DataTableColumn';
-import { getRoles } from '@/services/roles';
-import { getUsers } from '@/services/users';
 import { useState } from 'react';
+import { getRows } from '@/db/orm';
 
 export default function RolesTable() {
   const [users, setUsers] = useState<Tables<'public', 'users'>[]>([]);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const roles = await getRoles({
-      page: pageIndex,
-      size: pageSize,
-      ...props,
+    const roles = await getRows('public', 'roles', {
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        ...props,
+      },
     });
-    const users = await getUsers();
+    const users = await getRows('public', 'users');
     if (users.ok) {
       setUsers(users.data.rows);
     }

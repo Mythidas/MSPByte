@@ -3,11 +3,9 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { syncSource } from '@/core/syncSource';
-import { getSites } from '@/services/sites';
-import { getSourceTenant, getSourceTenants } from '@/services/source/tenants';
 import { toast } from 'sonner';
 import { RotateCw } from 'lucide-react';
-import { getRows } from '@/db/orm';
+import { getRow, getRows } from '@/db/orm';
 
 type Props = {
   type: 'global' | 'parent' | 'site' | 'group';
@@ -67,7 +65,9 @@ export default function SyncSourceItem({
           break;
         }
         case 'global': {
-          const mappings = await getSourceTenants(sourceId);
+          const mappings = await getRows('source', 'tenants', {
+            filters: [['source_id', 'eq', sourceId]],
+          });
           if (!mappings.ok) throw new Error(mappings.error.message);
 
           const jobs = await syncSource(
@@ -86,11 +86,18 @@ export default function SyncSourceItem({
         case 'parent': {
           if (!siteId) return;
 
-          const sites = await getSites(siteId);
+          const sites = await getRows('public', 'sites', {
+            filters: [['parent_id', 'eq', siteId]],
+          });
           if (!sites.ok) throw new Error(sites.error.message);
 
           const siteIds = [siteId, ...sites.data.rows.map((s) => s.id)];
-          const mappings = await getSourceTenants(sourceId, siteIds);
+          const mappings = await getRows('source', 'tenants', {
+            filters: [
+              ['source_id', 'eq', sourceId],
+              ['site_id', 'in', siteIds],
+            ],
+          });
           if (!mappings.ok) throw new Error(mappings.error.message);
 
           const jobs = await syncSource(
@@ -109,7 +116,12 @@ export default function SyncSourceItem({
         case 'site': {
           if (!siteId) return;
 
-          const mapping = await getSourceTenant(sourceId, siteId);
+          const mapping = await getRow('source', 'tenants', {
+            filters: [
+              ['source_id', 'eq', sourceId],
+              ['site_id', 'eq', siteId],
+            ],
+          });
           if (!mapping.ok) throw new Error(mapping.error.message);
 
           const jobs = await syncSource(sourceId, tenantId, [

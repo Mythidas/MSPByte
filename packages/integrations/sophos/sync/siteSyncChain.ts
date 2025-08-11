@@ -7,14 +7,19 @@ import { getEndpoints } from '@/integrations/sophos/services/endpoints';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
 import { Debug } from '@/lib/utils';
-import { getSourceIntegration } from '@/services/integrations';
-import { getSourceTenant } from '@/services/source/tenants';
 import { tables } from '@/db';
-import { deleteRows, getRows } from '@/db/orm';
+import { deleteRows, getRow, getRows } from '@/db/orm';
 
 export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
-  const tenantResult = await getSourceTenant(job.source_id, job.site_id!);
-  const integrationResult = await getSourceIntegration(undefined, job.source_id);
+  const tenantResult = await getRow('source', 'tenants', {
+    filters: [
+      ['source_id', 'eq', job.source_id],
+      ['site_id', 'eq', job.site_id],
+    ],
+  });
+  const integrationResult = await getRow('public', 'integrations', {
+    filters: [['source_id', 'eq', job.source_id]],
+  });
   if (!tenantResult.ok || !integrationResult.ok) return;
   const { data: tenant } = tenantResult;
   const { data: integration } = integrationResult;

@@ -5,13 +5,13 @@ import { Tables } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
 import { DataTableHeader } from '@/components/shared/table/DataTableHeader';
-import { getSourceDevicesViewPaginated } from '@/services/devices';
 import { textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import enableSophosTamperProtection from '@/integrations/sophos/services/actions/enableSophosTamperProtection';
 import { useUser } from '@/lib/providers/UserContext';
 import { useRef } from 'react';
+import { getRows } from '@/db/orm';
 
 type Props = {
   sourceId: string;
@@ -25,8 +25,9 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
   const tableRef = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const devices = await getSourceDevicesViewPaginated(
-      {
+    const devices = await getRows('source', 'devices_view', {
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
+      pagination: {
         page: pageIndex,
         size: pageSize,
         filterMap: {
@@ -36,9 +37,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
         },
         ...props,
       },
-      sourceId,
-      siteIds
-    );
+    });
     if (!devices.ok) {
       return { rows: [], total: 0 };
     }

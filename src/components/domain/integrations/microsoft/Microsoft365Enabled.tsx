@@ -10,11 +10,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tables } from '@/types/db';
 import { useAsync } from '@/hooks/common/useAsync';
 import { cn } from '@/lib/utils';
-import { getSourceIdentitiesCount } from '@/services/identities';
-import { getSitesCount } from '@/services/sites';
-import { getSourceTenantsCount } from '@/services/source/tenants';
 import { Building, Database, ExternalLink, Eye, TrendingUp, Users, Zap } from 'lucide-react';
 import Link from 'next/link';
+import { getRowsCount } from '@/db/orm';
 
 type Props = {
   source: Tables<'public', 'sources'>;
@@ -49,8 +47,10 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { total: 0, connected: 0 },
     fetcher: async () => {
-      const siteCount = await getSitesCount();
-      const tenantsCount = await getSourceTenantsCount(sourceId);
+      const siteCount = await getRowsCount('public', 'sites');
+      const tenantsCount = await getRowsCount('source', 'tenants', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
       if (!siteCount.ok || !tenantsCount.ok) {
         throw 'Failed to fetch correct counts. Please refresh.';
@@ -123,7 +123,9 @@ function MonthlyUsageCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { connected: 0 },
     fetcher: async () => {
-      const tenantsCount = await getSourceTenantsCount(sourceId);
+      const tenantsCount = await getRowsCount('source', 'tenants', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
       if (!tenantsCount.ok) {
         throw 'Failed to fetch correct counts. Please refresh.';
@@ -173,7 +175,9 @@ function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
   } = useAsync({
     initial: { connected: 0 },
     fetcher: async () => {
-      const identities = await getSourceIdentitiesCount(sourceId);
+      const identities = await getRowsCount('source', 'identities', {
+        filters: [['source_id', 'eq', sourceId]],
+      });
 
       if (!identities.ok) {
         throw 'Failed to fetch correct counts. Please refresh.';

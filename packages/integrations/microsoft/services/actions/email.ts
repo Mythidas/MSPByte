@@ -1,6 +1,6 @@
 'use server';
 
-import { updateRow } from '@/db/orm';
+import { getRow, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
 import {
   checkInboxRules,
@@ -8,7 +8,6 @@ import {
   resetUserPassword,
   revokeUserSessions,
 } from '@/integrations/microsoft/services/security';
-import { getSourceTenant } from '@/services/source/tenants';
 
 export default async function microsoft365EmailBreachResponse(
   feed: Tables<'public', 'activity_feeds'>,
@@ -16,7 +15,12 @@ export default async function microsoft365EmailBreachResponse(
   password: string
 ) {
   if (!feed.site_id) return;
-  const tenant = await getSourceTenant('microsoft-365', feed.site_id);
+  const tenant = await getRow('source', 'tenants', {
+    filters: [
+      ['source_id', 'eq', 'microsoft-365'],
+      ['site_id', 'eq', feed.site_id],
+    ],
+  });
   if (!tenant.ok) return;
 
   // Revoke Sessions

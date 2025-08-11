@@ -6,9 +6,9 @@ import { dateColumn, textColumn } from '@/components/shared/table/DataTableColum
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { prettyText } from '@/lib/utils';
 import { useRef } from 'react';
-import { getSourcePoliciesView } from '@/services/policies';
 import MicrosoftPolicyDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftPolicyDrawer';
 import Link from 'next/link';
+import { getRows } from '@/db/orm';
 
 type TData = Tables<'source', 'policies_view'>;
 type Props = {
@@ -27,13 +27,15 @@ export default function MicrosoftPoliciesTable({
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const policies = await getSourcePoliciesView(sourceId, siteIds, {
-      page: pageIndex,
-      size: pageSize,
-      ...props,
-      sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+    const policies = await getRows('source', 'policies_view', {
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        ...props,
+        sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+      },
     });
-
     if (!policies.ok) {
       return { rows: [], total: 0 };
     }

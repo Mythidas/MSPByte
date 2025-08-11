@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import SearchBox from '@/components/shared/SearchBox';
 import { Tables } from '@/types/db';
-import { getParentSites, updateSite } from '@/services/sites';
+import { getRows, updateRow } from '@/db/orm';
 
 type Props = {
   sites: Tables<'public', 'sites'>[];
@@ -34,7 +34,9 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
       setIsLoading(true);
 
       try {
-        const sites = await getParentSites();
+        const sites = await getRows('public', 'sites', {
+          filters: [['is_parent', 'eq', true]],
+        });
         if (!sites.ok) {
           throw new Error(sites.error.message);
         }
@@ -60,10 +62,13 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         throw new Error('No site selected');
       }
 
-      const result = await updateSite(site.id, {
-        ...site,
-        parent_id: parent.id,
-      } as Tables<'public', 'sites'>);
+      const result = await updateRow('public', 'sites', {
+        id: site.id,
+        row: {
+          ...site,
+          parent_id: parent.id,
+        } as Tables<'public', 'sites'>,
+      });
       if (result.ok && onSuccess && site) {
         onSuccess(site, parent.name);
       }

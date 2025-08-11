@@ -1,8 +1,8 @@
 import { Tables, TablesInsert } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
 import { Debug } from '@/lib/utils';
-import { putSourceMetrics } from '@/services/source/metrics';
 import { APIResponse } from '@/types';
+import { insertRows } from '@/db/orm';
 
 export async function syncMetrics(
   tenant: Tables<'source', 'tenants'>,
@@ -52,7 +52,9 @@ export async function syncMetrics(
       created_at: new Date().toISOString(),
     };
 
-    await putSourceMetrics([mdrManagedDevices, upgradableDevices, tamperDisabled]);
+    await insertRows('source', 'metrics', {
+      rows: [mdrManagedDevices, upgradableDevices, tamperDisabled],
+    });
 
     return {
       ok: true,

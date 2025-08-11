@@ -4,28 +4,29 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Tables } from '@/types/db';
-import { getSourceIntegrations } from '@/services/integrations';
-import { getSources } from '@/services/sources';
 import DataTable from '@/components/shared/table/DataTable';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import { column, textColumn } from '@/components/shared/table/DataTableColumn';
 import Link from 'next/link';
+import { getRows } from '@/db/orm';
 
 export default function IntegrationsTable() {
   const [integrations, setIntegrations] = useState<Tables<'public', 'integrations'>[]>([]);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const sources = await getSources({
-      page: pageIndex,
-      size: pageSize,
-      filterMap: {
-        protection: 'metadata->packages->protection->>name',
-        status: 'metadata->packages->protection->>status',
-        tamper: 'metadata->>tamperProtectionEnabled',
+    const sources = await getRows('public', 'sources', {
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        filterMap: {
+          protection: 'metadata->packages->protection->>name',
+          status: 'metadata->packages->protection->>status',
+          tamper: 'metadata->>tamperProtectionEnabled',
+        },
+        ...props,
       },
-      ...props,
     });
-    const integrations = await getSourceIntegrations();
+    const integrations = await getRows('public', 'integrations');
     if (integrations.ok) {
       setIntegrations(integrations.data.rows);
     }

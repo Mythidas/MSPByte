@@ -23,14 +23,12 @@ import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import DataTable from '@/components/shared/table/DataTable';
 import { DataTableColumnDef } from '@/types/data-table';
 import { textColumn } from '@/components/shared/table/DataTableColumn';
-import { getSourceIdentities } from '@/services/identities';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn, generatePassword, generateUUID, prettyText } from '@/lib/utils';
 import SearchBar from '@/components/shared/SearchBar';
 import { resolveSearch } from '@/lib/helpers/search';
 import { Input } from '@/components/ui/input';
-import { getSourceTenantsView } from '@/services/source/tenants';
 import {
   Dialog,
   DialogClose,
@@ -42,7 +40,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import microsoft365EmailBreachResponse from '@/integrations/microsoft/services/actions/email';
-import { getRow, insertRows } from '@/db/orm';
+import { getRow, getRows, insertRows } from '@/db/orm';
 import { useUser } from '@/lib/providers/UserContext';
 import { useAsync } from '@/hooks/common/useAsync';
 import { MicrosoftEmailBreachMetadata } from '@/types/source/feeds';
@@ -314,7 +312,9 @@ const SitesStep = ({
 }) => {
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const sites = await getSourceTenantsView('microsoft-365');
+      const sites = await getRows('source', 'tenants_view', {
+        filters: [['source_id', 'eq', 'microsoft-365']],
+      });
       if (sites.ok) return sites.data.rows.sort((a, b) => a.site_name!.localeCompare(b.site_name!));
     },
     render: (sites) => {
@@ -369,7 +369,12 @@ const UsersStep = ({
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const identities = await getSourceIdentities('microsoft-365', [siteId]);
+      const identities = await getRows('source', 'identities', {
+        filters: [
+          ['source_id', 'eq', 'microsoft-365'],
+          ['site_id', 'eq', siteId],
+        ],
+      });
       if (identities.ok) return identities.data.rows;
     },
     render: (identities) => {

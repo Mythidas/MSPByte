@@ -6,11 +6,11 @@ import { column, dateColumn, textColumn } from '@/components/shared/table/DataTa
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { prettyText } from '@/lib/utils';
-import { getSourceTenantsView } from '@/services/source/tenants';
 import { useRef } from 'react';
 import { MicrosoftTenantMetadata } from '@/types/source/tenants';
 import Microsoft365MappingsDialog from '@/components/domain/integrations/microsoft/Microsoft365MappingsDialog';
 import MicrosoftTenantDrawer from '@/components/domain/integrations/microsoft/drawers/MicrosoftTenantDrawer';
+import { getRows } from '@/db/orm';
 
 type TData = Tables<'source', 'tenants_view'>;
 type Props = {
@@ -24,16 +24,18 @@ export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: 
   const ref = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const tenants = await getSourceTenantsView(sourceId, siteIds, {
-      page: pageIndex,
-      size: pageSize,
-      ...props,
-      sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
-      filterMap: {
-        mfa_enforcement: 'metadata->>mfa_enforcement',
+    const tenants = await getRows('source', 'tenants_view', {
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
+      pagination: {
+        page: pageIndex,
+        size: pageSize,
+        ...props,
+        sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+        filterMap: {
+          mfa_enforcement: 'metadata->>mfa_enforcement',
+        },
       },
     });
-
     if (!tenants.ok) {
       return { rows: [], total: 0 };
     }

@@ -1,11 +1,11 @@
 'use server';
 
-import { getSite } from 'packages/services/sites';
 import ErrorDisplay from '@/components/shared/ErrorDisplay';
 import SitesSidebar from '@/components/layout/SitesSidebar';
 import SiteProvider from '@/lib/providers/SiteProvider';
 import React from 'react';
 import SiteBreadcrumbs from '@/components/domain/sites/SiteBreadcrumbs';
+import { getRow } from '@/db/orm';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -14,7 +14,9 @@ type Props = {
 
 export default async function Layout({ children, ...props }: Props) {
   const params = await props.params;
-  const site = await getSite(params.slug);
+  const site = await getRow('public', 'sites', {
+    filters: [['slug', 'eq', params.slug]],
+  });
 
   if (!site.ok) {
     return <ErrorDisplay message="Failed to find site" />;

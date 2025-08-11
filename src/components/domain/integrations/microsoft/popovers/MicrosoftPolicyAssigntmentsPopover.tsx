@@ -9,8 +9,8 @@ import {
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { getRows } from '@/db/orm';
 import { useAsync } from '@/hooks/common/useAsync';
-import { getSourceIdentities } from '@/services/identities';
 import { MicrosoftPolicyMetadata } from '@/types/source/policies';
 import { Info, Users, CircleCheck, CircleX, Globe } from 'lucide-react';
 
@@ -26,7 +26,9 @@ export default function MicrosoftPolicyAssignmentsPopover({ siteId, metadata }: 
   } = useAsync({
     initial: { identities: [] },
     fetcher: async () => {
-      const identities = await getSourceIdentities('microsoft-365', [siteId]);
+      const identities = await getRows('source', 'identities', {
+        filters: [['site_id', 'eq', siteId]],
+      });
       if (identities.ok) return { identities: identities.data.rows };
 
       return { identities: [] };
