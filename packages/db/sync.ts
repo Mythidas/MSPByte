@@ -11,7 +11,8 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
   existingFilters: RowFilter<S, T>[],
   uniqueKey: keyof TablesInsert<S, T>,
   primaryKey: keyof Tables<S, T>,
-  module: string
+  module: string,
+  shouldDelete: boolean = true
 ): Promise<APIResponse<Tables<S, T>[]>> {
   const context: string = `${schema}.${table as string}`;
 
@@ -45,19 +46,21 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
     const updateIds = new Set(
       toUpdate.map((u) => u[uniqueKey as keyof TablesUpdate<S, T>] as string)
     );
-    const toDelete = existing.data.rows
-      .filter((item) => !updateIds.has(item[uniqueKey as keyof Tables<S, T>] as string))
-      .map((item) => item[primaryKey]);
-    const deleted = await deleteRows(schema, table, {
-      filters: [[primaryKey, 'in', toDelete]] as any,
-    });
-    if (!deleted.ok) {
-      Debug.warn({
-        module,
-        context,
-        message: `Failed to delete ${schema}.${table as string}`,
-        time: new Date(),
+    if (shouldDelete) {
+      const toDelete = existing.data.rows
+        .filter((item) => !updateIds.has(item[uniqueKey as keyof Tables<S, T>] as string))
+        .map((item) => item[primaryKey]);
+      const deleted = await deleteRows(schema, table, {
+        filters: [[primaryKey, 'in', toDelete]] as any,
       });
+      if (!deleted.ok) {
+        Debug.warn({
+          module,
+          context,
+          message: `Failed to delete ${schema}.${table as string}`,
+          time: new Date(),
+        });
+      }
     }
 
     const updated = await upsertRows(schema, table, {

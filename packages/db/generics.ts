@@ -343,7 +343,7 @@ export async function tablesUpsertGeneric<S extends Schemas, T extends Table<S>>
   } catch (err) {
     return Debug.error({
       module: 'supabase',
-      context: `insert_${String(table)}`,
+      context: `upsert_${String(table)}`,
       message: String(err),
       time: new Date(),
     });

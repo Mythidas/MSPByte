@@ -26,9 +26,9 @@ export default async function fetchExternal(
   }>
 > {
   const [subscribedSkus, caPolicies, securityDefaults] = await Promise.all([
-    await getSubscribedSku(tenant),
-    await getConditionalAccessPolicies(tenant),
-    await getSecurityDefaultsEnabled(tenant),
+    getSubscribedSku(tenant),
+    getConditionalAccessPolicies(tenant),
+    getSecurityDefaultsEnabled(tenant),
   ]);
 
   if (!subscribedSkus.ok || !caPolicies.ok || !securityDefaults.ok) {

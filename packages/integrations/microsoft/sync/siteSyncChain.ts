@@ -1,19 +1,14 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { deleteRows, getRow, getRows } from '@/db/orm';
+import { tables } from '@/db';
+import { deleteRows, getRow, getRows, updateRow } from '@/db/orm';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
-import { syncIdentities } from '@/integrations/microsoft/sync/syncIdentities';
-import { syncLicenses } from '@/integrations/microsoft/sync/syncLicenses';
 import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
-import { syncPolicies } from '@/integrations/microsoft/sync/syncPolicices';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformLicenses } from '@/integrations/microsoft/transforms/licenses';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
 import { Debug } from '@/lib/utils';
-import { getSourceIdentities } from '@/services/identities';
-import { getSourcePolicies } from '@/services/policies';
-import { updateSourceTenant } from '@/services/source/tenants';
 import { Tables } from '@/types/db';
 
 export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
@@ -89,9 +84,52 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
         ctx,
         { transformedUsers, transformedPolicies, transformedLicenses, securityDefaults, caPolicies }
       ) => {
-        const policies = await syncPolicies(tenant, transformedPolicies, ctx.job.id);
-        const licenses = await syncLicenses(tenant, transformedLicenses, ctx.job.id);
-        const identities = await syncIdentities(tenant, transformedUsers, ctx.job.id);
+        const promises = [
+          tables.sync(
+            'source',
+            'policies',
+            ctx.job,
+            transformedPolicies,
+            [
+              ['source_id', 'eq', ctx.job.source_id],
+              ['site_id', 'eq', ctx.job.site_id!],
+            ],
+            'external_id',
+            'id',
+            'Microsoft365',
+            false
+          ),
+          tables.sync(
+            'source',
+            'licenses',
+            ctx.job,
+            transformedLicenses,
+            [
+              ['source_id', 'eq', ctx.job.source_id],
+              ['site_id', 'eq', ctx.job.site_id!],
+            ],
+            'external_id',
+            'id',
+            'Microsoft365',
+            false
+          ),
+          tables.sync(
+            'source',
+            'identities',
+            ctx.job,
+            transformedUsers,
+            [
+              ['source_id', 'eq', ctx.job.source_id],
+              ['site_id', 'eq', ctx.job.site_id!],
+            ],
+            'external_id',
+            'id',
+            'Microsoft365',
+            false
+          ),
+        ];
+
+        const [policies, licenses, identities] = await Promise.all(promises);
         if (!policies.ok || !identities.ok || !licenses.ok) {
           return Debug.error({
             module: 'Microsoft365',
@@ -111,22 +149,35 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
       }
     )
     .step('Update Tenant', async (ctx, { securityDefaults, caPolicies }) => {
-      return await updateSourceTenant(ctx.tenant_id, {
-        metadata: {
-          ...(tenant.metadata as any),
-          mfa_enforcement: securityDefaults
-            ? 'security_defaults'
-            : caPolicies.length > 0
-              ? 'conditional_access'
-              : 'none',
+      return await updateRow('source', 'tenants', {
+        id: ctx.tenant_id,
+        row: {
+          metadata: {
+            ...(tenant.metadata as any),
+            mfa_enforcement: securityDefaults
+              ? 'security_defaults'
+              : caPolicies.length > 0
+                ? 'conditional_access'
+                : 'none',
+          },
         },
       });
     })
     .final(async (ctx) => {
       const [policies, identities, licenses] = await Promise.all([
-        await getSourcePolicies(ctx.job.source_id, [ctx.job.site_id!]),
-        await getSourceIdentities(ctx.job.source_id, [ctx.job.site_id!]),
-        await getRows('source', 'licenses', {
+        getRows('source', 'policies', {
+          filters: [
+            ['source_id', 'eq', ctx.job.source_id],
+            ['site_id', 'eq', ctx.job.site_id],
+          ],
+        }),
+        getRows('source', 'identities', {
+          filters: [
+            ['source_id', 'eq', ctx.job.source_id],
+            ['site_id', 'eq', ctx.job.site_id],
+          ],
+        }),
+        getRows('source', 'licenses', {
           filters: [
             ['source_id', 'eq', ctx.job.source_id],
             ['site_id', 'eq', ctx.job.site_id],
