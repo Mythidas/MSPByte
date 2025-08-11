@@ -108,13 +108,13 @@ export default function AppSidebar() {
   const renderItem = (item: Item) => {
     if (item.sourceOnly && !source) return null;
 
-    const isSites = pathname.includes('/sites');
-    const isIntegrations = pathname.includes('/integrations');
-    const isUsers = pathname.includes('/users');
-    const isActions = pathname.includes('/actions');
-    const isActivity = pathname.includes('/activity');
-    const isGroups = pathname.includes('/groups');
-    const isSettings = pathname.includes('/settings');
+    const isSites = pathname.startsWith('/sites');
+    const isIntegrations = pathname.startsWith('/integrations');
+    const isUsers = pathname.startsWith('/users');
+    const isActions = pathname.startsWith('/actions');
+    const isActivity = pathname.startsWith('/activity');
+    const isGroups = pathname.startsWith('/groups');
+    const isSettings = pathname.startsWith('/settings');
     const isHome = pathname === '/';
     const isSource =
       !isSites &&
