@@ -23,7 +23,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList } from '@/components/ui/tabs';
-import { deleteRows, getRows, insertRows, updateRows } from '@/db/orm';
+import { deleteRows, getRows, upsertRows } from '@/db/orm';
 import { Tables, TablesInsert, TablesUpdate } from '@/types/db';
 import { useLazyLoad } from '@/hooks/common/useLazyLoad';
 import { resolveSearch } from '@/lib/helpers/search';
@@ -160,16 +160,10 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
             }
           }
 
-          const [insertResult, updateResult, deleteResult] = await Promise.all([
-            toInsert.length > 0
-              ? insertRows('source', 'tenants', { rows: toInsert })
-              : Promise.resolve({ ok: true, data: [] } as APIResponse<[]>),
-            toUpdate.length > 0
-              ? updateRows('source', 'tenants', {
-                  rows: toUpdate.map((to) => {
-                    const key = to.id;
-                    return ['id', [key!, to]];
-                  }),
+          const [upsertResults, deleteResult] = await Promise.all([
+            toUpdate.length > 0 || toInsert.length > 0
+              ? upsertRows('source', 'tenants', {
+                  rows: [...toUpdate, ...toInsert],
                 })
               : Promise.resolve({ ok: true, data: [] } as APIResponse<[]>),
             toDelete.length > 0
@@ -179,8 +173,7 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
               : Promise.resolve({ ok: true, data: null } as APIResponse<null>),
           ]);
 
-          if (!insertResult.ok) throw new Error(`Insert failed: ${insertResult.error.message}`);
-          if (!updateResult.ok) throw new Error(`Update failed: ${updateResult.error.message}`);
+          if (!upsertResults.ok) throw new Error(`Upsert failed: ${upsertResults.error.message}`);
           if (!deleteResult.ok) throw new Error(`Delete failed: ${deleteResult.error.message}`);
 
           toast.success('Mappings saved successfully.');

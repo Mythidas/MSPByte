@@ -3,6 +3,7 @@ import {
   AutoTaskContractService,
   AutoTaskContractServiceUnits,
 } from '@/integrations/autotask/types/contract';
+import { AutoTaskService } from '@/integrations/autotask/types/service';
 import { generateUUID } from '@/lib/utils';
 import { Tables, TablesInsert } from '@/types/db';
 
@@ -30,26 +31,30 @@ export function transformContracts(
 }
 
 export function transformContractServices(
-  contracts: TablesInsert<'source', 'contracts'>[],
-  services: AutoTaskContractService[],
+  services: AutoTaskService[],
+  contractServices: AutoTaskContractService[],
   units: AutoTaskContractServiceUnits[],
   job: Tables<'public', 'source_sync_jobs'>
 ): TablesInsert<'source', 'contract_items'>[] {
-  return services.map((service) => ({
-    tenant_id: job.tenant_id,
-    source_id: job.source_id,
-    source_tenant_id: job.source_tenant_id!,
-    site_id: job.site_id!,
-    sync_id: job.id,
-    contract_id: contracts.find((c) => c.external_id === service.contractID.toString())?.id || '',
+  return contractServices.map((contractService) => {
+    const service = services.find((s) => s.id === contractService.serviceID);
 
-    external_id: service.id.toString(),
-    name: service.invoiceDescription,
-    sku: service.serviceID.toString(),
-    unit_price: service.unitPrice,
-    unit_cost: service.unitCost,
-    quantity: units.find((u) => u.contractServiceID === service.id)?.units || 0,
+    return {
+      tenant_id: job.tenant_id,
+      source_id: job.source_id,
+      source_tenant_id: job.source_tenant_id!,
+      site_id: job.site_id!,
+      sync_id: job.id,
 
-    metadata: service,
-  }));
+      external_contract_id: contractService.contractID.toString(),
+      external_id: contractService.id.toString(),
+      name: service?.name || contractService.internalDescription,
+      sku: service?.sku || '',
+      unit_price: contractService.unitPrice,
+      unit_cost: contractService.unitCost,
+      quantity: units.find((u) => u.contractServiceID === contractService.id)?.units || 0,
+
+      metadata: contractService,
+    };
+  });
 }

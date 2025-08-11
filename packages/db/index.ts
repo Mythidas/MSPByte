@@ -7,9 +7,9 @@ import {
   tablesSelectPaginated,
   tablesSelectSingleGeneric,
   tablesUpdateGeneric,
-  tablesUpdatesGeneric,
   tablesUpsertGeneric,
 } from '@/db/generics';
+import { syncTableItems } from '@/db/sync';
 
 export const tables = {
   select: tablesSelectGeneric,
@@ -18,8 +18,8 @@ export const tables = {
   applyFilters: paginatedFilters,
   insert: tablesInsertGeneric,
   update: tablesUpdateGeneric,
-  updates: tablesUpdatesGeneric,
   upsert: tablesUpsertGeneric,
   delete: tablesDeleteGeneric,
   count: tablesCountGeneric,
+  sync: syncTableItems,
 };

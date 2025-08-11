@@ -818,8 +818,9 @@ export type Database = {
     Tables: {
       contract_items: {
         Row: {
-          contract_id: string
           created_at: string | null
+          end_at: string | null
+          external_contract_id: string
           external_id: string
           id: string
           metadata: Json | null
@@ -829,6 +830,7 @@ export type Database = {
           sku: string
           source_id: string
           source_tenant_id: string | null
+          start_at: string | null
           sync_id: string | null
           tenant_id: string
           unit_cost: number
@@ -836,8 +838,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          contract_id: string
           created_at?: string | null
+          end_at?: string | null
+          external_contract_id: string
           external_id: string
           id?: string
           metadata?: Json | null
@@ -847,6 +850,7 @@ export type Database = {
           sku: string
           source_id: string
           source_tenant_id?: string | null
+          start_at?: string | null
           sync_id?: string | null
           tenant_id: string
           unit_cost: number
@@ -854,8 +858,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          contract_id?: string
           created_at?: string | null
+          end_at?: string | null
+          external_contract_id?: string
           external_id?: string
           id?: string
           metadata?: Json | null
@@ -865,6 +870,7 @@ export type Database = {
           sku?: string
           source_id?: string
           source_tenant_id?: string | null
+          start_at?: string | null
           sync_id?: string | null
           tenant_id?: string
           unit_cost?: number
@@ -872,13 +878,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "contract_items_contract_id_fkey"
-            columns: ["contract_id"]
-            isOneToOne: false
-            referencedRelation: "contracts"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "contract_items_site_id_fkey"
             columns: ["site_id"]

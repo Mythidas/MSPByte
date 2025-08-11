@@ -10,7 +10,6 @@ import {
   Table,
   TableOrView,
   UpdateRowConfig,
-  UpdateRowsConfig,
   UpsertRowConfig,
 } from '@/types/db';
 
@@ -114,14 +113,6 @@ export async function updateRow<S extends Schemas, T extends Table<S>>(
   config: UpdateRowConfig<S, T>
 ) {
   return tables.update(schema, table, config.id, config.row);
-}
-
-export async function updateRows<S extends Schemas, T extends Table<S>>(
-  schema: S,
-  table: T,
-  config: UpdateRowsConfig<S, T>
-) {
-  return tables.updates(schema, table, config.rows);
 }
 
 export async function upsertRows<S extends Schemas, T extends Table<S>>(

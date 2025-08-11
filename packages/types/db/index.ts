@@ -105,12 +105,8 @@ export type UpdateRowConfig<S extends Schemas, T extends Table<S>> = {
   row: TablesUpdate<S, T>;
 };
 
-export type UpdateRowsConfig<S extends Schemas, T extends Table<S>> = {
-  rows: [id: keyof TablesUpdate<S, T>, update: [val: string, data: TablesUpdate<S, T>]][];
-};
-
 export type UpsertRowConfig<S extends Schemas, T extends Table<S>> = {
-  rows: TablesUpdate<S, T>[];
+  rows: (TablesUpdate<S, T> | TablesInsert<S, T>)[];
   filters?: Array<RowFilter<S, T> | undefined>;
 };
 

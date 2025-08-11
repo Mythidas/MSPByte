@@ -4,9 +4,9 @@ import SyncChain from '@/core/SyncChain';
 import { getRow, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { getActiveCompanies } from '@/integrations/autotask/services/companies';
-import { syncCompanies } from '@/integrations/autotask/sync/syncCompanies';
 import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
+import { tables } from '@/db';
 
 export async function globalSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
   const integration = await getRow('public', 'integrations', {
@@ -28,19 +28,46 @@ export async function globalSyncChain(job: Tables<'public', 'source_sync_jobs'>)
     setState: () => {},
   })
     .step('Fetch External', async () => {
-      const results = await getActiveCompanies(config);
-      return results;
+      const [companies] = await Promise.all([await getActiveCompanies(config)]);
+      if (!companies.ok) throw companies.error.message;
+
+      return {
+        ok: true,
+        data: {
+          companies: companies.data,
+        },
+      };
     })
-    .step('Transforms', async (_ctx, companies) => {
+    .step('Transforms', async (_ctx, { companies }) => {
       const transformedCompanies = transformCompanies(companies, job);
       return {
         ok: true,
-        data: transformedCompanies,
+        data: {
+          companies: transformedCompanies,
+        },
       };
     })
-    .step('Sync Data', async (_ctx, companies) => {
-      const results = await syncCompanies(job, companies);
-      return results;
+    .step('Sync Data', async (ctx, { companies }) => {
+      const promises = [
+        tables.sync(
+          'source',
+          'sites',
+          ctx.job,
+          companies,
+          [['source_id', 'eq', ctx.job.source_id]],
+          'external_id',
+          'id',
+          'AutoTask'
+        ),
+      ];
+
+      const [syncCompanies] = await Promise.all(promises);
+      if (!syncCompanies.ok) throw syncCompanies.error.message;
+
+      return {
+        ok: true,
+        data: null,
+      };
     })
     .final(async () => {
       await updateRow('public', 'integrations', {

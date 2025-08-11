@@ -316,51 +316,10 @@ export async function tablesUpdateGeneric<S extends Schemas, T extends Table<S>>
   }
 }
 
-export async function tablesUpdatesGeneric<S extends Schemas, T extends Table<S>>(
-  schema: S,
-  table: T,
-  rows: [id: keyof TablesUpdate<S, T>, update: [val: string, data: TablesUpdate<S, T>]][]
-): Promise<APIResponse<Tables<S, T>[]>> {
-  try {
-    const supabase = await createClient();
-
-    const updates = await Promise.all(
-      rows.map(async ([id, update]) => {
-        const [value, row] = update;
-        const { data, error } = await supabase
-          .schema(schema)
-          .from(table as any)
-          .update(row as any)
-          .eq(id as string, value as any)
-          .select()
-          .single();
-
-        if (error)
-          throw new Error(
-            `Failed to update row with ${id as string} ${value as string}: ${error.message}`
-          );
-        return data as Tables<S, T>;
-      })
-    );
-
-    return {
-      ok: true,
-      data: updates,
-    };
-  } catch (err) {
-    return Debug.error({
-      module: 'supabase',
-      context: `update_${String(table)}`,
-      message: String(err),
-      time: new Date(),
-    });
-  }
-}
-
 export async function tablesUpsertGeneric<S extends Schemas, T extends Table<S>>(
   schema: S,
   table: T,
-  rows: TablesUpdate<S, T>[],
+  rows: (TablesUpdate<S, T> | TablesInsert<S, T>)[],
   modifyQuery?: (query: QueryBuilder<S, T>) => void
 ): Promise<APIResponse<Tables<S, T>[]>> {
   try {

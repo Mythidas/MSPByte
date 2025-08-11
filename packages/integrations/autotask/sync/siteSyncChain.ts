@@ -1,12 +1,14 @@
 'use server';
 
 import SyncChain from '@/core/SyncChain';
-import { getRow, insertRows } from '@/db/orm';
+import { tables } from '@/db';
+import { getRow } from '@/db/orm';
 import {
   getActiveContracts,
   getContractServices,
   getContractServiceUnits,
 } from '@/integrations/autotask/services/contracts';
+import { getActiveServices } from '@/integrations/autotask/services/services';
 import {
   transformContracts,
   transformContractServices,
@@ -45,32 +47,38 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
       if (!contracts.ok) throw contracts.error.message;
 
       const contractIds = contracts.data.map((c) => c.id.toString());
-      const services = await getContractServices(config, contractIds);
+      const [contractServices, contractUnits, services] = await Promise.all([
+        getContractServices(config, contractIds),
+        getContractServiceUnits(config, contractIds),
+        getActiveServices(config),
+      ]);
+      if (!contractServices.ok) throw contractServices.error.message;
+      if (!contractUnits.ok) throw contractUnits.error.message;
       if (!services.ok) throw services.error.message;
-
-      const units = await getContractServiceUnits(config, contractIds);
-      if (!units.ok) throw units.error.message;
 
       return {
         ok: true,
         data: {
           contracts: contracts.data,
+          contractServices: contractServices.data,
+          serviceUnits: contractUnits.data,
           services: services.data,
-          serviceUnits: units.data,
         },
       };
     })
-    .step('Transforms', async (ctx, { contracts, services, serviceUnits }) => {
+    .step('Transforms', async (ctx, { contracts, contractServices, serviceUnits, services }) => {
       const transformedContracts = transformContracts(contracts, ctx.job);
       const transformedServices = transformContractServices(
-        transformedContracts,
         services,
+        contractServices,
         serviceUnits,
         ctx.job
       );
 
       for (const contract of transformedContracts) {
-        const services = transformedServices.filter((s) => s.contract_id === contract.id);
+        const services = transformedServices.filter(
+          (s) => s.external_contract_id === contract.external_id
+        );
 
         contract.revenue = services.reduce((total, service) => {
           const units = Number(service.quantity) || 0;
@@ -88,14 +96,38 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
       };
     })
     .step('Sync Data', async (ctx, { contracts, services }) => {
-      const sourceContracts = await insertRows('source', 'contracts', {
-        rows: contracts,
-      });
-      if (!sourceContracts.ok) throw sourceContracts.error.message;
+      const promises = [
+        tables.sync(
+          'source',
+          'contracts',
+          ctx.job,
+          contracts,
+          [
+            ['source_id', 'eq', ctx.job.source_id],
+            ['site_id', 'eq', ctx.job.site_id!],
+          ],
+          'external_id',
+          'id',
+          'AutoTask'
+        ),
+        tables.sync(
+          'source',
+          'contract_items',
+          ctx.job,
+          services,
+          [
+            ['source_id', 'eq', ctx.job.source_id],
+            ['site_id', 'eq', ctx.job.site_id!],
+          ],
+          'external_id',
+          'id',
+          'AutoTask'
+        ),
+      ];
 
-      const sourceContractItems = await insertRows('source', 'contract_items', {
-        rows: services,
-      });
+      const [sourceContracts, sourceContractItems] = await Promise.all(promises);
+
+      if (!sourceContracts.ok) throw sourceContracts.error.message;
       if (!sourceContractItems.ok) throw sourceContractItems.error.message;
 
       return {
