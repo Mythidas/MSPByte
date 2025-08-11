@@ -3,7 +3,7 @@ import { Tables, TablesInsert } from '@/types/db';
 
 export default function transformCompanies(
   companies: AutoTaskCompany[],
-  job: Tables<'source', 'sync_jobs'>
+  job: Tables<'public', 'source_sync_jobs'>
 ): TablesInsert<'source', 'sites'>[] {
   return companies.map((company) => ({
     tenant_id: job.tenant_id,

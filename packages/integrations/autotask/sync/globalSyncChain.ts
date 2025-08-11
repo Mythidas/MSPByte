@@ -8,7 +8,7 @@ import { syncCompanies } from '@/integrations/autotask/sync/syncCompanies';
 import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 
-export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
+export async function globalSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
   const integration = await getRow('public', 'integrations', {
     filters: [
       ['source_id', 'eq', job.source_id],

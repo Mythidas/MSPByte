@@ -7,7 +7,7 @@ import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
 import { syncSophosPartner } from '@/integrations/sophos/sync';
 import { Debug } from '@/lib/utils';
 
-export async function syncJob(job: Tables<'source', 'sync_jobs'>) {
+export async function syncJob(job: Tables<'public', 'source_sync_jobs'>) {
   const supabase = await createClient();
   try {
     switch (job.source_id) {
@@ -28,8 +28,7 @@ export async function syncJob(job: Tables<'source', 'sync_jobs'>) {
     }
   } catch (err: unknown) {
     await supabase
-      .schema('source')
-      .from('sync_jobs')
+      .from('source_sync_jobs')
       .update({
         status: 'failed',
         error: String(err),

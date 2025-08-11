@@ -4,7 +4,7 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function syncCompanies(
-  job: Tables<'source', 'sync_jobs'>,
+  job: Tables<'public', 'source_sync_jobs'>,
   companies: TablesInsert<'source', 'sites'>[]
 ): Promise<APIResponse<Tables<'source', 'sites'>[]>> {
   try {

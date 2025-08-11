@@ -7,7 +7,7 @@ export async function syncSource(
   sourceId: string,
   tenantId: string,
   siteIds: { siteId: string; sourceTenantId: string }[]
-): Promise<APIResponse<Tables<'source', 'sync_jobs'>[]>> {
+): Promise<APIResponse<Tables<'public', 'source_sync_jobs'>[]>> {
   const getEstDuration = () => {
     switch (sourceId) {
       case 'microsoft-365':

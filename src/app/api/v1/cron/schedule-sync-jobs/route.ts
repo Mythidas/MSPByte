@@ -79,7 +79,7 @@ async function startSync(integration: Tables<'public', 'integrations'>) {
     };
   });
 
-  await insertRows('source', 'sync_jobs', {
+  await insertRows('public', 'source_sync_jobs', {
     rows: [
       ...siteRows,
       {

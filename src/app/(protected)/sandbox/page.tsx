@@ -26,7 +26,7 @@ export default function Page() {
       const handleClick = async () => {
         const tenant = data.find((t) => t.id === selectedTenant)!;
 
-        const job = await insertRows('source', 'sync_jobs', {
+        const job = await insertRows('public', 'source_sync_jobs', {
           rows: [
             {
               tenant_id: tenant.tenant_id!,
@@ -70,7 +70,7 @@ export default function Page() {
       const handleClick = async () => {
         const integration = data.find((t) => t.id === selectedSource)!;
 
-        const job = await insertRows('source', 'sync_jobs', {
+        const job = await insertRows('public', 'source_sync_jobs', {
           rows: [
             {
               tenant_id: integration.tenant_id,

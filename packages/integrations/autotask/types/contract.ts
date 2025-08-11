@@ -51,3 +51,19 @@ export type AutoTaskContractService = {
   unitCost: number;
   unitPrice: number;
 };
+
+export type AutoTaskContractServiceUnits = {
+  id: number;
+  approveAndPostDate: string; // ISO date string
+  contractID: number;
+  contractServiceID: number;
+  cost: number;
+  endDate: string; // ISO date string
+  internalCurrencyPrice: number;
+  organizationalLevelAssociationID: number;
+  price: number;
+  serviceID: number;
+  startDate: string; // ISO date string
+  units: number;
+  vendorCompanyID: number | null;
+};

@@ -261,16 +261,13 @@ export async function tablesInsertGeneric<S extends Schemas, T extends Table<S>>
 ): Promise<APIResponse<Tables<S, T>[]>> {
   try {
     const supabase = await createClient();
-    let query = supabase
-      .schema(schema)
-      .from(table as any)
-      .insert(rows as any);
+    let query = supabase.schema(schema).from(table as any);
 
     if (modifyQuery) {
       modifyQuery(query as any);
     }
 
-    const { data, error } = await query.select();
+    const { data, error } = await query.insert(rows as any).select();
     if (error) throw new Error(error.message);
 
     return {

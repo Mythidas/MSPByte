@@ -14,6 +14,6 @@ export async function getSource(id?: string) {
   });
 }
 
-export async function putSourceSyncJobs(jobs: TablesInsert<'source', 'sync_jobs'>[]) {
-  return tables.insert('source', 'sync_jobs', jobs);
+export async function putSourceSyncJobs(jobs: TablesInsert<'public', 'source_sync_jobs'>[]) {
+  return tables.insert('public', 'source_sync_jobs', jobs);
 }

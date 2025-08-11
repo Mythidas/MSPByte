@@ -16,7 +16,7 @@ import { getSourcePolicies } from '@/services/policies';
 import { updateSourceTenant } from '@/services/source/tenants';
 import { Tables } from '@/types/db';
 
-export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
   const tenantResult = await getRow('source', 'tenants', {
     filters: [
       ['source_id', 'eq', job.source_id],

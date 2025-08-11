@@ -12,7 +12,7 @@ import { deleteSourceDevices, getSourceDevices } from '@/services/devices';
 import { getSourceIntegration } from '@/services/integrations';
 import { getSourceTenant } from '@/services/source/tenants';
 
-export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
   const tenantResult = await getSourceTenant(job.source_id, job.site_id!);
   const integrationResult = await getSourceIntegration(undefined, job.source_id);
   if (!tenantResult.ok || !integrationResult.ok) return;
