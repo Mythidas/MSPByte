@@ -49,7 +49,7 @@ export default function GroupSidebar({ group, children }: Props) {
     {
       label: 'Source',
       icon: Box,
-      href: `/${source?.id}`,
+      href: `/${source?.source_id}`,
       sourceOnly: true,
     },
     {
@@ -90,14 +90,13 @@ export default function GroupSidebar({ group, children }: Props) {
                     : `/groups/${group.id}`;
 
                 const isActive =
-                  (item.href === '' && isDashboard) ||
-                  (item.href === '/settings' && isOnSettings) ||
-                  (item.href === '/children' && isOnChildren) ||
-                  (item.href === '/source' && isSource) ||
-                  (item.href === '/activity' && isOnActivity);
+                  (item.label === 'Dashboard' && isDashboard) ||
+                  (item.label === 'Settings' && isOnSettings) ||
+                  (item.label === 'Sites' && isOnChildren) ||
+                  (item.label === 'Source' && isSource) ||
+                  (item.label === 'Activity' && isOnActivity);
                 const Icon = item.icon;
-                const tabs =
-                  isDashboard && isActive && source ? SOURCE_TABS[source.source_id!] : {};
+                const tabs = isSource && isActive && source ? SOURCE_TABS[source.source_id!] : {};
 
                 return (
                   <SidebarMenuItem key={item.href}>

@@ -36,7 +36,7 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
       }
 
       const sites = await getRows('public', 'sites', {
-        filters: [['parent_id', 'is', parent?.id]],
+        filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
       });
       if (!sites.ok) return [];
 
