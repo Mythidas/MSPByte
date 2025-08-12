@@ -85,7 +85,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
       );
       if (data.parent) {
         crumbs.push(
-          <BreadcrumbLink key={data.parent.id} href={`/sites/${data.parent.id}`}>
+          <BreadcrumbLink key={data.parent.id} href={`/sites/${data.parent.slug}`}>
             {data.parent.name}
           </BreadcrumbLink>
         );

@@ -58,6 +58,15 @@ export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }:
             label: 'Site',
             enableHiding: true,
             simpleSearch: true,
+            cell: ({ row }) => (
+              <Link
+                href={`/sites/${row.original.site_slug}/${row.original.source_id}?tab=dashboard`}
+                className="hover:text-primary"
+                target="_blank"
+              >
+                {row.original.parent_name}
+              </Link>
+            ),
           }),
           textColumn({
             key: 'parent_name',

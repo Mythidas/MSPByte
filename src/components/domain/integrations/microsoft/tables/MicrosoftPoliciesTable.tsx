@@ -71,7 +71,7 @@ export default function MicrosoftPoliciesTable({
             simpleSearch: true,
             cell: ({ row }) => (
               <Link
-                href={`/sites/${row.original.parent_id}/${row.original.source_id}?tab=dashboard`}
+                href={`/sites/${row.original.parent_slug}/${row.original.source_id}?tab=dashboard`}
                 className="hover:text-primary"
                 target="_blank"
               >

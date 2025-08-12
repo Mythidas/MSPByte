@@ -60,7 +60,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             cell: ({ row }) => {
               return (
                 <Link
-                  href={`/sites/${row.original.site_id}/${sourceId}`}
+                  href={`/sites/${row.original.site_slug}/${sourceId}`}
                   className="hover:text-primary"
                   target="_blank"
                 >
@@ -77,7 +77,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             cell: ({ row }) => {
               return (
                 <Link
-                  href={`/sites/${row.original.parent_id}/${sourceId}`}
+                  href={`/sites/${row.original.parent_slug}/${sourceId}`}
                   className="hover:text-primary"
                   target="_blank"
                 >
