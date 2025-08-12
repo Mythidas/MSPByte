@@ -11,7 +11,7 @@ import { transformPolicies } from '@/integrations/microsoft/transforms/policies'
 import { Debug } from '@/lib/utils';
 import { Tables } from '@/types/db';
 
-export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const tenantResult = await getRow('source', 'tenants', {
     filters: [
       ['source_id', 'eq', job.source_id],

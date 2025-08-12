@@ -6,7 +6,7 @@ import { APIResponse } from '@/types';
 export async function syncTableItems<S extends Schemas, T extends Table<S>>(
   schema: S,
   table: T,
-  job: Tables<'public', 'source_sync_jobs'>,
+  job: Tables<'source', 'sync_jobs'>,
   items: TablesInsert<S, T>[],
   existingFilters: RowFilter<S, T>[],
   uniqueKey: keyof TablesInsert<S, T>,

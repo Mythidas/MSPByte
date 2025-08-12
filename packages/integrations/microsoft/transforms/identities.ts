@@ -14,7 +14,7 @@ import {
 } from '@/integrations/microsoft/types/identity';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';
-import { Debug, Timer } from '@/lib/utils';
+import { Debug, generateUUID, Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function transformIdentities(
@@ -55,6 +55,7 @@ export async function transformIdentities(
           const transformedMethods = transformAuthenticationMethods(mfaMethods.data);
 
           const identity: TablesInsert<'source', 'identities'> = {
+            id: generateUUID(),
             tenant_id: mapping.tenant_id,
             source_id: mapping.source_id,
             site_id: mapping.site_id,
@@ -86,6 +87,7 @@ export async function transformIdentities(
                 .map((pol) => pol.displayName),
             },
             created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
           };
 
           return identity;

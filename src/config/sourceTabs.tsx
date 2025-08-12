@@ -1,3 +1,4 @@
+import AutoTaskContractsTable from '@/components/domain/integrations/autotask/tables/AutoTaskContractsTable';
 import MicrosoftIdentitiesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftIdentitiesTable';
 import MicrosoftLicensesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftLicensesTable';
 import MicrosoftPoliciesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftPoliciesTable';
@@ -89,6 +90,18 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
     dashboard: {
       label: 'Dashboard',
       content: () => null,
+    },
+    contracts: {
+      label: 'Contracts',
+      content: (source, parent, site, group) => (
+        <DataTableLoader
+          sourceId={source}
+          parent={parent}
+          site={site}
+          group={group}
+          TableComponent={AutoTaskContractsTable}
+        />
+      ),
     },
   },
 };

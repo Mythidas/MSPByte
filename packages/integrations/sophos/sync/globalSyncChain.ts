@@ -2,7 +2,7 @@ import SyncChain from '@/core/SyncChain';
 import { getRow, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
 
-export async function globalSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
+export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const sync = new SyncChain({
     tenant_id: job.source_tenant_id!,
     state: job.state as Record<string, string | null>,

@@ -9,7 +9,7 @@ import { Tables, TablesInsert } from '@/types/db';
 
 export function transformContracts(
   contracts: AutoTaskContract[],
-  job: Tables<'public', 'source_sync_jobs'>
+  job: Tables<'source', 'sync_jobs'>
 ): TablesInsert<'source', 'contracts'>[] {
   return contracts.map((contract) => ({
     id: generateUUID(),
@@ -27,6 +27,8 @@ export function transformContracts(
     end_at: contract.endDate,
 
     metadata: contract,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }));
 }
 
@@ -34,12 +36,13 @@ export function transformContractServices(
   services: AutoTaskService[],
   contractServices: AutoTaskContractService[],
   units: AutoTaskContractServiceUnits[],
-  job: Tables<'public', 'source_sync_jobs'>
+  job: Tables<'source', 'sync_jobs'>
 ): TablesInsert<'source', 'contract_items'>[] {
   return contractServices.map((contractService) => {
     const service = services.find((s) => s.id === contractService.serviceID);
 
     return {
+      id: generateUUID(),
       tenant_id: job.tenant_id,
       source_id: job.source_id,
       source_tenant_id: job.source_tenant_id!,
@@ -55,6 +58,8 @@ export function transformContractServices(
       quantity: units.find((u) => u.contractServiceID === contractService.id)?.units || 0,
 
       metadata: contractService,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
   });
 }

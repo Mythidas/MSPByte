@@ -1,4 +1,4 @@
-export interface MSGraphSubscribedSku {
+export type MSGraphSubscribedSku = {
   accountId: string;
   accountName: string;
   appliesTo: string;
@@ -10,18 +10,18 @@ export interface MSGraphSubscribedSku {
   skuId: string; // GUID
   skuPartNumber: string;
   subscriptionIds?: string[];
-}
+};
 
-export interface MSGraphLicenseUnitsDetail {
+export type MSGraphLicenseUnitsDetail = {
   enabled: number;
   suspended: number;
   warning: number;
   lockedOut: number;
-}
+};
 
-export interface MSGraphServicePlanInfo {
+export type MSGraphServicePlanInfo = {
   servicePlanId: string; // GUID
   servicePlanName: string;
   provisioningStatus: string;
   appliesTo?: string;
-}
+};

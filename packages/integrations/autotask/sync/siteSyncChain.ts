@@ -16,7 +16,7 @@ import {
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { Tables } from '@/types/db';
 
-export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const integration = await getRow('public', 'integrations', {
     filters: [
       ['source_id', 'eq', job.source_id],

@@ -10,7 +10,7 @@ import { Debug } from '@/lib/utils';
 import { tables } from '@/db';
 import { deleteRows, getRow, getRows } from '@/db/orm';
 
-export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
+export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const tenantResult = await getRow('source', 'tenants', {
     filters: [
       ['source_id', 'eq', job.source_id],
@@ -75,14 +75,7 @@ export async function siteSyncChain(job: Tables<'public', 'source_sync_jobs'>) {
         'id',
         'SophosPartner'
       );
-      if (!devices.ok) {
-        return Debug.error({
-          module: 'SophosPartner',
-          context: 'Sync Data',
-          message: 'Failed to sync data',
-          time: new Date(),
-        });
-      }
+      if (!devices.ok) throw devices.error.message;
 
       return {
         ok: true,

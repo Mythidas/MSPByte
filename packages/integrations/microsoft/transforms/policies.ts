@@ -1,3 +1,4 @@
+import { generateUUID } from '@/lib/utils';
 import { Tables, TablesInsert } from '@/types/db';
 import { MSGraphConditionalAccessPolicy } from 'packages/integrations/microsoft/types/conditionalAccess';
 
@@ -6,6 +7,7 @@ export function transformPolicies(
   mapping: Tables<'source', 'tenants'>
 ): TablesInsert<'source', 'policies'>[] {
   return caPolicies.map((policy) => ({
+    id: generateUUID(),
     tenant_id: mapping.tenant_id,
     source_id: mapping.source_id,
     site_id: mapping.site_id,
@@ -16,6 +18,7 @@ export function transformPolicies(
     type: 'conditional_access',
     status: policy.state === 'enabledForReportingButNotEnforced' ? 'report_only' : policy.state,
     metadata: policy,
-    created_at: policy.createdDateTime,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   }));
 }
