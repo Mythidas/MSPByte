@@ -7,6 +7,8 @@ import { getActiveCompanies } from '@/integrations/autotask/services/companies';
 import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { tables } from '@/db';
+import { getActiveServices } from '@/integrations/autotask/services/services';
+import transformServices from '@/integrations/autotask/transforms/services';
 
 export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const integration = await getRow('public', 'integrations', {
@@ -28,26 +30,33 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
     setState: () => {},
   })
     .step('Fetch External', async () => {
-      const [companies] = await Promise.all([await getActiveCompanies(config)]);
+      const [companies, services] = await Promise.all([
+        getActiveCompanies(config),
+        getActiveServices(config),
+      ]);
       if (!companies.ok) throw companies.error.message;
+      if (!services.ok) throw services.error.message;
 
       return {
         ok: true,
         data: {
           companies: companies.data,
+          services: services.data,
         },
       };
     })
-    .step('Transforms', async (_ctx, { companies }) => {
+    .step('Transforms', async (_ctx, { companies, services }) => {
       const transformedCompanies = transformCompanies(companies, job);
+      const transformedServices = transformServices(services, job);
       return {
         ok: true,
         data: {
           companies: transformedCompanies,
+          services: transformedServices,
         },
       };
     })
-    .step('Sync Data', async (ctx, { companies }) => {
+    .step('Sync Data', async (ctx, { companies, services }) => {
       const promises = [
         tables.sync(
           'source',
@@ -59,10 +68,21 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
           'id',
           'AutoTask'
         ),
+        tables.sync(
+          'source',
+          'services',
+          ctx.job,
+          services,
+          [['source_id', 'eq', ctx.job.source_id]],
+          'external_id',
+          'id',
+          'AutoTask'
+        ),
       ];
 
-      const [syncCompanies] = await Promise.all(promises);
+      const [syncCompanies, syncServices] = await Promise.all(promises);
       if (!syncCompanies.ok) throw syncCompanies.error.message;
+      if (!syncServices.ok) throw syncServices.error.message;
 
       return {
         ok: true,

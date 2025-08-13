@@ -57,7 +57,7 @@ export async function getRows<S extends Schemas, T extends TableOrView<S>>(
           if (!filter) continue;
 
           let [col, op, val] = filter;
-          if (op === 'in' || (op === 'not.in' && Array.isArray(val))) {
+          if (op === 'in' || Array.isArray(val)) {
             val = `(${val.join(',')})`;
           }
 

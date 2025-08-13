@@ -11,7 +11,7 @@ type Props = {
   group?: Tables<'public', 'site_groups'>;
   TableComponent: ComponentType<{
     sourceId: string;
-    siteIds: string[];
+    siteIds?: string[];
     parentLevel: boolean;
     siteLevel: boolean;
   }>;
@@ -25,7 +25,7 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
           filters: [['group_id', 'eq', group.id]],
         });
         if (!memberships.ok) {
-          return [];
+          return undefined;
         }
 
         return memberships.data.rows.map((m) => m.site_id);
@@ -35,23 +35,28 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
         return [site.id];
       }
 
-      const sites = await getRows('public', 'sites', {
-        filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
-      });
-      if (!sites.ok) return [];
+      if (parent) {
+        const sites = await getRows('public', 'sites', {
+          filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
+        });
+        if (!sites.ok) return undefined;
 
-      return parent
-        ? [parent.id, ...sites.data.rows.map((s) => s.id)]
-        : sites.data.rows.map((s) => s.id);
+        return [parent.id, ...sites.data.rows.map((s) => s.id)];
+      }
+
+      return undefined;
     },
     render: (siteIds) => {
-      if (!siteIds) return <strong>Failed to fetch data.</strong>;
-      if (!siteIds.length) return <strong>No sites found.</strong>;
+      if (!siteIds && (!!parent || !!site || !!group)) {
+        return <strong>Failed to fetch data.</strong>;
+      } else {
+        if (siteIds && !siteIds.length) return <strong>No sites found.</strong>;
+      }
 
       return (
         <TableComponent
           sourceId={sourceId}
-          siteIds={siteIds}
+          siteIds={siteIds || undefined}
           parentLevel={!!parent}
           siteLevel={!!site}
         />

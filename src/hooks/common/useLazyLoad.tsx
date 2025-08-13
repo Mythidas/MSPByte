@@ -23,7 +23,7 @@ export function useLazyLoad<T>({
 }: LazyLoadOptions<T>) {
   const [data, setData] = useState<T | null>(null);
   const [isError, setIsError] = useState<unknown>(null);
-  const triggered = useRef(lazy);
+  const triggered = useRef(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const isLoaded = useRef(false);
 

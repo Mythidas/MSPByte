@@ -8,31 +8,45 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
   const parts = filterStr.split(/\s+and\s+/i);
 
   for (const part of parts) {
-    const match = part.match(/^(\w+)\s+(eq|neq|gt|gte|lt|lte|like|ilike|is|in|not|bt)\s+(.+)$/i);
+    const match = part.match(
+      /^([A-Za-z_][A-Za-z0-9_]*)\s+(eq|neq|gt|gte|lt|lte|like|ilike|is|in|ov|cs|cd|bt|not\.eq|not\.ov|not\.neq|not\.gt|not\.gte|not\.lt|not\.lte|not\.like|not\.ilike|not\.is|not\.in|not\.cs|not\.cd)\s+(.+)$/i
+    );
+
     if (!match) continue;
 
     const [, field, op, rawValue] = match;
 
     let parsedValue;
 
-    if (op.toLowerCase() === 'in') {
-      // Parse list: assume format ['a','b','c']
-      const arrayMatch = rawValue.match(/^\[(.*)\]$/);
-      if (arrayMatch) {
-        const items = arrayMatch[1].split(',').map((item) => item.trim().replace(/^'|'$/g, ''));
-        parsedValue = items;
-      } else {
-        parsedValue = [];
+    switch (op.toLowerCase()) {
+      case 'ov':
+      case 'cs':
+      case 'cd':
+      case 'not.ov':
+      case 'not.cs':
+      case 'not.cd':
+      case 'in': {
+        // Parse list: assume format ['a','b','c']
+        const arrayMatch = rawValue.match(/^\[(.*)\]$/);
+        if (arrayMatch) {
+          parsedValue = arrayMatch[1].split(',').map(
+            (item) => item.trim().replace(/^'|'$/g, '') // remove surrounding single quotes
+          );
+        } else {
+          parsedValue = [];
+        }
+        break;
       }
-    } else {
-      const cleanValue = rawValue.replace(/^'|'$/g, ''); // strip quotes if string
-      parsedValue = isNaN(Number(cleanValue))
-        ? cleanValue === 'true'
-          ? true
-          : cleanValue === 'false'
-            ? false
-            : cleanValue
-        : Number(cleanValue);
+      default: {
+        const cleanValue = rawValue.replace(/^'|'$/g, ''); // strip quotes if string
+        parsedValue = isNaN(Number(cleanValue))
+          ? cleanValue === 'true'
+            ? true
+            : cleanValue === 'false'
+              ? false
+              : cleanValue
+          : Number(cleanValue);
+      }
     }
 
     filters.push({
@@ -41,6 +55,7 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
     });
   }
 
+  console.log(filters);
   return filters;
 }
 
@@ -48,19 +63,29 @@ function encodeODataFilter(filters: ColumnFiltersState): string {
   return filters
     .map(({ id, value: raw }) => {
       const value = raw as FilterValue;
-
-      if (value.op === 'in' && Array.isArray(value.value)) {
-        const encodedArray = `[${value.value
-          .map((v) => `'${String(v).replace(/'/g, '')}'`)
-          .join(',')}]`;
-        return `${id} ${value.op} ${encodedArray}`;
+      switch (value.op) {
+        case 'ov':
+        case 'cs':
+        case 'cd':
+        case 'not.ov':
+        case 'not.cs':
+        case 'not.cd':
+        case 'in': {
+          if (Array.isArray(value.value)) {
+            const encodedArray = `[${value.value
+              .map((v) => `'${String(v).replace(/'/g, '')}'`)
+              .join(',')}]`;
+            return `${id} ${value.op} ${encodedArray}`;
+          }
+        }
+        default: {
+          const encodedVal =
+            typeof value.value === 'string'
+              ? `'${value.value.replace(/'/g, '')}'`
+              : String(value.value);
+          return `${id} ${value.op} ${encodedVal}`;
+        }
       }
-
-      const encodedVal =
-        typeof value.value === 'string'
-          ? `'${value.value.replace(/'/g, '')}'`
-          : String(value.value);
-      return `${id} ${value.op} ${encodedVal}`;
     })
     .join(' and ');
 }

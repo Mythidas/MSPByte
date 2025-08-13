@@ -739,6 +739,7 @@ export type Database = {
           end_at: string | null
           external_contract_id: string
           external_id: string
+          external_service_id: string
           id: string
           metadata: Json | null
           name: string
@@ -759,6 +760,7 @@ export type Database = {
           end_at?: string | null
           external_contract_id: string
           external_id: string
+          external_service_id?: string
           id?: string
           metadata?: Json | null
           name: string
@@ -779,6 +781,7 @@ export type Database = {
           end_at?: string | null
           external_contract_id?: string
           external_id?: string
+          external_service_id?: string
           id?: string
           metadata?: Json | null
           name?: string
@@ -1541,6 +1544,59 @@ export type Database = {
           },
         ]
       }
+      services: {
+        Row: {
+          created_at: string | null
+          description: string
+          external_id: string
+          id: string
+          metadata: Json | null
+          name: string
+          sku: string | null
+          source_id: string
+          status: string
+          sync_id: string | null
+          tenant_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          external_id: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          sku?: string | null
+          source_id: string
+          status: string
+          sync_id?: string | null
+          tenant_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          external_id?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          sku?: string | null
+          source_id?: string
+          status?: string
+          sync_id?: string | null
+          tenant_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "sync_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sites: {
         Row: {
           created_at: string | null
@@ -1788,6 +1844,7 @@ export type Database = {
           created_at: string | null
           end_at: string | null
           external_id: string | null
+          external_service_ids: string[] | null
           id: string | null
           metadata: Json | null
           name: string | null

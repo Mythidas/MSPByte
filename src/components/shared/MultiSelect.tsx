@@ -41,7 +41,7 @@ export default function MultiSelect({
   className,
   disabled = false,
 }: Props) {
-  const [selected, setSelected] = useState<string[]>(defaultValues);
+  const [selected, setSelected] = useState<string[]>(defaultValues || []);
   const [open, setOpen] = useState(false);
 
   const handleSelect = (value: string) => {
@@ -69,7 +69,7 @@ export default function MultiSelect({
 
   return (
     <div className={cn('relative', className)}>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={setOpen} modal>
         <PopoverTrigger asChild>
           <Button
             variant="outline"

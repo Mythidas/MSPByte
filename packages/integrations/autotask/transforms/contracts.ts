@@ -49,6 +49,7 @@ export function transformContractServices(
       site_id: job.site_id!,
       sync_id: job.id,
 
+      external_service_id: contractService.serviceID.toString(),
       external_contract_id: contractService.contractID.toString(),
       external_id: contractService.id.toString(),
       name: service?.name || contractService.internalDescription,

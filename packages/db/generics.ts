@@ -184,32 +184,64 @@ export function paginatedFilters<S extends Schemas, T extends TableOrView<S>>(
     const column = map ? (map[key] ?? key) : key;
 
     switch (op) {
+      case 'eq':
+      case 'neq':
+      case 'is':
+      case 'not.neq':
+      case 'not.eq':
+      case 'not.is':
+        query = query.filter(column as string, op, value);
+        break;
       case 'like':
       case 'ilike':
-        value = `%${value}%`;
+      case 'not.like':
+      case 'not.ilike':
+        query = query.filter(column as string, op, `%${value}%`);
+        break;
 
       case 'gte':
       case 'lte':
       case 'gt':
       case 'lt':
+      case 'not.gte':
+      case 'not.lte':
+      case 'not.gt':
+      case 'not.lt':
         if (key.includes('_at')) {
           value = subDays(new Date(), value as number).toISOString();
         }
+        query = query.filter(column as string, op, value);
+        break;
 
-      case 'is':
-      case 'not':
-      case 'eq':
-      case 'neq':
+      case 'ov':
+      case 'cd':
+      case 'cs':
+      case 'not.ov':
+      case 'not.cd':
+      case 'not.cs':
+        if (!Array.isArray(value)) {
+          value = `{"${value}"}`;
+        } else {
+          value = `{${value.join(',')}}`;
+        }
+
+        query = query.filter(column as string, op, value);
+        break;
+
       case 'in':
-        if (Array.isArray(value)) {
+      case 'not.in':
+        if (!Array.isArray(value)) {
+          value = `("${value}")`;
+        } else {
           value = `(${value.join(',')})`;
         }
 
         query = query.filter(column as string, op, value);
         break;
+
       case 'bt':
         if (Array.isArray(value)) {
-          query = query.gte(column as any, value[0]).lte(column as any, value[0]);
+          query = query.gte(column as any, value[0]).lte(column as any, value[1]);
         }
         break;
       default:

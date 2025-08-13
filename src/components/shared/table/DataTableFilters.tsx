@@ -139,16 +139,28 @@ export function DataTableFilters<TData>({
       let value = rawValue;
       switch (filterMeta.type) {
         case 'boolean':
-          value = { op: 'eq', value: (rawValue?.value ?? false) as FilterPrimitive | undefined };
+          value = {
+            op: 'eq',
+            value: (rawValue?.value ?? false) as FilterPrimitive | undefined,
+          };
           break;
         case 'text':
-          value = { op: 'ilike', value: (rawValue?.value ?? '') as FilterPrimitive | undefined };
+          value = {
+            op: 'ilike',
+            value: (rawValue?.value ?? '') as FilterPrimitive | undefined,
+          };
           break;
         case 'select':
-          value = { op: 'eq', value: (rawValue?.value ?? '') as FilterPrimitive | undefined };
+          value = {
+            op: (value.op as any) || 'eq',
+            value: (rawValue?.value ?? '') as FilterPrimitive | undefined,
+          };
           break;
         case 'multiselect':
-          value = { op: 'in', value: (rawValue?.value ?? []) as FilterPrimitive | undefined };
+          value = {
+            op: (value.op as any) || 'in',
+            value: (rawValue?.value || []) as FilterPrimitive | undefined,
+          };
           break;
         case 'number':
         case 'date':

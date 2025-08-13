@@ -3,6 +3,7 @@
 
 import DatePicker from '@/components/shared/DatePicker';
 import MultiSelect from '@/components/shared/MultiSelect';
+import SearchBox from '@/components/shared/SearchBox';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -40,7 +41,10 @@ export function DataTableFilterText({
       onChange={(e) =>
         setPendingFilters((prev) => ({
           ...prev,
-          [fullKey]: { op: 'ilike', value: e.target.value },
+          [fullKey]: {
+            op: meta.operations ? (meta.operations[0] as any) : 'ilike',
+            value: e.target.value,
+          },
         }))
       }
       className="w-full"
@@ -62,7 +66,10 @@ export function DataTableFilterBoolean({
         onCheckedChange={(checked) =>
           setPendingFilters((prev) => ({
             ...prev,
-            [fullKey]: { op: 'eq', value: checked as boolean },
+            [fullKey]: {
+              op: meta.operations ? (meta.operations[0] as any) : 'eq',
+              value: checked as boolean,
+            },
           }))
         }
       />
@@ -76,32 +83,24 @@ export function DataTableFilterBoolean({
 export function DataTableFilterSelect({
   meta,
   fullKey,
-  value,
   setPendingFilters,
 }: Props<string | undefined>) {
   if (!meta.options) return null;
 
   return (
-    <Select
-      value={value || ''}
-      onValueChange={(selectedValue) =>
+    <SearchBox
+      placeholder={meta.placeholder}
+      options={meta.options}
+      onSelect={(selectedValue) =>
         setPendingFilters((prev) => ({
           ...prev,
-          [fullKey]: { op: 'eq', value: selectedValue },
+          [fullKey]: {
+            op: meta.operations ? (meta.operations[0] as any) : 'eq',
+            value: selectedValue,
+          },
         }))
       }
-    >
-      <SelectTrigger className="w-full">
-        <SelectValue placeholder={meta.placeholder} />
-      </SelectTrigger>
-      <SelectContent>
-        {meta.options.map((opt, idx) => (
-          <SelectItem key={idx} value={opt.value}>
-            {opt.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    />
   );
 }
 
@@ -112,18 +111,22 @@ export function DataTableFilterMultiSelect({
   setPendingFilters,
 }: Props<string[] | undefined>) {
   if (!meta.options) return null;
+  const trueValue = value ? (Array.isArray(value) ? value : [String(value)]) : [];
 
   return (
     <MultiSelect
       className="w-full"
       options={meta.options}
-      defaultValues={value}
+      defaultValues={trueValue}
       placeholder={meta.placeholder}
       maxDisplayedBadges={2}
       onChange={(selectedValues) =>
         setPendingFilters((prev) => ({
           ...prev,
-          [fullKey]: { op: 'in', value: selectedValues },
+          [fullKey]: {
+            op: meta.operations ? (meta.operations[0] as any) : 'in',
+            value: selectedValues,
+          },
         }))
       }
     />
@@ -174,8 +177,54 @@ function DataTableOperatorSelect({
     like: { icon: <Search className="w-4 h-4" /> },
     ilike: { icon: <Search className="w-4 h-4" /> },
     is: { icon: <Equal className="w-4 h-4" /> },
-    not: { icon: <X className="w-4 h-4" /> },
-    'not.in': { icon: <X className="w-4 h-4" /> },
+    cs: {
+      icon: undefined,
+    },
+    cd: {
+      icon: undefined,
+    },
+    'not.eq': {
+      icon: undefined,
+    },
+    'not.neq': {
+      icon: undefined,
+    },
+    'not.gt': {
+      icon: undefined,
+    },
+    'not.gte': {
+      icon: undefined,
+    },
+    'not.lt': {
+      icon: undefined,
+    },
+    'not.lte': {
+      icon: undefined,
+    },
+    'not.like': {
+      icon: undefined,
+    },
+    'not.ilike': {
+      icon: undefined,
+    },
+    'not.is': {
+      icon: undefined,
+    },
+    'not.in': {
+      icon: undefined,
+    },
+    'not.cs': {
+      icon: undefined,
+    },
+    'not.cd': {
+      icon: undefined,
+    },
+    ov: {
+      icon: undefined,
+    },
+    'not.ov': {
+      icon: undefined,
+    },
   };
 
   return (

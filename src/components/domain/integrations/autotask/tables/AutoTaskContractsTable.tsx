@@ -7,8 +7,9 @@ import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
 import { prettyText } from '@/lib/utils';
 import { useRef } from 'react';
-import Microsoft365MappingsDialog from '@/components/domain/integrations/microsoft/Microsoft365MappingsDialog';
 import { getRows } from '@/db/orm';
+import AutoTaskContractDrawer from '@/components/domain/integrations/autotask/drawers/AutoTaskContractDrawer';
+import { useAsync } from '@/hooks/common/useAsync';
 
 type TData = Tables<'source', 'contracts_view'>;
 type Props = {
@@ -18,10 +19,25 @@ type Props = {
   parentLevel?: boolean;
 };
 
-export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }: Props) {
+export default function AutoTaskContractsTable({ sourceId, siteIds }: Props) {
   const ref = useRef<DataTableRef>(null);
 
+  const { data: services } = useAsync({
+    initial: [],
+    fetcher: async () => {
+      const services = await getRows('source', 'services', {
+        filters: [['source_id', 'eq', sourceId]],
+        sorting: [['name', 'asc']],
+      });
+      if (services.ok) return services.data.rows;
+
+      return [];
+    },
+    deps: [],
+  });
+
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
+    console.log(props);
     const contracts = await getRows('source', 'contracts_view', {
       filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
       pagination: {
@@ -41,15 +57,6 @@ export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }:
   return (
     <DataTable
       fetcher={fetcher}
-      lead={() =>
-        !siteLevel && (
-          <Microsoft365MappingsDialog
-            sourceId={sourceId}
-            onSave={() => ref.current?.refetch()}
-            parentId={siteIds && siteIds[0]}
-          />
-        )
-      }
       ref={ref}
       columns={
         [
@@ -64,7 +71,7 @@ export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }:
                 className="hover:text-primary"
                 target="_blank"
               >
-                {row.original.parent_name}
+                {row.original.site_name}
               </Link>
             ),
           }),
@@ -88,6 +95,7 @@ export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }:
             label: 'Name',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => <AutoTaskContractDrawer contract={row.original} />,
           }),
           textColumn({
             key: 'status',
@@ -130,6 +138,15 @@ export default function AutoTaskContractsTable({ sourceId, siteIds, siteLevel }:
             placeholder: 'Search parent',
             operations: ['ilike'],
             simpleSearch: true,
+          },
+        },
+        Contract: {
+          external_service_ids: {
+            label: 'Service',
+            type: 'multiselect',
+            placeholder: 'Select service',
+            operations: ['ov'],
+            options: services.map((s) => ({ label: s.name, value: s.external_id })),
           },
         },
       }}
