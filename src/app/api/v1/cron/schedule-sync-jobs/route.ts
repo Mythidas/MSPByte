@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 import { getRows, insertRows } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { DateTime } from 'luxon';
+import { syncSource } from '@/core/syncSource';
 
 export const runtime = 'nodejs'; // Important!
 export const dynamic = 'force-dynamic'; // Avoid caching
@@ -25,13 +26,9 @@ export async function GET() {
           : null;
 
         if (integration.sync_interval === 'daily') {
-          // Replace this logic with tenant defining their sync time
-          const hour = now.hour;
-          const inAfterHours = hour >= 22 || hour < 4;
-
           const syncedToday = lastSynced ? lastSynced.hasSame(now, 'day') : false;
 
-          if (inAfterHours && !syncedToday) {
+          if (!syncedToday) {
             syncable.push(integration as unknown as Tables<'public', 'integrations'>);
           }
         } else if (integration.sync_interval === 'hourly') {
@@ -70,18 +67,18 @@ async function startSync(integration: Tables<'public', 'integrations'>) {
     ],
   });
   if (!sourceTenants.ok) throw sourceTenants.error.message;
-  const siteRows = sourceTenants.data.rows.map((st) => {
-    return {
-      source_id: st.source_id,
-      tenant_id: st.tenant_id,
-      site_id: st.site_id,
-      est_duration: 30,
-    };
-  });
+
+  await syncSource(
+    integration.source_id,
+    integration.tenant_id,
+    sourceTenants.data.rows.map((st) => ({
+      siteId: st.site_id,
+      sourceTenantId: st.id,
+    }))
+  );
 
   await insertRows('source', 'sync_jobs', {
     rows: [
-      ...siteRows,
       {
         source_id: integration.source_id,
         tenant_id: integration.tenant_id,

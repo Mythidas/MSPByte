@@ -14,6 +14,8 @@ export async function syncSource(
         return 30;
       case 'sophos-partner':
         return 20;
+      case 'autotask':
+        return 60;
       default:
         return 30;
     }
