@@ -9,6 +9,7 @@ import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { tables } from '@/db';
 import { getActiveServices } from '@/integrations/autotask/services/services';
 import transformServices from '@/integrations/autotask/transforms/services';
+import { getActiveContracts } from '@/integrations/autotask/services/contracts';
 
 export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const integration = await getRow('public', 'integrations', {
@@ -17,7 +18,7 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
       ['tenant_id', 'eq', job.tenant_id],
     ],
   });
-  if (!integration.ok) {
+  if (integration.error) {
     throw 'Failed to find source integration';
   }
   const config = integration.data.config as AutoTaskIntegrationConfig;
@@ -30,18 +31,20 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
     setState: () => {},
   })
     .step('Fetch External', async () => {
-      const [companies, services] = await Promise.all([
+      const promises = await Promise.all([
         getActiveCompanies(config),
         getActiveServices(config),
+        getActiveContracts(config),
       ]);
-      if (!companies.ok) throw companies.error.message;
-      if (!services.ok) throw services.error.message;
+      for (const promise of promises) {
+        if (promise.error) throw promise.error.message;
+      }
 
       return {
-        ok: true,
         data: {
-          companies: companies.data,
-          services: services.data,
+          companies: promises[0].data!,
+          services: promises[1].data!,
+          contracts: promises[2].data!,
         },
       };
     })
@@ -49,7 +52,6 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
       const transformedCompanies = transformCompanies(companies, job);
       const transformedServices = transformServices(services, job);
       return {
-        ok: true,
         data: {
           companies: transformedCompanies,
           services: transformedServices,
@@ -81,11 +83,10 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
       ];
 
       const [syncCompanies, syncServices] = await Promise.all(promises);
-      if (!syncCompanies.ok) throw syncCompanies.error.message;
-      if (!syncServices.ok) throw syncServices.error.message;
+      if (syncCompanies.error) throw syncCompanies.error.message;
+      if (syncServices.error) throw syncServices.error.message;
 
       return {
-        ok: true,
         data: null,
       };
     })

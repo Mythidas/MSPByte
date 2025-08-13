@@ -71,12 +71,12 @@ export default function CreateSiteDialog({ parentId, onSuccess }: Props) {
         ],
       });
 
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       const view = await getRow('public', 'sites_view', {
         filters: [['id', 'eq', result.data[0].id]],
       });
-      if (!view.ok) throw view.error.message;
+      if (view.error) throw view.error.message;
 
       onSuccess?.(view.data);
       setIsOpen(false);

@@ -21,7 +21,7 @@ export async function loginAction(_prevState: unknown, params: FormData) {
   }
 
   const result = await login(valid.data.email, valid.data.password);
-  if (!result.ok) {
+  if (result.error) {
     return {
       success: false,
       errors: { auth: [result.error.message] },
@@ -66,7 +66,7 @@ export const registerAction = async (_prevState: unknown, params: FormData) => {
 
   const result = await login(data.user?.email || '', valid.data.password);
 
-  if (!result.ok) {
+  if (result.error) {
     redirect('/auth/login');
   }
 

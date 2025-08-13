@@ -30,10 +30,7 @@ export default function MicrosoftLicensesTable({
 
   const fetcher = async ({ pageIndex, pageSize, sorting, ...props }: DataTableFetcher) => {
     const licenses = await getRows('source', 'licenses_view', {
-      filters: [
-        ['source_id', 'eq', sourceId],
-        ['site_id', 'in', siteIds],
-      ],
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
       pagination: {
         page: pageIndex,
         size: pageSize,
@@ -42,7 +39,7 @@ export default function MicrosoftLicensesTable({
       },
     });
 
-    if (!licenses.ok) {
+    if (licenses.error) {
       return { rows: [], total: 0 };
     }
 

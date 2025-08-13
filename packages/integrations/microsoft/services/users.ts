@@ -19,13 +19,12 @@ export async function getUsers(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     if (cursor) {
       const response = await client.data.api(cursor).get();
 
       return {
-        ok: true,
         data: {
           users: response.value,
           next: response['@odata.nextLink'],
@@ -49,7 +48,6 @@ export async function getUsers(
     const response = await query.get();
 
     return {
-      ok: true,
       data: {
         users: response.value,
         next: response['@odata.nextLink'],
@@ -60,7 +58,6 @@ export async function getUsers(
       module: 'Microsoft-365',
       context: 'getUsers',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -76,16 +73,15 @@ export async function getUserContext(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     const memberships = await getUserMemberships(client.data, user.id);
 
-    if (!memberships.ok) {
+    if (memberships.error) {
       throw new Error('Failed to fetch data');
     }
 
     return {
-      ok: true,
       data: {
         id: user.id,
         groups: memberships.data.groups,
@@ -97,7 +93,6 @@ export async function getUserContext(
       module: 'Microsoft-365',
       context: 'getUserContext',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -137,7 +132,6 @@ async function getUserMemberships(
     }
 
     return {
-      ok: true,
       data: {
         groups,
         roles,
@@ -148,7 +142,6 @@ async function getUserMemberships(
       module: 'Microsoft-365',
       context: 'getUserMemberships',
       message: String(err),
-      time: new Date(),
     });
   }
 }

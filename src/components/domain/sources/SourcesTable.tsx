@@ -20,7 +20,7 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
   const { content } = useLazyLoad({
     fetcher: async () => {
       const integrations = await getRows('public', 'integrations_view');
-      if (!integrations.ok) {
+      if (integrations.error) {
         return {
           mappings: [],
           integrations: [],
@@ -30,7 +30,7 @@ export default function SourcesTable({ siteIds, route, sub = 'individual' }: Pro
         const mappings = await getRows('source', 'tenants', {
           filters: [['site_id', 'in', siteIds]],
         });
-        if (mappings.ok) {
+        if (!mappings.error) {
           return {
             mappings: mappings.data.rows,
             integrations: integrations.data.rows,

@@ -66,7 +66,7 @@ export default function ActivityFeedTable() {
       },
     });
 
-    if (!activities.ok) {
+    if (activities.error) {
       return { rows: [], total: 0 };
     }
 

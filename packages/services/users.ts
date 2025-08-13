@@ -24,7 +24,6 @@ export async function getCurrentUserView() {
       module: 'supabase',
       context: `select_current_user`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -96,7 +95,6 @@ export async function putUser(
     }
 
     return {
-      ok: true,
       data: data as Tables<'public', 'users'>,
     };
   } catch (err) {
@@ -104,7 +102,6 @@ export async function putUser(
       module: 'supabase',
       context: `insert_user`,
       message: String(err),
-      time: new Date(),
     });
   }
 }

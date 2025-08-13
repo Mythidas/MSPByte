@@ -17,7 +17,7 @@ export async function getRoles(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     let query = client.data
       .api('/directoryRoles')
@@ -36,7 +36,6 @@ export async function getRoles(
     }
 
     return {
-      ok: true,
       data: allRoles,
     };
   } catch (err) {
@@ -44,7 +43,6 @@ export async function getRoles(
       module: 'Microsoft-365',
       context: 'getRoles',
       message: String(err),
-      time: new Date(),
     });
   }
 }

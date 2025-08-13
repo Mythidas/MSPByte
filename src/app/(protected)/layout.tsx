@@ -19,7 +19,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
   });
   const tenant = await getRow('public', 'tenants');
 
-  if (!user.ok || !options.ok || !tenant.ok || !integrations.ok) {
+  if (user.error || options.error || tenant.error || integrations.error) {
     return <Loader />;
   }
 
@@ -33,7 +33,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
             <div className="w-48">
               <AppSidebar />
             </div>
-            <AppNavbar integrations={integrations.ok ? integrations.data.rows : []}>
+            <AppNavbar integrations={!integrations.error ? integrations.data.rows : []}>
               {children}
             </AppNavbar>
           </div>

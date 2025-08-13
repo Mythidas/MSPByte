@@ -52,9 +52,9 @@ export default class SyncChain<TInput = null> {
   }
 
   async run() {
-    let result: APIResponse<any> = { ok: true, data: null };
+    let result: APIResponse<any> = { data: undefined };
     for (const step of this.steps) {
-      if (!result.ok) {
+      if (result.error) {
         await this.fail(result.error.message);
         return;
       }

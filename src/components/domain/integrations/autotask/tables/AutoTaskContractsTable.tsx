@@ -29,7 +29,7 @@ export default function AutoTaskContractsTable({ sourceId, siteIds }: Props) {
         filters: [['source_id', 'eq', sourceId]],
         sorting: [['name', 'asc']],
       });
-      if (services.ok) return services.data.rows;
+      if (!services.error) return services.data.rows;
 
       return [];
     },
@@ -47,7 +47,7 @@ export default function AutoTaskContractsTable({ sourceId, siteIds }: Props) {
         sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
       },
     });
-    if (!contracts.ok) {
+    if (contracts.error) {
       return { rows: [], total: 0 };
     }
 

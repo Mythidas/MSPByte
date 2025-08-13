@@ -35,12 +35,11 @@ export async function syncSource(
       }),
     });
 
-    if (!jobs.ok) {
+    if (jobs.error) {
       throw new Error(jobs.error.message);
     }
 
     return {
-      ok: true,
       data: jobs.data,
     };
   } catch (err) {
@@ -48,7 +47,6 @@ export async function syncSource(
       module: 'integrations',
       context: 'syncSource',
       message: String(err),
-      time: new Date(),
     });
   }
 }

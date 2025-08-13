@@ -1,4 +1,4 @@
-import { APIError } from '@/types';
+import { APIError } from '@/types/';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -51,37 +51,37 @@ export function generatePassword(length: number = 12): string {
 }
 
 export class Debug {
-  static error(error: APIError) {
-    // write to db later
+  static error(error: Omit<APIError, 'time'>) {
+    const time = new Date();
     console.error(
-      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+      `[${time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
     );
     return {
-      ok: false,
-      error,
-    } as { ok: false; error: APIError };
+      data: undefined,
+      error: { time, ...error },
+    } as { data: undefined; error: APIError };
   }
 
-  static warn(error: APIError) {
-    // write to db later
+  static warn(error: Omit<APIError, 'time'>) {
+    const time = new Date();
     console.warn(
-      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+      `[${time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
     );
     return {
-      ok: false,
-      error,
-    } as { ok: false; error: APIError };
+      data: undefined,
+      error: { time, ...error },
+    } as { data: undefined; error: APIError };
   }
 
-  static info(error: APIError) {
-    // write to db later
+  static info(error: Omit<APIError, 'time'>) {
+    const time = new Date();
     console.info(
-      `[${error.time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
+      `[${time.toLocaleTimeString()}][${pascalCase(error.module)}][${error.context}] ${error.message}`
     );
     return {
-      ok: false,
-      error,
-    } as { ok: false; error: APIError };
+      data: undefined,
+      error: { time, ...error },
+    } as { data: undefined; error: APIError };
   }
 }
 

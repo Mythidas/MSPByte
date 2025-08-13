@@ -17,12 +17,11 @@ export async function getDomains(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     const response = await client.data.api('/domains').get();
 
     return {
-      ok: true,
       data: response.value as MSGraphDomain[],
     };
   } catch (err) {
@@ -30,7 +29,6 @@ export async function getDomains(
       module: 'Microsoft-365',
       context: 'getDomains',
       message: String(err),
-      time: new Date(),
     });
   }
 }

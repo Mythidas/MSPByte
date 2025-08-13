@@ -19,7 +19,7 @@ export default function Page() {
   const { content: Preferences } = useLazyLoad({
     fetcher: async () => {
       const tenant = await getRow('public', 'tenants');
-      if (tenant.ok) {
+      if (!tenant.error) {
         return tenant.data;
       }
     },

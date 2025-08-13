@@ -50,7 +50,7 @@ export function useDelete<S extends Schemas, T extends Table<S>>({
         filters: filters as RowFilter<S, T>[],
       });
 
-      if (!result.ok) throw result.error;
+      if (result.error) throw result.error;
       onDeleted?.(itemToDelete);
       refetch?.();
     } catch (err) {

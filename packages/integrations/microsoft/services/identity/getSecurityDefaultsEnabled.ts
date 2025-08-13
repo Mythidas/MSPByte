@@ -14,7 +14,7 @@ export async function getSecurityDefaultsEnabled(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) {
+    if (client.error) {
       throw new Error(client.error.message);
     }
 
@@ -23,7 +23,6 @@ export async function getSecurityDefaultsEnabled(
       .get();
 
     return {
-      ok: true,
       data: securityDefaults.isEnabled || false,
     };
   } catch (err) {
@@ -31,7 +30,6 @@ export async function getSecurityDefaultsEnabled(
       module: 'Microsoft-365',
       context: 'getSecurityDefaultsEnabled',
       message: String(err),
-      time: new Date(),
     });
   }
 }

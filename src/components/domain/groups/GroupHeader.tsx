@@ -18,7 +18,7 @@ export default function GroupHeader({ group }: Props) {
         filters: [['group_id', 'eq', group.id]],
       });
 
-      return memberships.ok ? memberships.data : 0;
+      return memberships.error ? memberships.data : 0;
     },
     render: (data) => {
       return (

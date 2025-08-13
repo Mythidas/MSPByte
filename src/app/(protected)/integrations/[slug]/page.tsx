@@ -22,9 +22,9 @@ export default async function Page({ ...props }: Props) {
   const integrationFetch = await getRow('public', 'integrations', {
     filters: [['source_id', 'eq', params.slug]],
   });
-  if (!sourceFetch.ok) return <strong>Failed to find source. Please refresh.</strong>;
+  if (sourceFetch.error) return <strong>Failed to find source. Please refresh.</strong>;
   const source = sourceFetch.data;
-  const integration = integrationFetch.ok ? integrationFetch.data : undefined;
+  const integration = integrationFetch.error ? integrationFetch.data : undefined;
 
   const getBody = () => {
     switch (source.id) {

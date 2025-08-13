@@ -30,7 +30,7 @@ export default function AutoTaskContractDrawer({ contract }: Props) {
       const items = await getRows('source', 'contract_items', {
         filters: [['external_contract_id', 'eq', contract.external_id]],
       });
-      if (items.ok) return items.data.rows;
+      if (!items.error) return items.data.rows;
     },
     render: (data) => {
       if (!data) return <Display>No Services found</Display>;

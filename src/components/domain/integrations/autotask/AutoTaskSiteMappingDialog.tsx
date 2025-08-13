@@ -39,14 +39,14 @@ export default function AutoTaskSiteMappingDialog({ sourceId, onSave }: Props) {
         sorting: [['name', 'asc']],
       });
 
-      if (autoTask.ok) {
+      if (!autoTask.error) {
         const siteIds = autoTask.data.rows.filter((at) => !!at.site_id).map((at) => at.site_id);
         const sites = await getRows('public', 'sites', {
           filters: [['id', 'not.in', siteIds]],
           sorting: [['name', 'asc']],
         });
 
-        if (sites.ok) {
+        if (!sites.error) {
           const filteredAutoTask = autoTask.data.rows.filter((at) => !at.source_tenant_id);
           const filteredInternal = sites.data.rows;
 
@@ -126,7 +126,7 @@ export default function AutoTaskSiteMappingDialog({ sourceId, onSave }: Props) {
         ],
       });
 
-      if (result.ok) {
+      if (!result.error) {
         toast.info('Site mapping created successfully!');
         onSave?.();
 

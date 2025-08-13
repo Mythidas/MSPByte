@@ -80,7 +80,7 @@ export default function CreateUserDialog({ tenantId, roles, onCreate }: Props) {
         sendEmail
       );
 
-      if (!result.ok) {
+      if (result.error) {
         throw result.error.message;
       }
 

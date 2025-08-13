@@ -33,7 +33,6 @@ export async function getActiveServices(
     const json = (await response.json()) as AutoTaskResponse<AutoTaskService>;
 
     return {
-      ok: true,
       data: json.items,
     };
   } catch (err) {
@@ -41,7 +40,6 @@ export async function getActiveServices(
       module: 'AutoTask',
       context: 'getActiveServices',
       message: String(err),
-      time: new Date(),
     });
   }
 }

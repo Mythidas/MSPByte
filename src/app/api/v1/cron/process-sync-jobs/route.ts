@@ -26,7 +26,6 @@ export async function GET() {
           module: '/api/v1/cron/process-sync-jobs',
           context: 'GET',
           message: 'No jobs found',
-          time: new Date(),
         });
 
         return new Response(JSON.stringify({ message: 'No jobs found' }), {
@@ -39,7 +38,6 @@ export async function GET() {
         module: '/api/v1/cron/process-sync-jobs',
         context: 'GET',
         message: `Starting ${jobs.length} sync jobs`,
-        time: new Date(),
       });
       await Promise.all(jobs.map((job) => syncJob(job)));
 
@@ -49,7 +47,6 @@ export async function GET() {
         module: '/api/v1/cron/process-sync-jobs',
         context: 'GET',
         message: String(err),
-        time: new Date(),
       });
 
       return new Response(JSON.stringify({ message: String(err) }), {

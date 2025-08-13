@@ -37,7 +37,7 @@ export async function transformIdentities(
             getUserContext(user, mapping),
           ]);
 
-          if (!mfaMethods.ok || !userContext.ok) {
+          if (mfaMethods.error || userContext.error) {
             throw new Error('Failed to fetch data');
           }
 
@@ -99,13 +99,12 @@ export async function transformIdentities(
       { concurrency: 5 } // Adjust as needed based on throttling/responsiveness
     );
 
-    return { ok: true, data: identities.filter(Boolean) as TablesInsert<'source', 'identities'>[] };
+    return { data: identities.filter(Boolean) as TablesInsert<'source', 'identities'>[] };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft365',
       context: 'transformIdentities',
       message: String(err),
-      time: new Date(),
     });
   } finally {
     timer.summary();

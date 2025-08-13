@@ -56,15 +56,14 @@ export async function tablesCountGeneric<S extends Schemas, T extends TableOrVie
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: count ?? 0,
+      error: undefined,
     };
   } catch (err) {
     return Debug.error({
       module: 'supabase',
       context: `count_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -100,7 +99,6 @@ export async function tablesSelectGeneric<S extends Schemas, T extends TableOrVi
     }
 
     return {
-      ok: true,
       data: { rows: results as Tables<S, T>[], total: results.length } as DataResponse<
         Tables<S, T>
       >,
@@ -110,7 +108,6 @@ export async function tablesSelectGeneric<S extends Schemas, T extends TableOrVi
       module: 'supabase',
       context: `select_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -157,7 +154,6 @@ export async function tablesSelectPaginated<S extends Schemas, T extends TableOr
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: {
         rows: (data as Tables<S, T>[]) ?? [],
         total: count ?? 0,
@@ -168,7 +164,6 @@ export async function tablesSelectPaginated<S extends Schemas, T extends TableOr
       module: 'supabase',
       context: `paginated_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -272,7 +267,6 @@ export async function tablesSelectSingleGeneric<S extends Schemas, T extends Tab
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: data as Tables<S, T>,
     };
   } catch (err) {
@@ -280,7 +274,6 @@ export async function tablesSelectSingleGeneric<S extends Schemas, T extends Tab
       module: 'supabase',
       context: `select_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -303,7 +296,6 @@ export async function tablesInsertGeneric<S extends Schemas, T extends Table<S>>
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: data as Tables<S, T>[],
     };
   } catch (err) {
@@ -311,7 +303,6 @@ export async function tablesInsertGeneric<S extends Schemas, T extends Table<S>>
       module: 'supabase',
       context: `insert_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -335,7 +326,6 @@ export async function tablesUpdateGeneric<S extends Schemas, T extends Table<S>>
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: data as Tables<S, T>,
     };
   } catch (err) {
@@ -343,7 +333,6 @@ export async function tablesUpdateGeneric<S extends Schemas, T extends Table<S>>
       module: 'supabase',
       context: `update_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -369,7 +358,6 @@ export async function tablesUpsertGeneric<S extends Schemas, T extends Table<S>>
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: data as Tables<S, T>[],
     };
   } catch (err) {
@@ -377,7 +365,6 @@ export async function tablesUpsertGeneric<S extends Schemas, T extends Table<S>>
       module: 'supabase',
       context: `upsert_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -402,7 +389,6 @@ export async function tablesDeleteGeneric<S extends Schemas, T extends Table<S>>
     if (error) throw new Error(error.message);
 
     return {
-      ok: true,
       data: null,
     };
   } catch (err) {
@@ -410,7 +396,6 @@ export async function tablesDeleteGeneric<S extends Schemas, T extends Table<S>>
       module: 'supabase',
       context: `delete_${String(table)}`,
       message: String(err),
-      time: new Date(),
     });
   }
 }

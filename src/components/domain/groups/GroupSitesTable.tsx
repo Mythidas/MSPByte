@@ -45,7 +45,7 @@ export default function GroupSiteTable({ group }: Props) {
         ...props,
       },
     });
-    if (!memberships.ok) {
+    if (memberships.error) {
       return { rows: [], total: 0 };
     }
 

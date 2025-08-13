@@ -33,7 +33,7 @@ export default function AppNavbar({ integrations, children }: Props) {
       const sites = await getRows('public', 'sites');
 
       return {
-        sites: sites.ok ? sites.data.rows : [],
+        sites: !sites.error ? sites.data.rows : [],
       };
     },
     deps: [],

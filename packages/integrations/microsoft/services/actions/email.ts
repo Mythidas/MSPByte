@@ -21,13 +21,13 @@ export default async function microsoft365EmailBreachResponse(
       ['site_id', 'eq', feed.site_id],
     ],
   });
-  if (!tenant.ok) return;
+  if (tenant.error) return;
 
   // Revoke Sessions
   const revokeSessions = await Promise.all(
     identities.map(async (id) => await revokeUserSessions(tenant.data, id.external_id))
   );
-  if (revokeSessions.every((session) => session.ok)) {
+  if (revokeSessions.every((session) => !session.error)) {
     const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
@@ -47,11 +47,11 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   } else {
     const errors = revokeSessions.map((e) => {
       if ('error' in e) {
-        return e.error.message;
+        return e.error?.message;
       }
 
       return undefined;
@@ -77,14 +77,14 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   }
 
   // Reset Passwords
   const resetPasswords = await Promise.all(
     identities.map(async (id) => await resetUserPassword(tenant.data, id.external_id, password))
   );
-  if (resetPasswords.every((session) => session.ok)) {
+  if (resetPasswords.every((session) => !session.error)) {
     const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
@@ -104,11 +104,11 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   } else {
     const errors = resetPasswords.map((e) => {
       if ('error' in e) {
-        return e.error.message;
+        return e.error?.message;
       }
 
       return undefined;
@@ -134,14 +134,14 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   }
 
   // Reset MFA
   const resetMFA = await Promise.all(
     identities.map(async (id) => await resetUserMFA(tenant.data, id.external_id))
   );
-  if (resetMFA.every((session) => session.ok)) {
+  if (resetMFA.every((session) => !session.error)) {
     const update = await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
@@ -161,11 +161,11 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   } else {
     const errors = resetMFA.map((e) => {
       if ('error' in e) {
-        return e.error.message;
+        return e.error?.message;
       }
 
       return undefined;
@@ -191,14 +191,14 @@ export default async function microsoft365EmailBreachResponse(
         },
       },
     });
-    if (update.ok) feed = update.data;
+    if (!update.error) feed = update.data;
   }
 
   // Check Inbox Rules
   const checkRules = await Promise.all(
     identities.map(async (id) => await checkInboxRules(tenant.data, id.external_id, id.email))
   );
-  if (checkRules.every((session) => session.ok)) {
+  if (checkRules.every((session) => !session.error)) {
     await updateRow('public', 'activity_feeds', {
       id: feed.id,
       row: {
@@ -211,7 +211,7 @@ export default async function microsoft365EmailBreachResponse(
             ...(feed.metadata as any).steps,
             check_inbox_rules: {
               status: 'completed',
-              data: checkRules.map((rule) => (rule.ok ? rule.data : undefined)),
+              data: checkRules.map((rule) => (rule.error ? rule.data : undefined)),
             },
           },
         },
@@ -220,7 +220,7 @@ export default async function microsoft365EmailBreachResponse(
   } else {
     const errors = checkRules.map((e) => {
       if ('error' in e) {
-        return e.error.message;
+        return e.error?.message;
       }
 
       return undefined;
@@ -238,7 +238,7 @@ export default async function microsoft365EmailBreachResponse(
             ...(feed.metadata as any).steps,
             check_inbox_rules: {
               status: 'error',
-              data: checkRules.map((rule) => (rule.ok ? rule.data : undefined)).filter(Boolean),
+              data: checkRules.map((rule) => (rule.error ? rule.data : undefined)).filter(Boolean),
               errors,
             },
           },

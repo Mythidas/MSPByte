@@ -67,7 +67,6 @@ export async function syncMetrics(
     });
 
     return {
-      ok: true,
       data: null,
     };
   } catch (err) {
@@ -75,7 +74,6 @@ export async function syncMetrics(
       module: 'Microsoft365',
       context: 'syncMetrics',
       message: String(err),
-      time: new Date(),
     });
   }
 }

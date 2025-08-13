@@ -13,7 +13,7 @@ export default function Page() {
       const group = await getRow('public', 'site_groups', {
         filters: [['id', 'eq', slug]],
       });
-      if (group.ok) return group.data;
+      if (group.error) return group.data;
     },
     render: (data) => {
       if (!data) return <strong>Failed to find group. Please refresh.</strong>;

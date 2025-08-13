@@ -15,7 +15,7 @@ export async function getSubscribedSku(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) {
+    if (client.error) {
       throw new Error(client.error.message);
     }
 
@@ -34,7 +34,6 @@ export async function getSubscribedSku(
     const licenses = await client.data.api('/subscribedSkus').select(fields.join(',')).get();
 
     return {
-      ok: true,
       data: licenses.value,
     };
   } catch (err) {
@@ -42,7 +41,6 @@ export async function getSubscribedSku(
       module: 'Microsoft-365',
       context: 'getSubscribedSku',
       message: String(err),
-      time: new Date(),
     });
   }
 }

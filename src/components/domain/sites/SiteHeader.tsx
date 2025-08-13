@@ -20,7 +20,7 @@ export default function SiteHeader({ site }: Props) {
         filters: [['parent_id', 'eq', site.id]],
       });
 
-      return sites.ok ? sites.data : 0;
+      return sites.error ? sites.data : 0;
     },
     render: (data) => {
       if (!site.is_parent) return null;

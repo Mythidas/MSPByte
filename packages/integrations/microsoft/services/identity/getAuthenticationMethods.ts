@@ -15,14 +15,13 @@ export async function getAuthenticationMethods(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) {
+    if (client.error) {
       throw new Error(client.error.message);
     }
 
     const methods = await client.data.api(`/users/${id}/authentication/methods`).get();
 
     return {
-      ok: true,
       data: methods.value,
     };
   } catch (err) {
@@ -30,7 +29,6 @@ export async function getAuthenticationMethods(
       module: 'Microsoft-365',
       context: 'get-authentication-methods',
       message: String(err),
-      time: new Date(),
     });
   }
 }

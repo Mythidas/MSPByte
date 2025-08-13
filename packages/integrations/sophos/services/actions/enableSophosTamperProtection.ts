@@ -15,7 +15,7 @@ export default async function enableSophosTamperProtection(
     const getIntegration = await getRow('public', 'integrations', {
       filters: [['source_id', 'eq', 'sophos-partner']],
     });
-    if (!getIntegration.ok) throw getIntegration.error.message;
+    if (getIntegration.error) throw getIntegration.error.message;
     if (!devices.length) throw 'No devices provided';
 
     const { data: integration } = getIntegration;
@@ -31,17 +31,17 @@ export default async function enableSophosTamperProtection(
             ['source_id', 'eq', device.source_id],
           ],
         });
-        if (!getTenant.ok) continue;
+        if (getTenant.error) continue;
 
         tenants[getTenant.data.site_id] = { ...getTenant.data };
         tenant = tenants[getTenant.data.site_id];
       }
 
       const token = await getToken(integration);
-      if (!token.ok) continue;
+      if (token.error) continue;
 
       const update = await enableTamperProtection(token.data, tenant, device.external_id!);
-      if (!update.ok) {
+      if (update.error) {
         errors.push(`${device.hostname}: ${update.error.message}`);
       }
 
@@ -80,7 +80,6 @@ export default async function enableSophosTamperProtection(
     }
 
     return {
-      ok: true,
       data: errors.length,
     };
   } catch (err) {
@@ -88,7 +87,6 @@ export default async function enableSophosTamperProtection(
       module: 'SophosPartnerActions',
       context: 'enableSophosTamperProtection',
       message: String(err),
-      time: new Date(),
     });
   }
 }

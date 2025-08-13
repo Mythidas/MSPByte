@@ -20,7 +20,7 @@ export async function getSourceLicenses(sourceId?: string, skus?: string[], site
       if (siteIds) query = query.in('site_id', siteIds);
     });
 
-    if (!identities.ok) throw identities.error.message;
+    if (identities.error) throw identities.error.message;
 
     const skuSet = new Set<string>();
     for (const identity of identities.data.rows) {
@@ -39,7 +39,6 @@ export async function getSourceLicenses(sourceId?: string, skus?: string[], site
       module: 'supabase',
       context: `select_source_licenses`,
       message: String(err),
-      time: new Date(),
     });
   }
 }

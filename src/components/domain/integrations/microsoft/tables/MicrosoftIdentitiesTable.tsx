@@ -39,7 +39,7 @@ export default function MicrosoftIdentitiesTable({
     initial: { licenses: [] },
     fetcher: async () => {
       const licenses = await getSourceLicenses(sourceId, undefined, siteIds);
-      if (!licenses.ok) throw licenses.error.message;
+      if (licenses.error) throw licenses.error.message;
 
       return {
         licenses: licenses.data.rows,
@@ -56,7 +56,7 @@ export default function MicrosoftIdentitiesTable({
     initial: { roles: [], groups: [] },
     fetcher: async () => {
       const rolesAndGroups = await getSourceIdentitiesUniqueRolesAndGroups(sourceId, siteIds);
-      if (!rolesAndGroups.ok) throw rolesAndGroups.error.message;
+      if (rolesAndGroups.error) throw rolesAndGroups.error.message;
 
       return {
         roles: rolesAndGroups.data.roles,
@@ -70,10 +70,7 @@ export default function MicrosoftIdentitiesTable({
   const fetcher = async ({ pageIndex, pageSize, initial, sorting, ...props }: DataTableFetcher) => {
     const timer = new Timer('Fetch identities', true);
     const identities = await getRows('source', 'identities_view', {
-      filters: [
-        ['source_id', 'eq', sourceId],
-        ['site_id', 'in', siteIds],
-      ],
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
       pagination: {
         page: pageIndex,
         size: pageSize,
@@ -85,7 +82,7 @@ export default function MicrosoftIdentitiesTable({
       },
     });
 
-    if (!identities.ok) {
+    if (identities.error) {
       return { rows: [], total: 0 };
     }
 

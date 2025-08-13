@@ -62,7 +62,7 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
   const { content } = useLazyLoad({
     fetcher: async () => {
       const syncJob = await getSourceSyncJobLatest(sourceId, siteId);
-      if (syncJob.ok) {
+      if (!syncJob.error) {
         if (syncJob.data.status === 'completed' && isSyncing) {
           setIsSyncing(false);
           window.location.reload();

@@ -36,7 +36,6 @@ export async function getActiveCompanies(
     const json = (await response.json()) as AutoTaskResponse<AutoTaskCompany>;
 
     return {
-      ok: true,
       data: json.items,
     };
   } catch (err) {
@@ -44,7 +43,6 @@ export async function getActiveCompanies(
       module: 'AutoTask',
       context: 'getActiveCompanies',
       message: String(err),
-      time: new Date(),
     });
   }
 }

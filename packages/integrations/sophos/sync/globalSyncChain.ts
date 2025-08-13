@@ -16,7 +16,7 @@ export async function globalSyncChain(job: Tables<'source', 'sync_jobs'>) {
         ['tenant_id', 'eq', job.tenant_id],
       ],
     });
-    if (!integration.ok) {
+    if (integration.error) {
       throw 'Failed to find source integration';
     }
 

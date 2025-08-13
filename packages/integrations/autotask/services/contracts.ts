@@ -12,15 +12,13 @@ import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
 export async function getActiveContracts(
-  config: AutoTaskIntegrationConfig,
-  companyId: string
+  config: AutoTaskIntegrationConfig
 ): Promise<APIResponse<AutoTaskContract[]>> {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const search: AutoTaskSearch<AutoTaskContract> = {
       filter: [
-        { op: 'eq', field: 'companyID', value: companyId },
         { op: 'lte', field: 'startDate', value: today.toISOString() },
         { op: 'gte', field: 'endDate', value: today.toISOString() },
       ],
@@ -44,7 +42,6 @@ export async function getActiveContracts(
     const json = (await response.json()) as AutoTaskResponse<AutoTaskContract>;
 
     return {
-      ok: true,
       data: json.items,
     };
   } catch (err) {
@@ -52,7 +49,6 @@ export async function getActiveContracts(
       module: 'AutoTask',
       context: 'getActiveCompanies',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -84,7 +80,6 @@ export async function getContractServices(
     const json = (await response.json()) as AutoTaskResponse<AutoTaskContractService>;
 
     return {
-      ok: true,
       data: json.items,
     };
   } catch (err) {
@@ -92,7 +87,6 @@ export async function getContractServices(
       module: 'AutoTask',
       context: 'getActiveCompanies',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -130,7 +124,6 @@ export async function getContractServiceUnits(
     const json = (await response.json()) as AutoTaskResponse<AutoTaskContractServiceUnits>;
 
     return {
-      ok: true,
       data: json.items,
     };
   } catch (err) {
@@ -138,7 +131,6 @@ export async function getContractServiceUnits(
       module: 'AutoTask',
       context: 'getActiveCompanies',
       message: String(err),
-      time: new Date(),
     });
   }
 }

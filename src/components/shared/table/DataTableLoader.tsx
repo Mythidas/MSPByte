@@ -24,7 +24,7 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
         const memberships = await getRows('public', 'site_group_memberships', {
           filters: [['group_id', 'eq', group.id]],
         });
-        if (!memberships.ok) {
+        if (memberships.error) {
           return undefined;
         }
 
@@ -39,7 +39,7 @@ export default function DataTableLoader({ sourceId, parent, site, group, TableCo
         const sites = await getRows('public', 'sites', {
           filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
         });
-        if (!sites.ok) return undefined;
+        if (sites.error) return undefined;
 
         return [parent.id, ...sites.data.rows.map((s) => s.id)];
       }

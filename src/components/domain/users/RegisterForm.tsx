@@ -56,7 +56,7 @@ export default function RegisterForm({ code }: Props) {
       setIsSaving(true);
 
       const result = await authRegister(code, data.password);
-      if (!result.ok) {
+      if (result.error) {
         throw result.error.message;
       }
 

@@ -47,7 +47,7 @@ export default function Page() {
       setIsLoading(true);
 
       const result = await login(data.email, data.password);
-      if (!result.ok) {
+      if (result.error) {
         throw result.error.message;
       }
 
@@ -69,7 +69,7 @@ export default function Page() {
       setIsLoading(true);
 
       const result = await loginWithAzure();
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       window.location.href = result.data;
     } catch (err) {

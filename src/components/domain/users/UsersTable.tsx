@@ -25,11 +25,11 @@ export default function UsersTable() {
       },
     });
     const roles = await getRows('public', 'roles');
-    if (roles.ok) {
+    if (!roles.error) {
       setRoles(roles.data.rows);
     }
 
-    if (!users.ok) {
+    if (users.error) {
       return { rows: [], total: 0 };
     }
 

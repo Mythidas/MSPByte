@@ -10,12 +10,12 @@ export async function getTenants(
 ): Promise<APIResponse<any[]>> {
   try {
     const token = await getToken(integration);
-    if (!token.ok) {
+    if (token.error) {
       throw new Error(token.error.message);
     }
 
     const sophosPartner = await getPartnerID(token.data);
-    if (!sophosPartner.ok) {
+    if (sophosPartner.error) {
       throw new Error(sophosPartner.error.message);
     }
 
@@ -47,7 +47,6 @@ export async function getTenants(
     }
 
     return {
-      ok: true,
       data: tenants.sort((a, b) => a.name.localeCompare(b.name)),
     };
   } catch (err) {
@@ -55,7 +54,6 @@ export async function getTenants(
       module: 'integrations',
       context: 'get-tenants',
       message: String(err),
-      time: new Date(),
     });
   }
 }

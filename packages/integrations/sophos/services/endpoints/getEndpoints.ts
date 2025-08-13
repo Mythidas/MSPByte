@@ -34,7 +34,6 @@ export async function getEndpoints(
     const data = await response.json();
 
     return {
-      ok: true,
       data: [...data.items],
     };
   } catch (err) {
@@ -42,7 +41,6 @@ export async function getEndpoints(
       module: 'SophosPartner',
       context: 'getEndpoints',
       message: String(err),
-      time: new Date(),
     });
   }
 }

@@ -62,7 +62,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
       const tenants = await getRows('source', 'tenants', {
         filters: [['source_id', 'eq', sourceId]],
       });
-      if (sites.ok && tenants.ok) {
+      if (!sites.error && !tenants.error) {
         return sites.data.rows.filter(
           (site) => !tenants.data.rows.some((tenant) => tenant.site_id === site.id)
         );
@@ -109,7 +109,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
         client_secret: data.client_secret,
       },
     });
-    if (domains.ok) {
+    if (!domains.error) {
       setDomains(domains.data);
     }
 
@@ -149,7 +149,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
     };
 
     const result = await insertRows('source', 'tenants', { rows: [mapping] });
-    if (result.ok) {
+    if (result.error) {
       console.log(result);
       toast.info(`Created source tenant mapping!`);
       onSave?.();

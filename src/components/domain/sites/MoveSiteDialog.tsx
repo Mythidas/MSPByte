@@ -37,7 +37,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         const sites = await getRows('public', 'sites', {
           filters: [['is_parent', 'eq', true]],
         });
-        if (!sites.ok) {
+        if (sites.error) {
           throw new Error(sites.error.message);
         }
 
@@ -69,7 +69,7 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
           parent_id: parent.id,
         } as Tables<'public', 'sites'>,
       });
-      if (result.ok && onSuccess && site) {
+      if (result.error && onSuccess && site) {
         onSuccess(site, parent.name);
       }
     } catch (err) {

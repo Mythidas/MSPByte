@@ -38,7 +38,6 @@ export async function enableTamperProtection(
 
     const data = await response.json();
     return {
-      ok: true,
       data: data.enabled,
     };
   } catch (err) {
@@ -46,7 +45,6 @@ export async function enableTamperProtection(
       module: 'SophosPartner',
       context: 'enableTamperProtection',
       message: String(err),
-      time: new Date(),
     });
   }
 }

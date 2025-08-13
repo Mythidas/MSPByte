@@ -40,7 +40,7 @@ export default function SiteGroupsTable() {
       },
     });
 
-    if (!groups.ok) {
+    if (groups.error) {
       return { rows: [], total: 0 };
     }
 

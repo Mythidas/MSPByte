@@ -73,7 +73,7 @@ export default function MicrosoftEmailBreachAction({}: Props) {
     fetcher: async () => {
       if (currentPhase === 'results' && feedId) {
         const feed = await getRow('public', 'activity_feeds', { filters: [['id', 'eq', feedId]] });
-        if (feed.ok) {
+        if (!feed.error) {
           return feed.data;
         }
       }
@@ -315,7 +315,8 @@ const SitesStep = ({
       const sites = await getRows('source', 'tenants_view', {
         filters: [['source_id', 'eq', 'microsoft-365']],
       });
-      if (sites.ok) return sites.data.rows.sort((a, b) => a.site_name!.localeCompare(b.site_name!));
+      if (!sites.error)
+        return sites.data.rows.sort((a, b) => a.site_name!.localeCompare(b.site_name!));
     },
     render: (sites) => {
       if (!sites) return <strong>Failed to fetch sites. Please refresh.</strong>;
@@ -375,7 +376,7 @@ const UsersStep = ({
           ['site_id', 'eq', siteId],
         ],
       });
-      if (identities.ok) return identities.data.rows;
+      if (!identities.error) return identities.data.rows;
     },
     render: (identities) => {
       if (!identities) return <strong>Failed to fetch users. Please refresh.</strong>;
@@ -552,7 +553,7 @@ const ProcessingStep = ({
           ],
         });
 
-        if (feed.ok) {
+        if (!feed.error) {
           microsoft365EmailBreachResponse(feed.data[0], identities, password);
           setStepStatuses((prev) =>
             prev.map((step, i) => (i === 0 ? { ...step, status: 'running' } : step))
@@ -564,7 +565,7 @@ const ProcessingStep = ({
       const feed = await getRow('public', 'activity_feeds', {
         filters: [['id', 'eq', feedId.current]],
       });
-      if (feed.ok) {
+      if (!feed.error) {
         if (
           Object.entries(
             (feed.data.metadata as { steps: Record<string, { status: string }> }).steps

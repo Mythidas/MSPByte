@@ -15,17 +15,16 @@ export async function revokeUserSessions(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     await client.data.api(`/users/${userId}/revokeSignInSessions`).post({});
 
-    return { ok: true, data: null };
+    return { data: null };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
       context: 'revokeUserSessions',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -42,7 +41,7 @@ export async function resetUserPassword(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     await client.data.api(`/users/${userId}`).patch({
       passwordProfile: {
@@ -51,13 +50,12 @@ export async function resetUserPassword(
       },
     });
 
-    return { ok: true, data: null };
+    return { data: null };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
       context: 'resetUserPassword',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -73,7 +71,7 @@ export async function resetUserMFA(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     const response = await client.data.api(`/users/${userId}/authentication/methods`).get();
     const methods = response.value as { id: string; '@odata.type': string }[];
@@ -88,13 +86,12 @@ export async function resetUserMFA(
       }
     }
 
-    return { ok: true, data: null };
+    return { data: null };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
       context: 'resetUserMFA',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -111,7 +108,7 @@ export async function checkInboxRules(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     const response = await client.data.api(`/users/${userId}/mailFolders/inbox/messageRules`).get();
 
@@ -119,19 +116,18 @@ export async function checkInboxRules(
     const suspicious = parseSuspiciousInboxRules(rules);
 
     return {
-      ok: true,
       data: {
         email,
         userId,
         rules: suspicious,
       },
+      error: undefined,
     };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
       context: 'getInboxRules',
       message: `${email}: ${String(err)}`,
-      time: new Date(),
     });
   }
 }

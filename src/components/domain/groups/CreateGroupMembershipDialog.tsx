@@ -60,10 +60,10 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
       });
       const res = await getRows('public', 'sites', {
         filters: [
-          existing.ok ? ['id', 'not.in', existing.data.rows.map((e) => e.site_id)] : undefined,
+          !existing.error ? ['id', 'not.in', existing.data.rows.map((e) => e.site_id)] : undefined,
         ],
       });
-      if (res.ok) setSites(res.data.rows);
+      if (!res.error) setSites(res.data.rows);
       else toast.error('Failed to load sites');
     };
 
@@ -84,7 +84,7 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
         ],
       });
 
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       const view = await getRow('public', 'site_group_memberships_view', {
         filters: [
@@ -93,7 +93,7 @@ export default function CreateGroupMembershipDialog({ group, onSuccess }: Props)
         ],
       });
 
-      if (view.ok) {
+      if (!view.error) {
         onSuccess?.(view.data);
       }
       setIsOpen(false);

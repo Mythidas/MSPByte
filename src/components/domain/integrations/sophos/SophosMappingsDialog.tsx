@@ -45,7 +45,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
         filters: [['source_id', 'eq', source.id]],
       });
 
-      if (sites.ok && existingMappings.ok) {
+      if (!sites.error && !existingMappings.error) {
         // Filter out sites that already have mappings
         return sites.data.rows.filter(
           (site) => !existingMappings.data.rows.some((mapping) => mapping.site_id === site.id)
@@ -74,7 +74,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
 
     try {
       const tenants = await getTenants(integration);
-      if (tenants.ok) {
+      if (!tenants.error) {
         setSophosData(tenants.data);
         setCurrentStep(2);
       } else {
@@ -109,7 +109,7 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
       };
 
       const result = await insertRows('source', 'tenants', { rows: [mapping] });
-      if (result.ok) {
+      if (result.error) {
         toast.info('Site mapping created successfully!');
         onSave?.();
         handleClose();

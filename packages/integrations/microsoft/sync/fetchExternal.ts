@@ -31,43 +31,39 @@ export default async function fetchExternal(
     getSecurityDefaultsEnabled(tenant),
   ]);
 
-  if (!subscribedSkus.ok || !caPolicies.ok || !securityDefaults.ok) {
+  if (subscribedSkus.error || caPolicies.error || securityDefaults.error) {
     return Debug.error({
       module: 'Microsoft365',
       context: 'Fetch External',
       message: 'Failed to fetch external data',
-      time: new Date(),
     });
   }
 
   const users = await getUsers(tenant, subscribedSkus.data, cursor);
-  if (!users.ok) {
+  if (users.error) {
     return Debug.error({
       module: 'Microsoft365',
       context: 'Fetch External',
       message: 'Failed to fetch external users',
-      time: new Date(),
     });
   }
 
   const activity = await getRecentSignIns(tenant);
-  if (!activity.ok) {
+  if (activity.error) {
     Debug.warn({
       module: 'Microsoft365',
       context: 'Fetch External',
       message: 'Failed to fetch external activities',
-      time: new Date(),
     });
   }
 
   return {
-    ok: true,
     data: {
       subscribedSkus: subscribedSkus.data,
       caPolicies: caPolicies.data,
       securityDefaults: securityDefaults.data,
       users: users.data.users,
-      activity: activity.ok ? activity.data : {},
+      activity: !activity.error ? activity.data : {},
       cursor: users.data.next,
     },
   };

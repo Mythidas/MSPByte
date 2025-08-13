@@ -15,14 +15,13 @@ export async function getConditionalAccessPolicies(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) {
+    if (client.error) {
       throw new Error(client.error.message);
     }
 
     const securityPolicies = await client.data.api('/identity/conditionalAccess/policies').get();
 
     return {
-      ok: true,
       data: securityPolicies.value,
     };
   } catch (err) {
@@ -30,7 +29,6 @@ export async function getConditionalAccessPolicies(
       module: 'Microsoft-365',
       context: 'getConditionalAccessPolicies',
       message: String(err),
-      time: new Date(),
     });
   }
 }

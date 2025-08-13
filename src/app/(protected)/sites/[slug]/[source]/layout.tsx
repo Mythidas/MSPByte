@@ -12,7 +12,7 @@ export default async function Layout({ params, children }: Props) {
     filters: [['slug', 'eq', slug]],
   });
 
-  if (!site.ok) {
+  if (site.error) {
     return <strong>No site found. Please refresh.</strong>;
   }
 
@@ -29,9 +29,9 @@ export default async function Layout({ params, children }: Props) {
         sourceId={source as string}
         siteId={site.data.id}
         tenantId={site.data.tenant_id}
-        hide={!tenant.ok}
+        hide={!tenant.error}
       />
-      {!tenant.ok ? (
+      {!tenant.error ? (
         <strong>This site does not have a Tenant mapping for this source</strong>
       ) : (
         children

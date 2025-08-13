@@ -17,7 +17,7 @@ export default function SophosDevicesTab({ sourceId, parent, site }: Props) {
       const sites = await getRows('public', 'sites', {
         filters: [parent ? ['parent_id', 'eq', parent?.id] : undefined],
       });
-      if (sites.ok) {
+      if (!sites.error) {
         return parent ? [parent!, ...sites.data.rows] : sites.data.rows;
       }
     },

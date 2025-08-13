@@ -95,7 +95,7 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
         sorting: [['name', 'asc']],
       });
 
-      if (autoTask.ok && sites.ok) {
+      if (!autoTask.error && !sites.error) {
         setAutoTaskSites(autoTask.data.rows);
         setInternalSites(sites.data.rows);
 
@@ -165,16 +165,16 @@ export function AutoTaskSiteMappingsTab({ sourceId }: { sourceId: string }) {
               ? upsertRows('source', 'tenants', {
                   rows: [...toUpdate, ...toInsert],
                 })
-              : Promise.resolve({ ok: true, data: [] } as APIResponse<[]>),
+              : Promise.resolve({ data: [] } as APIResponse<[]>),
             toDelete.length > 0
               ? deleteRows('source', 'tenants', {
                   filters: [['id', 'in', toDelete]],
                 })
-              : Promise.resolve({ ok: true, data: null } as APIResponse<null>),
+              : Promise.resolve({ data: null } as APIResponse<null>),
           ]);
 
-          if (!upsertResults.ok) throw new Error(`Upsert failed: ${upsertResults.error.message}`);
-          if (!deleteResult.ok) throw new Error(`Delete failed: ${deleteResult.error.message}`);
+          if (upsertResults.error) throw new Error(`Upsert failed: ${upsertResults.error.message}`);
+          if (deleteResult.error) throw new Error(`Delete failed: ${deleteResult.error.message}`);
 
           toast.success('Mappings saved successfully.');
           setChangedMappings({});
@@ -271,7 +271,7 @@ function AutoTaskSitesCard({ sourceId }: { sourceId: string }) {
         sorting: [['name', 'asc']],
       });
 
-      if (sites.ok) {
+      if (!sites.error) {
         return sites.data.rows;
       }
     },

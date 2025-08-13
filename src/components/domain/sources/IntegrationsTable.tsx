@@ -27,11 +27,11 @@ export default function IntegrationsTable() {
       },
     });
     const integrations = await getRows('public', 'integrations');
-    if (integrations.ok) {
+    if (!integrations.error) {
       setIntegrations(integrations.data.rows);
     }
 
-    if (!sources.ok) {
+    if (sources.error) {
       return { rows: [], total: 0 };
     }
 

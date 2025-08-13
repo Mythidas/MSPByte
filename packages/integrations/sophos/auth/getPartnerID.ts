@@ -17,7 +17,6 @@ export async function getPartnerID(token: string): Promise<APIResponse<string>> 
 
     const data = await response.json();
     return {
-      ok: true,
       data: data.id as string,
     };
   } catch (err) {
@@ -25,7 +24,6 @@ export async function getPartnerID(token: string): Promise<APIResponse<string>> 
       module: 'integrations',
       context: 'get-partner-id',
       message: String(err),
-      time: new Date(),
     });
   }
 }

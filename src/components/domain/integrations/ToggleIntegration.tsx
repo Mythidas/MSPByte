@@ -62,7 +62,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
         filters: [['id', 'eq', integration?.id]],
       });
 
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       toast.info('Disabled integration succesfully');
       window.location.reload();
@@ -90,7 +90,7 @@ export default function ToggleIntegration({ source, integration }: Props) {
         ],
       });
 
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       toast.info('Enabled integration succesfully!');
       window.location.reload();

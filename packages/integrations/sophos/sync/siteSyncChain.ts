@@ -20,12 +20,12 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const integrationResult = await getRow('public', 'integrations', {
     filters: [['source_id', 'eq', job.source_id]],
   });
-  if (!tenantResult.ok || !integrationResult.ok) return;
+  if (tenantResult.error || integrationResult.error) return;
   const { data: tenant } = tenantResult;
   const { data: integration } = integrationResult;
 
   const tokenResult = await getToken(integration);
-  if (!tokenResult.ok) {
+  if (tokenResult.error) {
     throw new Error(tokenResult.error.message);
   }
   const { data: token } = tokenResult;
@@ -40,24 +40,18 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
     .step('Fetch External', async () => {
       const endpoints = await getEndpoints(token, tenant);
 
-      if (!endpoints.ok) {
-        return Debug.error({
-          module: 'SophosPartner',
-          context: 'Fetch External',
-          message: 'Failed to fetch external data',
-          time: new Date(),
-        });
+      if (endpoints.error) {
+        throw 'Failed to fetch external data';
       }
 
       return {
-        ok: true,
+        error: undefined,
         data: { endpoints: endpoints.data },
       };
     })
     .step('Transform External', async (_ctx, { endpoints }) => {
       const transformedDevices = transformDevices(tenant, endpoints);
       return {
-        ok: true,
         data: { transformedDevices },
       };
     })
@@ -75,10 +69,9 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
         'id',
         'SophosPartner'
       );
-      if (!devices.ok) throw devices.error.message;
+      if (devices.error) throw devices.error.message;
 
       return {
-        ok: true,
         data: { devices: devices.data },
       };
     })
@@ -89,7 +82,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
           ['site_id', 'eq', ctx.job.site_id],
         ],
       });
-      if (!devices.ok) return;
+      if (devices.error) return;
 
       const devicesToDelete = devices.data.rows
         .filter((d) => d.sync_id && d.sync_id !== ctx.job.id)

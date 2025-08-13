@@ -52,7 +52,7 @@ function SiteSummaryCard({ sourceId }: { sourceId: string }) {
         filters: [['source_id', 'eq', sourceId]],
       });
 
-      if (!siteCount.ok || !tenantsCount.ok) {
+      if (siteCount.error || tenantsCount.error) {
         throw 'Failed to fetch correct counts. Please refresh.';
       }
 
@@ -127,7 +127,7 @@ function MonthlyUsageCard({ sourceId }: { sourceId: string }) {
         filters: [['source_id', 'eq', sourceId]],
       });
 
-      if (!tenantsCount.ok) {
+      if (tenantsCount.error) {
         throw 'Failed to fetch correct counts. Please refresh.';
       }
 
@@ -179,7 +179,7 @@ function TotalIdentitiesCard({ sourceId }: { sourceId: string }) {
         filters: [['source_id', 'eq', sourceId]],
       });
 
-      if (!identities.ok) {
+      if (identities.error) {
         throw 'Failed to fetch correct counts. Please refresh.';
       }
 

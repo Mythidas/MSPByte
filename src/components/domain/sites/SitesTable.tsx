@@ -46,7 +46,7 @@ export default function SitesTable({ parentId }: Props) {
       },
     });
 
-    if (!sites.ok) {
+    if (sites.error) {
       return { rows: [], total: 0 };
     }
 

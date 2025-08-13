@@ -42,7 +42,7 @@ export function SourceMetricCard({
           ],
         });
 
-        if (metrics.ok) {
+        if (!metrics.error) {
           return metrics.data.rows;
         }
       }
@@ -56,7 +56,7 @@ export function SourceMetricCard({
           ],
         });
 
-        if (metrics.ok) {
+        if (!metrics.error) {
           return metrics.data.rows;
         }
       }
@@ -70,7 +70,7 @@ export function SourceMetricCard({
           ],
         });
 
-        if (metrics.ok) {
+        if (!metrics.error) {
           return metrics.data.rows;
         }
       }
@@ -79,7 +79,7 @@ export function SourceMetricCard({
         filters: [['source_id', 'eq', sourceId], unit ? ['unit', 'eq', unit] : undefined],
       });
 
-      if (metrics.ok) {
+      if (!metrics.error) {
         return metrics.data.rows;
       }
     },

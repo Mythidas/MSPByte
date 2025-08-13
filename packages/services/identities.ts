@@ -22,7 +22,7 @@ export async function getSourceIdentitiesUniqueRolesAndGroups(
       if (siteIds) query = query.in('site_id', siteIds);
     });
 
-    if (!identities.ok) throw identities.error.message;
+    if (identities.error) throw identities.error.message;
 
     const roleSet = new Set<string>();
     const groupSet = new Set<string>();
@@ -45,7 +45,6 @@ export async function getSourceIdentitiesUniqueRolesAndGroups(
     }
 
     return {
-      ok: true,
       data: {
         roles: Array.from(roleSet).map((displayName) => displayName),
         groups: Array.from(groupSet).map((displayName) => displayName),
@@ -56,7 +55,6 @@ export async function getSourceIdentitiesUniqueRolesAndGroups(
       module: 'supabase',
       context: `select_source_identities_unique_roles_and_groups`,
       message: String(err),
-      time: new Date(),
     });
   }
 }

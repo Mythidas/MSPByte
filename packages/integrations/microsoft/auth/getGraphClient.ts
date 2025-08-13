@@ -21,7 +21,6 @@ export async function getGraphClient(
     });
 
     return {
-      ok: true,
       data: client,
     };
   } catch (err) {
@@ -29,7 +28,6 @@ export async function getGraphClient(
       module: 'integrations',
       context: 'getGraphClient',
       message: String(err),
-      time: new Date(),
     });
   }
 }

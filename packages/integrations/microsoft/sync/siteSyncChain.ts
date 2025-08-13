@@ -18,7 +18,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
       ['site_id', 'eq', job.site_id],
     ],
   });
-  if (!tenantResult.ok) {
+  if (tenantResult.error) {
     throw 'No source tenant found';
   }
   const { data: tenant } = tenantResult;
@@ -32,7 +32,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   })
     .step('Fetch External', async (ctx) => {
       const result = await fetchExternal(tenant, ctx.getState('users'));
-      if (result.ok) ctx.setState('users', result.data.cursor);
+      if (!result.error) ctx.setState('users', result.data.cursor);
       return result;
     })
     .step(
@@ -47,7 +47,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
         const transformedLicenses = transformLicenses(
           subscribedSkus,
           tenant,
-          licenseInfo.ok ? licenseInfo.data.rows : []
+          !licenseInfo.error ? licenseInfo.data.rows : []
         );
         const transformedUsers = await transformIdentities(
           users,
@@ -57,17 +57,11 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
           activity,
           tenant
         );
-        if (!transformedUsers.ok) {
-          return Debug.error({
-            module: 'Microsoft365',
-            context: 'Transform External',
-            message: 'Failed to transform external users',
-            time: new Date(),
-          });
+        if (transformedUsers.error) {
+          throw 'Failed to transform external users';
         }
 
         return {
-          ok: true,
           data: {
             transformedUsers: transformedUsers.data,
             transformedLicenses,
@@ -130,17 +124,11 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
         ];
 
         const [policies, licenses, identities] = await Promise.all(promises);
-        if (!policies.ok || !identities.ok || !licenses.ok) {
-          return Debug.error({
-            module: 'Microsoft365',
-            context: 'Sync Data',
-            message: 'Failed to sync data',
-            time: new Date(),
-          });
+        if (policies.error || identities.error || licenses.error) {
+          throw 'Failed to sync data';
         }
 
         return {
-          ok: true,
           data: {
             securityDefaults,
             caPolicies,
@@ -185,7 +173,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
         }),
       ]);
 
-      if (!policies.ok || !identities.ok || !licenses.ok) return;
+      if (policies.error || identities.error || licenses.error) return;
 
       const identitiesToDelete = identities.data.rows
         .filter((id) => id.sync_id && id.sync_id !== ctx.job.id)

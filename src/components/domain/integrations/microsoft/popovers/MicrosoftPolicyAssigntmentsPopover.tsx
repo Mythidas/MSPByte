@@ -29,7 +29,7 @@ export default function MicrosoftPolicyAssignmentsPopover({ siteId, metadata }: 
       const identities = await getRows('source', 'identities', {
         filters: [['site_id', 'eq', siteId]],
       });
-      if (identities.ok) return { identities: identities.data.rows };
+      if (!identities.error) return { identities: identities.data.rows };
 
       return { identities: [] };
     },

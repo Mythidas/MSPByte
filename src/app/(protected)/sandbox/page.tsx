@@ -18,7 +18,7 @@ export default function Page() {
   const { content: TenantSearchBar } = useLazyLoad({
     fetcher: async () => {
       const tenants = await getRows('source', 'tenants_view');
-      if (tenants.ok) return tenants.data.rows;
+      if (!tenants.error) return tenants.data.rows;
     },
     render: (data) => {
       if (!data) return <strong>Failed to find tenants</strong>;
@@ -37,7 +37,7 @@ export default function Page() {
             },
           ],
         });
-        if (job.ok) {
+        if (!job.error) {
           testSyncJob(job.data[0].id);
           toast.info('Job started');
         }
@@ -62,7 +62,7 @@ export default function Page() {
   const { content: SourceSearchBar } = useLazyLoad({
     fetcher: async () => {
       const integrations = await getRows('public', 'integrations');
-      if (integrations.ok) return integrations.data.rows;
+      if (!integrations.error) return integrations.data.rows;
     },
     render: (data) => {
       if (!data) return <strong>Failed to find integrations</strong>;
@@ -79,7 +79,7 @@ export default function Page() {
             },
           ],
         });
-        if (job.ok) {
+        if (!job.error) {
           testSyncJob(job.data[0].id);
           toast.info('Job started');
         }

@@ -19,7 +19,6 @@ export async function login(email: string, password: string): Promise<APIRespons
     }
 
     return {
-      ok: true,
       data: null,
     };
   } catch (err) {
@@ -27,7 +26,6 @@ export async function login(email: string, password: string): Promise<APIRespons
       module: 'auth',
       context: 'login',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -48,7 +46,6 @@ export async function loginWithAzure(): Promise<APIResponse<string>> {
     }
 
     return {
-      ok: true,
       data: data.url,
     };
   } catch (err) {
@@ -56,7 +53,6 @@ export async function loginWithAzure(): Promise<APIResponse<string>> {
       module: 'auth',
       context: 'ssoLogin',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -71,7 +67,6 @@ export async function logout(): Promise<APIResponse<null>> {
     }
 
     return {
-      ok: true,
       data: null,
     };
   } catch (err) {
@@ -79,7 +74,6 @@ export async function logout(): Promise<APIResponse<null>> {
       module: 'auth',
       context: 'login',
       message: String(err),
-      time: new Date(),
     });
   }
 }
@@ -94,7 +88,6 @@ export async function register(code: string, password: string): Promise<APIRespo
           module: 'auth',
           context: 'register',
           message: 'Code invalid or already registered',
-          time: new Date(),
         });
       }
     }
@@ -115,12 +108,11 @@ export async function register(code: string, password: string): Promise<APIRespo
       .eq('id', code);
     const result = await login(data.user?.email || '', password);
 
-    if (!result.ok) {
+    if (!result.error) {
       redirect('/auth/login');
     }
 
     return {
-      ok: true,
       data: null,
     };
   } catch (err) {
@@ -128,7 +120,6 @@ export async function register(code: string, password: string): Promise<APIRespo
       module: 'auth',
       context: 'register',
       message: String(err),
-      time: new Date(),
     });
   }
 }

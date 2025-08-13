@@ -13,7 +13,7 @@ export async function GET() {
   return await setBearerToken(process.env.NEXT_SUPABASE_SERVICE_KEY!, async () => {
     try {
       const integrations = await getRows('public', 'integrations_view');
-      if (!integrations.ok) throw integrations.error.message;
+      if (integrations.error) throw integrations.error.message;
       const syncable = [];
       const nowUtc = DateTime.utc();
 
@@ -40,6 +40,11 @@ export async function GET() {
         }
       }
 
+      Debug.info({
+        context: '/api/v1/cron/schedule-sync-jobs',
+        module: 'GET',
+        message: `${syncable.length} integrations syncing...`,
+      });
       await Promise.all(syncable.map(startSync));
 
       return NextResponse.json({ status: 'finished' });
@@ -48,7 +53,6 @@ export async function GET() {
         module: '/api/v1/cron/schedule-sync-jobs',
         context: 'GET',
         message: String(err),
-        time: new Date(),
       });
 
       return new Response(JSON.stringify({ message: String(err) }), {
@@ -66,7 +70,7 @@ async function startSync(integration: Tables<'public', 'integrations'>) {
       ['tenant_id', 'eq', integration.tenant_id],
     ],
   });
-  if (!sourceTenants.ok) throw sourceTenants.error.message;
+  if (sourceTenants.error) throw sourceTenants.error.message;
 
   await syncSource(
     integration.source_id,

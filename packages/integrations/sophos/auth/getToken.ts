@@ -16,7 +16,6 @@ export async function getToken(
 
       if (!expired)
         return {
-          ok: true,
           data: integration.token,
         };
     }
@@ -56,7 +55,6 @@ export async function getToken(
       .eq('id', integration.id);
 
     return {
-      ok: true,
       data: data.access_token as string,
     };
   } catch (err) {
@@ -64,7 +62,6 @@ export async function getToken(
       module: 'SophosPartner',
       context: 'getToken',
       message: String(err),
-      time: new Date(),
     });
   }
 }

@@ -42,7 +42,6 @@ export async function syncJob(job: Tables<'source', 'sync_jobs'>) {
       module: 'Integrations',
       context: 'syncJob',
       message: String(err),
-      time: new Date(),
     });
   }
 }

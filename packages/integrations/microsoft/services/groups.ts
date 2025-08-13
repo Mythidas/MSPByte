@@ -15,7 +15,7 @@ export async function getGroups(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     let query = client.data
       .api('/groups')
@@ -33,7 +33,6 @@ export async function getGroups(
     }
 
     return {
-      ok: true,
       data: allGroups,
     };
   } catch (err) {
@@ -41,7 +40,6 @@ export async function getGroups(
       module: 'Microsoft-365',
       context: 'getGroups',
       message: String(err),
-      time: new Date(),
     });
   }
 }

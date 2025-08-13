@@ -38,7 +38,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
         ...props,
       },
     });
-    if (!devices.ok) {
+    if (devices.error) {
       return { rows: [], total: 0 };
     }
 

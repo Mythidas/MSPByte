@@ -36,7 +36,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
         const memberships = await getRows('public', 'site_group_memberships', {
           filters: [['group_id', 'eq', group.id]],
         });
-        if (!memberships.ok) {
+        if (memberships.error) {
           return { rows: [], total: 0 };
         }
 
@@ -46,7 +46,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
             ['source_id', 'eq', sourceId],
           ],
         });
-        if (!tenants.ok) {
+        if (tenants.error) {
           return { rows: [], total: 0 };
         }
 
@@ -60,7 +60,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
             ['site_id', 'eq', site.id],
           ],
         });
-        if (tenant.ok) {
+        if (!tenant.error) {
           return { rows: [tenant.data], total: 1 };
         }
 
@@ -70,7 +70,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
       const sites = await getRows('public', 'sites', {
         filters: [parent ? ['parent_id', 'eq', parent.id] : undefined],
       });
-      if (!sites.ok) return undefined;
+      if (sites.error) return undefined;
 
       const siteIds = parent
         ? [parent.id, ...sites.data.rows.map((s) => s.id)]
@@ -81,7 +81,7 @@ export default function MicrosoftTenantMetricsCard({ sourceId, group, parent, si
           ['site_id', 'in', siteIds],
         ],
       });
-      if (tenant.ok) {
+      if (!tenant.error) {
         return tenant.data;
       }
     },

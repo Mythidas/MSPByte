@@ -9,7 +9,7 @@ export async function testSyncJob(jobId: string) {
       filters: [['id', 'eq', jobId]],
     });
 
-    if (!job.ok) throw job.error.message;
+    if (job.error) throw job.error.message;
     syncJob(job.data);
     return true;
   } catch {

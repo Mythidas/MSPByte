@@ -40,7 +40,7 @@ export default function SyncSourceItem({
           const memberships = await getRows('public', 'site_group_memberships', {
             filters: [['group_id', 'eq', groupId]],
           });
-          if (!memberships.ok) throw memberships.error.message;
+          if (memberships.error) throw memberships.error.message;
 
           const tenants = await getRows('source', 'tenants', {
             filters: [
@@ -48,7 +48,7 @@ export default function SyncSourceItem({
               ['site_id', 'in', memberships.data.rows.map((m) => m.site_id)],
             ],
           });
-          if (!tenants.ok) throw tenants.error.message;
+          if (tenants.error) throw tenants.error.message;
 
           const jobs = await syncSource(
             sourceId,
@@ -59,7 +59,7 @@ export default function SyncSourceItem({
             }))
           );
 
-          if (!jobs.ok) throw new Error(jobs.error.message);
+          if (jobs.error) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} jobs...`);
           break;
@@ -68,7 +68,7 @@ export default function SyncSourceItem({
           const mappings = await getRows('source', 'tenants', {
             filters: [['source_id', 'eq', sourceId]],
           });
-          if (!mappings.ok) throw new Error(mappings.error.message);
+          if (mappings.error) throw new Error(mappings.error.message);
 
           const jobs = await syncSource(
             sourceId,
@@ -78,18 +78,18 @@ export default function SyncSourceItem({
               sourceTenantId: s.id,
             }))
           );
-          if (!jobs.ok) throw new Error(jobs.error.message);
+          if (jobs.error) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} jobs...`);
           break;
         }
         case 'parent': {
-          if (!siteId) return;
+          if (siteId) return;
 
           const sites = await getRows('public', 'sites', {
             filters: [['parent_id', 'eq', siteId]],
           });
-          if (!sites.ok) throw new Error(sites.error.message);
+          if (sites.error) throw new Error(sites.error.message);
 
           const siteIds = [siteId, ...sites.data.rows.map((s) => s.id)];
           const mappings = await getRows('source', 'tenants', {
@@ -98,7 +98,7 @@ export default function SyncSourceItem({
               ['site_id', 'in', siteIds],
             ],
           });
-          if (!mappings.ok) throw new Error(mappings.error.message);
+          if (mappings.error) throw new Error(mappings.error.message);
 
           const jobs = await syncSource(
             sourceId,
@@ -108,7 +108,7 @@ export default function SyncSourceItem({
               sourceTenantId: s.id,
             }))
           );
-          if (!jobs.ok) throw new Error(jobs.error.message);
+          if (jobs.error) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} jobs...`);
           break;
@@ -122,7 +122,7 @@ export default function SyncSourceItem({
               ['site_id', 'eq', siteId],
             ],
           });
-          if (!mapping.ok) throw new Error(mapping.error.message);
+          if (mapping.error) throw new Error(mapping.error.message);
 
           const jobs = await syncSource(sourceId, tenantId, [
             {
@@ -130,7 +130,7 @@ export default function SyncSourceItem({
               sourceTenantId: mapping.data.id,
             },
           ]);
-          if (!jobs.ok) throw new Error(jobs.error.message);
+          if (jobs.error) throw new Error(jobs.error.message);
 
           toast.info(`Syncing ${jobs.data.length} job...`);
           break;

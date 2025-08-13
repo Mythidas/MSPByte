@@ -79,7 +79,7 @@ export default function UserTableUserDrawer({ user, roles, children, disabled, o
       row: { ...user, ...changes },
     });
 
-    if (result.ok) {
+    if (!result.error) {
       toast.success('User updated');
       setIsOpen(false);
       if (onSave) onSave(result.data);

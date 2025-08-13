@@ -36,7 +36,7 @@ export default function MicrosoftTenantsTable({ sourceId, siteIds, siteLevel }: 
         },
       },
     });
-    if (!tenants.ok) {
+    if (tenants.error) {
       return { rows: [], total: 0 };
     }
 

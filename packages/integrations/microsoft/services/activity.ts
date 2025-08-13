@@ -16,7 +16,7 @@ export async function getRecentSignIns(
       metadata.client_id,
       await decrypt(metadata.client_secret)
     );
-    if (!client.ok) throw new Error(client.error.message);
+    if (client.error) throw new Error(client.error.message);
 
     const signInMap: Record<string, string> = {};
     try {
@@ -90,7 +90,6 @@ export async function getRecentSignIns(
     }
 
     return {
-      ok: true,
       data: signInMap,
     };
   } catch (err) {
@@ -98,7 +97,6 @@ export async function getRecentSignIns(
       module: 'Microsoft-365',
       context: 'getRecentSignIns',
       message: String(err),
-      time: new Date(),
     });
   }
 }

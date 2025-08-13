@@ -66,12 +66,4 @@ export type APIError = {
   time: Date;
 };
 
-export type APIResponse<T> =
-  | {
-      ok: true;
-      data: T;
-    }
-  | {
-      ok: false;
-      error: APIError;
-    };
+export type APIResponse<T> = { data: T; error?: undefined } | { data?: undefined; error: APIError };

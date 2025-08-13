@@ -31,7 +31,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
         filters: [['parent_id', 'eq', site.id]],
       });
 
-      return sites.ok ? sites.data : 0;
+      return sites.error ? sites.data : 0;
     },
     render: (data) => {
       if (!site.is_parent) return null;
@@ -58,7 +58,7 @@ export default function SiteBreadcrumbs({ site }: Props) {
         const result = await getRow('public', 'sites', {
           filters: [['id', 'eq', site.parent_id]],
         });
-        if (result.ok) {
+        if (result.error) {
           parent = result.data;
         }
       }

@@ -68,7 +68,7 @@ export default function CreateSiteGroupDialog({ onSuccess }: Props) {
         ],
       });
 
-      if (!result.ok) throw result.error.message;
+      if (result.error) throw result.error.message;
 
       onSuccess?.(result.data[0]);
       setIsOpen(false);

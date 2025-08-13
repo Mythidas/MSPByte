@@ -36,7 +36,7 @@ export default function MicrosoftPoliciesTable({
         sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
       },
     });
-    if (!policies.ok) {
+    if (policies.error) {
       return { rows: [], total: 0 };
     }
 

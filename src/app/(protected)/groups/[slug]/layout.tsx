@@ -24,7 +24,7 @@ export default async function Layout({ children, ...props }: Props) {
     filters: [['id', 'eq', params.slug]],
   });
 
-  if (!group.ok) {
+  if (group.error) {
     return <ErrorDisplay message="Failed to find group" />;
   }
 

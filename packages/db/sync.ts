@@ -20,7 +20,7 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
     const existing = await getRows(schema, table, {
       filters: existingFilters,
     });
-    if (!existing.ok) {
+    if (existing.error) {
       throw new Error(existing.error.message);
     }
 
@@ -53,12 +53,11 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
       const deleted = await deleteRows(schema, table, {
         filters: [[primaryKey, 'in', toDelete]] as any,
       });
-      if (!deleted.ok) {
+      if (!deleted.error) {
         Debug.warn({
           module,
           context,
           message: `Failed to delete ${schema}.${table as string}`,
-          time: new Date(),
         });
       }
     }
@@ -66,25 +65,22 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
     const updated = await upsertRows(schema, table, {
       rows: [...toUpdate, ...toInsert],
     });
-    if (!updated.ok) {
+    if (updated.error) {
       Debug.warn({
         module,
         context,
         message: `Failed to upsert ${schema}.${table as string}`,
-        time: new Date(),
       });
     }
 
     return {
-      ok: true,
-      data: updated.ok ? updated.data : [],
+      data: !updated.error ? updated.data : [],
     };
   } catch (err) {
     return Debug.error({
       module,
       context,
       message: String(err),
-      time: new Date(),
     });
   }
 }

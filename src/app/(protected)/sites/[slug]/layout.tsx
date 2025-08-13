@@ -18,7 +18,7 @@ export default async function Layout({ children, ...props }: Props) {
     filters: [['slug', 'eq', params.slug]],
   });
 
-  if (!site.ok) {
+  if (site.error) {
     return <ErrorDisplay message="Failed to find site" />;
   }
 
