@@ -1,6 +1,5 @@
 'use client';
 
-// components/context/SiteContext.tsx
 import { Tables } from '@/types/db';
 import { createContext, useContext } from 'react';
 

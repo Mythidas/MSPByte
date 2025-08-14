@@ -5,7 +5,7 @@ import React from 'react';
 import SiteBreadcrumbs from '@/features/sites/components/SiteBreadcrumbs';
 import { getRow } from '@/db/orm';
 import ErrorDisplay from '@/shared/components/ErrorDisplay';
-import { SiteProvider } from '@/shared/lib/providers/SiteContext';
+import SiteProviderClient from '@/shared/lib/providers/SiteProvider';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -25,7 +25,7 @@ export default async function Layout({ children, ...props }: Props) {
   return (
     <SitesSidebar site={site.data}>
       <SiteBreadcrumbs site={site.data} />
-      <SiteProvider value={site.data}>{children}</SiteProvider>
+      <SiteProviderClient site={site.data}>{children}</SiteProviderClient>
     </SitesSidebar>
   );
 }
