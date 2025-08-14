@@ -60,6 +60,7 @@ export default function GroupSiteTable({ group }: Props) {
   return (
     <DataTable
       fetcher={fetcher}
+      initialSorting={[{ id: 'site_name', desc: false }]}
       ref={tableRef}
       lead={() => (
         <div className="flex gap-2">

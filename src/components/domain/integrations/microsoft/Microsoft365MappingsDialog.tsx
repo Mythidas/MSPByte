@@ -57,7 +57,7 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
     initial: [],
     fetcher: async () => {
       const sites = await getRows('public', 'sites_view', {
-        filters: [['parent_id', 'eq', parentId]],
+        filters: [parentId ? ['parent_id', 'eq', parentId] : undefined],
       });
       const tenants = await getRows('source', 'tenants', {
         filters: [['source_id', 'eq', sourceId]],

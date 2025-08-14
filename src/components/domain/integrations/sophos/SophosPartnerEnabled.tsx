@@ -179,7 +179,7 @@ function TotalDevicesCard({ sourceId }: { sourceId: string }) {
         filters: [['source_id', 'eq', sourceId]],
       });
 
-      if (devices.error) {
+      if (!devices.error) {
         return { devices: devices.data };
       }
 

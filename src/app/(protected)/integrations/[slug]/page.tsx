@@ -24,7 +24,7 @@ export default async function Page({ ...props }: Props) {
   });
   if (sourceFetch.error) return <strong>Failed to find source. Please refresh.</strong>;
   const source = sourceFetch.data;
-  const integration = integrationFetch.error ? integrationFetch.data : undefined;
+  const integration = !integrationFetch.error ? integrationFetch.data : undefined;
 
   const getBody = () => {
     switch (source.id) {
