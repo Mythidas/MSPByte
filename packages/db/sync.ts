@@ -53,11 +53,11 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
       const deleted = await deleteRows(schema, table, {
         filters: [[primaryKey, 'in', toDelete]] as any,
       });
-      if (!deleted.error) {
+      if (deleted.error) {
         Debug.warn({
           module,
           context,
-          message: `Failed to delete ${schema}.${table as string}`,
+          message: deleted.error.message,
         });
       }
     }
@@ -69,7 +69,7 @@ export async function syncTableItems<S extends Schemas, T extends Table<S>>(
       Debug.warn({
         module,
         context,
-        message: `Failed to upsert ${schema}.${table as string}`,
+        message: updated.error.message,
       });
     }
 

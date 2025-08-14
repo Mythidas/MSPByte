@@ -1,66 +1,102 @@
 import {
-  AutoTaskContract,
-  AutoTaskContractService,
-  AutoTaskContractServiceUnits,
-} from '@/integrations/autotask/types/contract';
+  getContractServices,
+  getContractServiceUnits,
+} from '@/integrations/autotask/services/contracts';
+import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
+import { AutoTaskContract } from '@/integrations/autotask/types/contract';
 import { AutoTaskService } from '@/integrations/autotask/types/service';
-import { generateUUID } from '@/lib/utils';
+import { Debug, generateUUID, Timer } from '@/lib/utils';
+import { APIResponse } from '@/types';
 import { Tables, TablesInsert } from '@/types/db';
 
 export function transformContracts(
   contracts: AutoTaskContract[],
+  tenants: Tables<'source', 'tenants'>[],
   job: Tables<'source', 'sync_jobs'>
 ): TablesInsert<'source', 'contracts'>[] {
-  return contracts.map((contract) => ({
-    id: generateUUID(),
-    tenant_id: job.tenant_id,
-    source_id: job.source_id,
-    source_tenant_id: job.source_tenant_id!,
-    site_id: job.site_id!,
-    sync_id: job.id,
-
-    external_id: contract.id.toString(),
-    name: contract.contractName,
-    status: contract.status === 0 ? 'inactive' : 'active',
-    revenue: 0,
-    start_at: contract.startDate,
-    end_at: contract.endDate,
-
-    metadata: contract,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  }));
-}
-
-export function transformContractServices(
-  services: AutoTaskService[],
-  contractServices: AutoTaskContractService[],
-  units: AutoTaskContractServiceUnits[],
-  job: Tables<'source', 'sync_jobs'>
-): TablesInsert<'source', 'contract_items'>[] {
-  return contractServices.map((contractService) => {
-    const service = services.find((s) => s.id === contractService.serviceID);
+  const transform = contracts.map((contract) => {
+    const tenant = tenants.find((t) => t.external_id === contract.companyID.toString());
+    if (!tenant) return undefined;
 
     return {
       id: generateUUID(),
-      tenant_id: job.tenant_id,
-      source_id: job.source_id,
-      source_tenant_id: job.source_tenant_id!,
-      site_id: job.site_id!,
+      tenant_id: tenant.tenant_id,
+      source_id: tenant.source_id,
+      source_tenant_id: tenant.id,
+      site_id: tenant.site_id,
       sync_id: job.id,
 
-      external_service_id: contractService.serviceID.toString(),
-      external_contract_id: contractService.contractID.toString(),
-      external_id: contractService.id.toString(),
-      name: service?.name || contractService.internalDescription,
-      sku: service?.sku || '',
-      unit_price: contractService.unitPrice,
-      unit_cost: contractService.unitCost,
-      quantity: units.find((u) => u.contractServiceID === contractService.id)?.units || 0,
+      external_id: contract.id.toString(),
+      name: contract.contractName,
+      status: contract.status === 0 ? 'inactive' : 'active',
+      revenue: 0,
+      start_at: contract.startDate,
+      end_at: contract.endDate,
 
-      metadata: contractService,
+      metadata: contract,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
   });
+
+  return transform.filter((t) => !!t);
+}
+
+export async function transformContractServices(
+  config: AutoTaskIntegrationConfig,
+  services: AutoTaskService[],
+  contracts: AutoTaskContract[],
+  tenants: Tables<'source', 'tenants'>[],
+  job: Tables<'source', 'sync_jobs'>
+): Promise<APIResponse<TablesInsert<'source', 'contract_items'>[]>> {
+  try {
+    const contractServices = await getContractServices(
+      config,
+      contracts.map((c) => c.id.toString())
+    );
+    const serviceUnits = await getContractServiceUnits(
+      config,
+      contracts.map((c) => c.id.toString())
+    );
+    if (contractServices.error) throw contractServices.error.message;
+    if (serviceUnits.error) throw serviceUnits.error.message;
+
+    const contractItems = contractServices.data.map((service) => {
+      const gService = services.find((s) => s.id === service.serviceID);
+      const units = serviceUnits.data.find((u) => u.contractServiceID === service.id);
+      const contract = contracts.find((c) => c.id === service.contractID);
+      const tenant = tenants.find((t) => t.external_id === contract?.companyID.toString());
+      if (!tenant) return undefined;
+
+      return {
+        id: generateUUID(),
+        tenant_id: tenant.tenant_id,
+        source_id: tenant.source_id,
+        source_tenant_id: tenant.id,
+        site_id: tenant.site_id,
+        sync_id: job.id,
+
+        external_contract_id: service.contractID.toString(),
+        external_service_id: service.serviceID.toString(),
+        external_id: service.id.toString(),
+        name: gService?.name || service.invoiceDescription,
+        sku: gService?.sku || '',
+        unit_cost: service.unitCost,
+        unit_price: service.unitPrice,
+        quantity: units?.units || 0,
+
+        metadata: service,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    });
+
+    return { data: contractItems.filter(Boolean) as TablesInsert<'source', 'contract_items'>[] };
+  } catch (err) {
+    return Debug.error({
+      module: 'AutoTask',
+      context: 'transformContractServices',
+      message: String(err),
+    });
+  }
 }

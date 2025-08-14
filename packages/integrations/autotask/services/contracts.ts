@@ -58,34 +58,41 @@ export async function getContractServices(
   contractIds: string[]
 ): Promise<APIResponse<AutoTaskContractService[]>> {
   try {
-    const search: AutoTaskSearch<AutoTaskContractService> = {
-      filter: [{ op: 'in', field: 'contractID', value: contractIds }],
-    };
-    const response = await fetch(
-      `https://${config.server}/ATServicesRest/V1.0/ContractServices/query?search=${JSON.stringify(search)}`,
-      {
-        method: 'GET',
-        headers: {
-          UserName: config.client_id,
-          Secret: config.client_secret,
-          ApiIntegrationCode: config.tracker_id,
-        },
-      }
-    );
+    const chunkSize = 30;
+    const allItems: AutoTaskContractService[] = [];
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    for (let i = 0; i < contractIds.length; i += chunkSize) {
+      const chunk = contractIds.slice(i, i + chunkSize);
+
+      const search: AutoTaskSearch<AutoTaskContractService> = {
+        filter: [{ op: 'in', field: 'contractID', value: chunk }],
+      };
+
+      const response = await fetch(
+        `https://${config.server}/ATServicesRest/V1.0/ContractServices/query?search=${encodeURIComponent(JSON.stringify(search))}`,
+        {
+          method: 'GET',
+          headers: {
+            UserName: config.client_id,
+            Secret: config.client_secret,
+            ApiIntegrationCode: config.tracker_id,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const json = (await response.json()) as AutoTaskResponse<AutoTaskContractService>;
+      allItems.push(...json.items);
     }
 
-    const json = (await response.json()) as AutoTaskResponse<AutoTaskContractService>;
-
-    return {
-      data: json.items,
-    };
+    return { data: allItems };
   } catch (err) {
     return Debug.error({
       module: 'AutoTask',
-      context: 'getActiveCompanies',
+      context: 'getContractServices',
       message: String(err),
     });
   }
@@ -96,40 +103,48 @@ export async function getContractServiceUnits(
   contractIds: string[]
 ): Promise<APIResponse<AutoTaskContractServiceUnits[]>> {
   try {
+    const chunkSize = 30;
+    const allItems: AutoTaskContractServiceUnits[] = [];
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const search: AutoTaskSearch<AutoTaskContractServiceUnits> = {
-      filter: [
-        { op: 'in', field: 'contractID', value: contractIds },
-        { op: 'lte', field: 'startDate', value: today.toISOString() },
-        { op: 'gte', field: 'endDate', value: today.toISOString() },
-      ],
-    };
-    const response = await fetch(
-      `https://${config.server}/ATServicesRest/V1.0/ContractServiceUnits/query?search=${JSON.stringify(search)}`,
-      {
-        method: 'GET',
-        headers: {
-          UserName: config.client_id,
-          Secret: config.client_secret,
-          ApiIntegrationCode: config.tracker_id,
-        },
-      }
-    );
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    for (let i = 0; i < contractIds.length; i += chunkSize) {
+      const chunk = contractIds.slice(i, i + chunkSize);
+
+      const search: AutoTaskSearch<AutoTaskContractServiceUnits> = {
+        filter: [
+          { op: 'in', field: 'contractID', value: chunk },
+          { op: 'lte', field: 'startDate', value: today.toISOString() },
+          { op: 'gte', field: 'endDate', value: today.toISOString() },
+        ],
+      };
+
+      const response = await fetch(
+        `https://${config.server}/ATServicesRest/V1.0/ContractServiceUnits/query?search=${encodeURIComponent(JSON.stringify(search))}`,
+        {
+          method: 'GET',
+          headers: {
+            UserName: config.client_id,
+            Secret: config.client_secret,
+            ApiIntegrationCode: config.tracker_id,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const json = (await response.json()) as AutoTaskResponse<AutoTaskContractServiceUnits>;
+      allItems.push(...json.items);
     }
 
-    const json = (await response.json()) as AutoTaskResponse<AutoTaskContractServiceUnits>;
-
-    return {
-      data: json.items,
-    };
+    return { data: allItems };
   } catch (err) {
     return Debug.error({
       module: 'AutoTask',
-      context: 'getActiveCompanies',
+      context: 'getContractServiceUnits',
       message: String(err),
     });
   }
