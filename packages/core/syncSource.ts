@@ -14,14 +14,14 @@ export async function syncSource(
         return 30;
       case 'sophos-partner':
         return 20;
-      case 'autotask':
-        return 60;
       default:
-        return 30;
+        return 0;
     }
   };
 
   try {
+    if (getEstDuration() === 0) throw 'Source does not support tenant level syncing';
+
     const jobs = await insertRows('source', 'sync_jobs', {
       rows: siteIds.map((s) => {
         return {
