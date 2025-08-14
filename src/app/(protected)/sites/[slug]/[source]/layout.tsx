@@ -29,9 +29,9 @@ export default async function Layout({ params, children }: Props) {
         sourceId={source as string}
         siteId={site.data.id}
         tenantId={site.data.tenant_id}
-        hide={!tenant.error}
+        hide={!!tenant.error}
       />
-      {!tenant.error ? (
+      {tenant.error ? (
         <strong>This site does not have a Tenant mapping for this source</strong>
       ) : (
         children
