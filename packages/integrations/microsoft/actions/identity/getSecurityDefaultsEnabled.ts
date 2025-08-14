@@ -1,13 +1,12 @@
 import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
-import { getGraphClient } from '@/integrations/microsoft/auth';
-import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
+import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';
 
-export async function getConditionalAccessPolicies(
+export async function getSecurityDefaultsEnabled(
   mapping: Tables<'source', 'tenants'>
-): Promise<APIResponse<MSGraphConditionalAccessPolicy[]>> {
+): Promise<APIResponse<boolean>> {
   try {
     const metadata = mapping.metadata as any;
     const client = await getGraphClient(
@@ -19,15 +18,17 @@ export async function getConditionalAccessPolicies(
       throw new Error(client.error.message);
     }
 
-    const securityPolicies = await client.data.api('/identity/conditionalAccess/policies').get();
+    const securityDefaults = await client.data
+      .api('/policies/identitySecurityDefaultsEnforcementPolicy')
+      .get();
 
     return {
-      data: securityPolicies.value,
+      data: securityDefaults.isEnabled || false,
     };
   } catch (err) {
     return Debug.error({
       module: 'Microsoft-365',
-      context: 'getConditionalAccessPolicies',
+      context: 'getSecurityDefaultsEnabled',
       message: String(err),
     });
   }

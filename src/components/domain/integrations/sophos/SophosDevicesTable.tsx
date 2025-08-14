@@ -8,7 +8,7 @@ import { DataTableHeader } from '@/components/shared/table/DataTableHeader';
 import { textColumn } from '@/components/shared/table/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
-import enableSophosTamperProtection from '@/integrations/sophos/services/actions/enableSophosTamperProtection';
+import enableSophosTamperProtection from '@/integrations/sophos/actions/actions/enableSophosTamperProtection';
 import { useUser } from '@/lib/providers/UserContext';
 import { useRef } from 'react';
 import { getRows } from '@/db/orm';

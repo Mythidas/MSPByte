@@ -20,7 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useAsync } from '@/hooks/common/useAsync';
 import SearchBox from '@/components/shared/SearchBox';
-import { getDomains } from '@/integrations/microsoft/services/domains';
+import { getDomains } from '@/integrations/microsoft/actions/domains';
 import { MSGraphDomain } from '@/integrations/microsoft/types/domains';
 import { TablesInsert } from '@/types/db';
 import { toast } from 'sonner';

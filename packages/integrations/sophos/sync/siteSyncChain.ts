@@ -3,7 +3,7 @@
 import SyncChain from '@/core/SyncChain';
 import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
-import { getEndpoints } from '@/integrations/sophos/services/endpoints';
+import { getEndpoints } from '@/integrations/sophos/actions/endpoints';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
 import { Debug } from '@/lib/utils';

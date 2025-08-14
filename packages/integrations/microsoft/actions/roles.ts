@@ -2,7 +2,7 @@
 
 import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
-import { getGraphClient } from '@/integrations/microsoft/auth';
+import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphRole } from '@/integrations/microsoft/types/roles';
 import { Debug } from '@/lib/utils';
 import { APIResponse } from '@/types';

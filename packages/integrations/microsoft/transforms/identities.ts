@@ -5,8 +5,6 @@ import {
   isUserCapableOfCA,
   isUserRequiredToUseMFA,
 } from '@/integrations/microsoft/helpers/conditionalAccess';
-import { getAuthenticationMethods } from '@/integrations/microsoft/services/identity';
-import { getUserContext } from '@/integrations/microsoft/services/users';
 import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
 import {
   MSGraphAuthenticationMethod,
@@ -16,6 +14,8 @@ import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';
 import { Debug, generateUUID, Timer } from '@/lib/utils';
 import { APIResponse } from '@/types';
+import { getAuthenticationMethods } from '@/integrations/microsoft/actions/identity/getAuthenticationMethods';
+import { getUserContext } from '@/integrations/microsoft/actions/users';
 
 export async function transformIdentities(
   users: MSGraphUser[],
