@@ -1,7 +1,7 @@
 'use client';
 
-import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
-import { useUser } from '@/lib/providers/UserContext';
+import IntegrationHeader from '@/features/integrations/components/IntegrationHeader';
+import { useUser } from '@/shared/lib/providers/UserContext';
 import { useParams } from 'next/navigation';
 
 type Props = {

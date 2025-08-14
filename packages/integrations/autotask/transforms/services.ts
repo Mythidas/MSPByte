@@ -1,5 +1,5 @@
 import { AutoTaskService } from '@/integrations/autotask/types/service';
-import { generateUUID } from '@/lib/utils';
+import { generateUUID } from '@/shared/lib/utils';
 import { Tables, TablesInsert } from '@/types/db';
 
 export default function transformServices(

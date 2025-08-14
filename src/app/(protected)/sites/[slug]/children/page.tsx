@@ -1,7 +1,7 @@
 'use client';
 
-import SitesTable from '@/components/domain/sites/SitesTable';
-import { useSite } from '@/lib/providers/SiteContext';
+import SitesTable from '@/features/sites/components/SitesTable';
+import { useSite } from '@/shared/lib/providers/SiteContext';
 
 export default function Page() {
   const site = useSite();

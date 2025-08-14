@@ -1,6 +1,6 @@
 import { Tables } from '@/types/db';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { insertRows } from '@/db/orm';
 
 export async function syncSource(

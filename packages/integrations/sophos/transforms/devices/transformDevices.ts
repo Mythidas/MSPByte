@@ -1,6 +1,6 @@
 import { Tables, TablesInsert } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
-import { generateUUID } from '@/lib/utils';
+import { generateUUID } from '@/shared/lib/utils';
 
 export function transformDevices(
   mapping: Tables<'source', 'tenants'>,

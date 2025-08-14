@@ -1,6 +1,6 @@
 'use server';
 
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { tables } from 'packages/db';
 import { TablesInsert } from '@/types/db';
 

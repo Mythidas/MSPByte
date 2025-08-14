@@ -1,5 +1,5 @@
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
-import { generateUUID } from '@/lib/utils';
+import { generateUUID } from '@/shared/lib/utils';
 import { Tables, TablesInsert } from '@/types/db';
 
 export function transformLicenses(

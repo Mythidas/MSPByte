@@ -2,9 +2,9 @@
 
 import { Tables, TablesInsert } from '@/types/db';
 import { createAdminClient, createClient } from '@/db/server';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { sendEmail } from '@/services/email';
-import { APIResponse } from '@/types';
+import { APIResponse } from '@/shared/types';
 import { tables } from 'packages/db';
 
 export async function getCurrentUserView() {

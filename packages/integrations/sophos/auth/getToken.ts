@@ -3,8 +3,8 @@
 import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { createClient } from '@/db/server';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getToken(
   integration: Tables<'public', 'integrations'>

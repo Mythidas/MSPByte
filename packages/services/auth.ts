@@ -1,8 +1,8 @@
 'use server';
 
 import { createAdminClient, createClient } from '@/db/server';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { redirect } from 'next/navigation';
 
 export async function login(email: string, password: string): Promise<APIResponse<null>> {

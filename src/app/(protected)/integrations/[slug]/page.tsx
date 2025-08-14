@@ -2,15 +2,15 @@
 
 import { Badge } from '@/components/ui/badge';
 import Image from 'next/image';
-import { SourceBreadcrumb } from '@/components/domain/sources/SourceBreadcrumbs';
-import Microsoft365Enabled from '@/components/domain/integrations/microsoft/Microsoft365Enabled';
-import Microsoft365Disabled from '@/components/domain/integrations/microsoft/Microsoft365Disabled';
-import SophosPartnerDisabled from '@/components/domain/integrations/sophos/SophosPartnerDisabled';
-import SophosPartnerEnabled from '@/components/domain/integrations/sophos/SophosPartnerEnabled';
-import AutotaskEnabled from '@/components/domain/integrations/autotask/AutotaskEnabled';
-import AutotaskDisabled from '@/components/domain/integrations/autotask/AutotaskDisabled';
-import ToggleIntegration from '@/components/domain/integrations/ToggleIntegration';
+import { SourceBreadcrumb } from '@/features/integrations/components/SourceBreadcrumbs';
+import SophosPartnerDisabled from '@/integrations/sophos/SophosPartnerDisabled';
+import SophosPartnerEnabled from '@/integrations/sophos/SophosPartnerEnabled';
+import AutotaskEnabled from '@/integrations/autotask/AutotaskEnabled';
+import AutotaskDisabled from '@/integrations/autotask/AutotaskDisabled';
+import ToggleIntegration from '@/features/integrations/components/ToggleIntegration';
 import { getRow } from '@/db/orm';
+import Microsoft365Disabled from '@/integrations/microsoft/components/Microsoft365Disabled';
+import Microsoft365Enabled from '@/integrations/microsoft/components/Microsoft365Enabled';
 
 type Props = {
   params: Promise<{ slug: string }>;

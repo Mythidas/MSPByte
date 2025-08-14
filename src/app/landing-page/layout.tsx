@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import HeaderAuth from '@/components/shared/HeaderAuth';
+import HeaderAuth from '@/shared/components/HeaderAuth';
 
 export default function Layout({
   children,

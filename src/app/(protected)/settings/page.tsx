@@ -12,7 +12,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getRow } from '@/db/orm';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import { useLazyLoad } from '@/shared/hooks/useLazyLoad';
 import { Info } from 'lucide-react';
 
 export default function Page() {

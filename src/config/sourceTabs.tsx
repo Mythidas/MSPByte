@@ -1,13 +1,13 @@
-import AutoTaskContractsTable from '@/components/domain/integrations/autotask/tables/AutoTaskContractsTable';
-import MicrosoftIdentitiesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftIdentitiesTable';
-import MicrosoftLicensesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftLicensesTable';
-import MicrosoftPoliciesTable from '@/components/domain/integrations/microsoft/tables/MicrosoftPoliciesTable';
-import MicrosoftTenantsTable from '@/components/domain/integrations/microsoft/tables/MicrosoftTenantsTable';
-import MicrosoftDashboardTab from '@/components/domain/integrations/microsoft/tabs/MicrosoftDashboardTab';
-import SophosDevicesTable from '@/components/domain/integrations/sophos/SophosDevicesTable';
-import SophosDashboardTab from '@/components/domain/integrations/sophos/tabs/SophosDashboardTab';
-import DataTableLoader from '@/components/shared/table/DataTableLoader';
-import { TabProps } from '@/types';
+import DataTableLoader from '@/features/data-table/components/DataTableLoader';
+import AutoTaskContractsTable from '@/integrations/autotask/tables/AutoTaskContractsTable';
+import MicrosoftDashboardTab from '@/integrations/microsoft/components/MicrosoftDashboardTab';
+import MicrosoftLicensesTable from '@/integrations/microsoft/components/tables/MicrosoftLicensesTable';
+import MicrosoftIdentitiesTable from '@/integrations/microsoft/tables/MicrosoftIdentitiesTable';
+import MicrosoftPoliciesTable from '@/integrations/microsoft/tables/MicrosoftPoliciesTable';
+import MicrosoftTenantsTable from '@/integrations/microsoft/tables/MicrosoftTenantsTable';
+import SophosDevicesTable from '@/integrations/sophos/SophosDevicesTable';
+import SophosDashboardTab from '@/integrations/sophos/tabs/SophosDashboardTab';
+import { TabProps } from '@/shared/types';
 
 export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
   'sophos-partner': {

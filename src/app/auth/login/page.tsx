@@ -13,8 +13,6 @@ import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormError from '@/components/shared/FormError';
-import { SubmitButton } from '@/components/shared/secure/SubmitButton';
 import { useState } from 'react';
 import { LogIn } from 'lucide-react';
 import { login, loginWithAzure } from '@/services/auth';
@@ -23,6 +21,8 @@ import { useRouter } from 'next/navigation';
 import { Separator } from '@/components/ui/separator';
 import { FaMicrosoft } from 'react-icons/fa';
 import { Button } from '@/components/ui/button';
+import { SubmitButton } from '@/shared/components/secure/SubmitButton';
+import FormError from '@/shared/components/FormError';
 
 const formSchema = z.object({
   email: z.string().email('Invalid email address'),

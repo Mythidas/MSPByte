@@ -1,8 +1,8 @@
 import { insertRows } from '@/db/orm';
 import { Tables, TablesInsert } from '@/types/db';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
-import { MicrosoftIdentityMetadata } from '@/types/source/identities';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
+import { MicrosoftIdentityMetadata } from '@/integrations/microsoft/types';
 
 export async function syncMetrics(
   tenant: Tables<'source', 'tenants'>,

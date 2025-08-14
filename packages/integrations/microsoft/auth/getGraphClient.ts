@@ -1,5 +1,5 @@
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { ClientSecretCredential } from '@azure/identity';
 import { Client } from '@microsoft/microsoft-graph-client';
 

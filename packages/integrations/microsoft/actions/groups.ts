@@ -2,8 +2,8 @@ import { Tables } from '@/types/db';
 import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphGroup } from '@/integrations/microsoft/types/groups';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getGroups(
   mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>

@@ -4,8 +4,8 @@ import {
   AutoTaskSearch,
 } from '@/integrations/autotask/types';
 import { AutoTaskService } from '@/integrations/autotask/types/service';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getActiveServices(
   config: AutoTaskIntegrationConfig

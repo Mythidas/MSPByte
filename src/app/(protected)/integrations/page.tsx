@@ -1,4 +1,4 @@
-import IntegrationsTable from '@/components/domain/sources/IntegrationsTable';
+import IntegrationsTable from '@/features/integrations/components/IntegrationsTable';
 
 export default async function IntegrationsPage() {
   return (

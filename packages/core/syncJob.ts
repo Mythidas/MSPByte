@@ -5,7 +5,7 @@ import { createClient } from '@/db/server';
 import { syncAutoTask } from '@/integrations/autotask/sync';
 import { syncMicrosoft365 } from '@/integrations/microsoft/sync';
 import { syncSophosPartner } from '@/integrations/sophos/sync';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 
 export async function syncJob(job: Tables<'source', 'sync_jobs'>) {
   const supabase = await createClient();

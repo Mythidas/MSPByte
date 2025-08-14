@@ -2,7 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { SOURCE_TABS } from '@/config/sourceTabs';
-import { useSite } from '@/lib/providers/SiteContext';
+import { useSite } from '@/shared/lib/providers/SiteContext';
 
 export default function Page() {
   const { source, tab } = useParams();

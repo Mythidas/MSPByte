@@ -3,8 +3,8 @@ import { decrypt } from '@/db/secret';
 import { getGraphClient } from '@/integrations/microsoft/auth/getGraphClient';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser, MSGraphUserContext } from '@/integrations/microsoft/types/users';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { Client } from '@microsoft/microsoft-graph-client';
 
 export async function getUsers(

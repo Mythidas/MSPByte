@@ -1,11 +1,11 @@
-import AppNavbar from '@/components/layout/AppNavbar';
-import AppSidebar from '@/components/layout/AppSidebar';
-import Loader from '@/components/shared/Loader';
+import AppNavbar from '@/shared/components/layout/AppNavbar';
+import AppSidebar from '@/shared/components/layout/AppSidebar';
+import Loader from '@/shared/components/Loader';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { getRow, getRows } from '@/db/orm';
 import { createClient } from '@/db/server';
-import { SourceProvider } from '@/lib/providers/SourceContext';
-import { UserProvider } from '@/lib/providers/UserProvider';
+import { SourceProvider } from '@/shared/lib/providers/SourceContext';
+import { UserProvider } from '@/shared/lib/providers/UserProvider';
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

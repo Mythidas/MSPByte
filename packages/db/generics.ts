@@ -1,5 +1,3 @@
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
 import { createClient } from 'packages/db/server';
 import { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 import {
@@ -15,6 +13,8 @@ import {
 } from '@/types/db';
 import { subDays } from 'date-fns';
 import { Database } from '@/db/schema';
+import { APIResponse } from '@/shared/types';
+import Debug from '@/shared/lib/Debug';
 
 type RowType<
   S extends Schemas,

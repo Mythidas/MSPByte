@@ -5,8 +5,9 @@ import {
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { AutoTaskContract } from '@/integrations/autotask/types/contract';
 import { AutoTaskService } from '@/integrations/autotask/types/service';
-import { Debug, generateUUID, Timer } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { generateUUID } from '@/shared/lib/utils';
+import { APIResponse } from '@/shared/types';
 import { Tables, TablesInsert } from '@/types/db';
 
 export function transformContracts(

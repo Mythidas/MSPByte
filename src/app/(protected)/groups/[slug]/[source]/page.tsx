@@ -2,9 +2,9 @@
 
 import { useParams } from 'next/navigation';
 import { SOURCE_TABS } from '@/config/sourceTabs';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import Loader from '@/components/shared/Loader';
+import { useLazyLoad } from '@/shared/hooks/useLazyLoad';
 import { getRow } from '@/db/orm';
+import Loader from '@/shared/components/Loader';
 
 export default function Page() {
   const params = useParams();

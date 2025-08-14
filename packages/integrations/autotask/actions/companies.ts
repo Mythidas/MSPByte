@@ -4,8 +4,8 @@ import {
   AutoTaskSearch,
 } from '@/integrations/autotask/types';
 import { AutoTaskCompany } from '@/integrations/autotask/types/company';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getActiveCompanies(
   config: AutoTaskIntegrationConfig

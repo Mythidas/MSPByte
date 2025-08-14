@@ -1,6 +1,6 @@
 'use client';
 
-import SiteGroupsTable from '@/components/domain/groups/SiteGroupsTable';
+import SiteGroupsTable from '@/features/groups/components/SiteGroupsTable';
 
 export default function Page() {
   return (

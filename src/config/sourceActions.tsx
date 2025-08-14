@@ -1,5 +1,5 @@
-import MicrosoftEmailBreachAction from '@/components/domain/integrations/microsoft/actions/MicrosoftEmailBreachAction';
-import { ActionProps } from '@/types';
+import MicrosoftEmailBreachAction from '@/integrations/microsoft/components/actions/MicrosoftEmailBreachAction';
+import { ActionProps } from '@/shared/types';
 
 export const SOURCE_ACTIONS: Record<string, Record<string, ActionProps>> = {
   'sophos-partner': {},

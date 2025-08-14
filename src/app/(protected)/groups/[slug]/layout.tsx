@@ -1,8 +1,7 @@
 'use server';
 
-import ErrorDisplay from '@/components/shared/ErrorDisplay';
 import React from 'react';
-import GroupSidebar from '@/components/layout/GroupSidebar';
+import GroupSidebar from '@/shared/components/layout/GroupSidebar';
 import { getRow } from '@/db/orm';
 import {
   Breadcrumb,
@@ -11,7 +10,8 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import GroupHeader from '@/components/domain/groups/GroupHeader';
+import GroupHeader from '@/features/groups/components/GroupHeader';
+import ErrorDisplay from '@/shared/components/ErrorDisplay';
 
 type Props = {
   params: Promise<{ slug: string }>;

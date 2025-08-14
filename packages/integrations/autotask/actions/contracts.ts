@@ -8,8 +8,8 @@ import {
   AutoTaskContractService,
   AutoTaskContractServiceUnits,
 } from '@/integrations/autotask/types/contract';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getActiveContracts(
   config: AutoTaskIntegrationConfig

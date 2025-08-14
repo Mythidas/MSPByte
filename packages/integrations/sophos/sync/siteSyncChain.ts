@@ -6,7 +6,7 @@ import { getToken } from '@/integrations/sophos/auth';
 import { getEndpoints } from '@/integrations/sophos/actions/endpoints';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { tables } from '@/db';
 import { deleteRows, getRow, getRows } from '@/db/orm';
 

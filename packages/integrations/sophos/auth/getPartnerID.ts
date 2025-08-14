@@ -1,5 +1,5 @@
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function getPartnerID(token: string): Promise<APIResponse<string>> {
   try {

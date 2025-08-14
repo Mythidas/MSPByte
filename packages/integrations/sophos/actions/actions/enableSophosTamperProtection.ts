@@ -4,8 +4,8 @@ import { getRow, insertRows, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
 import { enableTamperProtection } from '@/integrations/sophos/actions/endpoints/enableTamperProtection';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export default async function enableSophosTamperProtection(
   devices: Tables<'source', 'devices_view'>[],

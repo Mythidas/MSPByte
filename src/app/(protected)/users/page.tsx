@@ -1,7 +1,8 @@
-import RolesTable from '@/components/domain/users/RolesTable';
-import UsersTable from '@/components/domain/users/UsersTable';
-import { Tabs, TabsContent, TabsList } from '@/components/ui/tabs';
-import RouteTabsTrigger from '@/components/shared/secure/RouteTabsTrigger';
+import RolesTable from '@/features/users/components/RolesTable';
+import UsersTable from '@/features/users/components/UsersTable';
+import { Tabs, TabsList } from '@/components/ui/tabs';
+import { LazyTabContent } from '@/shared/components/LazyTabsContent';
+import RouteTabsTrigger from '@/shared/components/secure/RouteTabsTrigger';
 
 type Props = {
   searchParams: Promise<{ tab: string }>;
@@ -21,12 +22,12 @@ export default async function UsersPage(props: Props) {
           <RouteTabsTrigger value="users">Users</RouteTabsTrigger>
           <RouteTabsTrigger value="roles">Roles</RouteTabsTrigger>
         </TabsList>
-        <TabsContent value="users">
+        <LazyTabContent value="users">
           <UsersTable />
-        </TabsContent>
-        <TabsContent value="roles">
+        </LazyTabContent>
+        <LazyTabContent value="roles">
           <RolesTable />
-        </TabsContent>
+        </LazyTabContent>
       </Tabs>
     </div>
   );

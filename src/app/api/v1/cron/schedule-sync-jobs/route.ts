@@ -1,5 +1,5 @@
 import { setBearerToken } from '@/db/context';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { NextResponse } from 'next/server';
 import { getRows, insertRows } from '@/db/orm';
 import { Tables } from '@/types/db';

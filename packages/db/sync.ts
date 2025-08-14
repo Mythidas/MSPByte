@@ -1,7 +1,7 @@
 import { deleteRows, getRows, insertRows, updateRow, upsertRows } from '@/db/orm';
 import { RowFilter, Schemas, Table, Tables, TablesInsert, TablesUpdate } from '@/types/db';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 
 export async function syncTableItems<S extends Schemas, T extends Table<S>>(
   schema: S,

@@ -1,17 +1,16 @@
 'use client';
 
-import DataTable, { DataTableRef } from '@/components/shared/table/DataTable';
-import { Tables } from '@/types/db';
-import { dateColumn, textColumn } from '@/components/shared/table/DataTableColumn';
-import { DataTableColumnDef, DataTableFetcher } from '@/types/data-table';
 import Link from 'next/link';
-import { prettyText } from '@/lib/utils';
 import { useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { getRows } from '@/db/orm';
-import ActivityFeedDrawer from '@/components/domain/activity/ActivityDrawer';
+import ActivityFeedDrawer from '@/features/activity/components/ActivityDrawer';
 import { Button } from '@/components/ui/button';
+import DataTable, { DataTableRef } from '@/features/data-table/components/DataTable';
+import { textColumn, dateColumn } from '@/features/data-table/components/DataTableColumn';
+import { DataTableFetcher, DataTableColumnDef } from '@/features/data-table/types/table';
+import { cn, prettyText } from '@/shared/lib/utils';
+import { Tables } from '@/types/db';
 
 type TData = Tables<'public', 'activity_feeds_view'>;
 

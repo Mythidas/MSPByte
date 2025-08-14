@@ -1,10 +1,9 @@
 'use server';
 
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
-import { MicrosoftIdentityMetadata } from '@/types/source/identities';
+import { MicrosoftIdentityMetadata } from '@/integrations/microsoft/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { tables } from 'packages/db';
-import { TablesInsert, TablesUpdate } from '@/types/db';
 
 export async function getSourceIdentitiesUniqueRolesAndGroups(
   sourceId: string,

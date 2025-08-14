@@ -1,4 +1,4 @@
-import IntegrationHeader from '@/components/domain/integrations/IntegrationHeader';
+import IntegrationHeader from '@/features/integrations/components/IntegrationHeader';
 import { getRow } from '@/db/orm';
 
 type Props = {

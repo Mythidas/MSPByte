@@ -1,6 +1,6 @@
 import { createClient } from '@/db/server';
-import { Timer } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Timer from '@/shared/lib/Timer';
+import { APIResponse } from '@/shared/types';
 import { Tables } from '@/types/db';
 
 type SyncContext = {

@@ -1,7 +1,7 @@
 import { Tables, TablesInsert } from '@/types/db';
 import { SPEndpoint } from '@/integrations/sophos/types/endpoints';
-import { Debug } from '@/lib/utils';
-import { APIResponse } from '@/types';
+import Debug from '@/shared/lib/Debug';
+import { APIResponse } from '@/shared/types';
 import { insertRows } from '@/db/orm';
 
 export async function syncMetrics(

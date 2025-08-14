@@ -1,8 +1,8 @@
 'use client';
 
-import Display from '@/components/shared/Display';
 import { SOURCE_ACTIONS } from '@/config/sourceActions';
-import { prettyText } from '@/lib/utils';
+import Display from '@/shared/components/Display';
+import { prettyText } from '@/shared/lib/utils';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 

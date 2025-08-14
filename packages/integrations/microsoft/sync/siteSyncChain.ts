@@ -8,7 +8,7 @@ import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformLicenses } from '@/integrations/microsoft/transforms/licenses';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { Tables } from '@/types/db';
 
 export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {

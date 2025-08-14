@@ -1,11 +1,11 @@
 'use server';
 
-import ErrorDisplay from '@/components/shared/ErrorDisplay';
-import SitesSidebar from '@/components/layout/SitesSidebar';
-import SiteProvider from '@/lib/providers/SiteProvider';
+import SitesSidebar from '@/shared/components/layout/SitesSidebar';
 import React from 'react';
-import SiteBreadcrumbs from '@/components/domain/sites/SiteBreadcrumbs';
+import SiteBreadcrumbs from '@/features/sites/components/SiteBreadcrumbs';
 import { getRow } from '@/db/orm';
+import ErrorDisplay from '@/shared/components/ErrorDisplay';
+import { SiteProvider } from '@/shared/lib/providers/SiteContext';
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -25,7 +25,7 @@ export default async function Layout({ children, ...props }: Props) {
   return (
     <SitesSidebar site={site.data}>
       <SiteBreadcrumbs site={site.data} />
-      <SiteProvider site={site.data}>{children}</SiteProvider>
+      <SiteProvider value={site.data}>{children}</SiteProvider>
     </SitesSidebar>
   );
 }

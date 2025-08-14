@@ -1,5 +1,5 @@
 import { AutoTaskCompany } from '@/integrations/autotask/types/company';
-import { generateUUID } from '@/lib/utils';
+import { generateUUID } from '@/shared/lib/utils';
 import { Tables, TablesInsert } from '@/types/db';
 
 export default function transformCompanies(

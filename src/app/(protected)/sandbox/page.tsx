@@ -1,15 +1,16 @@
 'use client';
 
-import Loader from '@/components/shared/Loader';
-import SearchBox from '@/components/shared/SearchBox';
+import Loader from '@/shared/components/Loader';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRows, insertRows } from '@/db/orm';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
-import { testSyncJob } from '@/lib/actions/sandbox';
+import { useLazyLoad } from '@/shared/hooks/useLazyLoad';
+
 import { useState } from 'react';
 import { toast } from 'sonner';
+import SearchBox from '@/shared/components/SearchBox';
+import { testSyncJob } from '@/shared/lib/actions/sandbox';
 
 export default function Page() {
   const [selectedTenant, setSelectedTenant] = useState('');

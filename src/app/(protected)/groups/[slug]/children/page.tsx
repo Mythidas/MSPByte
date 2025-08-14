@@ -1,10 +1,10 @@
 'use client';
 
-import Loader from '@/components/shared/Loader';
-import GroupSiteTable from '@/components/domain/groups/GroupSitesTable';
+import GroupSiteTable from '@/features/groups/components/GroupSitesTable';
 import { getRow } from '@/db/orm';
-import { useLazyLoad } from '@/hooks/common/useLazyLoad';
+import { useLazyLoad } from '@/shared/hooks/useLazyLoad';
 import { useParams } from 'next/navigation';
+import Loader from '@/shared/components/Loader';
 
 export default function Page() {
   const { slug } = useParams();

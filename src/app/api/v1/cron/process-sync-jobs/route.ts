@@ -2,7 +2,7 @@
 import { syncJob } from '@/core/syncJob';
 import { createClient } from '@/db/server';
 import { setBearerToken } from '@/db/context';
-import { Debug } from '@/lib/utils';
+import Debug from '@/shared/lib/Debug';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'nodejs'; // Important!
