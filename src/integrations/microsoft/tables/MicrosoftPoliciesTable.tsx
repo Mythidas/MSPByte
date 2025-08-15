@@ -2,13 +2,14 @@
 
 import DataTable, { DataTableRef } from '@/features/data-table/components/DataTable';
 import { Tables } from '@/types/db';
-import { dateColumn, textColumn } from '@/features/data-table/components/DataTableColumn';
+import { column, dateColumn, textColumn } from '@/features/data-table/components/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/features/data-table/types/table';
 import { prettyText } from '@/shared/lib/utils';
 import { useRef } from 'react';
 import MicrosoftPolicyDrawer from '@/integrations/microsoft/components/drawers/MicrosoftPolicyDrawer';
 import Link from 'next/link';
 import { getRows } from '@/db/orm';
+import { MicrosoftPolicyMetadata } from '@/integrations/microsoft/types';
 
 type TData = Tables<'source', 'policies_view'>;
 type Props = {
@@ -34,6 +35,9 @@ export default function MicrosoftPoliciesTable({
         size: pageSize,
         ...props,
         sorting: Object.entries(props.sorting).length > 0 ? props.sorting : { site_name: 'asc' },
+        filterMap: {
+          external_created_at: 'metadata->createdDateTime',
+        },
       },
     });
     if (policies.error) {
@@ -93,9 +97,16 @@ export default function MicrosoftPoliciesTable({
             label: 'Status',
             cell: ({ row }) => prettyText(row.original.status!),
           }),
-          dateColumn({
-            key: 'created_at',
+          column({
+            key: 'external_created_at',
             label: 'Created',
+            cell: ({ row }) => (
+              <div>
+                {new Date(
+                  (row.original.metadata as unknown as MicrosoftPolicyMetadata).createdDateTime
+                ).toLocaleString()}
+              </div>
+            ),
           }),
         ] as DataTableColumnDef<TData>[]
       }
