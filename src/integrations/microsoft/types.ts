@@ -10,6 +10,8 @@ export type MicrosoftIdentityMetadata = {
   assignedLicenses: any[]; // Can be refined if structure is known
   userPrincipalName: string;
   valid_mfa_license: boolean;
+  ca_policies: string[];
+  mfa_policy: string;
 };
 
 export interface MicrosoftLicenseMetadata {

@@ -16,6 +16,7 @@ type Props = {
   children?: React.ReactNode;
   syncing?: boolean;
   onStart?: () => void;
+  onFail?: () => void;
 } & Omit<React.ComponentProps<typeof Button>, 'type' | 'onClick' | 'children'>;
 
 export default function SyncSourceItem({
@@ -26,6 +27,7 @@ export default function SyncSourceItem({
   groupId,
   children,
   onStart,
+  onFail,
   ...props
 }: Props) {
   const [isSyncing, setIsSyncing] = useState(props.syncing);
@@ -138,6 +140,7 @@ export default function SyncSourceItem({
       }
     } catch (err) {
       toast.error(`Failed to sync: ${String(err)}`);
+      onFail?.();
     } finally {
       setIsSyncing(false);
     }

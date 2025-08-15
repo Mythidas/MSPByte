@@ -48,8 +48,7 @@ export async function transformIdentities(
               (l) => subscribedSkus.find((ssku) => ssku.skuId === l.skuId)?.skuPartNumber || l.skuId
             ) || [];
 
-          const mfaEnforced =
-            securityDefaultsEnabled || isUserRequiredToUseMFA(caPolicies, userContext.data);
+          const mfaEnforcement = isUserRequiredToUseMFA(caPolicies, userContext.data);
           const userActivity = activity[user.userPrincipalName];
           const lastActivity =
             user.signInActivity?.lastSignInDateTime || userActivity || new Date(0).toISOString();
@@ -68,12 +67,17 @@ export async function transformIdentities(
             email: user.userPrincipalName!,
             name: user.displayName!,
             type: user.userType ? user.userType.toLowerCase() : 'member',
-            mfa_enforced: mfaEnforced,
-            enforcement_type: mfaEnforced
-              ? securityDefaultsEnabled
+            mfa_enforced: !!mfaEnforcement || securityDefaultsEnabled,
+            enforcement_type: !mfaEnforcement
+              ? 'none'
+              : securityDefaultsEnabled
                 ? 'security_defaults'
-                : 'conditional_access'
-              : 'none',
+                : 'conditional_access',
+            enforcement_scope: securityDefaultsEnabled
+              ? 'full'
+              : mfaEnforcement
+                ? mfaEnforcement.status
+                : 'none',
             mfa_methods: transformedMethods,
             last_activity_at: lastActivity,
             license_skus: licenseSkus,
@@ -84,9 +88,10 @@ export async function transformIdentities(
               roles: userContext.data.roles,
               groups: userContext.data.groups,
               valid_mfa_license: isUserCapableOfCA(licenseSkus, subscribedSkus),
-              appliedCaPolicies: caPolicies
+              ca_policies: caPolicies
                 .filter((pol) => doesPolicyApplyToUser(pol, userContext.data))
                 .map((pol) => pol.displayName),
+              mfa_policy: mfaEnforcement?.policy,
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),

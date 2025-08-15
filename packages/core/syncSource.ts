@@ -20,7 +20,7 @@ export async function syncSource(
   };
 
   try {
-    if (getEstDuration() === 0) throw 'Source does not support tenant level syncing';
+    if (getEstDuration() === 0) throw 'Source does not support site level syncing';
 
     const jobs = await insertRows('source', 'sync_jobs', {
       rows: siteIds.map((s) => {

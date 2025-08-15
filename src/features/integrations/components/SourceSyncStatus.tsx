@@ -5,10 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { useLazyLoad } from '@/shared/hooks/useLazyLoad';
-import { getSourceSyncJobLatest } from '@/services/source/sync-jobs';
 import { AlertCircle, CheckCircle2, Clock, RefreshCw, RotateCw } from 'lucide-react';
 import SyncSourceItem from '@/features/integrations/components/SyncSourceItem';
 import { cn } from '@/shared/lib/utils';
+import { getRow } from '@/db/orm';
 
 const getStatusConfig = (status: string) => {
   switch (status) {
@@ -61,17 +61,32 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
 
   const { content } = useLazyLoad({
     fetcher: async () => {
-      const syncJob = await getSourceSyncJobLatest(sourceId, siteId);
-      if (!syncJob.error) {
+      const syncJob = await getRow('source', 'sync_jobs', {
+        filters: [
+          ['source_id', 'eq', sourceId],
+          ['site_id', 'eq', siteId],
+        ],
+        sorting: [['created_at', 'desc']],
+      });
+
+      if (syncJob.data) {
         if (syncJob.data.status === 'completed' && isSyncing) {
           setIsSyncing(false);
           window.location.reload();
         }
 
         return syncJob.data;
-      }
+      } else {
+        const syncJob = await getRow('source', 'sync_jobs', {
+          filters: [
+            ['source_id', 'eq', sourceId],
+            ['site_id', 'is', null],
+          ],
+          sorting: [['created_at', 'desc']],
+        });
 
-      return undefined;
+        return syncJob.data;
+      }
     },
     render: (data) => {
       const status = !data
@@ -109,6 +124,7 @@ export default function SourceSyncStatus({ sourceId, siteId, tenantId }: Props) 
                 className="rounded-l-none"
                 disabled={isSyncing || isRunning}
                 onStart={() => setIsSyncing(true)}
+                onFail={() => setIsSyncing(false)}
               >
                 <RotateCw className={cn((isSyncing || isRunning) && 'animate-spin')} />
               </SyncSourceItem>

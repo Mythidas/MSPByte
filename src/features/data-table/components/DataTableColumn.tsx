@@ -1,6 +1,6 @@
 import { DataTableHeader } from '@/features/data-table/components/DataTableHeader';
 import { DataTableColumnDef } from '@/features/data-table/types/table';
-import { cn } from '@/shared/lib/utils';
+import { cn, prettyText } from '@/shared/lib/utils';
 
 type GenericColumnProps<TData> = {
   key: string;
@@ -45,6 +45,7 @@ export function textColumn<TData>({
   return column({
     key,
     label,
+    cell: ({ row }) => <div>{prettyText((row.original[key] as string) || '')}</div>,
     ...props,
   });
 }

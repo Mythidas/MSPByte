@@ -39,6 +39,13 @@ export function doesPolicyApplyToUser(
   );
 }
 
+export function isPolicyScopedToAllApps(policy: MSGraphConditionalAccessPolicy): boolean {
+  const apps = policy.conditions?.applications;
+  if (!apps) return false;
+
+  return apps.includeApplications?.includes('All') ?? false;
+}
+
 export function doesPolicyEnforceMFA(policy: MSGraphConditionalAccessPolicy): boolean {
   const grantControls = policy.grantControls;
   if (!grantControls || !grantControls.builtInControls) return false;
@@ -53,11 +60,29 @@ export function getPoliciesAffectingUser(
   return policies.filter((policy) => doesPolicyApplyToUser(policy, user));
 }
 
+type MFAEvaluationResult =
+  | { status: 'full'; policy: string }
+  | { status: 'partial'; policy: string }
+  | undefined;
+
 export function isUserRequiredToUseMFA(
   policies: MSGraphConditionalAccessPolicy[],
   user: MSGraphUserContext
-): boolean {
-  return getPoliciesAffectingUser(policies, user).some((policy) => doesPolicyEnforceMFA(policy));
+): MFAEvaluationResult {
+  let result: MFAEvaluationResult = undefined;
+  for (const policy of getPoliciesAffectingUser(policies, user)) {
+    if (doesPolicyEnforceMFA(policy)) {
+      const isGlobal = isPolicyScopedToAllApps(policy);
+      result = {
+        status: isGlobal ? 'full' : 'partial',
+        policy: policy.displayName,
+      };
+
+      if (isGlobal) return result;
+    }
+  }
+
+  return result;
 }
 
 export function isUserCapableOfCA(

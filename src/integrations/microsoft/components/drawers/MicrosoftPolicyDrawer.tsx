@@ -163,7 +163,7 @@ export default function MicrosoftPolicyDrawer({ label, policy }: Props) {
           </DrawerTitle>
           <DrawerDescription className="flex text-sm text-muted-foreground gap-2 items-center">
             {policy.site_name}{' '}
-            <Link href={`/sites/${policy.site_slug}/${policy.source_id}/policies`}>
+            <Link href={`/sites/${policy.site_slug}/${policy.source_id}/policies`} target="_blank">
               <ExternalLink className="w-4 h-4" />
             </Link>
           </DrawerDescription>

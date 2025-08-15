@@ -1098,6 +1098,7 @@ export type Database = {
           created_at: string | null
           email: string
           enabled: boolean
+          enforcement_scope: string
           enforcement_type: string
           external_id: string
           group_ids: string[]
@@ -1121,6 +1122,7 @@ export type Database = {
           created_at?: string | null
           email: string
           enabled: boolean
+          enforcement_scope?: string
           enforcement_type: string
           external_id: string
           group_ids?: string[]
@@ -1144,6 +1146,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           enabled?: boolean
+          enforcement_scope?: string
           enforcement_type?: string
           external_id?: string
           group_ids?: string[]
@@ -2142,6 +2145,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           enabled: boolean | null
+          enforcement_scope: string | null
           enforcement_type: string | null
           external_id: string | null
           group_ids: string[] | null

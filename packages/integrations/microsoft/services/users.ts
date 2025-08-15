@@ -122,7 +122,7 @@ async function getUserMemberships(
         if (type === '#microsoft.graph.group') {
           groups.push({ id: item.id, displayName: item.displayName });
         } else if (type === '#microsoft.graph.directoryRole') {
-          roles.push({ id: item.id, displayName: item.displayName });
+          roles.push({ id: item.roleTemplateId || item.id, displayName: item.displayName });
         }
       }
 

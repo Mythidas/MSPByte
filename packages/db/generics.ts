@@ -257,7 +257,8 @@ export async function tablesSelectSingleGeneric<S extends Schemas, T extends Tab
     let query = supabase
       .schema(schema)
       .from(table as any)
-      .select('*');
+      .select('*')
+      .limit(1);
 
     if (modifyQuery) {
       modifyQuery(query as any);

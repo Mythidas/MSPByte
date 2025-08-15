@@ -16,6 +16,11 @@ export default function Display({
   onClick,
   ...props
 }: Props) {
+  const spanClass = cn(
+    'flex w-full select-text text-sm font-medium space-x-2 justify-start items-center',
+    className
+  );
+
   if (!href) {
     return (
       <button
@@ -26,9 +31,7 @@ export default function Display({
         onClick={onClick}
       >
         {lead && <span className="h-4 w-4 text-muted-foreground">{lead}</span>}
-        <span className="flex w-full select-text text-sm font-medium space-x-2 justify-start items-center">
-          {children}
-        </span>
+        <span className={spanClass}>{children}</span>
       </button>
     );
   }

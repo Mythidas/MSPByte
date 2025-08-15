@@ -12,7 +12,16 @@ import { Separator } from '@/components/ui/separator';
 import { Tables } from '@/types/db';
 import { pascalCase, prettyText } from '@/shared/lib/utils';
 import { useState } from 'react';
-import { User, Mail, Key, AlertCircle, FileCheck2, CircleCheck, CircleX } from 'lucide-react';
+import {
+  User,
+  Mail,
+  Key,
+  AlertCircle,
+  FileCheck2,
+  CircleCheck,
+  CircleX,
+  CircleAlert,
+} from 'lucide-react';
 import Display from '@/shared/components/Display';
 import { MicrosoftIdentityMetadata } from '@/integrations/microsoft/types';
 
@@ -26,7 +35,6 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
   const [isOpen, setIsOpen] = useState(false);
 
   const metadata = identity.metadata as MicrosoftIdentityMetadata | null;
-
   const mfaMethods = identity.mfa_methods as
     | { id: string; type: string; displayName?: string }[]
     | null;
@@ -111,13 +119,18 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
                 <Display
                   lead={
                     identity.mfa_enforced ? (
-                      <CircleCheck className="w-4 h-4 text-green-500" />
+                      identity.enforcement_scope === 'full' ? (
+                        <CircleCheck className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <CircleAlert className="w-4 h-4 text-amber-500" />
+                      )
                     ) : (
                       <CircleX className="w-4 h-4 text-red-500" />
                     )
                   }
                 >
-                  {identity.mfa_enforced ? 'Enforced' : 'Not Enforced'}
+                  {identity.mfa_enforced ? 'Enforced' : 'Not Enforced'} (
+                  {prettyText(identity.enforcement_scope!)})
                 </Display>
               </div>
               <div className="space-y-2">
@@ -127,6 +140,26 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
                 <Display>{prettyText(identity.enforcement_type!)}</Display>
               </div>
             </div>
+
+            {metadata?.mfa_policy && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Enforcement Policy
+                </Label>
+                <Display className="text-left">{metadata?.mfa_policy}</Display>
+              </div>
+            )}
+
+            {metadata?.ca_policies && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-muted-foreground">
+                  Applied Policies
+                </Label>
+                {metadata.ca_policies.map((pol) => {
+                  return <Display className="text-left">{pol}</Display>;
+                })}
+              </div>
+            )}
 
             {mfaMethods && mfaMethods.length > 0 && (
               <div className="space-y-2">
@@ -173,9 +206,9 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
 
           {/* Additional Info Section */}
           {metadata && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               <h3 className="font-semibold text-base">Additional Information</h3>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {metadata.roles && metadata.roles.length > 0 && (
                   <div className="space-y-1">
                     <Label className="text-sm font-medium text-muted-foreground">
