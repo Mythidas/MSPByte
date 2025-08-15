@@ -7,7 +7,7 @@ import {
   resetUserMFA,
   resetUserPassword,
   revokeUserSessions,
-} from '@/integrations/microsoft/actions/security';
+} from '@/integrations/microsoft/services/security';
 
 export default async function microsoft365EmailBreachResponse(
   feed: Tables<'public', 'activity_feeds'>,

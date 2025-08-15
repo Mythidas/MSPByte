@@ -39,7 +39,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import microsoft365EmailBreachResponse from '@/integrations/microsoft/actions/actions/email';
+import microsoft365EmailBreachResponse from '@/integrations/microsoft/services/actions/email';
 import { getRow, getRows, insertRows } from '@/db/orm';
 import { useUser } from '@/shared/lib/providers/UserContext';
 import { useAsync } from '@/shared/hooks/useAsync';

@@ -15,7 +15,7 @@ import SearchBox from '@/shared/components/SearchBox';
 import { SubmitButton } from '@/shared/components/secure/SubmitButton';
 import { Tables, TablesInsert } from '@/types/db';
 import { useAsync } from '@/shared/hooks/useAsync';
-import { getTenants } from '@/integrations/sophos/actions/tenants';
+import { getTenants } from '@/integrations/sophos/services/tenants';
 import { toast } from 'sonner';
 import { useUser } from '@/shared/lib/providers/UserContext';
 import { getRows, insertRows } from '@/db/orm';

@@ -1,8 +1,8 @@
-import { getRecentSignIns } from '@/integrations/microsoft/actions/activity';
-import { getConditionalAccessPolicies } from '@/integrations/microsoft/actions/identity/getConditionalAccessPolicies';
-import { getSecurityDefaultsEnabled } from '@/integrations/microsoft/actions/identity/getSecurityDefaultsEnabled';
-import { getSubscribedSku } from '@/integrations/microsoft/actions/identity/getSubscribedSku';
-import { getUsers } from '@/integrations/microsoft/actions/users';
+import { getRecentSignIns } from '@/integrations/microsoft/services/activity';
+import { getConditionalAccessPolicies } from '@/integrations/microsoft/services/identity/getConditionalAccessPolicies';
+import { getSecurityDefaultsEnabled } from '@/integrations/microsoft/services/identity/getSecurityDefaultsEnabled';
+import { getSubscribedSku } from '@/integrations/microsoft/services/identity/getSubscribedSku';
+import { getUsers } from '@/integrations/microsoft/services/users';
 import { MSGraphConditionalAccessPolicy } from '@/integrations/microsoft/types/conditionalAccess';
 import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';

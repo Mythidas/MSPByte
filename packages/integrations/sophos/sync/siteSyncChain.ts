@@ -3,12 +3,13 @@
 import SyncChain from '@/core/SyncChain';
 import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
-import { getEndpoints } from '@/integrations/sophos/actions/endpoints';
 import { syncMetrics } from '@/integrations/sophos/sync/syncMetrics';
 import { transformDevices } from '@/integrations/sophos/transforms/devices';
-import Debug from '@/shared/lib/Debug';
 import { tables } from '@/db';
-import { deleteRows, getRow, getRows } from '@/db/orm';
+import { getRow, getRows, insertRows } from '@/db/orm';
+import { getEndpoints } from '@/integrations/sophos/services/endpoints/getEndpoints';
+import { getHealthCheck } from '@/integrations/sophos/services/health';
+import { transformTenantHealth } from '@/integrations/sophos/transforms/health';
 
 export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const tenantResult = await getRow('source', 'tenants', {
@@ -38,41 +39,54 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
     setState: () => {},
   })
     .step('Fetch External', async () => {
-      const endpoints = await getEndpoints(token, tenant);
+      const promises = await Promise.all([
+        getEndpoints(token, tenant),
+        getHealthCheck(token, tenant),
+      ]);
 
-      if (endpoints.error) {
-        throw 'Failed to fetch external data';
+      for (const promise of promises) {
+        if (promise.error) throw promise.error.message;
       }
+
+      const [endpoints, healthCheck] = promises;
 
       return {
         error: undefined,
-        data: { endpoints: endpoints.data },
+        data: { endpoints: endpoints.data!, healthCheck: healthCheck.data! },
       };
     })
-    .step('Transform External', async (_ctx, { endpoints }) => {
+    .step('Transform External', async (_ctx, { endpoints, healthCheck }) => {
       const transformedDevices = transformDevices(tenant, endpoints);
+      const transformedHealthCheck = transformTenantHealth(tenant, healthCheck);
       return {
-        data: { transformedDevices },
+        data: { transformedDevices, transformedHealthCheck },
       };
     })
-    .step('Sync Data', async (ctx, { transformedDevices }) => {
-      const devices = await tables.sync(
-        'source',
-        'devices',
-        ctx.job,
-        transformedDevices,
-        [
-          ['source_id', 'eq', job.source_id],
-          ['site_id', 'eq', job.site_id],
-        ],
-        'external_id',
-        'id',
-        'SophosPartner'
-      );
-      if (devices.error) throw devices.error.message;
+    .step('Sync Data', async (ctx, { transformedDevices, transformedHealthCheck }) => {
+      const promises = await Promise.all([
+        tables.sync(
+          'source',
+          'devices',
+          ctx.job,
+          transformedDevices,
+          [
+            ['source_id', 'eq', job.source_id],
+            ['site_id', 'eq', job.site_id],
+          ],
+          'external_id',
+          'id',
+          'SophosPartner'
+        ),
+        insertRows('source', 'tenant_health', {
+          rows: [{ ...transformedHealthCheck, sync_id: ctx.job.id }],
+        }),
+      ]);
 
+      for (const promise of promises) {
+        if (promise.error) throw promise.error.message;
+      }
       return {
-        data: { devices: devices.data },
+        data: undefined,
       };
     })
     .final(async (ctx) => {
@@ -84,15 +98,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
       });
       if (devices.error) return;
 
-      const devicesToDelete = devices.data.rows
-        .filter((d) => d.sync_id && d.sync_id !== ctx.job.id)
-        .map((d) => d.id);
-      await deleteRows('source', 'devices', {
-        filters: [['id', 'in', devicesToDelete]],
-      });
-
-      const _devices = devices.data.rows.filter((dev) => !devicesToDelete.includes(dev.id));
-      await syncMetrics(tenant, _devices);
+      await syncMetrics(tenant, devices.data.rows);
     });
 
   return await sync.run();

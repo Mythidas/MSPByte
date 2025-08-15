@@ -14,8 +14,8 @@ import { MSGraphSubscribedSku } from '@/integrations/microsoft/types/licenses';
 import { MSGraphUser } from '@/integrations/microsoft/types/users';
 import { generateUUID } from '@/shared/lib/utils';
 import { APIResponse } from '@/shared/types';
-import { getAuthenticationMethods } from '@/integrations/microsoft/actions/identity/getAuthenticationMethods';
-import { getUserContext } from '@/integrations/microsoft/actions/users';
+import { getAuthenticationMethods } from '@/integrations/microsoft/services/identity/getAuthenticationMethods';
+import { getUserContext } from '@/integrations/microsoft/services/users';
 import Timer from '@/shared/lib/Timer';
 import Debug from '@/shared/lib/Debug';
 

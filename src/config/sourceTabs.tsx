@@ -6,6 +6,7 @@ import MicrosoftIdentitiesTable from '@/integrations/microsoft/tables/MicrosoftI
 import MicrosoftPoliciesTable from '@/integrations/microsoft/tables/MicrosoftPoliciesTable';
 import MicrosoftTenantsTable from '@/integrations/microsoft/tables/MicrosoftTenantsTable';
 import SophosDevicesTable from '@/integrations/sophos/SophosDevicesTable';
+import SophosTenantsTable from '@/integrations/sophos/SophosTenantsTable';
 import SophosDashboardTab from '@/integrations/sophos/tabs/SophosDashboardTab';
 import { TabProps } from '@/shared/types';
 
@@ -15,6 +16,18 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
       label: 'Dashboard',
       content: (source, parent, site, group) => (
         <SophosDashboardTab sourceId={source} site={site} parent={parent} group={group} />
+      ),
+    },
+    tenants: {
+      label: 'Tenants',
+      content: (source, parent, site, group) => (
+        <DataTableLoader
+          sourceId={source}
+          parent={parent}
+          site={site}
+          group={group}
+          TableComponent={SophosTenantsTable}
+        />
       ),
     },
     devices: {

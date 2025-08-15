@@ -3,13 +3,13 @@
 import SyncChain from '@/core/SyncChain';
 import { getRow, getRows, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
-import { getActiveCompanies } from '@/integrations/autotask/actions/companies';
+import { getActiveCompanies } from '@/integrations/autotask/services/companies';
 import transformCompanies from '@/integrations/autotask/transforms/companies';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { tables } from '@/db';
-import { getActiveServices } from '@/integrations/autotask/actions/services';
+import { getActiveServices } from '@/integrations/autotask/services/services';
 import transformServices from '@/integrations/autotask/transforms/services';
-import { getActiveContracts } from '@/integrations/autotask/actions/contracts';
+import { getActiveContracts } from '@/integrations/autotask/services/contracts';
 import {
   transformContracts,
   transformContractServices,

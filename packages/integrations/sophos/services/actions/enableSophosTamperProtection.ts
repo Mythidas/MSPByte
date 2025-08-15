@@ -3,7 +3,7 @@
 import { getRow, insertRows, updateRow } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { getToken } from '@/integrations/sophos/auth';
-import { enableTamperProtection } from '@/integrations/sophos/actions/endpoints/enableTamperProtection';
+import { enableTamperProtection } from '@/integrations/sophos/services/endpoints/enableTamperProtection';
 import Debug from '@/shared/lib/Debug';
 import { APIResponse } from '@/shared/types';
 

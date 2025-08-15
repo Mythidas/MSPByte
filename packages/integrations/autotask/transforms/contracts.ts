@@ -1,7 +1,7 @@
 import {
   getContractServices,
   getContractServiceUnits,
-} from '@/integrations/autotask/actions/contracts';
+} from '@/integrations/autotask/services/contracts';
 import { AutoTaskIntegrationConfig } from '@/integrations/autotask/types';
 import { AutoTaskContract } from '@/integrations/autotask/types/contract';
 import { AutoTaskService } from '@/integrations/autotask/types/service';
