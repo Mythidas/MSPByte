@@ -7,10 +7,10 @@ import { DataTableColumnDef, DataTableFetcher } from '@/features/data-table/type
 import Link from 'next/link';
 import { prettyText } from '@/shared/lib/utils';
 import { useRef } from 'react';
-import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 import MicrosoftTenantDrawer from '@/integrations/microsoft/components/drawers/MicrosoftTenantDrawer';
 import { getRows } from '@/db/orm';
 import Microsoft365MappingsDialog from '@/integrations/microsoft/components/Microsoft365MappingsDialog';
+import { MicrosoftTenantMetadata } from '@/integrations/microsoft/types';
 
 type TData = Tables<'source', 'tenants_view'>;
 type Props = {

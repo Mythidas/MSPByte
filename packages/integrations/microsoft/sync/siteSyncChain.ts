@@ -5,9 +5,12 @@ import { tables } from '@/db';
 import { deleteRows, getRow, getRows, updateRow } from '@/db/orm';
 import fetchExternal from '@/integrations/microsoft/sync/fetchExternal';
 import { syncMetrics } from '@/integrations/microsoft/sync/syncMetrics';
+import { transformGroups } from '@/integrations/microsoft/transforms/groups';
 import { transformIdentities } from '@/integrations/microsoft/transforms/identities';
 import { transformLicenses } from '@/integrations/microsoft/transforms/licenses';
 import { transformPolicies } from '@/integrations/microsoft/transforms/policies';
+import { transformRoles } from '@/integrations/microsoft/transforms/roles';
+import Async from '@/shared/lib/Async';
 import Debug from '@/shared/lib/Debug';
 import { Tables } from '@/types/db';
 
@@ -37,12 +40,17 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
     })
     .step(
       'Transform External',
-      async (_ctx, { subscribedSkus, caPolicies, securityDefaults, users, activity }) => {
+      async (
+        _ctx,
+        { subscribedSkus, caPolicies, securityDefaults, users, activity, roles, groups }
+      ) => {
         const skus = subscribedSkus.map((sku) => sku.skuPartNumber);
         const licenseInfo = await getRows('source', 'license_info', {
           filters: [['sku', 'in', skus]],
         });
 
+        const transformedRoles = transformRoles(roles, tenant);
+        const transformedGroups = transformGroups(groups, tenant);
         const transformedPolicies = transformPolicies(caPolicies, tenant);
         const transformedLicenses = transformLicenses(
           subscribedSkus,
@@ -61,11 +69,14 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
           throw 'Failed to transform external users';
         }
 
+        console.log(transformedRoles.length);
         return {
           data: {
             transformedUsers: transformedUsers.data,
             transformedLicenses,
             transformedPolicies,
+            transformedRoles,
+            transformedGroups,
             securityDefaults,
             caPolicies,
           },
@@ -76,7 +87,15 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
       'Sync Data',
       async (
         ctx,
-        { transformedUsers, transformedPolicies, transformedLicenses, securityDefaults, caPolicies }
+        {
+          transformedUsers,
+          transformedPolicies,
+          transformedLicenses,
+          transformedRoles,
+          transformedGroups,
+          securityDefaults,
+          caPolicies,
+        }
       ) => {
         const promises = [
           tables.sync(
@@ -90,8 +109,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
             ],
             'external_id',
             'id',
-            'Microsoft365',
-            false
+            'Microsoft365'
           ),
           tables.sync(
             'source',
@@ -104,8 +122,7 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
             ],
             'external_id',
             'id',
-            'Microsoft365',
-            false
+            'Microsoft365'
           ),
           tables.sync(
             'source',
@@ -121,12 +138,36 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
             'Microsoft365',
             false
           ),
+          tables.sync(
+            'source',
+            'roles',
+            ctx.job,
+            transformedRoles,
+            [
+              ['source_id', 'eq', ctx.job.source_id],
+              ['site_id', 'eq', ctx.job.site_id!],
+            ],
+            'external_id',
+            'id',
+            'Microsoft365'
+          ),
+          tables.sync(
+            'source',
+            'groups',
+            ctx.job,
+            transformedGroups,
+            [
+              ['source_id', 'eq', ctx.job.source_id],
+              ['site_id', 'eq', ctx.job.site_id!],
+            ],
+            'external_id',
+            'id',
+            'Microsoft365'
+          ),
         ];
 
-        const [policies, licenses, identities] = await Promise.all(promises);
-        if (policies.error || identities.error || licenses.error) {
-          throw 'Failed to sync data';
-        }
+        const { error } = await Async.all(promises);
+        if (error) throw error.message;
 
         return {
           data: {
@@ -152,20 +193,8 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
       });
     })
     .final(async (ctx) => {
-      const [policies, identities, licenses] = await Promise.all([
-        getRows('source', 'policies', {
-          filters: [
-            ['source_id', 'eq', ctx.job.source_id],
-            ['site_id', 'eq', ctx.job.site_id],
-          ],
-        }),
+      const { data, error } = await Async.all([
         getRows('source', 'identities', {
-          filters: [
-            ['source_id', 'eq', ctx.job.source_id],
-            ['site_id', 'eq', ctx.job.site_id],
-          ],
-        }),
-        getRows('source', 'licenses', {
           filters: [
             ['source_id', 'eq', ctx.job.source_id],
             ['site_id', 'eq', ctx.job.site_id],
@@ -173,29 +202,18 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
         }),
       ]);
 
-      if (policies.error || identities.error || licenses.error) return;
+      if (error) throw error.message;
+      const [identities] = data;
 
-      const identitiesToDelete = identities.data.rows
+      const identitiesToDelete = identities.rows
         .filter((id) => id.sync_id && id.sync_id !== ctx.job.id)
         .map((id) => id.id);
-      const policicesToDelete = policies.data.rows
-        .filter((pol) => pol.sync_id && pol.sync_id !== ctx.job.id)
-        .map((pol) => pol.id);
-      const licensesToDelete = licenses.data.rows
-        .filter((lic) => lic.sync_id && lic.sync_id !== ctx.job.id)
-        .map((lic) => lic.id);
 
       await deleteRows('source', 'identities', {
         filters: [['id', 'in', identitiesToDelete]],
       });
-      await deleteRows('source', 'policies', {
-        filters: [['id', 'in', policicesToDelete]],
-      });
-      await deleteRows('source', 'licenses', {
-        filters: [['id', 'in', licensesToDelete]],
-      });
 
-      const _identities = identities.data.rows.filter((id) => !identitiesToDelete.includes(id.id));
+      const _identities = identities.rows.filter((id) => !identitiesToDelete.includes(id.id));
       await syncMetrics(tenant, _identities);
     });
 

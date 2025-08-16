@@ -44,6 +44,7 @@ export type RowSort<
       ? [column: keyof R, order: 'asc' | 'desc'] | undefined
       : undefined
     : undefined;
+
 export type TablesInsert<
   S extends Schemas,
   T extends Table<S>,
@@ -88,12 +89,14 @@ export type PaginationOptions = {
 
 export type GetRowConfig<S extends Schemas, T extends TableOrView<S>> = {
   filters?: Array<RowFilter<S, T> | undefined>;
+  ors?: Array<[RowFilter<S, T>, RowFilter<S, T>] | undefined>;
   sorting?: Array<RowSort<S, T> | undefined>;
   pagination?: PaginationOptions;
 };
 
 export type GetRowCountConfig<S extends Schemas, T extends TableOrView<S>> = {
   filters?: Array<RowFilter<S, T> | undefined>;
+  ors?: Array<[RowFilter<S, T>, RowFilter<S, T>] | undefined>;
 };
 
 export type InsertRowConfig<S extends Schemas, T extends Table<S>> = {
@@ -108,8 +111,10 @@ export type UpdateRowConfig<S extends Schemas, T extends Table<S>> = {
 export type UpsertRowConfig<S extends Schemas, T extends Table<S>> = {
   rows: (TablesUpdate<S, T> | TablesInsert<S, T>)[];
   filters?: Array<RowFilter<S, T> | undefined>;
+  ors?: Array<[RowFilter<S, T>, RowFilter<S, T>] | undefined>;
 };
 
 export type DeleteRowConfig<S extends Schemas, T extends Table<S>> = {
-  filters: Array<RowFilter<S, T>>;
+  filters: Array<RowFilter<S, T> | undefined>;
+  ors?: Array<[RowFilter<S, T>, RowFilter<S, T>] | undefined>;
 };

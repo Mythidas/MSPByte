@@ -7,7 +7,7 @@ import { MSGraphRole } from '@/integrations/microsoft/types/roles';
 import Debug from '@/shared/lib/Debug';
 import { APIResponse } from '@/shared/types';
 
-export async function getRoles(
+export async function getTemplates(
   mapping: Pick<Tables<'source', 'tenants'>, 'external_id' | 'metadata'>
 ): Promise<APIResponse<MSGraphRole[]>> {
   try {
@@ -19,7 +19,10 @@ export async function getRoles(
     );
     if (client.error) throw new Error(client.error.message);
 
-    let query = client.data.api('/directoryRoles');
+    let query = client.data
+      .api('/directoryRoleTemplates')
+      .select('id,displayName,description')
+      .header('ConsistencyLevel', 'eventual');
 
     let allRoles: MSGraphRole[] = [];
     let response = await query.get();

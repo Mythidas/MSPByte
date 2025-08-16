@@ -17,8 +17,21 @@ export function transformPolicies(
     name: policy.displayName,
     type: 'conditional_access',
     status: policy.state === 'enabledForReportingButNotEnforced' ? 'report_only' : policy.state,
+    exclusions: getExclusionCount(policy),
+
     metadata: policy,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   }));
 }
+
+const getExclusionCount = (policy: MSGraphConditionalAccessPolicy) => {
+  const { users, applications: apps } = policy.conditions;
+
+  return (
+    (users?.excludeUsers.length || 0) +
+    (users?.excludeRoles.length || 0) +
+    (users?.excludeGroups.length || 0) +
+    (apps?.excludeApplications.length || 0)
+  );
+};

@@ -32,6 +32,19 @@ export async function getRow<S extends Schemas, T extends TableOrView<S>>(
       }
     }
 
+    if (config && config.ors) {
+      for (const or of config.ors) {
+        if (!or) continue;
+
+        let [first, second] = or;
+        if (!first || !second) continue;
+
+        query = query.or(
+          `${first[0]}.${first[1]}.${first[2]},${second[0]}.${second[1]}.${second[2]}`
+        );
+      }
+    }
+
     if (config && config.sorting) {
       for (const sorting of config.sorting) {
         if (!sorting) continue;
@@ -65,6 +78,19 @@ export async function getRows<S extends Schemas, T extends TableOrView<S>>(
         }
       }
 
+      if (config && config.ors) {
+        for (const or of config.ors) {
+          if (!or) continue;
+
+          let [first, second] = or;
+          if (!first || !second) continue;
+
+          query = query.or(
+            `${first[0]}.${first[1]}.${first[2]},${second[0]}.${second[1]}.${second[2]}`
+          );
+        }
+      }
+
       if (config && config.sorting) {
         for (const sort of config.sorting) {
           if (!sort) continue;
@@ -94,6 +120,19 @@ export async function getRowsCount<S extends Schemas, T extends TableOrView<S>>(
         }
 
         query = query.filter(col as string, op, val);
+      }
+    }
+
+    if (config && config.ors) {
+      for (const or of config.ors) {
+        if (!or) continue;
+
+        let [first, second] = or;
+        if (!first || !second) continue;
+
+        query = query.or(
+          `${first[0]}.${first[1]}.${first[2]},${second[0]}.${second[1]}.${second[2]}`
+        );
       }
     }
   });
@@ -133,6 +172,19 @@ export async function upsertRows<S extends Schemas, T extends Table<S>>(
         query = query.filter(col as string, op, val);
       }
     }
+
+    if (config && config.ors) {
+      for (const or of config.ors) {
+        if (!or) continue;
+
+        let [first, second] = or;
+        if (!first || !second) continue;
+
+        query = query.or(
+          `${first[0]}.${first[1]}.${first[2]},${second[0]}.${second[1]}.${second[2]}`
+        );
+      }
+    }
   });
 }
 
@@ -151,6 +203,19 @@ export async function deleteRows<S extends Schemas, T extends Table<S>>(
       }
 
       query = query.filter(col as string, op, val);
+    }
+
+    if (config && config.ors) {
+      for (const or of config.ors) {
+        if (!or) continue;
+
+        let [first, second] = or;
+        if (!first || !second) continue;
+
+        query = query.or(
+          `${first[0]}.${first[1]}.${first[2]},${second[0]}.${second[1]}.${second[2]}`
+        );
+      }
     }
   });
 }

@@ -9,7 +9,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tables } from '@/types/db';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Shield,
   Users,
@@ -29,6 +29,8 @@ import SyncSourceItem from '@/features/integrations/components/SyncSourceItem';
 import Link from 'next/link';
 import { MicrosoftPolicyMetadata } from '@/integrations/microsoft/types';
 import MicrosoftPolicyAssignmentsPopover from '@/integrations/microsoft/components/MicrosoftPolicyAssigntmentsPopover';
+import { useAsync } from '@/shared/hooks/useAsync';
+import { getRows } from '@/db/orm';
 
 type Props = {
   label: string;
@@ -205,7 +207,11 @@ export default function MicrosoftPolicyDrawer({ label, policy }: Props) {
                 <Users className="h-4 w-4" />
                 Assignments
               </h3>
-              <MicrosoftPolicyAssignmentsPopover metadata={metadata!} siteId={policy.site_id!} />
+              <MicrosoftPolicyAssignmentsPopover
+                metadata={metadata!}
+                sourceId={policy.source_id!}
+                siteId={policy.site_id!}
+              />
             </div>
 
             {/* Users */}

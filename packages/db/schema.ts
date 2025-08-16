@@ -1093,6 +1093,118 @@ export type Database = {
           },
         ]
       }
+      groups: {
+        Row: {
+          created_at: string | null
+          external_id: string
+          id: string
+          is_default: boolean
+          metadata: Json | null
+          name: string
+          site_id: string | null
+          source_id: string
+          source_tenant_id: string | null
+          sync_id: string | null
+          tenant_id: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          external_id: string
+          id?: string
+          is_default: boolean
+          metadata?: Json | null
+          name: string
+          site_id?: string | null
+          source_id: string
+          source_tenant_id?: string | null
+          sync_id?: string | null
+          tenant_id: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          external_id?: string
+          id?: string
+          is_default?: boolean
+          metadata?: Json | null
+          name?: string
+          site_id?: string | null
+          source_id?: string
+          source_tenant_id?: string | null
+          sync_id?: string | null
+          tenant_id?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "groups_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "contracts_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "groups_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "devices_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "groups_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "groups_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "groups_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "groups_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "groups_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "groups_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "sync_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       identities: {
         Row: {
           created_at: string | null
@@ -1508,6 +1620,7 @@ export type Database = {
       policies: {
         Row: {
           created_at: string | null
+          exclusions: number
           external_id: string
           id: string
           metadata: Json | null
@@ -1523,6 +1636,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          exclusions?: number
           external_id: string
           id?: string
           metadata?: Json | null
@@ -1538,6 +1652,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          exclusions?: number
           external_id?: string
           id?: string
           metadata?: Json | null
@@ -1613,6 +1728,118 @@ export type Database = {
             columns: ["source_tenant_id"]
             isOneToOne: false
             referencedRelation: "tenants_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          created_at: string | null
+          external_id: string
+          id: string
+          is_default: boolean
+          metadata: Json | null
+          name: string
+          site_id: string | null
+          source_id: string
+          source_tenant_id: string | null
+          sync_id: string | null
+          tenant_id: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          external_id: string
+          id?: string
+          is_default: boolean
+          metadata?: Json | null
+          name: string
+          site_id?: string | null
+          source_id: string
+          source_tenant_id?: string | null
+          sync_id?: string | null
+          tenant_id: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          external_id?: string
+          id?: string
+          is_default?: boolean
+          metadata?: Json | null
+          name?: string
+          site_id?: string | null
+          source_id?: string
+          source_tenant_id?: string | null
+          sync_id?: string | null
+          tenant_id?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "roles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "contracts_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "roles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "devices_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "roles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "identities_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "roles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "policies_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "roles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_view"
+            referencedColumns: ["parent_id"]
+          },
+          {
+            foreignKeyName: "roles_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "sites_view"
+            referencedColumns: ["source_tenant_id"]
+          },
+          {
+            foreignKeyName: "roles_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roles_source_tenant_id_fkey"
+            columns: ["source_tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "roles_sync_id_fkey"
+            columns: ["sync_id"]
+            isOneToOne: false
+            referencedRelation: "sync_jobs"
             referencedColumns: ["id"]
           },
         ]
@@ -1842,7 +2069,7 @@ export type Database = {
           score: number
           site_id: string
           source_id: string
-          source_tenant_id: string | null
+          source_tenant_id: string
           sync_id: string | null
           tenant_id: string
           updated_at: string | null
@@ -1854,7 +2081,7 @@ export type Database = {
           score: number
           site_id: string
           source_id: string
-          source_tenant_id?: string | null
+          source_tenant_id: string
           sync_id?: string | null
           tenant_id: string
           updated_at?: string | null
@@ -1866,7 +2093,7 @@ export type Database = {
           score?: number
           site_id?: string
           source_id?: string
-          source_tenant_id?: string | null
+          source_tenant_id?: string
           sync_id?: string | null
           tenant_id?: string
           updated_at?: string | null
@@ -2431,6 +2658,7 @@ export type Database = {
       policies_view: {
         Row: {
           created_at: string | null
+          exclusions: number | null
           external_id: string | null
           id: string | null
           metadata: Json | null

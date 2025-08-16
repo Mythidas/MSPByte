@@ -182,7 +182,11 @@ export default function MicrosoftIdentitiesTable({
           }),
           booleanColumn({
             key: 'mfa_enforced',
-            label: 'MFA Enforced',
+            label: 'MFA',
+          }),
+          textColumn({
+            key: 'enforcement_scope',
+            label: 'Scope',
           }),
           textColumn({
             key: 'enforcement_type',
