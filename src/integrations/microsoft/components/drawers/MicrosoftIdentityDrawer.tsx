@@ -156,7 +156,11 @@ export default function SourceIdentityDrawer({ label, identity, licenses = [] }:
                   Applied Policies
                 </Label>
                 {metadata.ca_policies.map((pol) => {
-                  return <Display className="text-left">{pol}</Display>;
+                  return (
+                    <Display key={pol} className="text-left">
+                      {pol}
+                    </Display>
+                  );
                 })}
               </div>
             )}

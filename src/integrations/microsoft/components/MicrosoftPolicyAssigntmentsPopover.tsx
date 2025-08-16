@@ -8,13 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getRows } from '@/db/orm';
 import { MicrosoftPolicyMetadata } from '@/integrations/microsoft/types';
 import Display from '@/shared/components/Display';
 import { useAsync } from '@/shared/hooks/useAsync';
-import { Info, Users, CircleCheck, CircleX, Globe } from 'lucide-react';
+import { Info, Users, CircleCheck, CircleX } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 type Props = {

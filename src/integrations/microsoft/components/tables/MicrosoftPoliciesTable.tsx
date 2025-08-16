@@ -2,12 +2,7 @@
 
 import DataTable, { DataTableRef } from '@/features/data-table/components/DataTable';
 import { Tables } from '@/types/db';
-import {
-  column,
-  dateColumn,
-  numberColumn,
-  textColumn,
-} from '@/features/data-table/components/DataTableColumn';
+import { column, numberColumn, textColumn } from '@/features/data-table/components/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/features/data-table/types/table';
 import { prettyText } from '@/shared/lib/utils';
 import { useRef } from 'react';

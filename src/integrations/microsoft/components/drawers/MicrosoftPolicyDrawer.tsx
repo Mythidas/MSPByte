@@ -9,7 +9,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Tables } from '@/types/db';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Shield,
   Users,
@@ -29,8 +29,6 @@ import SyncSourceItem from '@/features/integrations/components/SyncSourceItem';
 import Link from 'next/link';
 import { MicrosoftPolicyMetadata } from '@/integrations/microsoft/types';
 import MicrosoftPolicyAssignmentsPopover from '@/integrations/microsoft/components/MicrosoftPolicyAssigntmentsPopover';
-import { useAsync } from '@/shared/hooks/useAsync';
-import { getRows } from '@/db/orm';
 
 type Props = {
   label: string;
