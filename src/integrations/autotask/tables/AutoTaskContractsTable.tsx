@@ -41,7 +41,6 @@ export default function AutoTaskContractsTable({ sourceId, siteIds }: Props) {
   });
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    console.log(props);
     const contracts = await getRows('source', 'contracts_view', {
       filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
       pagination: {

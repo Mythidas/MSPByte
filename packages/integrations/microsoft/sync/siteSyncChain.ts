@@ -69,7 +69,6 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
           throw 'Failed to transform external users';
         }
 
-        console.log(transformedRoles.length);
         return {
           data: {
             transformedUsers: transformedUsers.data,

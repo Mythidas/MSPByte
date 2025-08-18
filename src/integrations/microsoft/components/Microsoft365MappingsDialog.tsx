@@ -150,7 +150,6 @@ export default function Microsoft365MappingsDialog({ sourceId, parentId, onSave 
 
     const result = await insertRows('source', 'tenants', { rows: [mapping] });
     if (result.error) {
-      console.log(result);
       toast.info(`Created source tenant mapping!`);
       onSave?.();
     }

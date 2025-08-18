@@ -73,7 +73,6 @@ export default function MoveSiteDialog({ sites, parentId, onSuccess }: Props) {
         onSuccess(site, parent.name);
       }
     } catch (err) {
-      console.log(err);
       toast.error(String(err));
     } finally {
       setIsLoading(false);

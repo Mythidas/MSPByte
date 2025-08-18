@@ -1,10 +1,10 @@
 import { setBearerToken } from '@/db/context';
 import Debug from '@/shared/lib/Debug';
 import { NextResponse } from 'next/server';
-import { getRows, insertRows } from '@/db/orm';
+import { getRows } from '@/db/orm';
 import { Tables } from '@/types/db';
 import { DateTime } from 'luxon';
-import { syncSource } from '@/core/syncSource';
+import scheduleSync from '@/core/scheduleSync';
 
 export const runtime = 'nodejs'; // Important!
 export const dynamic = 'force-dynamic'; // Avoid caching
@@ -45,7 +45,7 @@ export async function GET() {
         module: 'GET',
         message: `${syncable.length} integrations syncing...`,
       });
-      await Promise.all(syncable.map(startSync));
+      await Promise.all(syncable.map(scheduleSync));
 
       return NextResponse.json({ status: 'finished' });
     } catch (err) {
@@ -60,34 +60,5 @@ export async function GET() {
         status: 500,
       });
     }
-  });
-}
-
-async function startSync(integration: Tables<'public', 'integrations'>) {
-  const sourceTenants = await getRows('source', 'tenants', {
-    filters: [
-      ['source_id', 'eq', integration.source_id],
-      ['tenant_id', 'eq', integration.tenant_id],
-    ],
-  });
-  if (sourceTenants.error) throw sourceTenants.error.message;
-
-  await syncSource(
-    integration.source_id,
-    integration.tenant_id,
-    sourceTenants.data.rows.map((st) => ({
-      siteId: st.site_id,
-      sourceTenantId: st.id,
-    }))
-  );
-
-  await insertRows('source', 'sync_jobs', {
-    rows: [
-      {
-        source_id: integration.source_id,
-        tenant_id: integration.tenant_id,
-        est_duration: 30,
-      },
-    ],
   });
 }

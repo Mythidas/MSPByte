@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import SearchBox from '@/shared/components/SearchBox';
 import { testSyncJob } from '@/shared/lib/actions/sandbox';
+import scheduleSync from '@/core/scheduleSync';
 
 export default function Page() {
   const [selectedTenant, setSelectedTenant] = useState('');
@@ -86,6 +87,10 @@ export default function Page() {
         }
       };
 
+      const handleSyncAll = async () => {
+        await Promise.all(data.map(scheduleSync));
+      };
+
       return (
         <Label className="grid gap-2">
           Source
@@ -95,7 +100,10 @@ export default function Page() {
             })}
             onSelect={setSelectedSource}
           />
-          <Button onClick={handleClick}>Test Sync</Button>
+          <div className="grid grid-cols-2 gap-2">
+            <Button onClick={handleClick}>Test Sync</Button>
+            <Button onClick={handleSyncAll}>Sync All (Global)</Button>
+          </div>
         </Label>
       );
     },

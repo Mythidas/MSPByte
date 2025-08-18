@@ -22,15 +22,14 @@ export function transformTenantHealth(
 }
 
 const getScore = (health: SPHealthCheck) => {
-  return (
-    (health.endpoint.exclusions.global.score +
-      health.endpoint.exclusions.policy.computer.score +
-      health.endpoint.exclusions.policy.server.score +
-      health.endpoint.policy.computer['threat-protection'].score +
-      health.endpoint.policy.server['server-threat-protection'].score +
-      health.endpoint.protection.computer.score +
-      health.endpoint.protection.server.score +
-      health.networkDevice.firewall.firewallAutomaticBackup.score) /
-    8
-  );
+  const total =
+    health.endpoint.exclusions.global.score +
+    health.endpoint.exclusions.policy.computer.score +
+    health.endpoint.exclusions.policy.server.score +
+    health.endpoint.policy.computer['threat-protection'].score +
+    health.endpoint.policy.server['server-threat-protection'].score +
+    health.endpoint.protection.computer.score +
+    health.endpoint.protection.server.score +
+    (health.networkDevice?.firewall.firewallAutomaticBackup.score || 0);
+  return health.networkDevice ? total / 8 : total / 7;
 };

@@ -55,7 +55,6 @@ function parseODataFilter(filterStr: string): ColumnFiltersState {
     });
   }
 
-  console.log(filters);
   return filters;
 }
 

@@ -33,7 +33,6 @@ export default function EditableSelect({ defaultValue, options, onChange, disabl
     setValue(e);
     if (onChange) onChange(e);
     setIsEditing(false);
-    console.log('test');
   };
 
   const body = () => {

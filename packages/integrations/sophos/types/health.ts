@@ -82,5 +82,5 @@ export type SPHealthCheckNetworkDevice = {
 
 export type SPHealthCheck = {
   endpoint: SPHealthCheckEndpoint;
-  networkDevice: SPHealthCheckNetworkDevice;
+  networkDevice?: SPHealthCheckNetworkDevice;
 };

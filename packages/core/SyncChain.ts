@@ -1,4 +1,5 @@
 import { createClient } from '@/db/server';
+import Debug from '@/shared/lib/Debug';
 import Timer from '@/shared/lib/Timer';
 import { APIResponse } from '@/shared/types';
 import { Tables } from '@/types/db';
@@ -33,10 +34,18 @@ export default class SyncChain<TInput = null> {
 
   step<TOutput>(name: string, fn: SyncStep<TInput, TOutput>): SyncChain<TOutput> {
     this.steps.push(async (ctx, input) => {
-      const timer = new Timer(name, true);
-      const result = await fn(ctx, input);
-      timer.summary();
-      return result;
+      try {
+        const timer = new Timer(name, true);
+        const result = await fn(ctx, input);
+        timer.summary();
+        return result;
+      } catch (err) {
+        return Debug.error({
+          context: 'SyncChain',
+          module: name,
+          message: String(err),
+        });
+      }
     });
     return new SyncChain<TOutput>(this.ctx)._withSteps(this.steps);
   }
