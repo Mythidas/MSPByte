@@ -88,7 +88,11 @@ export default function Page() {
       };
 
       const handleSyncAll = async () => {
-        await Promise.all(data.map(scheduleSync));
+        const integration = data.find((t) => t.id === selectedSource)!;
+        if (integration) {
+          scheduleSync(integration);
+          toast.info(`Started sync for source and tenants: ${selectedSource}`);
+        }
       };
 
       return (

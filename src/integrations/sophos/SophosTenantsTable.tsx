@@ -81,7 +81,9 @@ export default function SophosTenantsTable({ sourceId, siteIds, siteLevel, paren
             label: 'Score',
             cell: ({ row }) => (
               <span>
-                {row.original.health_score === 0 ? 'Unknown' : `${row.original.health_score}%`}
+                {row.original.health_score === 0
+                  ? 'Unknown'
+                  : `${row.original.health_score?.toFixed(0)}%`}
               </span>
             ),
           }),
