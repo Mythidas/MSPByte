@@ -10,6 +10,7 @@ import { getRow, getRows, insertRows } from '@/db/orm';
 import { getEndpoints } from '@/integrations/sophos/services/endpoints/getEndpoints';
 import { getHealthCheck } from '@/integrations/sophos/services/health';
 import { transformTenantHealth } from '@/integrations/sophos/transforms/health';
+import { getFirewalls } from '@/integrations/sophos/services/firewall';
 
 export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
   const tenantResult = await getRow('source', 'tenants', {
@@ -42,21 +43,26 @@ export async function siteSyncChain(job: Tables<'source', 'sync_jobs'>) {
       const promises = await Promise.all([
         getEndpoints(token, tenant),
         getHealthCheck(token, tenant),
+        getFirewalls(token, tenant),
       ]);
 
       for (const promise of promises) {
         if (promise.error) throw promise.error.message;
       }
 
-      const [endpoints, healthCheck] = promises;
+      const [endpoints, healthCheck, firewalls] = promises;
 
       return {
         error: undefined,
-        data: { endpoints: endpoints.data!, healthCheck: healthCheck.data! },
+        data: {
+          endpoints: endpoints.data!,
+          healthCheck: healthCheck.data!,
+          firewalls: firewalls.data!,
+        },
       };
     })
-    .step('Transform External', async (_ctx, { endpoints, healthCheck }) => {
-      const transformedDevices = transformDevices(tenant, endpoints);
+    .step('Transform External', async (_ctx, { endpoints, healthCheck, firewalls }) => {
+      const transformedDevices = transformDevices(tenant, endpoints, firewalls);
       const transformedHealthCheck = transformTenantHealth(tenant, healthCheck);
       return {
         data: { transformedDevices, transformedHealthCheck },

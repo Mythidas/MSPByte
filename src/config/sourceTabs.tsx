@@ -5,10 +5,11 @@ import MicrosoftLicensesTable from '@/integrations/microsoft/components/tables/M
 import MicrosoftIdentitiesTable from '@/integrations/microsoft/components/tables/MicrosoftIdentitiesTable';
 import MicrosoftPoliciesTable from '@/integrations/microsoft/components/tables/MicrosoftPoliciesTable';
 import MicrosoftTenantsTable from '@/integrations/microsoft/components/tables/MicrosoftTenantsTable';
-import SophosDevicesTable from '@/integrations/sophos/SophosDevicesTable';
-import SophosTenantsTable from '@/integrations/sophos/SophosTenantsTable';
+import SophosDevicesTable from '@/integrations/sophos/tables/SophosDevicesTable';
+import SophosTenantsTable from '@/integrations/sophos/tables/SophosTenantsTable';
 import SophosDashboardTab from '@/integrations/sophos/tabs/SophosDashboardTab';
 import { TabProps } from '@/shared/types';
+import SophosFirewallsTable from '@/integrations/sophos/tables/SophosFirewallsTable';
 
 export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
   'sophos-partner': {
@@ -39,6 +40,18 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
           site={site}
           group={group}
           TableComponent={SophosDevicesTable}
+        />
+      ),
+    },
+    firewalls: {
+      label: 'Firewalls',
+      content: (source, parent, site, group) => (
+        <DataTableLoader
+          sourceId={source}
+          parent={parent}
+          site={site}
+          group={group}
+          TableComponent={SophosFirewallsTable}
         />
       ),
     },

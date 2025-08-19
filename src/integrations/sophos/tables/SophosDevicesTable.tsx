@@ -26,7 +26,11 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
     const devices = await getRows('source', 'devices_view', {
-      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
+      filters: [
+        ['source_id', 'eq', sourceId],
+        ['type', 'eq', 'computer'],
+        siteIds ? ['site_id', 'in', siteIds] : undefined,
+      ],
       pagination: {
         page: pageIndex,
         size: pageSize,

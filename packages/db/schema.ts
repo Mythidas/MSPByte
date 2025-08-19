@@ -985,8 +985,10 @@ export type Database = {
         Row: {
           created_at: string
           external_id: string
+          external_ip: string | null
           hostname: string
           id: string
+          internal_ip: string | null
           metadata: Json | null
           os: string
           serial: string
@@ -995,13 +997,16 @@ export type Database = {
           source_tenant_id: string
           sync_id: string | null
           tenant_id: string
+          type: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           external_id: string
+          external_ip?: string | null
           hostname: string
           id?: string
+          internal_ip?: string | null
           metadata?: Json | null
           os: string
           serial: string
@@ -1010,13 +1015,16 @@ export type Database = {
           source_tenant_id: string
           sync_id?: string | null
           tenant_id: string
+          type: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           external_id?: string
+          external_ip?: string | null
           hostname?: string
           id?: string
+          internal_ip?: string | null
           metadata?: Json | null
           os?: string
           serial?: string
@@ -1025,6 +1033,7 @@ export type Database = {
           source_tenant_id?: string
           sync_id?: string | null
           tenant_id?: string
+          type?: string
           updated_at?: string
         }
         Relationships: [
@@ -2306,8 +2315,10 @@ export type Database = {
         Row: {
           created_at: string | null
           external_id: string | null
+          external_ip: string | null
           hostname: string | null
           id: string | null
+          internal_ip: string | null
           metadata: Json | null
           os: string | null
           parent_id: string | null
@@ -2320,6 +2331,7 @@ export type Database = {
           source_id: string | null
           sync_id: string | null
           tenant_id: string | null
+          type: string | null
           updated_at: string | null
         }
         Relationships: [

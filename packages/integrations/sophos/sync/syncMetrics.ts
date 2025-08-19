@@ -13,6 +13,8 @@ export async function syncMetrics(
     let mdrManaged = 0;
     let tamperDisabledCount = 0;
     for (const device of devices) {
+      if (device.type !== 'computer') continue;
+
       if ((device.metadata as SPEndpoint).packages?.protection?.status === 'upgradable')
         upgradeable++;
       if ((device.metadata as SPEndpoint).mdrManaged) mdrManaged++;
