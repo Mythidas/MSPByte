@@ -1,20 +1,13 @@
 'use server';
 
-import { Tables } from '@/types/db';
-import { getPartnerID, getToken } from '@/integrations/sophos/auth';
+import { getPartnerID } from '@/integrations/sophos/auth';
 import Debug from '@/shared/lib/Debug';
 import { APIResponse } from '@/shared/types';
+import { SPTenant } from '@/integrations/sophos/types/tenant';
 
-export async function getTenants(
-  integration: Tables<'public', 'integrations'>
-): Promise<APIResponse<any[]>> {
+export async function getTenants(token: string): Promise<APIResponse<SPTenant[]>> {
   try {
-    const token = await getToken(integration);
-    if (token.error) {
-      throw new Error(token.error.message);
-    }
-
-    const sophosPartner = await getPartnerID(token.data);
+    const sophosPartner = await getPartnerID(token);
     if (sophosPartner.error) {
       throw new Error(sophosPartner.error.message);
     }
@@ -27,7 +20,7 @@ export async function getTenants(
       const response = await fetch(`${url}?pageTotal=true&pageSize=100&page=${page}`, {
         method: 'GET',
         headers: {
-          Authorization: `Bearer ${token.data}`,
+          Authorization: `Bearer ${token}`,
           'X-Partner-ID': sophosPartner.data,
         },
       });

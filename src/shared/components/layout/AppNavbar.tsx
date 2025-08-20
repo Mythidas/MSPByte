@@ -127,7 +127,7 @@ export default function AppNavbar({ integrations, children }: Props) {
       </header>
       <div
         className={cn(
-          'flex flex-col relative size-full space-y-6 p-6 overflow-hidden',
+          'flex flex-col relative size-full space-y-6 p-6',
           (pathname.includes('/sites/') || pathname.includes('/groups/')) && 'p-0!'
         )}
       >

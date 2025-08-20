@@ -15,7 +15,6 @@ import SearchBox from '@/shared/components/SearchBox';
 import { SubmitButton } from '@/shared/components/secure/SubmitButton';
 import { Tables, TablesInsert } from '@/types/db';
 import { useAsync } from '@/shared/hooks/useAsync';
-import { getTenants } from '@/integrations/sophos/services/tenants';
 import { toast } from 'sonner';
 import { useUser } from '@/shared/lib/providers/UserContext';
 import { getRows, insertRows } from '@/db/orm';
@@ -26,7 +25,7 @@ type Props = {
   onSave?: () => void;
 };
 
-export default function SophosMappingsDialog({ source, integration, onSave }: Props) {
+export default function SophosMappingsDialog({ source, onSave }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isValidating, setIsValidating] = useState(false);
@@ -73,12 +72,11 @@ export default function SophosMappingsDialog({ source, integration, onSave }: Pr
     setIsValidating(true);
 
     try {
-      const tenants = await getTenants(integration);
-      if (!tenants.error) {
-        setSophosData(tenants.data);
+      if (true) {
+        setSophosData([]);
         setCurrentStep(2);
       } else {
-        toast.error('Failed to load Sophos sites');
+        //toast.error('Failed to load Sophos sites');
       }
     } catch {
       toast.error('Failed to connect to Sophos');

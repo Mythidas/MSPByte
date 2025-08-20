@@ -1399,10 +1399,10 @@ export type Database = {
           id: string
           metadata: Json | null
           name: string
-          site_id: string
+          site_id: string | null
           sku: string
           source_id: string
-          source_tenant_id: string
+          source_tenant_id: string | null
           status: string
           sync_id: string | null
           tenant_id: string
@@ -1416,10 +1416,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           name: string
-          site_id: string
+          site_id?: string | null
           sku: string
           source_id: string
-          source_tenant_id: string
+          source_tenant_id?: string | null
           status: string
           sync_id?: string | null
           tenant_id: string
@@ -1433,10 +1433,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           name?: string
-          site_id?: string
+          site_id?: string | null
           sku?: string
           source_id?: string
-          source_tenant_id?: string
+          source_tenant_id?: string | null
           status?: string
           sync_id?: string | null
           tenant_id?: string
