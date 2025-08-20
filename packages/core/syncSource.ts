@@ -11,9 +11,9 @@ export async function syncSource(
   const getEstDuration = () => {
     switch (sourceId) {
       case 'microsoft-365':
-        return 30;
+        return 45;
       case 'sophos-partner':
-        return 20;
+        return 30;
       default:
         return 0;
     }
