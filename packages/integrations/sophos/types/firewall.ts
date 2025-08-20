@@ -19,16 +19,16 @@ export type SPFirewall = {
   };
   hostname: string;
   name: string;
-  externalIpv4Addresses: string[];
-  firmwareVersion: string;
-  model: string;
+  externalIpv4Addresses?: string[];
+  firmwareVersion: string | null;
+  model: string | null;
   status: {
     managing: 'approved' | 'approvalPending' | 'rejected' | string;
     reporting: 'approved' | 'approvalPending' | 'rejected' | string;
     connected: boolean;
     suspended: boolean;
   };
-  statusChangedAt: string; // ISO 8601 date string
+  stateChangedAt: string; // ISO 8601 date string
   capabilities: string[];
   geoLocation: {
     latitude: string;

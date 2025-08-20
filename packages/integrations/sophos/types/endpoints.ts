@@ -34,7 +34,7 @@ export type SPEndpoint = {
   lockdown: {
     status: 'enabled' | 'disabled' | 'unavailable' | string;
   };
-  packages: {
+  packages?: {
     ztna?: {
       status: 'assigned' | 'unassigned' | string;
     };
@@ -60,8 +60,8 @@ export type SPEndpoint = {
   };
   lastSeenAt: string; // ISO timestamp
   mdrManaged: boolean;
-  macAddresses: string[];
-  ipv4Addresses: string[];
+  macAddresses?: string[];
+  ipv4Addresses?: string[];
   assignedProducts: {
     code: string;
     status: 'installed' | 'notInstalled' | string;

@@ -21,12 +21,14 @@ export function transformDevices(
       os: device.os.name,
       serial: 'Unknown',
       type: 'computer',
-      internal_ip: device.ipv4Addresses[0] || '',
+      internal_ip: device.ipv4Addresses?.[0] || '',
+      last_seen_at: device.lastSeenAt,
+      status: device.online ? 'online' : 'offline',
 
       metadata: device,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    };
+    } as TablesInsert<'source', 'devices'>;
   });
 
   const tFirewalls = firewalls.map((fw) => {
@@ -39,15 +41,17 @@ export function transformDevices(
 
       external_id: fw.id,
       hostname: fw.hostname,
-      os: fw.firmwareVersion,
+      os: fw.firmwareVersion || '',
       serial: fw.serialNumber,
       type: 'firewall',
-      external_ip: fw.externalIpv4Addresses[0] || '',
+      external_ip: fw.externalIpv4Addresses?.[0] || '',
+      last_seen_at: fw.stateChangedAt,
+      status: fw.status.connected ? 'online' : 'offline',
 
       metadata: fw,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-    };
+    } as TablesInsert<'source', 'devices'>;
   });
 
   return [...tEndpoints, ...tFirewalls];

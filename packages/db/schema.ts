@@ -989,12 +989,14 @@ export type Database = {
           hostname: string
           id: string
           internal_ip: string | null
+          last_seen_at: string | null
           metadata: Json | null
           os: string
           serial: string
           site_id: string
           source_id: string | null
           source_tenant_id: string
+          status: string | null
           sync_id: string | null
           tenant_id: string
           type: string
@@ -1007,12 +1009,14 @@ export type Database = {
           hostname: string
           id?: string
           internal_ip?: string | null
+          last_seen_at?: string | null
           metadata?: Json | null
           os: string
           serial: string
           site_id: string
           source_id?: string | null
           source_tenant_id: string
+          status?: string | null
           sync_id?: string | null
           tenant_id: string
           type: string
@@ -1025,12 +1029,14 @@ export type Database = {
           hostname?: string
           id?: string
           internal_ip?: string | null
+          last_seen_at?: string | null
           metadata?: Json | null
           os?: string
           serial?: string
           site_id?: string
           source_id?: string | null
           source_tenant_id?: string
+          status?: string | null
           sync_id?: string | null
           tenant_id?: string
           type?: string
@@ -2319,6 +2325,7 @@ export type Database = {
           hostname: string | null
           id: string | null
           internal_ip: string | null
+          last_seen_at: string | null
           metadata: Json | null
           os: string | null
           parent_id: string | null
@@ -2329,6 +2336,7 @@ export type Database = {
           site_name: string | null
           site_slug: string | null
           source_id: string | null
+          status: string | null
           sync_id: string | null
           tenant_id: string | null
           type: string | null

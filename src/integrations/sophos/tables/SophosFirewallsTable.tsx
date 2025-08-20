@@ -2,7 +2,7 @@
 
 import { Tables } from '@/types/db';
 import DataTable, { DataTableRef } from '@/features/data-table/components/DataTable';
-import { column, textColumn } from '@/features/data-table/components/DataTableColumn';
+import { column, dateColumn, textColumn } from '@/features/data-table/components/DataTableColumn';
 import { DataTableColumnDef, DataTableFetcher } from '@/features/data-table/types/table';
 import Link from 'next/link';
 import { useRef } from 'react';
@@ -46,6 +46,7 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
   return (
     <DataTable
       fetcher={fetcher}
+      initialSorting={[{ id: 'site_name', desc: false }]}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
       ref={tableRef}
       columns={
@@ -119,6 +120,14 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
             },
           }),
           textColumn({
+            key: 'status',
+            label: 'Status',
+          }),
+          dateColumn({
+            key: 'last_seen_at',
+            label: 'State Changed',
+          }),
+          textColumn({
             key: 'external_ip',
             label: 'IP',
             simpleSearch: true,
@@ -152,6 +161,15 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
             type: 'text',
             placeholder: 'Search Firmware',
             simpleSearch: true,
+          },
+          status: {
+            label: 'Status',
+            type: 'select',
+            placeholder: 'Select status',
+            options: [
+              { label: 'Online', value: 'online' },
+              { label: 'Offline', value: 'offline' },
+            ],
           },
         },
       }}

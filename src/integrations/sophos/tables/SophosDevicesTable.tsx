@@ -95,6 +95,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             label: 'Hostname',
             enableHiding: false,
             simpleSearch: true,
+            cell: ({ row }) => row.original.hostname,
           }),
           textColumn({
             key: 'os',
@@ -106,7 +107,7 @@ export default function SophosDevicesTable({ sourceId, siteIds, siteLevel, paren
             accessorKey: 'protection',
             header: ({ column }) => <DataTableHeader column={column} label="Protection" />,
             cell: ({ row }) => (
-              <div>{(row.original.metadata as SPEndpoint).packages.protection?.name}</div>
+              <div>{(row.original.metadata as SPEndpoint).packages?.protection?.name}</div>
             ),
             meta: {
               label: 'Protection',
