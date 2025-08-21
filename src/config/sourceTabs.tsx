@@ -10,6 +10,7 @@ import SophosTenantsTable from '@/integrations/sophos/tables/SophosTenantsTable'
 import SophosDashboardTab from '@/integrations/sophos/tabs/SophosDashboardTab';
 import { TabProps } from '@/shared/types';
 import SophosFirewallsTable from '@/integrations/sophos/tables/SophosFirewallsTable';
+import SophosLicensesTable from '@/integrations/sophos/tables/SophosLicensesTable';
 
 export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
   'sophos-partner': {
@@ -40,6 +41,18 @@ export const SOURCE_TABS: Record<string, Record<string, TabProps>> = {
           site={site}
           group={group}
           TableComponent={SophosDevicesTable}
+        />
+      ),
+    },
+    licenses: {
+      label: 'Licenses',
+      content: (source, parent, site, group) => (
+        <DataTableLoader
+          sourceId={source}
+          parent={parent}
+          site={site}
+          group={group}
+          TableComponent={SophosLicensesTable}
         />
       ),
     },

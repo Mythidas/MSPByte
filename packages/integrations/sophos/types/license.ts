@@ -14,6 +14,7 @@ export type SPFirewallLicense = {
   model: string;
   modelType: 'hardware' | 'virtual' | string;
   lastSeenAt: string;
+  endDate: string;
   licenses: {
     id: string;
     licenseIdentifier: string;

@@ -7,8 +7,7 @@ import { DataTableColumnDef, DataTableFetcher } from '@/features/data-table/type
 import Link from 'next/link';
 import { useRef } from 'react';
 import { getRows } from '@/db/orm';
-import { SPFirewall } from '@/integrations/sophos/types/firewall';
-import { CircleArrowUp } from 'lucide-react';
+import { SPFirewallLicense } from '@/integrations/sophos/types/license';
 
 type Props = {
   sourceId: string;
@@ -17,21 +16,17 @@ type Props = {
   parentLevel?: boolean;
 };
 
-export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
+export default function SophosLicensesTable({ sourceId, siteIds, siteLevel, parentLevel }: Props) {
   const tableRef = useRef<DataTableRef>(null);
 
   const fetcher = async ({ pageIndex, pageSize, ...props }: DataTableFetcher) => {
-    const devices = await getRows('source', 'devices_view', {
-      filters: [
-        ['source_id', 'eq', sourceId],
-        ['type', 'eq', 'firewall'],
-        siteIds ? ['site_id', 'in', siteIds] : undefined,
-      ],
+    const devices = await getRows('source', 'licenses_view', {
+      filters: [['source_id', 'eq', sourceId], siteIds ? ['site_id', 'in', siteIds] : undefined],
       pagination: {
         page: pageIndex,
         size: pageSize,
         filterMap: {
-          newestFirmware: 'metadata->firmware->>newestFirmware',
+          serialNumber: 'metadata->>serialNumber',
         },
         ...props,
       },
@@ -49,12 +44,6 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
       initialSorting={[{ id: 'site_name', desc: false }]}
       initialVisibility={{ parent_name: !siteLevel && !parentLevel, site_name: !siteLevel }}
       ref={tableRef}
-      actions={[
-        {
-          label: 'Schedule Upgrade',
-          action: async (_selected) => {},
-        },
-      ]}
       columns={
         [
           textColumn({
@@ -92,53 +81,41 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
             },
           }),
           textColumn({
-            key: 'hostname',
-            label: 'Hostname',
-            enableHiding: false,
-            simpleSearch: true,
-            cell: ({ row }) => row.original.hostname,
-          }),
-          textColumn({
-            key: 'os',
-            label: 'Firmware',
+            key: 'name',
+            label: 'Name',
             enableHiding: false,
             simpleSearch: true,
           }),
           textColumn({
-            key: 'serial',
-            label: 'Serial',
+            key: 'sku',
+            label: 'SKU',
             enableHiding: false,
             simpleSearch: true,
           }),
           column({
-            key: 'newestFirmware',
-            label: 'Upgradable',
-            cell: ({ row }) => {
-              const newest = (row.original.metadata as SPFirewall).firmware?.newestFirmware;
-
-              if (newest) {
-                return (
-                  <div className="flex gap-2 items-center">
-                    {newest} <CircleArrowUp className="w-4 h-4 text-amber-500" />
-                  </div>
-                );
-              }
-            },
-          }),
-          textColumn({
-            key: 'status',
-            label: 'Status',
+            key: 'serialNumber',
+            label: 'Serial',
+            enableHiding: false,
+            simpleSearch: true,
+            cell: ({ row }) => (
+              <div>{(row.original.metadata as SPFirewallLicense).serialNumber}</div>
+            ),
           }),
           dateColumn({
-            key: 'last_seen_at',
-            label: 'State Changed',
+            key: 'start_at',
+            label: 'Start',
+            cell: ({ row }) => (
+              <div>{new Date(row.original.start_at || '').toLocaleDateString()}</div>
+            ),
           }),
-          textColumn({
-            key: 'external_ip',
-            label: 'IP',
-            simpleSearch: true,
+          dateColumn({
+            key: 'end_at',
+            label: 'End',
+            cell: ({ row }) => (
+              <div>{new Date(row.original.end_at || '').toLocaleDateString()}</div>
+            ),
           }),
-        ] as DataTableColumnDef<Tables<'source', 'devices_view'>>[]
+        ] as DataTableColumnDef<Tables<'source', 'licenses_view'>>[]
       }
       filters={{
         Tenant: {
@@ -153,29 +130,6 @@ export default function SophosFirewallsTable({ sourceId, siteIds, siteLevel, par
             type: 'text',
             placeholder: 'Search parent',
             simpleSearch: true,
-          },
-        },
-        Device: {
-          hostname: {
-            label: 'Site',
-            type: 'text',
-            placeholder: 'Search hostname',
-            simpleSearch: true,
-          },
-          os: {
-            label: 'Firmware',
-            type: 'text',
-            placeholder: 'Search Firmware',
-            simpleSearch: true,
-          },
-          status: {
-            label: 'Status',
-            type: 'select',
-            placeholder: 'Select status',
-            options: [
-              { label: 'Online', value: 'online' },
-              { label: 'Offline', value: 'offline' },
-            ],
           },
         },
       }}

@@ -1395,6 +1395,7 @@ export type Database = {
       licenses: {
         Row: {
           created_at: string
+          end_at: string | null
           external_id: string
           id: string
           metadata: Json | null
@@ -1403,6 +1404,7 @@ export type Database = {
           sku: string
           source_id: string
           source_tenant_id: string | null
+          start_at: string | null
           status: string
           sync_id: string | null
           tenant_id: string
@@ -1412,6 +1414,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          end_at?: string | null
           external_id: string
           id?: string
           metadata?: Json | null
@@ -1420,6 +1423,7 @@ export type Database = {
           sku: string
           source_id: string
           source_tenant_id?: string | null
+          start_at?: string | null
           status: string
           sync_id?: string | null
           tenant_id: string
@@ -1429,6 +1433,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          end_at?: string | null
           external_id?: string
           id?: string
           metadata?: Json | null
@@ -1437,6 +1442,7 @@ export type Database = {
           sku?: string
           source_id?: string
           source_tenant_id?: string | null
+          start_at?: string | null
           status?: string
           sync_id?: string | null
           tenant_id?: string
@@ -2457,6 +2463,7 @@ export type Database = {
       licenses_view: {
         Row: {
           created_at: string | null
+          end_at: string | null
           external_id: string | null
           id: string | null
           metadata: Json | null
@@ -2469,6 +2476,7 @@ export type Database = {
           sku: string | null
           source_id: string | null
           source_tenant_id: string | null
+          start_at: string | null
           status: string | null
           sync_id: string | null
           tenant_id: string | null

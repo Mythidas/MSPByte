@@ -24,6 +24,8 @@ export function transformLicenses(
         sku: lic.product.genericCode,
         status: '',
         units: lic.quantity,
+        start_at: lic.startDate,
+        end_at: lic.endDate,
 
         metadata: {
           model: fwl.model,
