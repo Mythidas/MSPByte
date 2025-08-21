@@ -68,11 +68,11 @@ export async function transformIdentities(
             name: user.displayName!,
             type: user.userType ? user.userType.toLowerCase() : 'member',
             mfa_enforced: !!mfaEnforcement || securityDefaultsEnabled,
-            enforcement_type: !mfaEnforcement
-              ? 'none'
+            enforcement_type: !!mfaEnforcement
+              ? 'conditional_access'
               : securityDefaultsEnabled
                 ? 'security_defaults'
-                : 'conditional_access',
+                : 'none',
             enforcement_scope: securityDefaultsEnabled
               ? 'full'
               : mfaEnforcement
