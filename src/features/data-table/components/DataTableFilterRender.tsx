@@ -83,6 +83,7 @@ export function DataTableFilterBoolean({
 export function DataTableFilterSelect({
   meta,
   fullKey,
+  value,
   setPendingFilters,
 }: Props<string | undefined>) {
   if (!meta.options) return null;
@@ -91,6 +92,7 @@ export function DataTableFilterSelect({
     <SearchBox
       placeholder={meta.placeholder}
       options={meta.options}
+      defaultValue={value}
       onSelect={(selectedValue) =>
         setPendingFilters((prev) => ({
           ...prev,
